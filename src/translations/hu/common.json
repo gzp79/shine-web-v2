@@ -1,0 +1,19 @@
+{
+    "lang": "hu",
+
+    "dateTime": "{{value:date}}",
+    "currency": "{{value:currency}}",
+
+    "loading": "Betöltés...",
+    "somethingWentWrong": "Valami hiba történt",
+
+    "ok": "Rendben",
+    "confirm": "Megerősít",
+    "retry": "Ismét",
+    "back": "Vissza",
+    "cancel": "Mégsem",
+    "update": "Módosít",
+    "revoke": "Visszavon",
+    "done": "Kész",
+    "home": "Főoldal"
+}

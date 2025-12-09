@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "i18n-ally.localesPaths": ["src/lib/i18n"]
+}

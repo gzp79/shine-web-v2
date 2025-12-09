@@ -1,0 +1,218 @@
+@import 'tailwindcss';
+
+/* 
+Color helper:
+ https://uicolors.app/create
+ Generally the 100, 200, 400, 600 color variants are used for the light theme
+ and a rule of thumb, the dark colors are the inverted light colors (light: 100 dark: 900).
+*/
+
+@theme {
+    --breakpoint-xs: 0;
+    --breakpoint-sm: 480px;
+    --breakpoint-md: 640px;
+    --breakpoint-lg: 768px;
+    --breakpoint-xl: 1280px;
+
+    --color-*: initial;
+
+    --color-surface: #ffffff;
+    --color-on-surface: #000000;
+    --color-container: #f3f3f3;
+    --color-on-container: #000000;
+    --color-sub-container: #dbdbdb;
+    --color-on-sub-container: #000000;
+
+    --color-primary: #f6f7f9;
+    --color-primary-1: #eceef2;
+    --color-primary-2: #b0bcc9;
+    --color-on-primary: #516378;
+
+    --color-secondary: #b0bfc9;
+    --color-secondary-1: #859bab;
+    --color-secondary-2: #516778;
+    --color-on-secondary: #333e47;
+
+    --color-info: #dff5ff;
+    --color-info-1: #b8edff;
+    --color-info-2: #32d1fe;
+    --color-on-info: #0098ce;
+
+    --color-warning: #fff2aa;
+    --color-warning-1: #ffe988;
+    --color-warning-2: #febe11;
+    --color-on-warning: #cd7d01;
+
+    --color-danger: #ffdfdf;
+    --color-danger-1: #ffc8c8;
+    --color-danger-2: #fd6c6c;
+    --color-on-danger: #e32020;
+
+    --color-success: #e7ffc8;
+    --color-success-1: #d0ff97;
+    --color-success-2: #90f12a;
+    --color-on-success: #55ac04;
+
+    --color-data-gray-1: #f5f6f6;
+    --color-data-gray-2: #e6e7e7;
+    --color-data-gray-3: #d0d1d1;
+    --color-data-gray-4: #aeb0b2;
+    --color-data-gray-5: #868990;
+    --color-data-gray-6: #6b6e6f;
+    --color-data-gray-7: #616365;
+
+    --hover-action-brightness: 0.75;
+}
+
+@layer base {
+    [data-theme='dark'] {
+        --color-surface: #282828;
+        --color-on-surface: #dbdbdb;
+        --color-container: #373737;
+        --color-on-container: #dbdbdb;
+        --color-sub-container: #464646;
+        --color-on-sub-container: #dbdbdb;
+
+        --color-primary: #22272f;
+        --color-primary-1: #333b47;
+        --color-primary-2: #424e62;
+        --color-on-primary: #8595ab;
+
+        --color-secondary: #425462;
+        --color-secondary-1: #516778;
+        --color-secondary-2: #859bab;
+        --color-on-secondary: #eceff2;
+
+        --color-info: #095471;
+        --color-info-1: #036689;
+        --color-info-2: #0098ce;
+        --color-on-info: #32d1fe;
+
+        --color-warning: #733810;
+        --color-warning-1: #87450c;
+        --color-warning-2: #cd7d01;
+        --color-on-warning: #febe11;
+
+        --color-danger: #470808;
+        --color-danger-1: #831a1a;
+        --color-danger-2: #bf1616;
+        --color-on-danger: #f53e3e;
+
+        --color-success: #153102;
+        --color-success-1: #2e5710;
+        --color-success-2: #408308;
+        --color-on-success: #70d70b;
+
+        --color-data-gray-1: #868990;
+        --color-data-gray-2: #6b6e6f;
+        --color-data-gray-3: #616365;
+        --color-data-gray-4: #4e4f50;
+        --color-data-gray-5: #444546;
+        --color-data-gray-6: #3c3d3d;
+        --color-data-gray-7: #252527;
+
+        --hover-action-brightness: 1.5;
+    }
+
+    html {
+        background-color: var(--color-surface);
+        color: var(--color-on-surface);
+    }
+
+    html[data-theme='dark'] {
+        background-color: var(--color-surface);
+        color: var(--color-on-surface);
+    }
+}
+
+@layer utilities {
+    .highlight {
+        @apply brightness-(--hover-action-brightness);
+    }
+    .hover\:highlight:hover {
+        @apply brightness-(--hover-action-brightness);
+    }
+    .highlight-backdrop {
+        @apply backdrop-brightness-(--hover-action-brightness);
+    }
+    .hover\:highlight-backdrop:hover {
+        @apply backdrop-brightness-(--hover-action-brightness);
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        overscroll-behavior-y: none;
+    }
+
+    .grid-cols-1-auto {
+        grid-template-columns: repeat(1, max-content);
+    }
+    .grid-cols-2-auto {
+        grid-template-columns: repeat(2, max-content);
+    }
+    .grid-cols-3-auto {
+        grid-template-columns: repeat(3, max-content);
+    }
+    .grid-cols-4-auto {
+        grid-template-columns: repeat(4, max-content);
+    }
+    .grid-cols-5-auto {
+        grid-template-columns: repeat(5, max-content);
+    }
+    .grid-cols-6-auto {
+        grid-template-columns: repeat(6, max-content);
+    }
+
+    .table {
+        :where(table) {
+            @apply w-full text-left text-sm rtl:text-right;
+        }
+        :where(th, td) {
+            @apply px-4 py-3 align-middle;
+        }
+    }
+    .table-xs > :not(thead):not(tfoot) > tr {
+        @apply text-xs;
+    }
+    .table-xs > tbody > tr > :where(th, td),
+    .table-xs > thead > tr > :where(th, td),
+    .table-xs > tfoot > tr > :where(th, td) {
+        @apply px-1 py-1;
+    }
+    .table-sm > :not(thead):not(tfoot) > tr {
+        @apply text-sm;
+    }
+    .table-sm > tbody > tr > :where(th, td),
+    .table-sm > thead > tr > :where(th, td),
+    .table-sm > tfoot > tr > :where(th, td) {
+        @apply px-2 py-1.5;
+    }
+    .table-md > :not(thead):not(tfoot) > tr {
+        @apply text-sm;
+    }
+    .table-md > tbody > tr > :where(th, td),
+    .table-md > thead > tr > :where(th, td),
+    .table-md > tfoot > tr > :where(th, td) {
+        @apply px-3 py-2;
+    }
+    .table-lg > :not(thead):not(tfoot) > tr {
+        @apply text-base;
+    }
+    .table-lg > tbody > tr > :where(th, td),
+    .table-lg > thead > tr > :where(th, td),
+    .table-lg > tfoot > tr > :where(th, td) {
+        @apply px-4 py-3;
+    }
+}
+
+body {
+    @apply flex h-full w-full flex-col overflow-hidden;
+}
+
+#app {
+    @apply flex h-full w-full flex-col overflow-hidden;
+}

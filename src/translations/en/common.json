@@ -1,0 +1,19 @@
+{
+    "lang": "en",
+
+    "dateTime": "{{value:date}}",
+    "currency": "{{value:currency}}",
+
+    "loading": "Loading...",
+    "somethingWentWrong": "Something went wrong",
+
+    "ok": "Ok",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "back": "Back",
+    "cancel": "Cancel",
+    "update": "Update",
+    "revoke": "Revoke",
+    "done": "Done",
+    "home": "Home"
+}
