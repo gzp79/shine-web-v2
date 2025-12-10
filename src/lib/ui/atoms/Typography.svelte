@@ -48,8 +48,8 @@
     const sharedHClasses = 'inline-flex gap-1 text-ellipsis text-pretty';
     const variantClasses: Record<Variant, string> = {
         h1: `text-4xl ${sharedHClasses}`,
-        h2: `text-3xl ${sharedHClasses} `,
-        h3: `text-2xl ${sharedHClasses} `,
+        h2: `text-3xl ${sharedHClasses}`,
+        h3: `text-2xl ${sharedHClasses}`,
         h4: `text-xl ${sharedHClasses}`,
         h5: `text-lg ${sharedHClasses}`,
         h6: `text-base ${sharedHClasses}`,

@@ -12,6 +12,7 @@
         size?: IconSize;
         disabled?: boolean;
         class?: ClassValue | null;
+        'aria-label'?: string;
     };
 
     export type IconSet = Record<string, Component<IconProps>>;
@@ -23,7 +24,15 @@
 </script>
 
 <script lang="ts">
-    let { color, size = 'text', disabled = false, class: className, viewBox, children }: IconBaseProps = $props();
+    let {
+        color,
+        size = 'text',
+        disabled = false,
+        class: className,
+        viewBox,
+        children,
+        'aria-label': ariaLabel
+    }: IconBaseProps = $props();
 
     const iconSizes: Record<IconSize, string> = {
         text: 'w-auto h-[1.2em]',
@@ -52,6 +61,13 @@
     ]}
 />
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox.join(' ')} class={svgClass}>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox.join(' ')}
+    class={svgClass}
+    aria-label={ariaLabel}
+    aria-hidden={ariaLabel ? false : true}
+    role={ariaLabel ? 'img' : undefined}
+>
     {@render children()}
 </svg>

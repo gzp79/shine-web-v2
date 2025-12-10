@@ -45,7 +45,7 @@
             toResponsiveClass(direction, (m, dir) => (dir === 'row' ? [`${m}flex-row`] : [`${m}flex-col`])),
             toSpacingClasses(spacing, { all: 'gap', x: 'gap-x', y: 'gap-y' }),
             toResponsiveClass(alignment, (m, a) => `${m}items-${a}`),
-            toResponsiveClass(justification, (m, j) => ` ${m}justify-${j}`),
+            toResponsiveClass(justification, (m, j) => `${m}justify-${j}`),
             toSpacingClasses(margin, { all: 'm', x: 'mx', y: 'my' }),
             wrap && 'flex-wrap',
             grow && '[&>*]:flex-1',

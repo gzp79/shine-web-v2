@@ -8,6 +8,7 @@
         size?: IconSize;
         disabled?: boolean;
         class?: ClassValue | null;
+        'aria-label'?: string;
     };
 
     export type GlyphSet = Record<string, Component<GlyphProps>>;
@@ -28,7 +29,15 @@
         full: 'w-auto h-full object-contain'
     };
 
-    let { size = 'text', disabled = false, class: className, viewBox, children }: GlyphBaseProps = $props();
+    let {
+        size = 'text',
+        disabled = false,
+        class: className,
+        viewBox,
+        children,
+        'aria-label': ariaLabel
+    }: GlyphBaseProps = $props();
+
     let svgClass = $derived(
         cn(
             iconSizes[size],
@@ -39,6 +48,13 @@
     );
 </script>
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox.join(' ')} class={svgClass}>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={viewBox.join(' ')}
+    class={svgClass}
+    aria-label={ariaLabel}
+    aria-hidden={ariaLabel ? false : true}
+    role={ariaLabel ? 'img' : undefined}
+>
     {@render children()}
 </svg>

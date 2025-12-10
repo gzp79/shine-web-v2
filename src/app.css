@@ -148,6 +148,17 @@ Color helper:
         overscroll-behavior-y: none;
     }
 
+    /* Custom drop shadow positioned at right-bottom instead of centered */
+    .shadow-drop {
+        box-shadow: 3px 3px 8px 0 rgb(0 0 0 / 0.1), 2px 2px 4px -1px rgb(0 0 0 / 0.1);
+    }
+    .shadow-drop-md {
+        box-shadow: 4px 4px 12px 0 rgb(0 0 0 / 0.1), 3px 3px 6px -2px rgb(0 0 0 / 0.1);
+    }
+    .shadow-drop-lg {
+        box-shadow: 6px 6px 16px 0 rgb(0 0 0 / 0.15), 4px 4px 8px -3px rgb(0 0 0 / 0.1);
+    }
+
     .grid-cols-1-auto {
         grid-template-columns: repeat(1, max-content);
     }
@@ -210,7 +221,7 @@ Color helper:
 }
 
 body {
-    @apply flex h-full w-full flex-col overflow-hidden;
+    @apply flex h-full w-full flex-col overflow-hidden p-2;
 }
 
 #app {

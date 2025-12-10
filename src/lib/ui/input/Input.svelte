@@ -77,7 +77,7 @@
             'focus-visible:ring-inset',
             `focus-visible:ring-${color}-2`,
 
-            invalid && 'aria-invalid !border-on-danger',
+            invalid && '!border-on-danger',
 
             sizeMods[size],
             wide ? 'w-full' : 'w-fit',
@@ -111,4 +111,13 @@
     );
 </script>
 
-<input bind:this={ref} data-slot={dataSlot} class={cls} {type} bind:value {...restProps} />
+<input
+    bind:this={ref}
+    data-slot={dataSlot}
+    class={cls}
+    {type}
+    {disabled}
+    aria-invalid={invalid || undefined}
+    bind:value
+    {...restProps}
+/>

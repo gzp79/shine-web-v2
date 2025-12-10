@@ -89,10 +89,17 @@ const preview: Preview = {
                     document.documentElement.setAttribute('data-theme', selectedTheme);
                 }
 
+                // Style docs stories to match app background and add padding
                 const docsStories = document.querySelectorAll('.docs-story');
                 docsStories.forEach((element) => {
-                    element.classList.add('bg-surface');
+                    element.classList.add('bg-surface', 'p-2');
                 });
+
+                // Add padding to Storybook root, it emulates the body padding in the app
+                const storybookRoot = document.querySelector('#storybook-root');
+                if (storybookRoot) {
+                    storybookRoot.classList.add('p-2');
+                }
             }
 
             return story();

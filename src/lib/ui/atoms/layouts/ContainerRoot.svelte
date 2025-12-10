@@ -104,7 +104,8 @@
             border && `border border-${colors.border}`,
             !ghost && `bg-${colors.bgColor}`,
             `text-${colors.fgColor}`,
-            shadow && `shadow-md shadow-${colors.fgColor}`,
+            shadow && 'shadow-drop-md',
+            shadow && `shadow-${colors.fgColor}`,
             'overflow-clip',
             toSpacingClasses(margin, { all: 'm', x: 'mx', y: 'my' }),
             className
