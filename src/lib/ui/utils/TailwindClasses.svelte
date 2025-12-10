@@ -31,12 +31,17 @@
         ['text-primary-2', 'text-secondary-2', 'text-info-2', 'text-warning-2', 'text-danger-2', 'text-success-2'],
         ['text-on-primary','text-on-secondary', 'text-on-info', 'text-on-warning', 'text-on-danger', 'text-on-success'],
 
+        ['shadow-on-surface', 'shadow-on-container', 'shadow-on-sub-container'],
+        ['shadow-on-primary', 'shadow-on-secondary', 'shadow-on-info', 'shadow-on-warning', 'shadow-on-danger', 'shadow-on-success'],
+
         ['placeholder:text-surface', 'placeholder:text-container', 'placeholder:text-sub-container'],
         ['placeholder:text-on-surface', 'placeholder:text-on-container', 'placeholder:text-on-sub-container'],
         ['placeholder:text-primary', 'placeholder:text-secondary', 'placeholder:text-info', 'placeholder:text-warning', 'placeholder:text-danger', 'placeholder:text-success'],
         ['placeholder:text-primary-1', 'placeholder:text-secondary-1', 'placeholder:text-info-1', 'placeholder:text-warning-1', 'placeholder:text-danger-1', 'placeholder:text-success-1'],
         ['placeholder:text-primary-2', 'placeholder:text-secondary-2', 'placeholder:text-info-2', 'placeholder:text-warning-2', 'placeholder:text-danger-2', 'placeholder:text-success-2'],
         ['placeholder:text-on-primary','placeholder:text-on-secondary', 'placeholder:text-on-info', 'placeholder:text-on-warning', 'placeholder:text-on-danger', 'placeholder:text-on-success'],
+
+        ['focus-visible:ring-primary-2', 'focus-visible:ring-secondary-2', 'focus-visible:ring-info-2', 'focus-visible:ring-warning-2', 'focus-visible:ring-danger-2', 'focus-visible:ring-success-2'],
 
         ['border-surface', 'border-container', 'border-sub-container'],
         ['border-on-surface', 'border-on-container', 'border-on-sub-container'],
@@ -57,7 +62,7 @@
         ['stroke-primary', 'stroke-secondary', 'stroke-info', 'stroke-warning', 'stroke-danger', 'stroke-success'],
         ['stroke-primary-1', 'stroke-secondary-1', 'stroke-info-1', 'stroke-warning-1', 'stroke-danger-1', 'stroke-success-1'],
         ['stroke-primary-2', 'stroke-secondary-2', 'stroke-info-2', 'stroke-warning-2', 'stroke-danger-2', 'stroke-success-2'],
-        ['stroke-on-primary','stroke-on-secondary', 'stroke-on-info', 'stroke-on-warning', 'stroke-on-danger', 'stroke-on-success'],
+        ['stroke-on-primary','stroke-on-secondary', 'stroke-on-info', 'stroke-on-warning', 'stroke-on-danger', 'stroke-on-success'],                
 
         ['bg-data-gray-1', 'bg-data-gray-2', 'bg-data-gray-3', 'bg-data-gray-4', 'bg-data-gray-5', 'bg-data-gray-6', 'bg-data-gray-7'], 
         ['text-data-gray-1', 'text-data-gray-2', 'text-data-gray-3', 'text-data-gray-4', 'text-data-gray-5', 'text-data-gray-6', 'text-data-gray-7'],

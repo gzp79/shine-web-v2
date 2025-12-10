@@ -80,7 +80,7 @@
             invalid && 'aria-invalid !border-on-danger',
 
             sizeMods[size],
-            wide && 'w-full',
+            wide ? 'w-full' : 'w-fit',
 
             variant === 'filled' && [
                 `bg-${color}`,

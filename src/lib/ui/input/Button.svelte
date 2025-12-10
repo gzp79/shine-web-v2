@@ -53,7 +53,7 @@
         cn(
             'border-2 rounded-full',
             'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap outline-none text-center',
-            wide ? 'min-w-full justify-around' : 'w-fit h-fit',
+            wide ? 'min-w-full justify-around' : 'w-fit',
             !disabled && 'active:scale-95',
             disabled && '!opacity-30 !cursor-not-allowed',
             !disabled && highlight && 'highlight',

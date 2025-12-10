@@ -1,4 +1,4 @@
-<script context="module" lang="ts">
+<script module lang="ts">
     import ColorSample from '@sb/ColorSample.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect } from 'storybook/test';
