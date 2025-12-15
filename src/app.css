@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 
 /* 
 Color helper:
@@ -148,17 +149,6 @@ Color helper:
         overscroll-behavior-y: none;
     }
 
-    /* Custom drop shadow positioned at right-bottom instead of centered */
-    .shadow-drop {
-        box-shadow: 3px 3px 8px 0 rgb(0 0 0 / 0.1), 2px 2px 4px -1px rgb(0 0 0 / 0.1);
-    }
-    .shadow-drop-md {
-        box-shadow: 4px 4px 12px 0 rgb(0 0 0 / 0.1), 3px 3px 6px -2px rgb(0 0 0 / 0.1);
-    }
-    .shadow-drop-lg {
-        box-shadow: 6px 6px 16px 0 rgb(0 0 0 / 0.15), 4px 4px 8px -3px rgb(0 0 0 / 0.1);
-    }
-
     .grid-cols-1-auto {
         grid-template-columns: repeat(1, max-content);
     }
@@ -227,3 +217,10 @@ body {
 #app {
     @apply flex h-full w-full flex-col overflow-hidden;
 }
+
+/* bits-ui global customization */
+/* #popover [data-bits-floating-content-wrapper] {
+    @apply overflow-clip rounded-md border shadow-sm shadow-on-surface outline-none;
+    @apply data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95;
+    @apply data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95;
+} */

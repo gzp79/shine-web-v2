@@ -1,4 +1,5 @@
 <script module lang="ts">
+    import type { WithElementRef } from 'bits-ui';
     import { type Snippet } from 'svelte';
     import type { HTMLAttributes } from 'svelte/elements';
     import { type ResponsiveProp, type ResponsiveSpacing, toResponsiveClass, toSpacingClasses } from '@lib/ui/atoms';
@@ -13,7 +14,7 @@
     export const justificationList = ['start', 'center', 'end', 'between', 'around', 'evenly'] as const;
     export type Justification = (typeof justificationList)[number];
 
-    export type StackProps = HTMLAttributes<HTMLDivElement> & {
+    export type StackProps = WithElementRef<HTMLAttributes<HTMLDivElement>> & {
         direction?: ResponsiveProp<Direction>;
         spacing?: ResponsiveSpacing;
         alignment?: ResponsiveProp<Alignment>;
@@ -36,6 +37,7 @@
         margin = undefined,
         class: className,
         children,
+        ref = $bindable(null),
         ...restProps
     }: StackProps = $props();
 
@@ -54,6 +56,6 @@
     );
 </script>
 
-<div class={clsStack} {...restProps}>
+<div bind:this={ref} class={clsStack} {...restProps}>
     {@render children()}
 </div>

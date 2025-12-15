@@ -1,26 +1,23 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, fn, within } from 'storybook/test';
+    import { expect, within } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
-    import FlagGB from '@lib/ui/atoms/glyphs/flags/gb.svelte';
-    import Spinner from '@lib/ui/atoms/icons/animated/Spinner.svelte';
-    import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
+    import { inputVariantList } from '@lib/ui/atoms/input';
+    import Input, { type InputProps, inputTypeList } from '@lib/ui/atoms/input/Input.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { inputVariantList } from '@lib/ui/input';
-    import Button, { type ButtonProps } from '@lib/ui/input/Button.svelte';
 
     const { Story } = defineMeta({
-        component: Button,
-        title: 'Atoms/Inputs/Button',
+        component: Input,
+        title: 'Atoms/Inputs/Input',
         args: {
             color: 'default',
             size: 'md',
             variant: 'filled',
             wide: undefined,
             disabled: undefined,
-            highlight: undefined
+            invalid: undefined
         },
         argTypes: {
             color: {
@@ -43,89 +40,71 @@
                 mapping: {
                     default: undefined
                 }
+            },
+            type: {
+                control: { type: 'select' },
+                options: ['default', ...inputTypeList],
+                mapping: {
+                    default: undefined
+                }
             }
         },
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();
         }
     });
-
-    const href = 'https://example.com';
 </script>
 
-<Story
-    name="Default Action"
-    args={{ onclick: fn() }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const button = await canvas.getByRole('button');
-        await button.click();
-        expect(args.onclick).toHaveBeenCalled();
-    }}
->
-    Click Me
-</Story>
+<script lang="ts">
+    import { tick } from 'svelte';
+    import { t } from '@lib/i18n/i18n.svelte';
+
+    let value = $state();
+</script>
+
+<Story name="Default" args={{ placeholder: 'Enter text' }}></Story>
 
 <Story
-    name="Default Link"
-    args={{ href }}
-    play={async ({ canvasElement, args }) => {
+    name="Value binding"
+    play={async ({ canvasElement, userEvent }) => {
         const canvas = within(canvasElement);
-        const link = await canvas.getByRole('link');
-        expect(link).toHaveAttribute('href', args.href);
-    }}
->
-    Click Me
-</Story>
+        const input = await canvas.getByRole('textbox');
+        await userEvent.type(input, 'Hello World');
+        await expect(input).toHaveValue('Hello World');
+        expect(value).toBe('Hello World');
 
-{#snippet buttonSet(args: ButtonProps)}
-    <Stack direction="row" alignment="center" justification="start" wrap margin={2}>
-        <Button {...args}><Settings /></Button>
-        <Button {...args}>Click Me</Button>
-        <Button {...args}>Loading... <Spinner /></Button>
-        <Button {...args}><FlagGB />English</Button>
-    </Stack>
-{/snippet}
-
-<Story
-    name="Disabled Action"
-    args={{ onclick: fn() }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-
-        const btns = await canvas.getAllByRole('button');
-        expect(btns.length).toBe(4);
-        for (const btn of btns) {
-            expect(btn).toBeDisabled();
-            await btn.click();
-        }
-        expect(args.onclick).toHaveBeenCalledTimes(0);
+        value = 'Another Value';
+        await tick();
+        await expect(input).toHaveValue('Another Value');
     }}
 >
     {#snippet template(args)}
         <Stack>
-            {@render buttonSet({ ...args, disabled: true })}
+            <Typography class="whitespace-nowrap">value: [{value}]</Typography>
+            <Input {...args} bind:value />
         </Stack>
     {/snippet}
 </Story>
 
-<Story
-    name="Disabled Link"
-    args={{ href }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
+{#snippet inputSet(args: InputProps)}
+    <Stack direction="row" alignment="center" justification="start" wrap margin={2}>
+        {@const { type, placeholder, ...otherArgs } = args}
+        <Input placeholder="Text" type="text" {...otherArgs} />
+        <Input placeholder="Password" type="password" {...otherArgs} />
+        <Input placeholder="Number" type="number" {...otherArgs} />
+    </Stack>
+{/snippet}
 
-        const links = await canvas.getAllByRole('link');
-        expect(links.length).toBe(4);
-        for (const link of links) {
-            expect(link).toHaveAttribute('aria-disabled', 'true');
-            expect(link).not.toHaveAttribute('href');
-        }
-    }}
->
+<Story name="All Types">
     {#snippet template(args)}
+        {@const { type, ...otherArgs } = args}
         <Stack>
-            {@render buttonSet({ ...args, disabled: true })}
+            {#each inputTypeList as type (type)}
+                <Stack direction="row" alignment="center" justification="start">
+                    <Typography class="w-24">{type}</Typography>
+                    <Input {...otherArgs} {type} />
+                </Stack>
+            {/each}
         </Stack>
     {/snippet}
 </Story>
@@ -137,7 +116,7 @@
             {#each actionColorList as color (color)}
                 <Stack direction="row" alignment="center" justification="start">
                     <Typography class="w-20">{color}</Typography>
-                    {@render buttonSet({ ...otherArgs, color })}
+                    {@render inputSet({ ...otherArgs, color })}
                 </Stack>
             {/each}
         </Stack>
@@ -151,7 +130,7 @@
             {#each sizeList as size (size)}
                 <Stack direction="row" alignment="center" justification="start">
                     <Typography class="w-8">{size}</Typography>
-                    {@render buttonSet({ ...otherArgs, size })}
+                    {@render inputSet({ ...otherArgs, size })}
                 </Stack>
             {/each}
         </Stack>
@@ -165,7 +144,7 @@
             {#each inputVariantList as variant (variant)}
                 <Stack direction="row" alignment="center" justification="start">
                     <Typography class="w-16">{variant}</Typography>
-                    {@render buttonSet({ ...otherArgs, variant })}
+                    {@render inputSet({ ...otherArgs, variant })}
                 </Stack>
             {/each}
         </Stack>
@@ -175,15 +154,15 @@
 <Story name="In Box">
     {#snippet template(args)}
         <Box border color="warning">
-            {@render buttonSet(args)}
+            {@render inputSet(args)}
             <Box border>
-                {@render buttonSet(args)}
+                {@render inputSet(args)}
                 <Box border>
-                    {@render buttonSet(args)}
+                    {@render inputSet(args)}
                     <Box border>
-                        {@render buttonSet(args)}
+                        {@render inputSet(args)}
                         <Box border color="danger">
-                            {@render buttonSet(args)}
+                            {@render inputSet(args)}
                         </Box>
                     </Box>
                 </Box>

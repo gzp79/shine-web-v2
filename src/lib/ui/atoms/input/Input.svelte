@@ -2,8 +2,8 @@
     import type { WithElementRef } from 'bits-ui';
     import type { HTMLInputAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
+    import type { InputVariant } from '@lib/ui/atoms/input';
     import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
-    import type { InputVariant } from '@lib/ui/input';
     import { cn } from '@lib/ui/utils';
 
     export const inputTypeList = [

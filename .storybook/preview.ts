@@ -33,13 +33,15 @@ const preview: Preview = {
                     'Atoms',
                     [
                         'Theme',
-                        ['Typography', 'Colors', 'Icons'],
+                        ['Typography', 'Colors', 'Icons', 'Glyphs'],
                         'Layouts',
-                        ['Box', 'Stack', 'Grid', 'Card'],
+                        ['Stack', 'Grid', 'Box', 'Card'],
                         'Inputs',
                         ['Button'],
                         'Data',
-                        ['ProgressBar', 'PropertyList']
+                        ['ProgressBar', 'PropertyList'],
+                        'Menu',
+                        ['Dropdown']
                     ]
                 ]
             }

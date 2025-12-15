@@ -45,7 +45,7 @@ export function buildAssets(): Promise<void> {
 export function vitePluginAssetConverter(mode: string): Plugin {
     return {
         name: 'vite-plugin-asset-converter',
-        apply: (usrConfig, env) => {
+        apply: (_usrConfig, env) => {
             if (env.mode !== 'development') {
                 return false;
             }

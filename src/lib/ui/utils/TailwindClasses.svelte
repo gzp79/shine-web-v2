@@ -24,15 +24,15 @@
         ['bg-on-primary', 'bg-on-secondary', 'bg-on-info', 'bg-on-warning', 'bg-on-danger', 'bg-on-success'],
         ['hover:bg-primary', 'hover:bg-secondary', 'hover:bg-info', 'hover:bg-warning', 'hover:bg-danger', 'hover:bg-success' ],
 
+        ['shadow-on-surface', 'shadow-on-container', 'shadow-on-sub-container'],
+        ['shadow-on-primary', 'shadow-on-secondary', 'shadow-on-info', 'shadow-on-warning', 'shadow-on-danger', 'shadow-on-success'],
+
         ['text-surface', 'text-container', 'text-sub-container'],
         ['text-on-surface', 'text-on-container', 'text-on-sub-container'],
         ['text-primary', 'text-secondary', 'text-info', 'text-warning', 'text-danger', 'text-success'],
         ['text-primary-1', 'text-secondary-1', 'text-info-1', 'text-warning-1', 'text-danger-1', 'text-success-1'],
         ['text-primary-2', 'text-secondary-2', 'text-info-2', 'text-warning-2', 'text-danger-2', 'text-success-2'],
-        ['text-on-primary','text-on-secondary', 'text-on-info', 'text-on-warning', 'text-on-danger', 'text-on-success'],
-
-        ['shadow-on-surface', 'shadow-on-container', 'shadow-on-sub-container'],
-        ['shadow-on-primary', 'shadow-on-secondary', 'shadow-on-info', 'shadow-on-warning', 'shadow-on-danger', 'shadow-on-success'],
+        ['text-on-primary','text-on-secondary', 'text-on-info', 'text-on-warning', 'text-on-danger', 'text-on-success'],        
 
         ['placeholder:text-surface', 'placeholder:text-container', 'placeholder:text-sub-container'],
         ['placeholder:text-on-surface', 'placeholder:text-on-container', 'placeholder:text-on-sub-container'],

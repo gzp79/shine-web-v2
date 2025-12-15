@@ -15,6 +15,5 @@ export const spacingList = [
 ] as const;
 export type Spacing = (typeof spacingList)[number];
 
-export { createContext } from './_context';
 export { type ResponsiveSpacing, toSpacingClasses } from './_spacing';
 export { type ResponsiveProp, toResponsiveClass } from './_responsive-prop';

@@ -1,35 +1,30 @@
-<script module lang="ts">
-    import type { ButtonRootProps } from 'bits-ui';
-    import { Button } from 'bits-ui';
-    import { type ActionColor, type Size } from '@lib/ui/atoms';
-    import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
-    import { type InputVariant } from '@lib/ui/input';
-    import { cn } from '@lib/ui/utils';
+import type { Action } from 'svelte/action';
+import type { ActionColor, Size } from '@lib/ui/atoms';
+import type { InputVariant } from '@lib/ui/atoms/input';
+import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
+import { cn } from '@lib/ui/utils';
 
-    export type ButtonProps = ButtonRootProps & {
-        color?: ActionColor;
-        size?: Size;
-        wide?: boolean;
-        variant?: InputVariant;
-        disabled?: boolean;
-        highlight?: boolean;
-    };
-</script>
+export type UseButtonParams = {
+    color?: ActionColor;
+    wide?: boolean;
+    size?: Size;
+    variant?: InputVariant;
+    disabled?: boolean;
+    highlight?: boolean;
+};
 
-<script lang="ts">
-    let {
-        color: baseColor = undefined,
-        variant = 'filled',
-        size = 'md',
+export const useButtonStyle: Action = (node: HTMLElement, params?: UseButtonParams) => {
+    const {
+        color: baseColor,
         wide = false,
+        size = 'md',
+        variant = 'filled',
         disabled = false,
-        highlight = false,
-        children,
-        ...restProps
-    }: ButtonProps = $props();
+        highlight = false
+    } = params ?? {};
 
-    let containerInfo = getContainerContext();
-    let color = $derived(baseColor ?? 'primary');
+    const containerInfo = getContainerContext();
+    const color = $derived(baseColor ?? 'primary');
 
     const sizeMods: Record<Size, string> = {
         xs: 'text-xs leading-none h-8 px-1.5',
@@ -49,7 +44,7 @@
         }
     });*/
 
-    let cls = $derived(
+    const cls = $derived(
         cn(
             'border-2 rounded-full',
             'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap outline-none text-center',
@@ -80,8 +75,6 @@
             ]
         )
     );
-</script>
 
-<Button.Root {disabled} class={cls} {...restProps}>
-    {@render children?.()}
-</Button.Root>
+    node.classList.add(...cls.split(' '));
+};

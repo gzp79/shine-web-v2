@@ -1,9 +1,9 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
-    import { type ActionColor, type ResponsiveSpacing, createContext, toSpacingClasses } from '@lib/ui/atoms';
+    import { type ActionColor, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
     import { type Width } from '@lib/ui/atoms/layouts';
-    import { cn } from '@lib/ui/utils';
+    import { cn, createContext } from '@lib/ui/utils';
 
     export type ContainerRootBaseProps = {
         color?: ActionColor;
@@ -104,8 +104,7 @@
             border && `border border-${colors.border}`,
             !ghost && `bg-${colors.bgColor}`,
             `text-${colors.fgColor}`,
-            shadow && 'shadow-drop-md',
-            shadow && `shadow-${colors.fgColor}`,
+            shadow && `shadow-md shadow-${colors.fgColor}`,
             'overflow-clip',
             toSpacingClasses(margin, { all: 'm', x: 'mx', y: 'my' }),
             className

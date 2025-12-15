@@ -6,6 +6,7 @@
 
     export type BoxProps = ContainerRootBaseProps &
         ContainerContentBaseProps & {
+            containerClass?: ClassValue | null;
             contentClass?: ClassValue | null;
             children: Snippet;
         };
@@ -22,13 +23,14 @@
         padding = 4,
         overflow = 'xy',
 
+        containerClass = undefined,
         contentClass = undefined,
 
         children
     }: BoxProps = $props();
 </script>
 
-<ContainerRoot dataSlot="box" {color} {border} {shadow} {ghost} {width} {margin}>
+<ContainerRoot dataSlot="box" {color} {border} {shadow} {ghost} {width} {margin} class={containerClass}>
     <ContainerContent dataSlot="box-content" {padding} {overflow} class={contentClass}>
         {@render children()}
     </ContainerContent>

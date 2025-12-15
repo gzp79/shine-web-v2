@@ -34,7 +34,23 @@ export default [
         rules: {
             // typescript-eslint strongly recommend that you do not use the no-undef lint rule on TypeScript projects.
             // see: https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
-            'no-undef': 'off'
+            'no-undef': 'off',
+
+            // Allow unused variables that start with _
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    args: 'all',
+                    argsIgnorePattern: '^_',
+                    caughtErrors: 'all',
+                    caughtErrorsIgnorePattern: '^_',
+                    destructuredArrayIgnorePattern: '^_',
+                    varsIgnorePattern: '^_',
+                    ignoreRestSiblings: true
+                }
+            ],
+            '@stylistic/quotes': ['error', 'single'],
+            'svelte/no-navigation-without-resolve': ['warn']
         }
     },
     {
