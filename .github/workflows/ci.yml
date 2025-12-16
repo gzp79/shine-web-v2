@@ -63,8 +63,9 @@ jobs:
                   mkdir -p ./dist
                   cp -r .svelte-kit/cloudflare ./dist/cloudflare
                   jq '.main = "cloudflare/_worker.js" | .assets.directory = "cloudflare"' wrangler.json > ./dist/wrangler.json
+                  jq '.main = "cloudflare/_worker.js" | .assets.directory = "cloudflare"' wrangler-dev.json > ./dist/wrangler-dev.json
 
-            # Upload the release artifact before test would modify anything
+            # Upload the release artifact
             - name: Upload artifacts
               if: github.ref == 'refs/heads/master'
               uses: actions/upload-artifact@v4
@@ -73,16 +74,10 @@ jobs:
                   include-hidden-files: true
                   path: ./dist
 
-            # Prepare for preview deployment
+            # Create preview site
             # TODO: At the moment we have a single preview environment updated by all PRs.
             # This works for now but in the future we might want to have separate preview deployments
             # per PR or at least per feature branch.
-            - name: Prepare preview site
-              # if: github.event_name == 'pull_request'
-              run: |
-                  cp wrangler-dev.json ./dist/wrangler.json
-
-            # Create preview site
             - name: Upload preview site
               id: preview_deploy
               # if: github.event_name == 'pull_request'
@@ -92,7 +87,7 @@ jobs:
                   apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                   accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                   workingDirectory: ./dist
-                  command: deploy
+                  command: deploy -c wrangler-dev.json
 
             - name: Test preview site
               # if: github.event_name == 'pull_request'
