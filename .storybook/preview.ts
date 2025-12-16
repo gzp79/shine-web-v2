@@ -42,7 +42,9 @@ const preview: Preview = {
                         ['ProgressBar', 'PropertyList'],
                         'Menu',
                         ['Dropdown']
-                    ]
+                    ],
+                    'Components',
+                    ['App', 'ThemeMenu', 'LanguageMenu']
                 ]
             }
         }

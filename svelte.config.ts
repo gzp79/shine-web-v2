@@ -16,6 +16,7 @@ const config = {
             '@sb': './src/storybook',
             '@config': './src/config',
             '@generated': './src/generated',
+            '@translations': './src/translations',
             '@lib': './src/lib'
         },
         experimental: {

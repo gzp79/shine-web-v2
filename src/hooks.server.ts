@@ -5,7 +5,10 @@ import { loadThemeServerSide } from '@lib/theme/theme.svelte';
 
 if (config.environment === 'mock') {
     console.info('Starting server mock worker...');
+
     const { server } = await import('@mocks/node');
+    const { bypass } = await import('msw');
+
     server.listen({
         onUnhandledRequest(request, print) {
             const url = new URL(request.url);
@@ -19,8 +22,7 @@ if (config.environment === 'mock') {
             const proxyToLocal: [string, RegExp][] = [[config.assetUrl, /^\/assets\//]];
             if (proxyToLocal.some(([host, path]) => request.url.startsWith(host) && path.test(url.pathname))) {
                 console.debug(`Proxy to local ${request.url}`);
-                throw new Error('Proxy to local is not implemented');
-                return;
+                return bypass(request);
             }
 
             print.warning();

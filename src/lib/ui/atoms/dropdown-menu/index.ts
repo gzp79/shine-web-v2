@@ -16,6 +16,8 @@ import SubContent from './SubContent.svelte';
 import SubTrigger from './SubTrigger.svelte';
 import Trigger from './Trigger.svelte';
 
+export type ExpandIconSide = 'left' | 'right' | 'none';
+
 export default {
     Menu,
     Item,

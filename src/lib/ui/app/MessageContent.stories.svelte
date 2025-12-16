@@ -2,8 +2,7 @@
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect } from 'storybook/test';
     import App from '@lib/ui/app/App.svelte';
-    import AppMessageContent from '@lib/ui/app/AppMessageContent.svelte';
-    import AppToolbar from '@lib/ui/app/AppToolbar.svelte';
+    import AppMessageContent from '@lib/ui/app/MessageContent.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
@@ -17,17 +16,9 @@
     });
 </script>
 
-{#snippet toolbar()}
-    Toolbar
-{/snippet}
-
 <Story name="Single button">
     {#snippet template(args)}
         <App>
-            <AppToolbar>
-                {@render toolbar()}
-            </AppToolbar>
-
             <AppMessageContent>
                 <Button color="primary">
                     <Typography>Click Me</Typography>
@@ -40,10 +31,6 @@
 <Story name="Some box">
     {#snippet template(args)}
         <App>
-            <AppToolbar>
-                {@render toolbar()}
-            </AppToolbar>
-
             <AppMessageContent>
                 <Box color="primary">
                     <Typography variant="h1">Welcome</Typography>

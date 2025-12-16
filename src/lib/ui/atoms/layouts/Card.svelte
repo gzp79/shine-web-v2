@@ -1,13 +1,16 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import ContainerContent, { type ContainerContentBaseProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
-    import ContainerRoot, { type ContainerRootBaseProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
+    import ContainerContent, { type ContainerContentProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
+    import ContainerRoot, { type ContainerRootProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
 
-    export type CardProps = Omit<ContainerRootBaseProps, 'ghost' | 'border' | 'overflow'> &
-        ContainerContentBaseProps & {
+    type RootProps = Omit<ContainerRootProps, 'ghost' | 'border' | 'overflow' | 'class' | 'children' | 'data-slot'>;
+    type ContentProps = Omit<ContainerContentProps, 'class' | 'children' | 'data-slot'>;
+
+    export type CardProps = RootProps &
+        ContentProps & {
             icon?: Snippet;
             iconClass?: ClassValue | null;
             title?: Snippet;
@@ -53,7 +56,7 @@
     );
 </script>
 
-<ContainerRoot dataSlot="card" border {color} {shadow} {width} {margin}>
+<ContainerRoot data-slot="card" border {color} {shadow} {width} {margin}>
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 0, sm: 2 }} alignment="stretch">
         {#if icon}
             <div class={iconCls}>{@render icon()}</div>
@@ -71,7 +74,7 @@
                 </div>
             {/if}
 
-            <ContainerContent dataSlot="card-content" {padding} overflow="y" class={contentClass}>
+            <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>
                 {@render children()}
             </ContainerContent>
         </Stack>

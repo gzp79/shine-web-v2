@@ -1,11 +1,14 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
-    import ContainerContent, { type ContainerContentBaseProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
-    import ContainerRoot, { type ContainerRootBaseProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
+    import ContainerContent, { type ContainerContentProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
+    import ContainerRoot, { type ContainerRootProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
 
-    export type BoxProps = ContainerRootBaseProps &
-        ContainerContentBaseProps & {
+    type RootProps = Omit<ContainerRootProps, 'class' | 'children' | 'data-slot'>;
+    type ContentProps = Omit<ContainerContentProps, 'class' | 'children' | 'data-slot'>;
+
+    export type BoxProps = RootProps &
+        ContentProps & {
             containerClass?: ClassValue | null;
             contentClass?: ClassValue | null;
             children: Snippet;
@@ -30,8 +33,8 @@
     }: BoxProps = $props();
 </script>
 
-<ContainerRoot dataSlot="box" {color} {border} {shadow} {ghost} {width} {margin} class={containerClass}>
-    <ContainerContent dataSlot="box-content" {padding} {overflow} class={contentClass}>
+<ContainerRoot data-slot="box" {color} {border} {shadow} {ghost} {width} {margin} class={containerClass}>
+    <ContainerContent data-slot="box-content" {padding} {overflow} class={contentClass}>
         {@render children()}
     </ContainerContent>
 </ContainerRoot>

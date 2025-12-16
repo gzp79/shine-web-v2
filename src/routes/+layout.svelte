@@ -1,8 +1,9 @@
 <script lang="ts">
     import { afterNavigate } from '$app/navigation';
-    import { t } from '@lib/i18n/i18n.svelte';
     import { refreshLanguage } from '@lib/i18n/i18n.svelte';
     import { refreshTheme } from '@lib/theme/theme.svelte';
+    import App from '@lib/ui/app/App.svelte';
+    import '../app.css';
 
     let { children } = $props();
 
@@ -12,5 +13,6 @@
     });
 </script>
 
-{$t('common.loading')}
-{@render children()}
+<App>
+    {@render children()}
+</App>

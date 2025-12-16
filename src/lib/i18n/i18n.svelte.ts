@@ -75,6 +75,7 @@ export function languageStore() {
         if (browser) {
             logI18n(`Setting lang cookie to ${rune}`);
             setCookie('lang', rune);
+            document.documentElement.lang = rune;
         }
     });
 

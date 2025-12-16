@@ -5,13 +5,10 @@
     import { type Overflow } from '@lib/ui/atoms/layouts';
     import { cn } from '@lib/ui/utils';
 
-    export type ContainerContentBaseProps = {
+    export type ContainerContentProps = {
         padding?: ResponsiveSpacing;
         overflow?: Overflow;
-    };
-
-    export type ContainerContentProps = ContainerContentBaseProps & {
-        dataSlot: string;
+        'data-slot': string;
         class?: ClassValue | null;
         children: Snippet;
     };
@@ -21,9 +18,9 @@
     let {
         padding = 4,
         overflow = 'hidden',
-        dataSlot,
         class: className = undefined,
-        children
+        children,
+        ...restProps
     }: ContainerContentProps = $props();
 
     const scrollClass: Record<Overflow, string> = {
@@ -38,6 +35,6 @@
     );
 </script>
 
-<div data-slot={dataSlot} class={contentCls}>
+<div class={contentCls} {...restProps}>
     {@render children()}
 </div>

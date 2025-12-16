@@ -5,17 +5,14 @@
     import { type Width } from '@lib/ui/atoms/layouts';
     import { cn, createContext } from '@lib/ui/utils';
 
-    export type ContainerRootBaseProps = {
+    export type ContainerRootProps = {
         color?: ActionColor;
         border?: boolean;
         shadow?: boolean;
         ghost?: boolean;
         width?: Width;
         margin?: ResponsiveSpacing;
-    };
-
-    export type ContainerRootProps = ContainerRootBaseProps & {
-        dataSlot: string;
+        'data-slot': string;
         class?: ClassValue | null;
         children: Snippet;
     };
@@ -42,11 +39,9 @@
         ghost = false,
         width = 'fit',
         margin = undefined,
-
-        dataSlot,
         class: className = undefined,
-
-        children
+        children,
+        ...restProps
     }: ContainerRootProps = $props();
 
     const colorRotation = ['container', 'sub-container', 'surface'];
@@ -112,6 +107,6 @@
     );
 </script>
 
-<div data-slot={dataSlot} class={cls}>
+<div class={cls} {...restProps}>
     {@render children()}
 </div>

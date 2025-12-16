@@ -42,6 +42,10 @@ if (config.environment === 'mock') {
 function serverConfigs() {
     let https;
     if (fs.existsSync('certificates/cert.key')) {
+        console.warn(`On self signed cert issue consider adding it to the trusted certs:
+            certutil -addstore -user "ROOT" ".\\certificates\\ca.crt"
+            Import-Certificate -FilePath ".\\certificates\\ca.crt" -CertStoreLocation Cert:\\CurrentUser\\Root
+        `);
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         https = {
             key: fs.readFileSync('certificates/cert.key'),
@@ -59,8 +63,9 @@ function serverConfigs() {
             host: new URL(config.webUrl).hostname,
             strictPort: true,
             hmr: {
-                clientPort: parseInt(new URL(config.webUrl).port),
-                port: parseInt(new URL(config.webUrl).port) + 1
+                protocol: 'wss',
+                host: new URL(config.webUrl).hostname,
+                port: parseInt(new URL(config.webUrl).port)
             },
             proxy: {}
         },

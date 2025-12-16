@@ -1,13 +1,23 @@
 <script module lang="ts">
     import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
+    import type { ExpandIconSide } from '@lib/ui/atoms/dropdown-menu';
     import DropdownIcon from '@lib/ui/atoms/icons/common/Dropdown.svelte';
     import { cn } from '@lib/ui/utils';
 
-    export type SubTriggerProps = DropdownMenuPrimitive.SubTriggerProps;
+    export type SubTriggerProps = DropdownMenuPrimitive.SubTriggerProps & {
+        expandIcon?: ExpandIconSide;
+        leftIcon?: boolean;
+    };
 </script>
 
 <script lang="ts">
-    let { ref = $bindable(null), class: className, children, ...restProps }: SubTriggerProps = $props();
+    let {
+        expandIcon = 'right',
+        ref = $bindable(null),
+        class: className,
+        children,
+        ...restProps
+    }: SubTriggerProps = $props();
 
     let cls = $derived(
         cn(
@@ -21,6 +31,11 @@
 </script>
 
 <DropdownMenuPrimitive.SubTrigger bind:ref data-slot="dropdown-menu-sub-trigger" class={cls} {...restProps}>
+    {#if expandIcon === 'left'}
+        <DropdownIcon class="size-4 rotate-90" />
+    {/if}
     {@render children?.()}
-    <DropdownIcon class="ms-auto size-4 -rotate-90" />
+    {#if expandIcon === 'right'}
+        <DropdownIcon class="ms-auto size-4 -rotate-90" />
+    {/if}
 </DropdownMenuPrimitive.SubTrigger>

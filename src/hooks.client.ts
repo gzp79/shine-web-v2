@@ -4,13 +4,18 @@ if (config.environment === 'mock') {
     console.info('Starting browser mock worker...');
 
     const { worker } = await import('@mocks/browser');
+    const { bypass } = await import('msw');
+
     await worker.start({
+        serviceWorker: {
+            url: '/mockServiceWorker.js'
+        },
         onUnhandledRequest(request, print) {
             const url = new URL(request.url);
 
             const passThrough: [string, RegExp][] = [['https://challenges.cloudflare.com/', /.*/]];
             if (passThrough.some(([host, path]) => request.url.startsWith(host) && path.test(url.pathname))) {
-                console.debug(`Passing through ${request.url}`);
+                //console.debug(`Passing through ${request.url}`);
                 return;
             }
 
@@ -23,9 +28,8 @@ if (config.environment === 'mock') {
                 [config.webUrl, /^\/favicon.*/]
             ];
             if (proxyToLocal.some(([host, path]) => request.url.startsWith(host) && path.test(url.pathname))) {
-                console.debug(`Proxy to local ${request.url}`);
-                throw new Error('Proxy to local is not implemented');
-                return;
+                //console.debug(`Bypassing to local server: ${request.url}`);
+                return bypass(request);
             }
 
             print.warning();

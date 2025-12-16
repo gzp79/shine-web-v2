@@ -20,5 +20,7 @@
     "theme": "Theme",
     "theme.dark": "Dark",
     "theme.light": "Light",
-    "theme.system": "System"
+    "theme.system": "System",
+
+    "settings": "Settings"
 }
