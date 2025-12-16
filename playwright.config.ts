@@ -5,12 +5,12 @@ console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment)) {
     process.env.DEBUG = 'log:user, log:game, warn:*, info:*';
 }
-const isCI = !!process.env.DEPLOYMENT_URL;
+const isCI = !!process.env.CI;
+if (isCI && config.environment !== 'prod') {
+    throw new Error('CI deployment shall only use prod environment for e2e tests');
+}
 
 const webURL = process.env.DEPLOYMENT_URL || config.webUrl;
-if (isCI && config.environment !== 'prod') {
-    throw new Error('CI deployment shall only use prod environment');
-}
 
 export default defineConfig({
     webServer: {

@@ -18,6 +18,11 @@ if (['dev', 'local', 'mock'].includes(config.environment)) {
     process.env.DEBUG = 'log:user, log:game, warn:*, info:*';
 }
 
+const isCI = !!process.env.CI;
+if (isCI && config.environment !== 'prod') {
+    throw new Error('CI deployment shall only use prod environment');
+}
+
 const additionalAssets = [];
 if (config.environment !== 'prod') {
     additionalAssets.push({
@@ -33,46 +38,53 @@ if (config.environment === 'mock') {
     });
 }
 
-let https;
-if (fs.existsSync('certificates/cert.key')) {
-    console.log('  Protocol: https');
-    // Accept self-signed certificates
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    https = {
-        key: fs.readFileSync('certificates/cert.key'),
-        cert: fs.readFileSync('certificates/cert.crt'),
-        ca: fs.readFileSync('certificates/ca.crt')
+/// get vite config for development server
+function getDevConfig() {
+    let https;
+    if (fs.existsSync('certificates/cert.key')) {
+        console.log('  Protocol: https');
+        // Accept self-signed certificates
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+        https = {
+            key: fs.readFileSync('certificates/cert.key'),
+            cert: fs.readFileSync('certificates/cert.crt'),
+            ca: fs.readFileSync('certificates/ca.crt')
+        };
+    } else {
+        throw new Error('No certificates were found');
+    }
+
+    return {
+        server: {
+            https: https,
+            port: parseInt(new URL(config.webUrl).port),
+            host: new URL(config.webUrl).hostname,
+            strictPort: true,
+            hmr: {
+                clientPort: parseInt(new URL(config.webUrl).port),
+                port: parseInt(new URL(config.webUrl).port) + 1
+            },
+            proxy: {}
+        },
+        preview: {
+            https: https,
+            port: parseInt(new URL(config.webUrl).port),
+            host: new URL(config.webUrl).hostname,
+            proxy: {}
+        }
     };
-} else {
-    throw new Error('No certificates were found, using http for serving');
 }
 
 export default defineConfig({
     plugins: [
-        vitePluginAssetConverter(config.environment),
+        !isCI && vitePluginAssetConverter(config.environment),
         tailwindcss(),
         sveltekit(),
         viteStaticCopy({
             targets: [...additionalAssets]
         })
     ],
-    server: {
-        https: https,
-        port: parseInt(new URL(config.webUrl).port),
-        host: new URL(config.webUrl).hostname,
-        strictPort: true,
-        hmr: {
-            clientPort: parseInt(new URL(config.webUrl).port),
-            port: parseInt(new URL(config.webUrl).port) + 1
-        },
-        proxy: {}
-    },
-    preview: {
-        https: https,
-        port: parseInt(new URL(config.webUrl).port),
-        host: new URL(config.webUrl).hostname,
-        proxy: {}
-    },
+    ...(isCI ? {} : getDevConfig()),
     test: {
         expect: {
             requireAssertions: true
