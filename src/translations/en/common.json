@@ -15,5 +15,10 @@
     "update": "Update",
     "revoke": "Revoke",
     "done": "Done",
-    "home": "Home"
+    "home": "Home",
+
+    "theme": "Theme",
+    "theme.dark": "Dark",
+    "theme.light": "Light",
+    "theme.system": "System"
 }

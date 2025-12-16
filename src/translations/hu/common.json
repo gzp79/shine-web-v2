@@ -15,5 +15,10 @@
     "update": "Módosít",
     "revoke": "Visszavon",
     "done": "Kész",
-    "home": "Főoldal"
+    "home": "Főoldal",
+
+    "theme": "Téma",
+    "theme.dark": "Sötét",
+    "theme.light": "Világos",
+    "theme.system": "Rendszer"
 }
