@@ -43,19 +43,18 @@ jobs:
               run: |
                   pnpm i
                   pnpm run mkcert
+                  pnpm run env:prod
                   ver=$(pnpm list wrangler --depth=0 --json 2>/dev/null | jq -r '.[] | (.devDependencies.wrangler.version // .dependencies.wrangler.version) | select(.)' 2>/dev/null | head -n1)
                   echo "wrangler_version=$ver" >> $GITHUB_OUTPUT
 
             - name: Test
               run: |
-                  pnpm run env:mock
-                  pnpm run test
+                  pnpm run test:unit
 
             - name: Build
               env:
                   ASSET_VERSION: ${{ github.sha }}
               run: |
-                  pnpm run env:prod                        
                   pnpm run lint
                   pnpm run check
                   pnpm run build
@@ -79,14 +78,14 @@ jobs:
 
             # Prepare for preview deployment
             - name: Prepare preview site
-              if: github.event_name == 'pull_request'
+              # if: github.event_name == 'pull_request'
               run: |
                   cp wrangler-dev.json ./dist/wrangler.json
 
             # Create preview site
             - name: Upload preview site
               id: preview_deploy
-              if: github.event_name == 'pull_request'
+              # if: github.event_name == 'pull_request'
               uses: cloudflare/wrangler-action@v3
               with:
                   wranglerVersion: ${{ steps.pre_build.outputs.wrangler_version }}
@@ -95,11 +94,13 @@ jobs:
                   workingDirectory: ./dist
                   command: deploy
 
-            - name: Preview Url
+            - name: Test preview site
+              # if: github.event_name == 'pull_request'
               env:
                   DEPLOYMENT_URL: ${{ steps.preview_deploy.outputs.deployment-url }}
               run: |
                   echo "**Deployment url**: <${DEPLOYMENT_URL}>" >> $GITHUB_STEP_SUMMARY
+                  pnpm run test:e2e
 
     deploy:
         needs: build
