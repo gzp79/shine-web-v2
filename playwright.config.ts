@@ -11,6 +11,7 @@ if (isCI && config.environment !== 'prod') {
 }
 
 const webURL = process.env.DEPLOYMENT_URL || config.webUrl;
+console.log(`Using web URL: ${webURL}`);
 
 export default defineConfig({
     webServer: {

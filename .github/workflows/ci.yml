@@ -92,7 +92,7 @@ jobs:
             - name: Test preview site
               # if: github.event_name == 'pull_request'
               env:
-                  DEPLOYMENT_URL: ${{ steps.preview_deploy.outputs.deployment-url }}
+                  DEPLOYMENT_URL: https://${{ steps.preview_deploy.outputs.deployment-url }}
               run: |
                   echo "**Deployment url**: <${DEPLOYMENT_URL}>" >> $GITHUB_STEP_SUMMARY
                   pnpm run test:e2e
