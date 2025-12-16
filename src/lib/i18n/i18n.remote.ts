@@ -1,6 +1,7 @@
 /* cspell: disable */
-import { json, type RequestEvent } from '@sveltejs/kit';
+import { getRequestEvent, query } from '$app/server';
 import { logI18n } from '@lib/loggers';
+import { z } from 'zod';
 import { i18n } from './i18n';
 import type { LanguageProps } from './i18n.svelte';
 
@@ -11,18 +12,22 @@ function getSupportedLocale(candidate: string) {
     return supportedLocales.includes(candidate) ? candidate : defaultLocale;
 }
 
-export async function loadLanguageQuery(
-    { cookies, request }: RequestEvent,
-    callArgs: { pathname: string }
-) {
-    const { pathname } = callArgs;
+export const loadLanguage = query(z.string(), async (pathname) => {
+    const event = getRequestEvent();
+    if (!event) {
+        throw new Error('Request event not found');
+    }
+
+    const { cookies, request } = event;
 
     let locale = (cookies.get('lang') || '').toLowerCase();
     if (!locale) {
         logI18n('Checking accept-language ...');
-        locale = `${`${request.headers.get('accept-language')}`.match(
-            /[a-zA-Z]+?(?=-|_|,|;)/
-        )}`.toLowerCase();
+        const acceptLanguageHeader = request.headers.get('accept-language');
+        const browserLang = acceptLanguageHeader
+            ? acceptLanguageHeader.match(/[a-zA-Z]+?(?=-|_|,|;)/)
+            : null;
+        locale = (browserLang ? browserLang[0] : '').toLowerCase();
     }
     logI18n(`Selected language, server side: ${locale}`);
 
@@ -34,5 +39,5 @@ export async function loadLanguageQuery(
         translations: translations.get()
     };
 
-    return json(languageProps);
-}
+    return languageProps;
+});

@@ -9,7 +9,7 @@ import { i18n } from './i18n';
 
 const { langList, defaultLocale, t, loadTranslations, locale, locales, setLocale, setRoute, translations } = i18n;
 
-export { langList, defaultLocale, t };
+export { langList, defaultLocale, t, translations };
 
 function getSupportedLocale(candidate: string) {
     const supportedLocales = locales.get().map((l) => l.toLowerCase());
@@ -25,6 +25,25 @@ function defaultBrowserLanguage() {
 export interface LanguageProps {
     i18n: { locale: string; route: string };
     translations: Record<string, Record<string, string>>;
+}
+
+export async function loadLanguageServerSide(url: URL, cookies: Cookies, headers: Headers): Promise<LanguageProps> {
+    const { pathname } = url;
+
+    let locale = (cookies.get('lang') || '').toLowerCase();
+    if (!locale) {
+        logI18n('Checking accept-language ...');
+        locale = `${`${headers.get('accept-language')}`.match(/[a-zA-Z]+?(?=-|_|,|;)/)}`.toLowerCase();
+    }
+    logI18n(`Selected language, server side: ${locale}`);
+
+    locale = getSupportedLocale(locale);
+    await loadTranslations(locale, pathname);
+
+    return {
+        i18n: { locale, route: pathname },
+        translations: translations.get()
+    };
 }
 
 export async function loadLanguage(url: URL, languageProps: Nullable<LanguageProps>): Promise<void> {
