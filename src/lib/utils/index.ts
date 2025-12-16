@@ -85,24 +85,4 @@ export const async = {
     }
 };
 
-export function getCookie(key: string): string | undefined {
-    const value = document.cookie.split('; ').reduce((r, v) => {
-        const parts = v.split('=');
-        return parts[0] === key ? parts[1] : r;
-    }, '');
-
-    return value ? value : undefined;
-}
-
-export function updateCookie(key: string, value: string, expires: Date) {
-    document.cookie = `${key}=${value}; expires=${expires.toUTCString()}; path=/`;
-}
-
-export function setCookie(key: string, value: string) {
-    const expires = new Date(new Date().setFullYear(new Date().getFullYear() + 100));
-    updateCookie(key, value, expires);
-}
-
-export function deleteCookie(key: string) {
-    updateCookie(key, '', new Date(0));
-}
+export * from './_cookie';

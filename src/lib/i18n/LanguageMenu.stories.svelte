@@ -1,10 +1,10 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, userEvent, within } from 'storybook/test';
-    import { settled, tick } from 'svelte';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
     import { langList, languageStore } from '@lib/i18n/i18n.svelte';
     import Dropdown from '@lib/ui/atoms/dropdown-menu';
+    import { waitForCookie } from '@lib/utils';
 
     const { Story } = defineMeta({
         title: 'Components/LanguageMenu',
@@ -42,14 +42,14 @@
 
         // Check each language option
         for (const langOption of langList) {
-            await expect(langOption).toBeDefined();
+            console.log(`Testing language option: ${langOption}`);
             const optionItem = await canvas.getByRole('menuitemradio', { name: langRegexps[langOption] });
+            console.log(`Found language option item: ${optionItem}`);
             await userEvent.click(optionItem);
-            await settled();
-            await waitForTransition();
+            console.log(`Selected language option: ${langOption}`);
+            await waitForCookie('lang', langOption);
+            console.log(`Current language after selection: ${language.current}`);
             await expect(language.current).toBe(langOption);
-            const cookieValue = await cookieStore.get('lang');
-            await expect(cookieValue?.value).toBe(langOption);
             await expect(document.documentElement.lang).toBe(langOption);
         }
 
