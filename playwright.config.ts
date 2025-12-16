@@ -10,7 +10,19 @@ if (isCI && config.environment !== 'prod') {
     throw new Error('CI deployment shall only use prod environment for e2e tests');
 }
 
-const webURL = process.env.DEPLOYMENT_URL || config.webUrl;
+function fixDeploymentURL(url: string | undefined): string | undefined {
+    if (!url) {
+        return undefined;
+    }
+
+    // Cloudflare deployment URLs sometimes come with a trailing suffix without protocol
+    if (!url.startsWith('http')) {
+        url = `https://${url}`;
+    }
+    return url.split(' ')[0];
+}
+
+const webURL = fixDeploymentURL(process.env.DEPLOYMENT_URL) || config.webUrl;
 console.log(`Using web URL: ${webURL}`);
 
 export default defineConfig({
