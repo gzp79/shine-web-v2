@@ -18,6 +18,7 @@ if (['dev', 'local', 'mock'].includes(config.environment)) {
     process.env.DEBUG = 'log:user, log:game, warn:*, info:*';
 }
 
+const isTest = !!process.env.VITEST;
 const isCI = !!process.env.CI;
 if (isCI && config.environment !== 'prod') {
     throw new Error('CI deployment shall only use prod environment');
@@ -31,7 +32,6 @@ if (config.environment !== 'prod') {
     });
 }
 if (config.environment === 'mock') {
-    console.log('  Mocking');
     additionalAssets.push({
         src: 'static-generated/mockServiceWorker.js',
         dest: ''
@@ -39,11 +39,9 @@ if (config.environment === 'mock') {
 }
 
 /// get vite config for development server
-function getDevConfig() {
+function serverConfigs() {
     let https;
     if (fs.existsSync('certificates/cert.key')) {
-        console.log('  Protocol: https');
-        // Accept self-signed certificates
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         https = {
             key: fs.readFileSync('certificates/cert.key'),
@@ -84,7 +82,7 @@ export default defineConfig({
             targets: [...additionalAssets]
         })
     ],
-    ...(isCI ? {} : getDevConfig()),
+    ...(isTest ? {} : serverConfigs()),
     test: {
         expect: {
             requireAssertions: true
