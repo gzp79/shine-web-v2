@@ -38,8 +38,6 @@ jobs:
 
             - name: Prepare
               id: pre_build
-              env:
-                  ASSET_VERSION: ${{ github.sha }}
               run: |
                   pnpm i
                   pnpm run mkcert
@@ -47,19 +45,17 @@ jobs:
                   ver=$(pnpm list wrangler --depth=0 --json 2>/dev/null | jq -r '.[] | (.devDependencies.wrangler.version // .dependencies.wrangler.version) | select(.)' 2>/dev/null | head -n1)
                   echo "wrangler_version=$ver" >> $GITHUB_OUTPUT
 
-            - name: Test
-              run: |
-                  pnpm run test:unit
-
             - name: Build
-              env:
-                  ASSET_VERSION: ${{ github.sha }}
               run: |
                   pnpm run lint
                   pnpm run check
                   pnpm run build
                   pnpm dlx wrangler deploy --dry-run --outdir ./.svelte-kit/cloudflare-tmp
                   cp ./.svelte-kit/cloudflare-tmp/_worker.js ./.svelte-kit/cloudflare/_worker.js
+
+            - name: Test
+              run: |
+                  pnpm run test:unit
 
             - name: Collect artifacts
               run: |
