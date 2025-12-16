@@ -74,6 +74,9 @@ jobs:
                   path: ./dist
 
             # Prepare for preview deployment
+            # TODO: At the moment we have a single preview environment updated by all PRs.
+            # This works for now but in the future we might want to have separate preview deployments
+            # per PR or at least per feature branch.
             - name: Prepare preview site
               # if: github.event_name == 'pull_request'
               run: |
