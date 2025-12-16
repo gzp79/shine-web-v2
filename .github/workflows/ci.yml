@@ -1,0 +1,126 @@
+name: Build and Test
+
+on:
+    push:
+        branches: ['master']
+    pull_request:
+        branches: ['master']
+
+# cancel outdated builds
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+    cancel-in-progress: true
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        outputs:
+            wrangler_version: ${{ steps.pre_build.outputs.wrangler_version }}
+        permissions:
+            contents: read
+            packages: write
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: latest
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22.x
+                  cache: 'pnpm'
+
+            - name: Prepare
+              id: pre_build
+              env:
+                  ASSET_VERSION: ${{ github.sha }}
+              run: |
+                  pnpm i
+                  pnpm run mkcert
+                  ver=$(pnpm list wrangler --depth=0 --json 2>/dev/null | jq -r '.[] | (.devDependencies.wrangler.version // .dependencies.wrangler.version) | select(.)' 2>/dev/null | head -n1)
+                  echo "wrangler_version=$ver" >> $GITHUB_OUTPUT
+
+            - name: Test
+              run: |
+                  pnpm run env:mock
+                  pnpm run test
+
+            - name: Build
+              env:
+                  ASSET_VERSION: ${{ github.sha }}
+              run: |
+                  pnpm run env:prod                        
+                  pnpm run lint
+                  pnpm run check
+                  pnpm run build
+                  pnpm dlx wrangler deploy --dry-run --outdir ./.svelte-kit/cloudflare-tmp
+                  cp ./.svelte-kit/cloudflare-tmp/_worker.js ./.svelte-kit/cloudflare/_worker.js
+
+            - name: Collect artifacts
+              run: |
+                  mkdir -p ./dist
+                  cp -r .svelte-kit/cloudflare ./dist/cloudflare
+                  jq '.main = "cloudflare/_worker.js" | .assets.directory = "cloudflare"' wrangler.json > ./dist/wrangler.json
+
+            # Upload the release artifact before test would modify anything
+            - name: Upload artifacts
+              if: github.ref == 'refs/heads/master'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: spa
+                  include-hidden-files: true
+                  path: ./dist
+
+            # Prepare for preview deployment
+            - name: Prepare preview site
+              if: github.event_name == 'pull_request'
+              run: |
+                  cp wrangler-dev.json ./dist/wrangler.json
+
+            # Create preview site
+            - name: Upload preview site
+              id: preview_deploy
+              if: github.event_name == 'pull_request'
+              uses: cloudflare/wrangler-action@v3
+              with:
+                  wranglerVersion: ${{ steps.pre_build.outputs.wrangler_version }}
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                  workingDirectory: ./dist
+                  command: deploy
+
+            - name: Preview Url
+              env:
+                  DEPLOYMENT_URL: ${{ steps.preview_deploy.outputs.deployment-url }}
+              run: |
+                  echo "**Deployment url**: <${DEPLOYMENT_URL}>" >> $GITHUB_STEP_SUMMARY
+
+    deploy:
+        needs: build
+        # disable not to break the old setup, enable when ready
+        if: false && github.ref == 'refs/heads/master'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: spa
+                  path: ./dist
+
+            - name: Publish site
+              uses: cloudflare/wrangler-action@v3
+              with:
+                  wranglerVersion: ${{ needs.build.outputs.wrangler_version }}
+                  apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+                  workingDirectory: ./dist
+                  command: deploy

@@ -1,4 +1,4 @@
 
 pnpm run lint
 pnpm run check
-pnpm run test:unit --run
+pnpm run test:unit

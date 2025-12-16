@@ -20,8 +20,8 @@
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "format": "prettier --write .",
         "lint": "prettier --check . && eslint .",
-        "test:unit": "vitest",
-        "test": "pnpm run test:unit -- --run && pnpm run test:e2e",
+        "test": "pnpm run test:unit && pnpm run test:e2e",
+        "test:unit": "vitest --run",
         "test:e2e": "playwright test",
         "storybook": "storybook dev -p 6006",
         "build:storybook": "storybook build"
@@ -78,7 +78,8 @@
         "vite": "^7.3.0",
         "vite-plugin-static-copy": "^3.1.4",
         "vitest": "^4.0.15",
-        "vitest-browser-svelte": "^2.0.1"
+        "vitest-browser-svelte": "^2.0.1",
+        "wrangler": "^4.54.0"
     },
     "msw": {
         "workerDirectory": [
