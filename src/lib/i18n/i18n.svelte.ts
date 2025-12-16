@@ -79,8 +79,6 @@ export function languageStore() {
         }
     });
 
-    $inspect('lang', rune);
-
     return {
         get current() {
             return rune;
