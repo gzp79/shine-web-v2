@@ -27,25 +27,6 @@ export interface LanguageProps {
     translations: Record<string, Record<string, string>>;
 }
 
-export async function loadLanguageServerSide(url: URL, cookies: Cookies, headers: Headers): Promise<LanguageProps> {
-    const { pathname } = url;
-
-    let locale = (cookies.get('lang') || '').toLowerCase();
-    if (!locale) {
-        logI18n('Checking accept-language ...');
-        locale = `${`${headers.get('accept-language')}`.match(/[a-zA-Z]+?(?=-|_|,|;)/)}`.toLowerCase();
-    }
-    logI18n(`Selected language, server side: ${locale}`);
-
-    locale = getSupportedLocale(locale);
-    await loadTranslations(locale, pathname);
-
-    return {
-        i18n: { locale, route: pathname },
-        translations: translations.get()
-    };
-}
-
 export async function loadLanguage(url: URL, languageProps: Nullable<LanguageProps>): Promise<void> {
     let i18n = languageProps?.i18n;
 
