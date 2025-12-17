@@ -1,14 +1,18 @@
 <!doctype html>
-<html lang="en" %svelte:data-theme% style="width: 100dvw; height: 100dvh; overflow: hidden">
+<html lang="en" style="width: 100dvw; height: 100dvh; overflow: hidden">
     <head>
         <meta charset="utf-8" />
         <link rel="icon" href="%sveltekit.assets%/favicon.png" />
-        <title>Shine</title>
+        <title>Scytta</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         %sveltekit.head%
     </head>
-    <body data-sveltekit-preload-code="viewport" data-sveltekit-preload-data="tap">
+    <body
+        data-sveltekit-preload-code="viewport"
+        data-sveltekit-preload-data="tap"
+        style="width: 100dvw; height: 100dvh; margin: 0; padding: 0; overflow: hidden"
+    >
         <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div id="app" style="display: contents">%sveltekit.body%</div>
+        <div style="display: contents">%sveltekit.body%</div>
     </body>
 </html>

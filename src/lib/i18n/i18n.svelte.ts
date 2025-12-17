@@ -1,90 +1,93 @@
-/* cspell: disable */
-import { browser } from '$app/environment';
 import { type Cookies } from '@sveltejs/kit';
+import { getContext, setContext } from 'svelte';
+import { fromStore } from 'svelte/store';
 import { logI18n } from '@lib/loggers';
-import { type Nullable, getCookie, setCookie } from '@lib/utils';
-import { i18n } from './i18n';
+import { getCookie, setCookie } from '@lib/utils';
+import { defaultLocale, i18n, langList } from './i18n';
 
-/* cspell: enable */
-
-const { langList, defaultLocale, t, loadTranslations, locale, locales, setLocale, setRoute, translations } = i18n;
+const { t, locale, locales, setRoute } = i18n;
 
 export { langList, defaultLocale, t };
 
-function getSupportedLocale(candidate: string) {
-    const supportedLocales = locales.get().map((l) => l.toLowerCase());
-    return supportedLocales.includes(candidate) ? candidate : defaultLocale;
+function isLocaleSupported(candidate: string): boolean {
+    return locales
+        .get()
+        .map((l) => l.toLowerCase())
+        .includes(candidate);
 }
 
-/// return the preferred language set in the browser
-function defaultBrowserLanguage() {
+export function getDefaultBrowserLocale(): string {
     logI18n(`Finding default browser language (${navigator.language}) ...`);
     return `${navigator.language}`.toLowerCase();
 }
 
-export interface LanguageProps {
-    i18n: { locale: string; route: string };
-    translations: Record<string, Record<string, string>>;
-}
+export type RouteLocale = {
+    locale: string;
+    route: string;
+};
 
-export async function loadLanguageServerSide(url: URL, cookies: Cookies, headers: Headers): Promise<LanguageProps> {
+export async function loadLocaleServerSide(url: URL, cookies: Cookies, headers: Headers): Promise<RouteLocale> {
     const { pathname } = url;
 
-    let locale = (cookies.get('lang') || '').toLowerCase();
-    if (!locale) {
+    let locale = cookies.get('lang') || '';
+    logI18n('Locale from cookie: ' + locale);
+    if (!isLocaleSupported(locale)) {
         logI18n('Checking accept-language ...');
         locale = `${`${headers.get('accept-language')}`.match(/[a-zA-Z]+?(?=-|_|,|;)/)}`.toLowerCase();
+        logI18n('Locale from accept-language: ' + locale);
     }
+    locale = isLocaleSupported(locale) ? locale : defaultLocale;
     logI18n(`Selected language, server side: ${locale}`);
 
-    locale = getSupportedLocale(locale);
-    await loadTranslations(locale, pathname);
+    //await loadTranslations(locale, pathname);
 
     return {
-        i18n: { locale, route: pathname },
-        translations: translations.get()
+        locale,
+        route: pathname
     };
 }
 
-export async function loadLanguage(url: URL, languageProps: Nullable<LanguageProps>): Promise<void> {
-    let i18n = languageProps?.i18n;
-
-    if (!i18n) {
-        if (!browser)
-            throw new Error('No languageProps provided, loadLanguageServerSide must be called on the server side.');
-        let locale = getCookie('lang') ?? defaultBrowserLanguage();
-        locale = getSupportedLocale(locale);
-        const route = url.pathname;
-        i18n = { locale, route };
-    }
-
-    await setLocale(i18n.locale);
-    await setRoute(i18n.route);
+export function loadLocaleClientSide(fallback: string = defaultLocale): string {
+    let locale = getCookie('lang') ?? getDefaultBrowserLocale();
+    logI18n(`Locale from cookie or browser: ${locale} ${getCookie('lang')}`);
+    locale = isLocaleSupported(locale) ? locale : fallback;
+    logI18n(`Selected language, client side: ${locale}`);
+    return locale;
 }
 
-export function refreshLanguage() {
-    let loc = getCookie('lang') ?? defaultBrowserLanguage();
-    loc = getSupportedLocale(loc);
-    locale.set(loc);
-}
+const LOCALE_CONTEXT_KEY = Symbol('locale-context');
 
-export function languageStore() {
-    let rune = $state(locale.get());
-    locale.subscribe((value) => {
-        rune = value;
-        if (browser) {
-            logI18n(`Setting lang cookie to ${rune}`);
-            setCookie('lang', rune);
-            document.documentElement.lang = rune;
+export type LocaleContext = ReturnType<typeof createLocaleContext>;
+
+export function createLocaleContext() {
+    const rune = fromStore(locale);
+
+    $effect(() => {
+        if (rune.current) {
+            logI18n(`Setting cookie and document lang to ${rune.current}`);
+            setCookie('lang', rune.current);
+            document.documentElement.lang = rune.current;
         }
     });
 
-    return {
+    const store = {
         get current() {
-            return rune;
+            return rune.current;
         },
         set current(value: string) {
-            locale.set(value);
+            logI18n(`Setting current locale to ${value}, ${isLocaleSupported(value)}`);
+            rune.current = isLocaleSupported(value) ? value : defaultLocale;
+        },
+        set route(value: string) {
+            logI18n(`Setting current route to ${value}`);
+            setRoute(value);
         }
     };
+    setContext(LOCALE_CONTEXT_KEY, store);
+
+    return store;
+}
+
+export function getLocaleContext(): LocaleContext {
+    return getContext<LocaleContext>(LOCALE_CONTEXT_KEY);
 }

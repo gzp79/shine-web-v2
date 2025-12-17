@@ -1,6 +1,8 @@
-<script context="module" lang="ts">
+<script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect } from 'storybook/test';
+    import { createLocaleContext } from '@lib/i18n/i18n.svelte';
+    import { createThemeContext } from '@lib/theme/theme.svelte';
     import App from '@lib/ui/app/App.svelte';
     import AppMessageContent from '@lib/ui/app/MessageContent.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
@@ -16,9 +18,14 @@
     });
 </script>
 
+<script lang="ts">
+    const theme = createThemeContext();
+    const locale = createLocaleContext();
+</script>
+
 <Story name="Single button">
     {#snippet template(args)}
-        <App>
+        <App theme={theme.current} locale={locale.current}>
             <AppMessageContent>
                 <Button color="primary">
                     <Typography>Click Me</Typography>
@@ -30,7 +37,7 @@
 
 <Story name="Some box">
     {#snippet template(args)}
-        <App>
+        <App theme={theme.current} locale={locale.current}>
             <AppMessageContent>
                 <Box color="primary">
                     <Typography variant="h1">Welcome</Typography>

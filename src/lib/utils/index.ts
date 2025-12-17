@@ -86,3 +86,4 @@ export const async = {
 };
 
 export * from './_cookie';
+export * from './_browser_events';

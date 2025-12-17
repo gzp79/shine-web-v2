@@ -2,7 +2,7 @@
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, userEvent, within } from 'storybook/test';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
-    import { langList, languageStore } from '@lib/i18n/i18n.svelte';
+    import { createLocaleContext, langList } from '@lib/i18n/i18n.svelte';
     import Dropdown from '@lib/ui/atoms/dropdown-menu';
     import { waitForCookie } from '@lib/utils';
 
@@ -21,7 +21,7 @@
         hu: new RegExp('Magyar', 'i')
     };
 
-    let language = languageStore();
+    let language = createLocaleContext();
     const waitForTransition = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
 </script>
 
@@ -42,13 +42,9 @@
 
         // Check each language option
         for (const langOption of langList) {
-            console.log(`Testing language option: ${langOption}`);
             const optionItem = await canvas.getByRole('menuitemradio', { name: langRegexps[langOption] });
-            console.log(`Found language option item: ${optionItem}`);
             await userEvent.click(optionItem);
-            console.log(`Selected language option: ${langOption}`);
             await waitForCookie('lang', langOption);
-            console.log(`Current language after selection: ${language.current}`);
             await expect(language.current).toBe(langOption);
             await expect(document.documentElement.lang).toBe(langOption);
         }

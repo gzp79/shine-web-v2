@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { themeStore } from '@lib/theme/theme.svelte';
+    import { onMount } from 'svelte';
     import { type ActionColor, type ContainerColor } from '@lib/ui/atoms';
 
     interface Props {
@@ -10,10 +10,10 @@
 
     let divRef: HTMLDivElement;
     let colorValue = $state('');
+    let colorVersion = $state(0);
 
     $effect(() => {
-        // trigger on theme change
-        void themeStore().current;
+        void colorVersion; // Depend on colorVersion to re-run when it changes
 
         const computedStyle = getComputedStyle(divRef);
         const backgroundColor = computedStyle.backgroundColor;
@@ -31,6 +31,22 @@
                       .join('')}`
                 : '';
         }
+    });
+
+    // Observe changes to the data-theme
+    onMount(() => {
+        const observer = new MutationObserver((mutations) => {
+            if (mutations.some((m) => m.type === 'attributes' && m.attributeName === 'data-theme')) {
+                colorVersion++;
+            }
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+
+        return () => observer.disconnect();
     });
 </script>
 

@@ -65,62 +65,71 @@ Color helper:
     --hover-action-brightness: 0.75;
 }
 
+@utility theme-dark {
+    --color-surface: #282828;
+    --color-on-surface: #dbdbdb;
+    --color-container: #373737;
+    --color-on-container: #dbdbdb;
+    --color-sub-container: #464646;
+    --color-on-sub-container: #dbdbdb;
+
+    --color-primary: #22272f;
+    --color-primary-1: #333b47;
+    --color-primary-2: #424e62;
+    --color-on-primary: #8595ab;
+
+    --color-secondary: #425462;
+    --color-secondary-1: #516778;
+    --color-secondary-2: #859bab;
+    --color-on-secondary: #eceff2;
+
+    --color-info: #095471;
+    --color-info-1: #036689;
+    --color-info-2: #0098ce;
+    --color-on-info: #32d1fe;
+
+    --color-warning: #733810;
+    --color-warning-1: #87450c;
+    --color-warning-2: #cd7d01;
+    --color-on-warning: #febe11;
+
+    --color-danger: #470808;
+    --color-danger-1: #831a1a;
+    --color-danger-2: #bf1616;
+    --color-on-danger: #f53e3e;
+
+    --color-success: #153102;
+    --color-success-1: #2e5710;
+    --color-success-2: #408308;
+    --color-on-success: #70d70b;
+
+    --color-data-gray-1: #868990;
+    --color-data-gray-2: #6b6e6f;
+    --color-data-gray-3: #616365;
+    --color-data-gray-4: #4e4f50;
+    --color-data-gray-5: #444546;
+    --color-data-gray-6: #3c3d3d;
+    --color-data-gray-7: #252527;
+
+    --hover-action-brightness: 1.5;
+}
+
 @layer base {
     [data-theme='dark'] {
-        --color-surface: #282828;
-        --color-on-surface: #dbdbdb;
-        --color-container: #373737;
-        --color-on-container: #dbdbdb;
-        --color-sub-container: #464646;
-        --color-on-sub-container: #dbdbdb;
-
-        --color-primary: #22272f;
-        --color-primary-1: #333b47;
-        --color-primary-2: #424e62;
-        --color-on-primary: #8595ab;
-
-        --color-secondary: #425462;
-        --color-secondary-1: #516778;
-        --color-secondary-2: #859bab;
-        --color-on-secondary: #eceff2;
-
-        --color-info: #095471;
-        --color-info-1: #036689;
-        --color-info-2: #0098ce;
-        --color-on-info: #32d1fe;
-
-        --color-warning: #733810;
-        --color-warning-1: #87450c;
-        --color-warning-2: #cd7d01;
-        --color-on-warning: #febe11;
-
-        --color-danger: #470808;
-        --color-danger-1: #831a1a;
-        --color-danger-2: #bf1616;
-        --color-on-danger: #f53e3e;
-
-        --color-success: #153102;
-        --color-success-1: #2e5710;
-        --color-success-2: #408308;
-        --color-on-success: #70d70b;
-
-        --color-data-gray-1: #868990;
-        --color-data-gray-2: #6b6e6f;
-        --color-data-gray-3: #616365;
-        --color-data-gray-4: #4e4f50;
-        --color-data-gray-5: #444546;
-        --color-data-gray-6: #3c3d3d;
-        --color-data-gray-7: #252527;
-
-        --hover-action-brightness: 1.5;
+        @apply theme-dark;
+    }
+    @media (prefers-color-scheme: dark) {
+        [data-theme='system'] {
+            @apply theme-dark;
+        }
     }
 
-    html {
+    #app {
         background-color: var(--color-surface);
         color: var(--color-on-surface);
     }
 
-    html[data-theme='dark'] {
+    #app[data-theme='dark'] {
         background-color: var(--color-surface);
         color: var(--color-on-surface);
     }

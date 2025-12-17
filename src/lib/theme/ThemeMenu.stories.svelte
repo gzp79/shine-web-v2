@@ -3,7 +3,7 @@
     import { expect, userEvent, within } from 'storybook/test';
     import { tick } from 'svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
-    import { type Theme, themeList, themeStore } from '@lib/theme/theme.svelte';
+    import { type Theme, createThemeContext, themeList } from '@lib/theme/theme.svelte';
     import Dropdown from '@lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({
@@ -23,7 +23,7 @@
         light: new RegExp('Light|Világos', 'i')
     };
 
-    let theme = themeStore();
+    let theme = createThemeContext();
     const waitForTransition = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
 </script>
 
