@@ -1,6 +1,7 @@
 /* cspell: disable */
 import { dev } from '$app/environment';
 import I18N, { type Config, type Modifier, type Parser } from 'sveltekit-i18n';
+import { logI18n } from '@lib/loggers';
 import lang from '../../translations/lang.json';
 
 /* cspell: enable */
@@ -15,7 +16,7 @@ function addTranslation(key: string, routes: RegExp[]) {
             key: key,
             routes,
             loader: async () => {
-                console.log(`Loading translation: ${locale}/${key}`);
+                logI18n(`Loading translation: ${locale}/${key}`);
                 return (await import(`../../translations/${locale}/${key}.json`)).default;
             }
         };
