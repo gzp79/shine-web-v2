@@ -80,7 +80,7 @@ jobs:
             # per PR or at least per feature branch.
             - name: Upload preview site
               id: preview_deploy
-              # if: github.event_name == 'pull_request'
+              if: github.event_name == 'pull_request'
               uses: cloudflare/wrangler-action@v3
               with:
                   wranglerVersion: ${{ steps.pre_build.outputs.wrangler_version }}
@@ -90,7 +90,7 @@ jobs:
                   command: deploy -c wrangler-dev.json
 
             - name: Test preview site
-              # if: github.event_name == 'pull_request'
+              if: github.event_name == 'pull_request'
               env:
                   DEPLOYMENT_URL: ${{ steps.preview_deploy.outputs.deployment-url }}
               run: |
