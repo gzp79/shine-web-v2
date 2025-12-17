@@ -1,5 +1,15 @@
 {
-    "lang": "hu",
+    "lang": {
+        "code": "hu",
+        "name": "Magyar"
+    },
+
+    "theme": {
+        "name": "Téma",
+        "dark": "Sötét",
+        "light": "Világos",
+        "system": "Rendszer"
+    },
 
     "dateTime": "{{value:date}}",
     "currency": "{{value:currency}}",
@@ -16,11 +26,6 @@
     "revoke": "Visszavon",
     "done": "Kész",
     "home": "Főoldal",
-
-    "theme": "Téma",
-    "theme.dark": "Sötét",
-    "theme.light": "Világos",
-    "theme.system": "Rendszer",
 
     "settings": "Beállítások"
 }

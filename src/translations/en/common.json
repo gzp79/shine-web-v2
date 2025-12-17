@@ -1,5 +1,15 @@
 {
-    "lang": "en",
+    "lang": {
+        "code": "en",
+        "name": "English"
+    },
+
+    "theme": {
+        "name": "Theme",
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System"
+    },
 
     "dateTime": "{{value:date}}",
     "currency": "{{value:currency}}",
@@ -16,11 +26,6 @@
     "revoke": "Revoke",
     "done": "Done",
     "home": "Home",
-
-    "theme": "Theme",
-    "theme.dark": "Dark",
-    "theme.light": "Light",
-    "theme.system": "System",
 
     "settings": "Settings"
 }

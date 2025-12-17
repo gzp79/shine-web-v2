@@ -5,8 +5,8 @@ import lang from '../../translations/lang.json';
 
 /* cspell: enable */
 
-const langList = Object.keys(lang);
-const defaultLocale = 'en';
+export const langList = Object.keys(lang);
+export const defaultLocale = 'en';
 
 function addTranslation(key: string, routes: RegExp[]) {
     return langList.map((locale) => {
@@ -14,7 +14,10 @@ function addTranslation(key: string, routes: RegExp[]) {
             locale: locale,
             key: key,
             routes,
-            loader: async () => (await import(`../../translations/${locale}/${key}.json`)).default
+            loader: async () => {
+                console.log(`Loading translation: ${locale}/${key}`);
+                return (await import(`../../translations/${locale}/${key}.json`)).default;
+            }
         };
     });
 }
@@ -45,9 +48,6 @@ class I18NEx<Params extends Parser.Params<P, M>, P = Parser.PayloadDefault, M = 
     constructor(config?: Config<P, M>) {
         super(config);
     }
-
-    public readonly langList = langList;
-    public readonly defaultLocale = defaultLocale;
 }
 
 export const i18n = new I18NEx(config);

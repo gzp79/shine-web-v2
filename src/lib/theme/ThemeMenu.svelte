@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { t } from '@lib/i18n/i18n.svelte';
-    import { themeList, themeStore } from '@lib/theme/theme.svelte';
+    import { getThemeContext, themeList } from '@lib/theme/theme.svelte';
     import Dropdown, { type ExpandIconSide } from '@lib/ui/atoms/dropdown-menu';
     import DarkIcon from '@lib/ui/atoms/icons/common/Dark.svelte';
     import DarkLightIcon from '@lib/ui/atoms/icons/common/DarkLight.svelte';
@@ -14,7 +14,7 @@
 <script lang="ts">
     let { expandIcon = 'right' }: ThemeMenuProps = $props();
 
-    let theme = themeStore();
+    let theme = getThemeContext();
 
     const themeIcons = {
         dark: DarkIcon,
@@ -29,7 +29,7 @@
     <Dropdown.SubTrigger {expandIcon}>
         {@const Icon = currentTheme}
         <Icon />
-        {$t('common.theme')}</Dropdown.SubTrigger
+        {$t('common.theme.name')}</Dropdown.SubTrigger
     >
     <Dropdown.SubContent>
         <Dropdown.RadioGroup bind:value={theme.current}>

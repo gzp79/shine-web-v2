@@ -25,7 +25,8 @@ if (config.environment === 'mock') {
                 [config.webUrl, /^\/src\//],
                 [config.webUrl, /^\/@id\/.*/],
                 [config.webUrl, /.*\/__data.json.*/],
-                [config.webUrl, /^\/favicon.*/]
+                [config.webUrl, /^\/favicon.*/],
+                [config.webUrl, /^\/$/]
             ];
             if (proxyToLocal.some(([host, path]) => request.url.startsWith(host) && path.test(url.pathname))) {
                 //console.debug(`Bypassing to local server: ${request.url}`);
