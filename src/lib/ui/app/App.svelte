@@ -31,7 +31,7 @@
             <Dropdown.Trigger class="absolute right-4 top-4 z-10" aria-label={$t('common.settings')}>
                 <Settings />
             </Dropdown.Trigger>
-            <Dropdown.Content class="w-32" align="start">
+            <Dropdown.Content class="w-32" align="start" collisionPadding={16}>
                 <Dropdown.Label>{$t('common.settings')}</Dropdown.Label>
                 <Dropdown.Separator />
                 <ThemeMenu expandIcon="left" />

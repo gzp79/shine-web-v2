@@ -1,5 +1,15 @@
 You are able to use the Svelte MCP server, where you have access to comprehensive Svelte 5 and SvelteKit documentation. Here's how to use the available tools effectively:
 
+## Project Configuration
+
+This project uses **Svelte 5 with rune mode** and **SvelteKit with remote functions**. When writing ANY Svelte code:
+
+- ALWAYS use runes (`$state`, `$derived`, `$effect`, `$props`, etc.) instead of legacy syntax
+- PREFER remote functions for server-side logic and data fetching over traditional load functions
+- Use TypeScript for type safety across client-server boundaries
+
+**See [SKILL.md](SKILL-remote-functions.md) for complete svelte-remote-functions guidance including query, form, command patterns, validation, and best practices.**
+
 ## Available MCP Tools:
 
 ### 1. list-sections
