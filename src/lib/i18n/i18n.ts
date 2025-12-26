@@ -16,7 +16,9 @@ function addTranslation(key: string, routes: RegExp[]) {
             key: key,
             routes,
             loader: async () => {
-                logI18n(`Loading translation: ${locale}/${key}`);
+                logI18n.log(
+                    `Loading translation: ${locale}/${key} for routes: ${routes.map((r) => r.toString()).join(', ')}`
+                );
                 return (await import(`../../translations/${locale}/${key}.json`)).default;
             }
         };

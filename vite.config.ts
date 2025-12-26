@@ -15,7 +15,7 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 
 console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment)) {
-    process.env.DEBUG = 'log:user, log:game, warn:*, info:*';
+    process.env.LOG_LEVEL = 'info,user=trace,api=trace';
 }
 
 const isTest = !!process.env.VITEST;
