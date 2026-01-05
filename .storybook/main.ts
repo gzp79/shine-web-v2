@@ -7,7 +7,7 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 
 const config: StorybookConfig = {
     stories: ['../src/**/*.stories.@(js|ts|svelte)'],
-    addons: ['@storybook/addon-svelte-csf', '@storybook/addon-vitest'],
+    addons: ['@storybook/addon-svelte-csf', '@storybook/addon-a11y', '@storybook/addon-vitest'],
     framework: '@storybook/sveltekit',
     staticDirs: ['../static', '../static-generated'],
 
