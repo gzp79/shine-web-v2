@@ -1,4 +1,5 @@
-import { async, createRetryLimitError } from '@lib/utils';
+import { logAPI } from '@lib/loggers';
+import { type AppError, async, createOtherError, createRetryLimitError, isAppError } from '@lib/utils';
 
 type RetryError = { __retry: true; innerError?: unknown };
 
@@ -36,7 +37,9 @@ export async function retryWithBackoff<T>(
         } catch (error) {
             if (isRetryError(error)) {
                 if (attempt >= maxRetries) {
-                    throw createRetryLimitError(maxRetries, error.innerError);
+                    logAPI.error('Retry limit exceeded in retryWithBackoff with a last error:', error.innerError);
+                    const err = createRetryLimitError(maxRetries, error.innerError);
+                    throw err;
                 }
 
                 attempt++;
@@ -44,8 +47,21 @@ export async function retryWithBackoff<T>(
                 const jitter = Math.random() * 0.1 * timeout;
                 await async.delay(timeout + jitter);
             } else {
+                logAPI.error('Non-retryable error encountered in retryWithBackoff', error);
                 throw error;
             }
         }
+    }
+}
+
+export async function fallibleRetryWithBackoff<T>(
+    fn: (retry: RetryObject) => Promise<T>,
+    maxRetries = 3,
+    baseDelay = 100
+): Promise<T | AppError> {
+    try {
+        return await retryWithBackoff<T>(fn, maxRetries, baseDelay);
+    } catch (error) {
+        return isAppError(error) ? error : createOtherError('Unknown error', error);
     }
 }

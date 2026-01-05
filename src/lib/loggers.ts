@@ -66,9 +66,6 @@ function readConfig(): string | null {
     return null;
 }
 
-// Apply initial config on module load
-applyConfigToLoglevel(readConfig());
-
 if (typeof window !== 'undefined') {
     window.addEventListener('storage', (e) => {
         if (e.key === STORAGE_KEY) {
@@ -79,7 +76,6 @@ if (typeof window !== 'undefined') {
 
 function createLogger(namespace: string) {
     const logger = log.getLogger(namespace);
-    // ensure logger inherits current global level by default
     logger.setLevel(log.getLevel());
     return {
         trace: (...args: unknown[]) => logger.trace(`[${namespace}]`, ...args),
@@ -91,6 +87,8 @@ function createLogger(namespace: string) {
 }
 
 export const logAPI = createLogger('api');
-export const logResource = createLogger('resources');
 export const logUser = createLogger('user');
 export const logI18n = createLogger('i18n');
+
+// Apply initial config on module load
+applyConfigToLoglevel(readConfig());

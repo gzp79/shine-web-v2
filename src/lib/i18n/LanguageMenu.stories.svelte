@@ -7,7 +7,7 @@
     import { waitForCookie } from '@lib/utils';
 
     const { Story } = defineMeta({
-        title: 'Components/LanguageMenu',
+        title: 'Components/App/LanguageMenu',
         component: LanguageMenu,
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();

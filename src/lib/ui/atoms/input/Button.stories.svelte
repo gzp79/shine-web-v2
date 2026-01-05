@@ -15,8 +15,8 @@
         component: Button,
         title: 'Atoms/Inputs/Button',
         args: {
-            color: 'default',
-            size: 'md',
+            color: undefined,
+            size: undefined,
             variant: 'filled',
             wide: undefined,
             disabled: undefined,

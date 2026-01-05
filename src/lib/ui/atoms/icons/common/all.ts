@@ -12,17 +12,20 @@ import Link from '@lib/ui/atoms/icons/common/Link.svelte';
 import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
 import Warning from '@lib/ui/atoms/icons/common/Warning.svelte';
 
-export default {
-    Check: Check,
-    Cross: Cross,
-    Hamburger: Hamburger,
-    Settings: Settings,
-    Info: Info,
-    Warning: Warning,
-    Light: Light,
-    Dark: Dark,
-    DarkAndLight: DarkAndLight,
-    Fatal: Fatal,
-    DropDown: DropDown,
-    Link: Link
+const all = {
+    check: Check,
+    cross: Cross,
+    hamburger: Hamburger,
+    settings: Settings,
+    info: Info,
+    warning: Warning,
+    light: Light,
+    dark: Dark,
+    darkAndLight: DarkAndLight,
+    fatal: Fatal,
+    dropDown: DropDown,
+    link: Link
 } satisfies IconSet;
+
+export type CommonIcon = keyof typeof all;
+export default all;

@@ -1,5 +1,7 @@
+import { browser } from '$app/environment';
+import type { RemoteQuery } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
-import { EnhancedQuery, type EnhancedQueryOptions } from '@lib/utils/enhanced-query.svelte';
+import { type AutoRefresh, type AutoRefreshOptions, type QueryLike, WrappedPromise, autoRefresh } from '@lib/utils';
 import { queryCurrentUserInfo } from './account.remote';
 
 const UPDATE_INTERVAL_MS = 15 * 60 * 1000;
@@ -16,18 +18,80 @@ type UnauthenticatedCurrentUser = {
 };
 export type CurrentUser = AuthenticatedCurrentUser | UnauthenticatedCurrentUser;
 
-export class CurrentUserStore extends EnhancedQuery<CurrentUser> {
-    constructor(options?: EnhancedQueryOptions) {
-        super(queryCurrentUserInfo(), { ...options, ttl: options?.ttl ?? UPDATE_INTERVAL_MS });
+export type CurrentUserStoreOptions = AutoRefreshOptions;
+export type CurrentUserStore = QueryLike<CurrentUser> & AutoRefresh;
+
+/// The disabled user store for server side
+class DisabledCurrentUser extends WrappedPromise<CurrentUser> implements CurrentUserStore {
+    protected readonly _promise = Promise.resolve({ authenticated: false } satisfies CurrentUser);
+
+    get loading(): boolean {
+        return false;
     }
 
-    isAuthenticated(): this is CurrentUserStore & { current: AuthenticatedCurrentUser } {
-        return !!this.current && this.current.authenticated;
+    get error() {
+        return undefined;
+    }
+
+    get current() {
+        return { authenticated: false } satisfies CurrentUser;
+    }
+
+    get lastUpdate() {
+        return new Date(Date.now());
+    }
+
+    get timeToRefresh() {
+        return 0;
+    }
+
+    refresh() {
+        return Promise.resolve();
     }
 }
 
-export function setCurrentUserStore(options?: EnhancedQueryOptions): CurrentUserStore {
-    const store = new CurrentUserStore(options);
+/// The current user store for browser side
+class QueryCurrentUser extends WrappedPromise<CurrentUser> implements CurrentUserStore {
+    protected readonly _promise: RemoteQuery<CurrentUser>;
+    private readonly _autoRefresh: AutoRefresh;
+
+    constructor(options?: CurrentUserStoreOptions) {
+        super();
+
+        this._promise = queryCurrentUserInfo();
+        this._autoRefresh = autoRefresh(this._promise.refresh, this._promise.loading, {
+            maxTTL: options?.maxTTL ?? UPDATE_INTERVAL_MS,
+            ...options
+        });
+    }
+
+    get loading(): boolean {
+        return this._promise.loading;
+    }
+
+    get error() {
+        return this._promise.error;
+    }
+
+    get current() {
+        return this._promise.current;
+    }
+
+    get lastUpdate() {
+        return this._autoRefresh.lastUpdate;
+    }
+
+    get timeToRefresh() {
+        return this._autoRefresh.timeToRefresh;
+    }
+
+    refresh() {
+        return this._promise.refresh();
+    }
+}
+
+export function setCurrentUserStore(options?: CurrentUserStoreOptions): CurrentUserStore {
+    const store = browser ? new QueryCurrentUser(options) : new DisabledCurrentUser();
     setContext(CURRENT_USER_CONTEXT_KEY, store);
     return store;
 }

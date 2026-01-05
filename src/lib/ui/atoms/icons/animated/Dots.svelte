@@ -5,7 +5,7 @@
 </script>
 
 <IconBase viewBox={[0, 0, 24, 24]} {...props}>
-    <circle cx="4" cy="12" r="3">
+    <circle cx="4" cy="21" r="3">
         <animateTransform
             attributeName="transform"
             type="translate"
@@ -15,7 +15,7 @@
             repeatCount="indefinite"
         />
     </circle>
-    <circle cx="12" cy="12" r="3">
+    <circle cx="12" cy="21" r="3">
         <animateTransform
             attributeName="transform"
             type="translate"
@@ -26,7 +26,7 @@
             repeatCount="indefinite"
         />
     </circle>
-    <circle cx="20" cy="12" r="3">
+    <circle cx="20" cy="21" r="3">
         <animateTransform
             attributeName="transform"
             type="translate"

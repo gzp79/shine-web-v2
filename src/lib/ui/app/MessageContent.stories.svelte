@@ -10,7 +10,7 @@
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
 
     const { Story } = defineMeta({
-        title: 'Components/App',
+        title: 'Components/App/MessageContent',
         component: AppMessageContent,
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();

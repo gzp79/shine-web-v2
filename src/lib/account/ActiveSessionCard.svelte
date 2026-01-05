@@ -6,24 +6,25 @@
     import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/LoadingCard.svelte';
     import { type QueryLike, createAppError } from '@lib/utils';
-    import type { CurrentUser } from './currentUser.svelte';
+    import ActiveSessionItem from './ActiveSessionItem.svelte';
+    import type { ActiveSession } from './account.remote';
 
-    export type UserInfoCardProps = {
-        userInfo: QueryLike<CurrentUser>;
+    export type ActiveSessionCardProps = {
+        sessions: QueryLike<ActiveSession[]>;
     };
 </script>
 
 <script lang="ts">
-    let { userInfo }: UserInfoCardProps = $props();
+    let { sessions }: ActiveSessionCardProps = $props();
 
-    const refreshUserInfo = async () => {
-        await userInfo.refresh();
+    const refreshSessions = async () => {
+        await sessions.refresh();
     };
 </script>
 
-<Card width="lg">
+<Card shadow width="lg">
     {#snippet title()}
-        {$t('account.userInfo.title')}
+        {$t('account.activeSessions.title')}
     {/snippet}
 
     <svelte:boundary>
@@ -38,7 +39,7 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await refreshUserInfo();
+                            await refreshSessions();
                             reset();
                         }}
                     >
@@ -48,6 +49,10 @@
             </ErrorCard>
         {/snippet}
 
-        {JSON.stringify(userInfo.current)}
+        <Stack>
+            {#each await sessions as session (session.tokenHash)}
+                <ActiveSessionItem {session} />
+            {/each}
+        </Stack>
     </svelte:boundary>
 </Card>

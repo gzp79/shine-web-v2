@@ -6,39 +6,40 @@
     import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/LoadingCard.svelte';
     import { type AppError, type QueryLike, createAppError } from '@lib/utils';
-    import LinkedIdentityItem from './LinkedIdentityItem.svelte';
-    import type { LinkedIdentity } from './account.remote';
+    import ActiveTokenItem from './ActiveTokenItem.svelte';
+    import type { ActiveToken } from './account.remote';
 
-    export type LinkedIdentityCardProps = {
-        identities: QueryLike<LinkedIdentity[]>;
-        unlink: (provider: string, providerUserId: string) => Promise<void>;
+    export type ActiveTokenCardProps = {
+        tokens: QueryLike<ActiveToken[]>;
+        revoke: (tokenHash: string) => Promise<void>;
     };
 </script>
 
 <script lang="ts">
-    let { identities, unlink }: LinkedIdentityCardProps = $props();
+    let { tokens, revoke }: ActiveTokenCardProps = $props();
 
-    let unlinkError = $state<AppError | undefined>(undefined);
-    const throwIfUnlinkError = () => {
-        if (unlinkError) {
-            throw unlinkError;
+    let revokeError = $state<AppError | undefined>(undefined);
+
+    const throwIfRevokeError = () => {
+        if (revokeError) {
+            throw revokeError;
         }
     };
 
-    const refreshIdentities = async () => {
-        unlinkError = undefined;
-        await identities.refresh();
+    const refreshTokens = async () => {
+        revokeError = undefined;
+        await tokens.refresh();
     };
 
-    const unlinkIdentity = async (provider: string, providerUserId: string) => {
-        await unlink(provider, providerUserId);
-        await identities.refresh();
+    const revokeToken = async (tokenHash: string) => {
+        await revoke(tokenHash);
+        await tokens.refresh();
     };
 </script>
 
 <Card width="lg">
     {#snippet title()}
-        {$t('account.identities.title')}
+        {$t('account.activeTokens.title')}
     {/snippet}
 
     <svelte:boundary>
@@ -53,7 +54,7 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await refreshIdentities();
+                            await refreshTokens();
                             reset();
                         }}
                     >
@@ -63,14 +64,15 @@
             </ErrorCard>
         {/snippet}
 
-        {throwIfUnlinkError()}
+        {throwIfRevokeError()}
         <Stack>
-            {#each await identities as identity (identity.provider + identity.providerUserId)}
-                <LinkedIdentityItem
-                    {identity}
-                    unlink={unlinkIdentity}
+            {#each await tokens as token (token.tokenHash)}
+                <ActiveTokenItem
+                    {token}
+                    disabled={tokens.loading}
+                    revoke={revokeToken}
                     onerror={(err) => {
-                        unlinkError = err;
+                        revokeError = err;
                     }}
                 />
             {/each}

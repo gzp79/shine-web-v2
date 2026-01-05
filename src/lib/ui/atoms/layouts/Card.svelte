@@ -17,13 +17,15 @@
             titleClass?: ClassValue | null;
             children: Snippet;
             contentClass?: ClassValue | null;
+            actions?: Snippet;
+            actionsClass?: ClassValue | null;
         };
 </script>
 
 <script lang="ts">
     let {
         color = undefined,
-        shadow = true,
+        shadow = false,
         width = 'fit',
         margin = undefined,
         padding = 2,
@@ -32,7 +34,9 @@
         title = undefined,
         titleClass = undefined,
         children,
-        contentClass = undefined
+        contentClass = undefined,
+        actions = undefined,
+        actionsClass = undefined
     }: CardProps = $props();
 
     let iconCls = $derived(
@@ -46,7 +50,7 @@
     let titleCls = $derived(
         cn(
             'inline-flex shrink-0 whitespace-nowrap outline-none',
-            `p-0 sm:${icon ? 'py-2' : 'p-2'} gap-2`,
+            `px-2 sm:${icon && 'p-2'} gap-2`,
             'w-full',
             'items-center',
             'justify-center sm:justify-start',
@@ -54,6 +58,7 @@
             titleClass
         )
     );
+    let actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
 </script>
 
 <ContainerRoot data-slot="card" border {color} {shadow} {width} {margin}>
@@ -77,6 +82,12 @@
             <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>
                 {@render children()}
             </ContainerContent>
+
+            {#if actions}
+                <div class={actionsCls}>
+                    {@render actions()}
+                </div>
+            {/if}
         </Stack>
     </Stack>
 </ContainerRoot>

@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
 import { fromStore } from 'svelte/store';
@@ -5,9 +6,9 @@ import { logI18n } from '@lib/loggers';
 import { getCookie, setCookie } from '@lib/utils';
 import { defaultLocale, i18n, langList } from './i18n';
 
-const { t, locale, locales, setRoute } = i18n;
+const { t, locale, locales, setRoute, loadTranslations } = i18n;
 
-export { langList, defaultLocale, t };
+export { langList, defaultLocale, t, loadTranslations };
 
 function isLocaleSupported(candidate: string): boolean {
     return locales
@@ -39,15 +40,17 @@ export async function loadLocaleServerSide(url: URL, cookies: Cookies, headers: 
     locale = isLocaleSupported(locale) ? locale : defaultLocale;
     logI18n.log(`Selected language, server side: ${locale}`);
 
-    //await loadTranslations(locale, pathname);
-
     return {
         locale,
         route: pathname
     };
 }
 
-export function loadLocaleClientSide(fallback: string = defaultLocale): string {
+export function loadLocale(fallback: string = defaultLocale): string {
+    if (!browser) {
+        return fallback;
+    }
+
     let locale = getCookie('lang') ?? getDefaultBrowserLocale();
     logI18n.log(`Locale from cookie or browser: ${locale} ${getCookie('lang')}`);
     locale = isLocaleSupported(locale) ? locale : fallback;
@@ -57,9 +60,12 @@ export function loadLocaleClientSide(fallback: string = defaultLocale): string {
 
 const LOCALE_CONTEXT_KEY = Symbol('locale-context');
 
-export type LocaleContext = ReturnType<typeof createLocaleContext>;
+export type LocaleContext = {
+    current: string;
+    route: string;
+};
 
-export function createLocaleContext() {
+export function createLocaleContext(): LocaleContext {
     const rune = fromStore(locale);
 
     $effect(() => {
@@ -77,6 +83,7 @@ export function createLocaleContext() {
         set current(value: string) {
             logI18n.info(`Setting current locale to ${value}, ${isLocaleSupported(value)}`);
             rune.current = isLocaleSupported(value) ? value : defaultLocale;
+            console.log(`!!!!!Locale set to ${locale.get()}`);
         },
         set route(value: string) {
             logI18n.info(`Setting current route to ${value}`);

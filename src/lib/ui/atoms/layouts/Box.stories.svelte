@@ -1,4 +1,5 @@
 <script module lang="ts">
+    import MarginDecorator from '@sb/MarginDecorator.svelte';
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect } from 'storybook/test';
@@ -56,6 +57,9 @@
                 }
             }
         },
+        // Ignore https://github.com/storybookjs/storybook/issues/29951
+        // @ts-expect-error Bug in Storybook
+        decorators: [() => MarginDecorator],
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();
         }
@@ -68,7 +72,7 @@
     {#snippet template(args)}
         {@const { children, color, ...otherArgs } = args}
         <Stack>
-            {#each ['primary', 'secondary', 'info', 'success', 'warning', 'danger'] as colorValue (colorValue)}
+            {#each actionColorList as colorValue (colorValue)}
                 <Box {...otherArgs} color={colorValue}>
                     <Typography variant="text">{colorValue} variant</Typography>
                 </Box>

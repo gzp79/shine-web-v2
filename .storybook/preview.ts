@@ -44,7 +44,7 @@ const preview: Preview = {
                         ['Dropdown']
                     ],
                     'Components',
-                    ['App', 'ThemeMenu', 'LanguageMenu']
+                    ['App', ['MessageContent', 'FlowContent', 'ThemeMenu', 'LanguageMenu'], 'Status']
                 ]
             }
         }

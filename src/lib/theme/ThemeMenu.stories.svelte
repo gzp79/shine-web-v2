@@ -7,7 +7,7 @@
     import Dropdown from '@lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({
-        title: 'Components/ThemeMenu',
+        title: 'Components/App/ThemeMenu',
         component: ThemeMenu,
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();

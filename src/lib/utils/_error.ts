@@ -71,6 +71,21 @@ export function createRetryLimitError(retryCount: number, lastError?: unknown): 
     };
 }
 
+export function createAppError(error: unknown): AppError {
+    if (isAppError(error)) {
+        return error;
+    }
+
+    if (error instanceof Error) {
+        return createOtherError(error.message, {
+            name: error.name,
+            stack: error.stack
+        });
+    }
+
+    return createOtherError('Unknown error', error);
+}
+
 export function formatError(error: unknown): string {
     if (isAppError(error)) {
         const details = error.details ? ` - ${JSON.stringify(error.details)}` : '';

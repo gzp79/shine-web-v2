@@ -19,7 +19,7 @@
     let {
         color = undefined,
         border = true,
-        shadow = true,
+        shadow = false,
         ghost = false,
         width = 'fit',
         margin = undefined,
