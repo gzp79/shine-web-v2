@@ -24,7 +24,6 @@
 
     const handleUnlink = async () => {
         dirty = true;
-        console.log('unlinking identity', identity);
         try {
             await unlink(identity.provider, identity.providerUserId);
         } catch (e) {
@@ -32,7 +31,6 @@
             logAPI.error('Failed to unlink identity', error);
             onerror?.(error);
         } finally {
-            console.log('reset unlinking identity', identity);
             dirty = false;
         }
     };

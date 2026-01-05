@@ -44,7 +44,7 @@ function parseConfig(conf: string | null | undefined): LogConfig {
 
 function applyConfigToLoglevel(confStr: string | null | undefined) {
     const cfg = parseConfig(confStr);
-    console.log('Applying log config', cfg);
+    //console.log('Applying log config', cfg);
 
     if (cfg.global) {
         log.setLevel(cfg.global);
