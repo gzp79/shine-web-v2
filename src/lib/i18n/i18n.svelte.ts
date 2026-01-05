@@ -83,7 +83,6 @@ export function createLocaleContext(): LocaleContext {
         set current(value: string) {
             logI18n.info(`Setting current locale to ${value}, ${isLocaleSupported(value)}`);
             rune.current = isLocaleSupported(value) ? value : defaultLocale;
-            console.log(`!!!!!Locale set to ${locale.get()}`);
         },
         set route(value: string) {
             logI18n.info(`Setting current route to ${value}`);

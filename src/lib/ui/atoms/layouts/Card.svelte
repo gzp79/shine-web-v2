@@ -36,7 +36,9 @@
         children,
         contentClass = undefined,
         actions = undefined,
-        actionsClass = undefined
+        actionsClass = undefined,
+        role = undefined,
+        'aria-live': ariaLive = undefined
     }: CardProps = $props();
 
     let iconCls = $derived(
@@ -62,7 +64,13 @@
 </script>
 
 <ContainerRoot data-slot="card" border {color} {shadow} {width} {margin}>
-    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 0, sm: 2 }} alignment="stretch">
+    <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={{ xs: 0, sm: 2 }}
+        alignment="stretch"
+        {role}
+        aria-live={ariaLive}
+    >
         {#if icon}
             <div class={iconCls}>{@render icon()}</div>
         {/if}

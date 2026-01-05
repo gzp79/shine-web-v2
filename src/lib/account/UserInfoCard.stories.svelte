@@ -1,7 +1,9 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
+    import { expectErrorState } from '@sb/pagemodels/error';
+    import { expectLoadingState } from '@sb/pagemodels/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
+    import { expect, within } from 'storybook/test';
     import { v4 as uuid } from 'uuid';
     import { createOtherError } from '@lib/utils';
     import UserInfoCard from './UserInfoCard.svelte';
@@ -29,12 +31,20 @@
     args={{
         userInfo: mockQuery.loading()
     }}
+    play={async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expectLoadingState(canvas);
+    }}
 />
 
 <Story
     name="Error"
     args={{
         userInfo: mockQuery.error(createOtherError('Test error, failed to fetch user info'))
+    }}
+    play={async ({ canvasElement }) => {
+        const canvas = within(canvasElement);
+        await expectErrorState(canvas, /Test error, failed to fetch user info/);
     }}
 />
 

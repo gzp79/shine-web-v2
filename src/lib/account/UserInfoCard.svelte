@@ -48,6 +48,6 @@
             </ErrorCard>
         {/snippet}
 
-        {JSON.stringify(userInfo.current)}
+        {JSON.stringify(await userInfo)}
     </svelte:boundary>
 </Card>

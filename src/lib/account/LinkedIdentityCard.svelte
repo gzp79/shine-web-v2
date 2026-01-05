@@ -68,6 +68,7 @@
             {#each await identities as identity (identity.provider + identity.providerUserId)}
                 <LinkedIdentityItem
                     {identity}
+                    disabled={identities.loading}
                     unlink={unlinkIdentity}
                     onerror={(err) => {
                         unlinkError = err;
