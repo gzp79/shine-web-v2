@@ -1,5 +1,4 @@
 <script module lang="ts">
-    import MarginDecorator from '@sb/MarginDecorator.svelte';
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect } from 'storybook/test';
@@ -22,9 +21,6 @@
                 }
             }
         },
-        // Ignore https://github.com/storybookjs/storybook/issues/29951
-        // @ts-expect-error Bug in Storybook
-        decorators: [() => MarginDecorator],
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();
         }
@@ -40,23 +36,20 @@
     };
 </script>
 
-<Story
-    name="Default"
-    args={{
-        error: createError('other', 'Some test error')
-    }}
-/>
+<Story name="Default" args={{ error: createError('other', 'Some test error') }} />
 
-<Story name="Error with all features">
+<Story
+    name="ErrorWithAllFeatures"
+    args={{
+        error: createError('retryLimit', 'Maximum retry attempts exceeded.', {
+            retryCount: 3,
+            lastError: 'Connection timeout',
+            lorem: lorem
+        })
+    }}
+>
     {#snippet template(args)}
-        <ErrorCard
-            {...args}
-            error={createError('retryLimit', 'Maximum retry attempts exceeded.', {
-                retryCount: 3,
-                lastError: 'Connection timeout',
-                lorem: lorem
-            })}
-        >
+        <ErrorCard {...args}>
             <Typography variant="footnote">
                 If this problem persists, please contact our support team at support@example.com or call 1-800-SUPPORT.
             </Typography>

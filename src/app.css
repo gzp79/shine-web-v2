@@ -234,9 +234,6 @@ body {
     @apply flex h-full w-full flex-col overflow-hidden;
 }
 
-/* bits-ui global customization */
-/* #popover [data-bits-floating-content-wrapper] {
-    @apply overflow-clip rounded-md border shadow-sm shadow-on-surface outline-none;
-    @apply data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95;
-    @apply data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95;
-} */
+#storybook-root {
+    @apply m-4;
+}

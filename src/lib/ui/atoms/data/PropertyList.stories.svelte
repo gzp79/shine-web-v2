@@ -1,7 +1,6 @@
 <script module lang="ts">
-    import MarginDecorator from '@sb/MarginDecorator.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
+    import { expect, within } from 'storybook/test';
     import { tick } from 'svelte';
     import { sizeList } from '@lib/ui/atoms';
     import PropertyList, { type DescriptionListItem } from '@lib/ui/atoms/data/PropertyList.svelte';
@@ -21,9 +20,6 @@
                 }
             }
         },
-        // Ignore https://github.com/storybookjs/storybook/issues/29951
-        // @ts-expect-error Bug in Storybook
-        decorators: [() => MarginDecorator],
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();
         }
@@ -151,16 +147,16 @@
 <Story
     name="Nested Table"
     play={async ({ canvasElement }) => {
-        const incrementButton = canvasElement.querySelector('button');
+        const canvas = within(canvasElement);
+        const incrementButton = await canvas.getByRole('button', { name: /increment/i });
         expect(incrementButton).toBeDefined();
-        const rows = canvasElement.querySelectorAll('tr');
-        const reactiveRow = Array.from(rows).find((row) => row.textContent?.includes('Reactive'));
-        const dataCell = reactiveRow?.querySelector('td:last-child');
+        const reactiveTerm = await canvas.getByRole('term', { name: /Reactive/i });
+        const reactiveValue = reactiveTerm.nextElementSibling as HTMLElement;
         let initial = data;
-        expect(dataCell?.textContent).toBe(initial.toString());
+        expect(reactiveValue?.textContent).toBe(initial.toString());
         incrementButton?.click();
         await tick();
-        expect(dataCell?.textContent).toBe((initial + 1).toString());
+        expect(reactiveValue?.textContent).toBe((initial + 1).toString());
     }}
 >
     {#snippet template(args)}

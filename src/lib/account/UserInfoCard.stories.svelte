@@ -1,5 +1,4 @@
 <script module lang="ts">
-    import MarginDecorator from '@sb/MarginDecorator.svelte';
     import mockQuery from '@sb/mock-remote.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect } from 'storybook/test';
@@ -11,9 +10,6 @@
     const { Story } = defineMeta({
         component: UserInfoCard,
         title: 'Account/UserInfoCard',
-        // Ignore https://github.com/storybookjs/storybook/issues/29951
-        // @ts-expect-error Bug in Storybook
-        decorators: [() => MarginDecorator],
         play: async ({ args, canvasElement }) => {
             await args.userInfo?.refresh();
             expect(canvasElement).toBeDefined();

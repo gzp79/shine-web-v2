@@ -54,7 +54,7 @@ export function createOtherError(message: string, details?: unknown): OtherError
     return {
         type: 'app-error',
         kind: 'other',
-        message,
+        message: message ?? 'Other error',
         details
     };
 }

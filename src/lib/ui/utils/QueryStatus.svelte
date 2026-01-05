@@ -13,7 +13,7 @@
     let { query }: QueryStatusProps<T> = $props();
 
     let typeName = $derived(typeOfT(query));
-    let autoRefresh = $derived('timeToRefresh' in query ? (query as any as AutoRefresh) : undefined);
+    let autoRefresh = $derived('timeToRefresh' in query ? (query as unknown as AutoRefresh) : undefined);
 </script>
 
 <svelte:boundary>

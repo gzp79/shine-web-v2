@@ -27,15 +27,14 @@
 <script lang="ts">
     let { caption, error, width = 'fit', children, actions }: ErrorCardProps = $props();
 
-    /*const errorTypeLabels: Record<string, string> = {
+    const errorTypeLabels: Record<string, string> = {
         fetch: 'Network Error',
         schema: 'Data Validation Error',
         internal: 'Internal Error',
         other: 'Error'
     };
 
-    let errorLabel = $derived(errorTypeLabels[error.kind] || 'Error');
-    */
+    let errorLabel = $derived(errorTypeLabels[error.kind] ?? 'Error');
 </script>
 
 <Card role="alert" aria-live="assertive" {width} color="danger" {actions}>
@@ -48,7 +47,7 @@
 
     <Stack>
         <Typography variant="text" class="text-text-primary">
-            {error.message}
+            {error.message ?? errorLabel}
         </Typography>
         {#if error.details}
             <details class="group cursor-pointer">

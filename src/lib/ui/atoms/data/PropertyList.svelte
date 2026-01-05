@@ -31,7 +31,7 @@
 <script lang="ts">
     const { items, size = 'md', wide = false, class: className }: PropertyListProps = $props();
 
-    const filteredItems = $derived(items.filter((x) => x !== null) as DescriptionListItem[]);
+    const filteredItems = $derived((items ?? []).filter((x) => x !== null) as DescriptionListItem[]);
     const dlClass = $derived(cn('grid grid-cols-[1fr_2fr] gap-1', wide ? 'w-full' : 'max-w-full w-fit', className));
 </script>
 

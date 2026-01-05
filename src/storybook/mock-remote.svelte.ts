@@ -11,9 +11,7 @@ function createAwaited<T>(
     result.loading = loading;
     result.current = current;
     result.error = error;
-    result.refresh = async () => {
-        // No-op for mock queries
-    };
+    result.refresh = async () => {};
 
     return result;
 }
@@ -91,7 +89,10 @@ export default {
     },
 
     error<T>(error: AppError): QueryLike<T> {
-        return createAwaited<T>(async.rejected(error), false, undefined, error);
+        const promise = Promise.reject(error);
+        promise.catch(() => {});
+
+        return createAwaited<T>(promise, false, undefined, error);
     },
 
     success<T>(data: Awaited<T>): QueryLike<T> {

@@ -1,8 +1,8 @@
 <script module lang="ts">
-    import MarginDecorator from '@sb/MarginDecorator.svelte';
     import mockQuery from '@sb/mock-remote.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect } from 'storybook/test';
+    import { settled } from 'svelte';
     import { v4 as uuid } from 'uuid';
     import { async, createOtherError } from '@lib/utils';
     import LinkedIdentityCard from './LinkedIdentityCard.svelte';
@@ -11,9 +11,6 @@
     const { Story } = defineMeta({
         component: LinkedIdentityCard,
         title: 'Account/LinkedIdentityCard',
-        // Ignore https://github.com/storybookjs/storybook/issues/29951
-        // @ts-expect-error Bug in Storybook
-        decorators: [() => MarginDecorator],
         play: async ({ args, canvasElement }) => {
             await args.identities?.refresh();
             expect(canvasElement).toBeDefined();
@@ -70,10 +67,6 @@
     args={{
         identities: mockQuery.async(async () => sampleIdentities, 2000),
         unlink: (_tokenHash: string) => async.delay(2000)
-    }}
-    play={async ({ args, canvasElement }) => {
-        await args.identities.refresh();
-        expect(canvasElement).toBeDefined();
     }}
 />
 

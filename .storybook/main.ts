@@ -1,7 +1,7 @@
 import type { StorybookConfig } from '@storybook/sveltekit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import svelteConfig from '../svelte.config.ts';
+import svelteConfig from '../svelte.config.js';
 
 const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 

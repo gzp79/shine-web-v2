@@ -32,6 +32,12 @@ export const async = {
         return new Promise(() => {});
     },
 
+    abort(error: unknown): Promise<never> {
+        return (async () => {
+            throw error;
+        })();
+    },
+
     resolved<T>(data: T): Promise<T> {
         return Promise.resolve(data);
     },
