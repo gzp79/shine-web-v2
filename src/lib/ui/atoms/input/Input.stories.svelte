@@ -12,8 +12,7 @@
         component: Input,
         title: 'Atoms/Inputs/Input',
         args: {
-            color: 'default',
-            size: 'md',
+            size: undefined,
             variant: 'filled',
             wide: undefined,
             disabled: undefined,

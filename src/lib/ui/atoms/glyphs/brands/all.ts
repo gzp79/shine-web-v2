@@ -16,22 +16,25 @@ import Safari from '@lib/ui/atoms/glyphs/brands/Safari.svelte';
 import Twitter from '@lib/ui/atoms/glyphs/brands/Twitter.svelte';
 import User from '@lib/ui/atoms/glyphs/brands/User.svelte';
 
-export default {
-    Chrome: Chrome,
-    Edge: Edge,
-    Opera: Opera,
-    Safari: Safari,
-    Firefox: Firefox,
-    Mobile: Mobile,
-    Android: Android,
-    IPhone: IPhone,
-    Mac: Mac,
-    Discord: Discord,
-    Github: Github,
-    Google: Google,
-    Twitter: Twitter,
-    Gitlab: Gitlab,
+const all = {
+    chrome: Chrome,
+    edge: Edge,
+    opera: Opera,
+    safari: Safari,
+    firefox: Firefox,
+    mobile: Mobile,
+    android: Android,
+    iphone: IPhone,
+    mac: Mac,
+    discord: Discord,
+    github: Github,
+    google: Google,
+    twitter: Twitter,
+    gitlab: Gitlab,
 
-    Email: Email,
-    User: User
+    email: Email,
+    user: User
 } satisfies GlyphSet;
+
+export type BrandGlyph = keyof typeof all;
+export default all;

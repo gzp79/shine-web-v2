@@ -2,9 +2,20 @@ import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 const config = {
-    // Consult https://svelte.dev/docs/kit/integrations
-    // for more information about preprocessors
     preprocess: vitePreprocess(),
+
+    vitePlugin: {
+        inspector: {
+            showToggleButton: 'always',
+            toggleButtonPos: 'bottom-right'
+        }
+    },
+
+    compilerOptions: {
+        experimental: {
+            async: true
+        }
+    },
 
     kit: {
         // adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
@@ -21,12 +32,6 @@ const config = {
         },
         experimental: {
             remoteFunctions: true
-        }
-    },
-
-    compilerOptions: {
-        experimental: {
-            async: true
         }
     }
 };

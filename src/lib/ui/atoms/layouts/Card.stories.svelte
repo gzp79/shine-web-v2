@@ -7,6 +7,7 @@
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Firefox from '@lib/ui/atoms/glyphs/brands/Firefox.svelte';
     import Dots from '@lib/ui/atoms/icons/animated/Dots.svelte';
+    import Button from '@lib/ui/atoms/input/Button.svelte';
     import { widthList } from '@lib/ui/atoms/layouts';
     import Card, { type CardProps } from '@lib/ui/atoms/layouts/Card.svelte';
 
@@ -127,9 +128,75 @@
                 <Firefox size="md" />
             {/snippet}
             {#snippet title()}
-                <Typography element="h1" variant="h2">Card Title</Typography><Dots />
+                <Typography element="h1" variant="h2">Card Title</Typography>
+                <Dots />
             {/snippet}
             {@render cardContent(args)}
+        </Card>
+    {/snippet}
+</Story>
+
+<Story name="With actions">
+    {#snippet template(args)}
+        {@const { children, icon, title, ...otherArgs } = args}
+        <Card {...otherArgs} contentClass="max-h-48">
+            {@render cardContent(args)}
+            {#snippet actions()}
+                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
+                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+            {/snippet}
+        </Card>
+    {/snippet}
+</Story>
+
+<Story name="With title and actions">
+    {#snippet template(args)}
+        {@const { children, icon, title, ...otherArgs } = args}
+        <Card {...otherArgs} contentClass="max-h-48">
+            {#snippet title()}
+                <Typography variant="h1">Card with Actions</Typography>
+            {/snippet}
+            {@render cardContent(args)}
+            {#snippet actions()}
+                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
+                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+            {/snippet}
+        </Card>
+    {/snippet}
+</Story>
+
+<Story name="With icon and actions">
+    {#snippet template(args)}
+        {@const { children, icon, title, ...otherArgs } = args}
+        <Card {...otherArgs} contentClass="max-h-48">
+            {#snippet icon()}
+                <Firefox size="md" />
+            {/snippet}
+            {@render cardContent(args)}
+            {#snippet actions()}
+                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
+                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+            {/snippet}
+        </Card>
+    {/snippet}
+</Story>
+
+<Story name="With all features">
+    {#snippet template(args)}
+        {@const { children, icon, title, ...otherArgs } = args}
+        <Card {...otherArgs} contentClass="max-h-48">
+            {#snippet icon()}
+                <Firefox size="md" />
+            {/snippet}
+            {#snippet title()}
+                <Typography element="h1" variant="h2">Card Title</Typography>
+                <Dots />
+            {/snippet}
+            {@render cardContent(args)}
+            {#snippet actions()}
+                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
+                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+            {/snippet}
         </Card>
     {/snippet}
 </Story>

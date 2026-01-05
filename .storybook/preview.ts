@@ -20,13 +20,6 @@ if (typeof document !== 'undefined') {
 
 const preview: Preview = {
     parameters: {
-        controls: {
-            matchers: {
-                color: /(background|color)$/i,
-                date: /Date$/i
-            }
-        },
-
         options: {
             storySort: {
                 order: [
@@ -44,7 +37,7 @@ const preview: Preview = {
                         ['Dropdown']
                     ],
                     'Components',
-                    ['App', 'ThemeMenu', 'LanguageMenu']
+                    ['App', ['MessageContent', 'FlowContent', 'ThemeMenu', 'LanguageMenu'], 'Status']
                 ]
             }
         }

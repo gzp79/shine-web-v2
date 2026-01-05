@@ -1,3 +1,4 @@
+import { browser } from '$app/environment';
 import type { Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
 import { getCookie, setCookie } from '@lib/utils';
@@ -14,16 +15,22 @@ export async function loadThemeServerSide(cookies: Cookies): Promise<Theme> {
     return normalizeTheme(cookies.get('theme'));
 }
 
-export function loadThemeClientSide(fallback: Theme = defaultTheme): Theme {
+export function loadTheme(fallback: Theme = defaultTheme): Theme {
+    if (!browser) {
+        return fallback;
+    }
+
     return normalizeTheme(getCookie('theme') ?? fallback);
 }
 
 const THEME_CONTEXT_KEY = Symbol('theme-context');
 
-export type ThemeContext = ReturnType<typeof createThemeContext>;
+export type ThemeContext = {
+    current: Theme;
+};
 
-export function createThemeContext() {
-    let rune = $state(defaultTheme);
+export function createThemeContext(): ThemeContext {
+    let rune = $state(loadTheme());
 
     $effect(() => {
         setCookie('theme', rune);

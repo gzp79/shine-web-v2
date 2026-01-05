@@ -14,7 +14,7 @@
     "dateTime": "{{value:date}}",
     "currency": "{{value:currency}}",
 
-    "loading": "Betöltés...",
+    "loading": "Betöltés",
     "somethingWentWrong": "Valami hiba történt",
 
     "ok": "Rendben",

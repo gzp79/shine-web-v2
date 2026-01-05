@@ -1,4 +1,5 @@
 import { config } from '@config';
+import '@lib/prelude-math';
 
 if (config.environment === 'mock') {
     console.info('Starting browser mock worker...');
@@ -19,19 +20,15 @@ if (config.environment === 'mock') {
                 return;
             }
 
-            const proxyToLocal: [string, RegExp][] = [
-                [config.webUrl, /^\/node_modules\//],
-                [config.webUrl, /^\/.svelte-kit\//],
-                [config.webUrl, /^\/src\//],
-                [config.webUrl, /^\/@id\/.*/],
-                [config.webUrl, /.*\/__data.json.*/],
-                [config.webUrl, /^\/favicon.*/],
-                [config.webUrl, /^\/$/]
-            ];
+            if (request.url.startsWith(config.webUrl)) {
+                return bypass(request);
+            }
+
+            /*const proxyToLocal: [string, RegExp][] = [];
             if (proxyToLocal.some(([host, path]) => request.url.startsWith(host) && path.test(url.pathname))) {
                 //console.debug(`Bypassing to local server: ${request.url}`);
                 return bypass(request);
-            }
+            }*/
 
             print.warning();
             throw new Error(`No handler for ${request.url}`);

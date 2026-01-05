@@ -19,7 +19,7 @@
     let {
         color = undefined,
         border = true,
-        shadow = true,
+        shadow = false,
         ghost = false,
         width = 'fit',
         margin = undefined,
@@ -29,12 +29,14 @@
         containerClass = undefined,
         contentClass = undefined,
 
-        children
+        children,
+
+        ...contentRest
     }: BoxProps = $props();
 </script>
 
 <ContainerRoot data-slot="box" {color} {border} {shadow} {ghost} {width} {margin} class={containerClass}>
-    <ContainerContent data-slot="box-content" {padding} {overflow} class={contentClass}>
+    <ContainerContent data-slot="box-content" {padding} {overflow} class={contentClass} {...contentRest}>
         {@render children()}
     </ContainerContent>
 </ContainerRoot>

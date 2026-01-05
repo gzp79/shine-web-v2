@@ -14,7 +14,7 @@
     "dateTime": "{{value:date}}",
     "currency": "{{value:currency}}",
 
-    "loading": "Loading...",
+    "loading": "Loading",
     "somethingWentWrong": "Something went wrong",
 
     "ok": "Ok",

@@ -68,7 +68,7 @@
     {#snippet template(args)}
         {@const { children, color, ...otherArgs } = args}
         <Stack>
-            {#each ['primary', 'secondary', 'info', 'success', 'warning', 'danger'] as colorValue (colorValue)}
+            {#each actionColorList as colorValue (colorValue)}
                 <Box {...otherArgs} color={colorValue}>
                     <Typography variant="text">{colorValue} variant</Typography>
                 </Box>

@@ -13,6 +13,7 @@
         width?: Width;
         margin?: ResponsiveSpacing;
         'data-slot': string;
+        role?: string;
         class?: ClassValue | null;
         children: Snippet;
     };
@@ -85,8 +86,9 @@
 
     const widthVariants: Record<Width, string> = {
         fit: 'max-w-full w-fit',
-        small: 'w-[75%] lg:w-[60%]',
-        big: 'w-[95%] lg:w-[80%]',
+        sm: 'w-[60%] lg:w-[60%]',
+        md: 'w-[75%] lg:w-[70%]',
+        lg: 'w-[99%] lg:w-[90%]',
         full: 'w-full'
     };
 

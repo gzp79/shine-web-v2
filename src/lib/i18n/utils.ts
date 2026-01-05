@@ -1,7 +1,7 @@
 export interface ILocation {
-    country?: string;
-    region?: string;
-    city?: string;
+    country?: string | null;
+    region?: string | null;
+    city?: string | null;
 }
 
 export function formatLocation(location: ILocation): string {

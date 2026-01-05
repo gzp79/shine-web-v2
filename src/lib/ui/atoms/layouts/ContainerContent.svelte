@@ -1,14 +1,19 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import { type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
+    import type { HTMLAttributes } from 'svelte/elements';
+    import { type AriaLive, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
     import { type Overflow } from '@lib/ui/atoms/layouts';
     import { cn } from '@lib/ui/utils';
+
+    export type T = HTMLAttributes<HTMLDivElement> & { aaa: string };
 
     export type ContainerContentProps = {
         padding?: ResponsiveSpacing;
         overflow?: Overflow;
         'data-slot': string;
+        'aria-live'?: AriaLive;
+        role?: string;
         class?: ClassValue | null;
         children: Snippet;
     };
@@ -31,7 +36,7 @@
     };
 
     let contentCls = $derived(
-        cn(toSpacingClasses(padding, { all: 'p', x: 'px', y: 'py' }), scrollClass[overflow], className)
+        cn('w-full', toSpacingClasses(padding, { all: 'p', x: 'px', y: 'py' }), scrollClass[overflow], className)
     );
 </script>
 

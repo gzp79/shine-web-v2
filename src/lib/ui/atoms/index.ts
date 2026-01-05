@@ -1,13 +1,13 @@
-export const containerColorList = ['surface', 'container', 'sub-container'];
+export const containerColorList = ['surface', 'container', 'sub-container'] as const;
 export type ContainerColor = (typeof containerColorList)[number];
 
-export const actionColorList = ['primary', 'secondary', 'info', 'warning', 'danger', 'success'];
+export const actionColorList = ['primary', 'secondary', 'info', 'warning', 'danger', 'success'] as const;
 export type ActionColor = (typeof actionColorList)[number];
 
-export const sizeList = ['xs', 'sm', 'md', 'lg'];
+export const sizeList = ['xs', 'sm', 'md', 'lg'] as const;
 export type Size = (typeof sizeList)[number];
 
-export const iconSizeList = [...sizeList, 'full', 'text'];
+export const iconSizeList = [...sizeList, 'full', 'text'] as const;
 export type IconSize = (typeof iconSizeList)[number];
 
 export const spacingList = [
@@ -17,3 +17,5 @@ export type Spacing = (typeof spacingList)[number];
 
 export { type ResponsiveSpacing, toSpacingClasses } from './_spacing';
 export { type ResponsiveProp, toResponsiveClass } from './_responsive-prop';
+
+export type AriaLive = 'off' | 'assertive' | 'polite' | undefined | null;
