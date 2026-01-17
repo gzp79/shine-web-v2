@@ -7,29 +7,28 @@
     import { type ContainerInfo, getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import { cn } from '@lib/ui/utils';
 
-    export type ButtonStyleParams = {
+    export type ButtonStyleProps = {
         color?: ActionColor;
         wide?: boolean;
         size?: Size;
         variant?: InputVariant;
         disabled?: boolean;
-        highlight?: boolean;
         class?: ClassValue;
+        showFocus?: boolean;
+        useGroupFocus?: boolean;
     };
 
-    export type ButtonProps = ButtonRootProps & ButtonStyleParams;
+    export type ButtonProps = ButtonRootProps & ButtonStyleProps;
 
-    export const getButtonStyle = (
-        style: ButtonStyleParams,
-        containerInfo: 'auto' | 'root' | ContainerInfo
-    ): string => {
+    export const getButtonStyle = (style: ButtonStyleProps, containerInfo: 'auto' | 'root' | ContainerInfo): string => {
         const {
             color: baseColor = undefined,
             variant = 'filled',
             size = 'md',
             wide = false,
             disabled = false,
-            highlight = false,
+            showFocus = false,
+            useGroupFocus = false,
             class: className
         } = style;
 
@@ -44,15 +43,17 @@
             lg: 'text-lg leading-none h-14 px-4'
         };
 
+        const groupFocus = ['ring-2 ', 'ring-inset', `ring-on-${color}`]
+            .map((cls) => (showFocus ? `focus:${cls}` : `focus-visible:${cls}`))
+            .map((cls) => (useGroupFocus ? `group-${cls}` : cls));
+
         return cn(
             'border-2 rounded-full',
             'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap outline-none text-center',
-            'focus-visible:ring-2 focus-visible:ring-inset',
-            `focus-visible:ring-${color}-2`,
+            groupFocus,
             wide ? 'min-w-full justify-around' : 'w-fit',
             !disabled && 'active:scale-95',
             disabled && '!opacity-30 !cursor-not-allowed',
-            !disabled && highlight && 'highlight',
 
             sizeMods[size],
 
@@ -79,27 +80,16 @@
 </script>
 
 <script lang="ts">
-    let {
-        color: baseColor = undefined,
-        variant = 'filled',
-        size = 'md',
-        wide = false,
-        disabled = false,
-        highlight = false,
-        class: className,
-        children,
-        ...restProps
-    }: ButtonProps = $props();
+    let { color, variant, size, wide, disabled, class: className, children, ...restProps }: ButtonProps = $props();
 
     let cls = $derived(
         getButtonStyle(
             {
-                color: baseColor,
+                color,
                 variant,
                 size,
                 wide,
                 disabled,
-                highlight,
                 class: className
             },
             'auto'

@@ -54,9 +54,9 @@
 </script>
 
 <Card width="full">
-    {#snippet icon()}
+    {#snippet icon({ class: cls })}
         {@const AgentImage = agentImage}
-        <AgentImage size="full" />
+        <AgentImage class={cls} />
     {/snippet}
 
     <PropertyList

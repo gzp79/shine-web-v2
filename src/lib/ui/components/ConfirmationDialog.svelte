@@ -1,54 +1,63 @@
 <script module lang="ts">
-    import type { Snippet } from 'svelte';
+    import { type Snippet } from 'svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import { getButtonStyle } from '@lib/ui/atoms/input/Button.svelte';
     import Dialog, { type DialogProps } from '@lib/ui/atoms/layouts/Dialog.svelte';
+    import { type RefBinding } from '@lib/ui/utils';
 
     export type ConfirmationDialogProps = Pick<
         DialogProps,
-        'width' | 'color' | 'role' | 'shadow' | 'to' | 'trigger' | 'triggerClass' | 'open' | 'onOpenChange'
+        'width' | 'color' | 'role' | 'shadow' | 'to' | 'trigger' | 'triggerX' | 'triggerClass' | 'open' | 'onOpenChange'
     > & {
         title: string;
         question: string;
-        confirm: string | Snippet<[{ class: string }]>;
+        confirm: string | Snippet<[{ class: string; onclick: () => void; ref: RefBinding }]>;
         onConfirm?: () => void;
-        cancel?: string | Snippet<[{ class: string }]>;
+        cancel?: string | Snippet<[{ class: string; onclick: () => void }]>;
         onCancel?: () => void;
-        mandatory?: boolean;
+        preventClose?: boolean;
     };
 </script>
 
 <script lang="ts">
     let {
-        open,
+        open = $bindable(false),
         title,
         question,
         confirm,
         onConfirm = undefined,
         cancel = undefined,
         onCancel = undefined,
-        mandatory = false,
+        preventClose = false,
         ...restProps
     }: ConfirmationDialogProps = $props();
 
-    const cancelClass = $derived(getButtonStyle({}, 'auto'));
+    let confirmElement = $state<HTMLElement | null>(null);
+
+    const cancelCls = $derived(getButtonStyle({ color: 'primary', showFocus: true }, 'auto'));
+    const confirmCls = $derived(getButtonStyle({ color: 'secondary', showFocus: true }, 'auto'));
+
     const handleCancel = () => {
         open = false;
         onCancel?.();
     };
-
-    const confirmClass = $derived(getButtonStyle({ color: 'primary' }, 'auto'));
     const handleConfirm = () => {
         open = false;
         onConfirm?.();
+    };
+    const onOpenAutoFocus = (e: Event) => {
+        e.preventDefault();
+        confirmElement?.focus();
     };
 </script>
 
 <Dialog
     {title}
     bind:open
-    escapeKeydownBehavior={mandatory ? 'ignore' : undefined}
-    interactOutsideBehavior={mandatory ? 'ignore' : undefined}
+    escapeKeydownBehavior={preventClose ? 'ignore' : undefined}
+    interactOutsideBehavior={preventClose ? 'ignore' : undefined}
+    closeIcon={!preventClose}
+    {onOpenAutoFocus}
     {...restProps}
 >
     <Typography variant="text">
@@ -57,15 +66,19 @@
 
     {#snippet actions()}
         {#if typeof cancel === 'string'}
-            <button onclick={handleCancel} class={cancelClass}>{cancel}</button>
+            <button onclick={handleCancel} class={cancelCls}>{cancel}</button>
         {:else}
-            {@render cancel?.({ class: cancelClass })}
+            {@render cancel?.({ class: cancelCls, onclick: handleCancel })}
         {/if}
 
         {#if typeof confirm === 'string'}
-            <button onclick={handleConfirm} class={confirmClass}>{confirm}</button>
+            <button bind:this={confirmElement} onclick={handleConfirm} class={confirmCls}>{confirm}</button>
         {:else}
-            {@render confirm?.({ class: confirmClass })}
+            {@render confirm({
+                class: confirmCls,
+                onclick: handleConfirm,
+                ref: { get: () => confirmElement, set: (v) => (confirmElement = v) }
+            })}
         {/if}
     {/snippet}
 </Dialog>

@@ -71,7 +71,7 @@
     let cls = $derived(
         cn(
             'rounded-lg border-2',
-
+            `focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-on-${color}`,
             invalid && '!border-on-danger',
 
             sizeMods[size],

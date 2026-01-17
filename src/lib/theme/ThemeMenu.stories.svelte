@@ -1,4 +1,5 @@
 <script module lang="ts">
+    import { withinPopover } from '@sb/pagemodels/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { tick } from 'svelte';
@@ -29,9 +30,7 @@
 <Story
     name="ThemeSelector"
     play={async ({ canvasElement }) => {
-        const portal = document.body.querySelector('#storybook-root') as HTMLElement;
-        expect(portal).not.toBeNull();
-        const canvas = within(portal);
+        const canvas = withinPopover();
 
         // Open theme submenu
         const themeSubTrigger = await waitFor(async () => {
@@ -62,7 +61,7 @@
     }}
 >
     {#snippet template(args)}
-        <Dropdown.Menu to="#storybook-root" open={true} class="w-56" align="start">
+        <Dropdown.Menu open={true} class="w-56" align="start">
             {#snippet trigger()}
                 Setting [{theme.current}]
             {/snippet}

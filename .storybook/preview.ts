@@ -13,6 +13,7 @@ if (typeof document !== 'undefined') {
         body, #storybook-root {
             overflow: auto !important;
             height: auto !important;
+            padding: 1rem !important;
         }
     `;
     document.head.appendChild(style);
@@ -84,6 +85,19 @@ const preview: Preview = {
                 document.documentElement.classList.add('bg-surface', 'text-on-surface');
             }
 
+            return story();
+        },
+        (story) => {
+            // popup are added to a separate root element with id "popover".
+            // In application this is handled by the app shell, but in Storybook we need to create it ourselves.
+            if (typeof document !== 'undefined') {
+                let popupRoot = document.getElementById('popover');
+                if (!popupRoot) {
+                    popupRoot = document.createElement('div');
+                    popupRoot.id = 'popover';
+                    document.body.appendChild(popupRoot);
+                }
+            }
             return story();
         }
     ]

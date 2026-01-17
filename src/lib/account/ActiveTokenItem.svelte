@@ -3,8 +3,8 @@
     import { formatLocation } from '@lib/i18n/utils';
     import { logAPI } from '@lib/loggers';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
+    import ConfirmationButton from '@lib/ui/components/ConfirmationButton.svelte';
     import { type AppError, createAppError } from '@lib/utils';
     import type { ActiveToken } from './account.remote';
 
@@ -78,8 +78,18 @@
     />
 
     {#snippet actions()}
-        <Button disabled={dirty || disabled} color="danger" onclick={handleRevoke}>
+        <ConfirmationButton
+            disabled={dirty || disabled}
+            color="danger"
+            confirmation={{
+                title: $t('account.revokeTokenConfirmation.title'),
+                question: $t('account.revokeTokenConfirmation.question'),
+                confirm: $t('account.revokeTokenConfirmation.confirmText'),
+                cancel: $t('account.revokeTokenConfirmation.cancelText')
+            }}
+            onConfirm={handleRevoke}
+        >
             {$t('account.revoke')}
-        </Button>
+        </ConfirmationButton>
     {/snippet}
 </Card>

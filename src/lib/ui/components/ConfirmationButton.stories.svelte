@@ -1,25 +1,28 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, fn, within } from 'storybook/test';
+    import { expect, fn, waitFor, within } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import FlagGB from '@lib/ui/atoms/glyphs/flags/gb.svelte';
     import Spinner from '@lib/ui/atoms/icons/animated/Spinner.svelte';
     import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
     import { inputVariantList } from '@lib/ui/atoms/input';
-    import Button, { type ButtonProps } from '@lib/ui/atoms/input/Button.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import ConfirmationButton, { type ConfirmationButtonProps } from '@lib/ui/components/ConfirmationButton.svelte';
 
     const { Story } = defineMeta({
-        component: Button,
-        title: 'Atoms/Inputs/Button',
+        title: 'Components/ConfirmationButton',
+        component: ConfirmationButton,
         args: {
-            color: undefined,
-            size: undefined,
-            variant: 'filled',
-            wide: undefined,
-            disabled: undefined
+            confirmation: {
+                trigger: 'Open Dialog',
+                title: 'Confirm Action',
+                question: 'Are you sure you want to proceed?',
+                confirm: 'Yes',
+                cancel: 'No',
+                preventClose: undefined
+            }
         },
         argTypes: {
             color: {
@@ -48,47 +51,25 @@
             expect(canvasElement).toBeDefined();
         }
     });
-
-    const href = 'https://example.com';
 </script>
 
-<Story
-    name="Default Action"
-    args={{ onclick: fn() }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const button = await canvas.getByRole('button');
-        await button.click();
-        expect(args.onclick).toHaveBeenCalled();
-    }}
->
-    Click Me
-</Story>
+<script lang="ts">
+</script>
 
-<Story
-    name="Default Link"
-    args={{ href }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const link = await canvas.getByRole('link');
-        expect(link).toHaveAttribute('href', args.href);
-    }}
->
-    Click Me
-</Story>
+<Story name="Default">This is a button</Story>
 
-{#snippet buttonSet(args: ButtonProps)}
+{#snippet buttonSet(args: ConfirmationButtonProps)}
     <Stack direction="row" alignment="center" justification="start" wrap margin={2}>
-        <Button {...args}><Settings /></Button>
-        <Button {...args}>Click Me</Button>
-        <Button {...args}>Loading... <Spinner /></Button>
-        <Button {...args}><FlagGB />English</Button>
+        <ConfirmationButton {...args}><Settings /></ConfirmationButton>
+        <ConfirmationButton {...args}>Click Me</ConfirmationButton>
+        <ConfirmationButton {...args}>Loading... <Spinner /></ConfirmationButton>
+        <ConfirmationButton {...args}><FlagGB />English</ConfirmationButton>
     </Stack>
 {/snippet}
 
-<Story
+<!-- <Story
     name="Disabled Action"
-    args={{ onclick: fn() }}
+    args={{ onChclick: fn() }}
     play={async ({ canvasElement, args }) => {
         const canvas = within(canvasElement);
 
@@ -106,28 +87,7 @@
             {@render buttonSet({ ...args, disabled: true })}
         </Stack>
     {/snippet}
-</Story>
-
-<Story
-    name="Disabled Link"
-    args={{ href }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-
-        const links = await canvas.getAllByRole('link');
-        expect(links.length).toBe(4);
-        for (const link of links) {
-            expect(link).toHaveAttribute('aria-disabled', 'true');
-            expect(link).not.toHaveAttribute('href');
-        }
-    }}
->
-    {#snippet template(args)}
-        <Stack>
-            {@render buttonSet({ ...args, disabled: true })}
-        </Stack>
-    {/snippet}
-</Story>
+</Story> -->
 
 <Story name="All Colors">
     {#snippet template(args)}

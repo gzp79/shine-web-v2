@@ -8,7 +8,7 @@
 
     export type MenuProps = WithoutChildrenOrChild<DropdownMenuPrimitive.RootProps> &
         WithoutChildrenOrChild<DropdownMenuPrimitive.ContentProps> & {
-            to: string;
+            to?: string;
             trigger?: Snippet;
             triggerClass?: ClassValue;
             children?: Snippet;
@@ -21,11 +21,11 @@
 
 <script lang="ts">
     let {
+        to = '#popover',
         open = $bindable(false),
         onOpenChange,
         onOpenChangeComplete,
         sideOffset = 4,
-        to = '#popover',
         trigger,
         triggerClass,
         children,

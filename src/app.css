@@ -223,9 +223,9 @@ Color helper:
     }
 }
 
+:focus,
 :focus-visible {
     outline: none;
-    box-shadow: inset 0 0 0 2px currentColor;
 }
 
 body {
@@ -234,8 +234,4 @@ body {
 
 #app {
     @apply flex h-full w-full flex-col overflow-hidden;
-}
-
-#storybook-root {
-    @apply m-4;
 }

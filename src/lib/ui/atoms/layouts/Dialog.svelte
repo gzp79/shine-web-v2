@@ -13,15 +13,20 @@
     import ContainerContent, { type ContainerContentProps } from './ContainerContent.svelte';
     import ContainerRoot, { type ContainerRootProps, getContainerContext } from './ContainerRoot.svelte';
 
+    export type DialogTriggerXProps = Omit<DialogPrimitive.TriggerProps, 'children' | 'child' | 'class'>;
+
     export type DialogProps = Pick<DialogPrimitive.RootProps, 'open' | 'onOpenChange' | 'onOpenChangeComplete'> &
         Pick<DialogPrimitive.PortalProps, 'to'> &
-        Pick<DialogPrimitive.ContentProps, 'escapeKeydownBehavior' | 'interactOutsideBehavior'> &
+        Pick<DialogPrimitive.ContentProps, 'escapeKeydownBehavior' | 'interactOutsideBehavior' | 'onOpenAutoFocus'> &
         Pick<ContainerRootProps, 'color' | 'shadow' | 'width'> &
         Pick<ContainerContentProps, 'padding'> & {
             role?: AriaRole;
             trigger?: string | Snippet<[{ class: string }]>;
+            // Extra props for the trigger element (for example: disabled).
+            triggerX?: DialogTriggerXProps;
+            // By default trigger has a filled, button-like style.
             triggerClass?: ClassValue;
-            closeIcon?: true | Snippet<[{ class: string }]>;
+            closeIcon?: boolean | Snippet<[{ class: string }]>;
             closeIconClass?: ClassValue;
             title?: string | Snippet<[{ class: string }]>;
             titleClass?: ClassValue;
@@ -38,6 +43,7 @@
         open = $bindable(false),
         onOpenChange,
         onOpenChangeComplete,
+        onOpenAutoFocus,
 
         role = undefined,
         escapeKeydownBehavior = undefined,
@@ -49,6 +55,7 @@
         padding = 2,
 
         trigger,
+        triggerX,
         triggerClass,
         closeIcon,
         closeIconClass,
@@ -79,7 +86,7 @@
         full: 'w-full p-2'
     };
 
-    let triggerCls = $derived(getButtonStyle({ class: triggerClass }, 'auto'));
+    let triggerCls = $derived(getButtonStyle({ class: triggerClass, useGroupFocus: true }, 'auto'));
     let overlayCls = $derived(
         cn(
             'fixed inset-0 z-40',
@@ -108,7 +115,8 @@
             'h-8 w-8',
             'p-1',
             'justify-end align-center',
-            'hover:rounded-md hover:backdrop-brightness-highlight',
+            'hover:rounded-m    d hover:backdrop-brightness-highlight',
+            'group-focus-visible:ring-2 group-focus-visible:ring-inset group-focus-visible:ring-on-surface',
             closeIconClass
         )
     );
@@ -127,11 +135,15 @@
 
 <DialogPrimitive.Root bind:open {onOpenChange} {onOpenChangeComplete}>
     {#if typeof trigger === 'string'}
-        <DialogPrimitive.Trigger data-slot="dialog-trigger" class={triggerCls}>
+        <DialogPrimitive.Trigger data-slot="dialog-trigger" class={triggerCls} {...triggerX}>
             {trigger}
         </DialogPrimitive.Trigger>
     {:else}
-        <DialogPrimitive.Trigger data-slot="dialog-trigger">
+        <DialogPrimitive.Trigger
+            data-slot="dialog-trigger"
+            {...triggerX}
+            class="group focus-visible:ring-0 outline-none"
+        >
             {@render trigger?.({ class: triggerCls })}
         </DialogPrimitive.Trigger>
     {/if}
@@ -140,6 +152,7 @@
         <DialogPrimitive.Overlay class={overlayCls} />
         <DialogPrimitive.Content
             class={dialogCls}
+            {onOpenAutoFocus}
             escapeKeydownBehavior={escapeKeydownBehaviorWithRole}
             interactOutsideBehavior={interactOutsideBehaviorWithRole}
         >
@@ -155,7 +168,10 @@
                                 {/if}
                             </DialogPrimitive.Title>
                             {#if closeIcon}
-                                <DialogPrimitive.Close aria-label={$t('common.close')}>
+                                <DialogPrimitive.Close
+                                    aria-label={$t('common.close')}
+                                    class="group focus-visible:ring-0 outline-none"
+                                >
                                     {#if closeIcon === true}
                                         <Cross class={closeIconCls} />
                                     {:else}

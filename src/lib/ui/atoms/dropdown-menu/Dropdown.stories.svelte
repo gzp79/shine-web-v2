@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { expectErrorState } from '@sb/pagemodels/error';
+    import { withinPopover } from '@sb/pagemodels/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { tick } from 'svelte';
@@ -10,7 +10,6 @@
         title: 'Atoms/Menu/Dropdown',
         component: Menu,
         args: {
-            to: '#storybook-root',
             class: 'w-56',
             align: 'start',
             open: true
@@ -58,9 +57,7 @@
     name="SubMenu"
     args={{ trigger }}
     play={async () => {
-        const portal = document.body.querySelector('#storybook-root') as HTMLElement;
-        expect(portal).not.toBeNull();
-        const canvas = within(portal);
+        const canvas = withinPopover();
 
         const subTrigger = await canvas.getByRole('menuitem', { name: 'Invite users' });
         await userEvent.hover(subTrigger!);
@@ -99,10 +96,7 @@
     name="Checkbox"
     args={{ trigger }}
     play={async ({ canvasElement }) => {
-        const portal = document.body.querySelector('#storybook-root') as HTMLElement;
-        expect(portal).not.toBeNull();
-        const canvas = within(portal);
-
+        const canvas = withinPopover();
         const heading = await canvas.getByText(/Choose some .*/);
 
         const item1 = (await canvas.getAllByRole('menuitemcheckbox', { name: 'Value 1' }))[0];
@@ -139,10 +133,7 @@
     name="Radio"
     args={{ trigger }}
     play={async ({ canvasElement }) => {
-        const portal = document.body.querySelector('#storybook-root') as HTMLElement;
-        expect(portal).not.toBeNull();
-        const canvas = within(portal);
-
+        const canvas = withinPopover();
         const heading = await canvas.getByText(/Choose one .*/);
 
         const item = (await canvas.getAllByRole('menuitemradio', { name: 'Value 1' }))[0];

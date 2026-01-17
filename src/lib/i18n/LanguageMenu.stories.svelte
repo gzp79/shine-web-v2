@@ -1,4 +1,5 @@
 <script module lang="ts">
+    import { withinPopover } from '@sb/pagemodels/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, userEvent, waitFor, within } from 'storybook/test';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
@@ -27,9 +28,7 @@
 <Story
     name="LanguageSelector"
     play={async ({ canvasElement }) => {
-        const portal = document.body.querySelector('#storybook-root') as HTMLElement;
-        expect(portal).not.toBeNull();
-        const canvas = within(portal);
+        const canvas = withinPopover();
 
         const langSubTrigger = await waitFor(async () => {
             const langSubTrigger = await canvas.getByRole('menuitem', { name: langRegexps[language.current] });
@@ -59,7 +58,7 @@
     }}
 >
     {#snippet template(args)}
-        <Dropdown.Menu to="#storybook-root" open={true} class="w-56" align="start">
+        <Dropdown.Menu open={true} class="w-56" align="start">
             {#snippet trigger()}
                 Settings [{language.current}]
             {/snippet}

@@ -1,5 +1,6 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
+    import { clickDialogButton } from '@sb/pagemodels/dialog';
     import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/pagemodels/error';
     import { expectLoadingState, waitForLoadingToComplete } from '@sb/pagemodels/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
@@ -105,23 +106,29 @@
         revoke: (_tokenHash: string) =>
             async.rejected(createOtherError('A test error occurred while revoking the token'))
     }}
-    play={async ({ canvasElement }) => {
+    play={async ({ canvasElement, step }) => {
         const canvas = within(canvasElement);
         await waitForLoadingToComplete(canvas);
 
-        const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
-        await unlink.click();
-        const error = await waitForErrorState(canvas, /A test error occurred while revoking the token/);
-        const closeBtn = await within(error).getByRole('button', { name: /retry/i });
-        await closeBtn.click();
-        await waitForErrorToBeRemoved(canvas);
+        await step('Unlink token', async () => {
+            const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
+            await unlink.click();
+            await clickDialogButton(/confirmText/i);
+        });
 
-        {
+        await step('Handle error', async () => {
+            const error = await waitForErrorState(canvas, /A test error occurred while revoking the token/);
+            const closeBtn = await within(error).getByRole('button', { name: /retry/i });
+            await closeBtn.click();
+            await waitForErrorToBeRemoved(canvas);
+        });
+
+        await step('After revoke, the tokens are reloaded', async () => {
             const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
             expect(unlink).toBeDisabled();
-            waitFor(async () => {
+            await waitFor(async () => {
                 expect(unlink).not.toBeDisabled();
             });
-        }
+        });
     }}
 />

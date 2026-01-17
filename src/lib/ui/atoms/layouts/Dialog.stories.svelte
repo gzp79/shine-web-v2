@@ -1,7 +1,8 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
+    import { withinPopover } from '@sb/pagemodels/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, waitFor, within } from 'storybook/test';
+    import { expect, waitFor } from 'storybook/test';
     import type { Component } from 'svelte';
     import { actionColorList, spacingList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms//Typography.svelte';
@@ -21,7 +22,6 @@
         title: 'Atoms/Layouts/Dialog',
         component: Dialog,
         args: {
-            to: '#storybook-root',
             trigger: 'Open Dialog',
             open: true,
             content: 'medium'
@@ -67,10 +67,7 @@
             }
         },
         play: async () => {
-            const portal = document.body.querySelector('#storybook-root') as HTMLElement;
-            expect(portal).not.toBeNull();
-            const canvas = within(portal);
-
+            const canvas = withinPopover();
             await waitFor(async () => {
                 const dialog = await canvas.getByRole('dialog');
                 await expect(dialog).toBeVisible();
