@@ -1,6 +1,7 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
+    import Typography from '@lib/ui/atoms/Typography.svelte';
     import ContainerContent, { type ContainerContentProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
     import ContainerRoot, { type ContainerRootProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -11,9 +12,9 @@
 
     export type CardProps = RootProps &
         ContentProps & {
-            icon?: Snippet;
+            icon?: Snippet<[{ class: string }]>;
             iconClass?: ClassValue | null;
-            title?: Snippet;
+            title?: string | Snippet<[{ class: string }]>;
             titleClass?: ClassValue | null;
             children: Snippet;
             contentClass?: ClassValue | null;
@@ -72,7 +73,7 @@
         aria-live={ariaLive}
     >
         {#if icon}
-            <div class={iconCls}>{@render icon()}</div>
+            {@render icon({ class: iconCls })}
         {/if}
         <Stack
             direction="column"
@@ -82,9 +83,13 @@
             class="min-w-0 flex-1 overflow-clip"
         >
             {#if title}
-                <div class={titleCls}>
-                    {@render title()}
-                </div>
+                {#if typeof title === 'string'}
+                    <div class={titleCls}>
+                        <Typography element="h1" variant="h2">{title}</Typography>
+                    </div>
+                {:else}
+                    {@render title({ class: titleCls })}
+                {/if}
             {/if}
 
             <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>

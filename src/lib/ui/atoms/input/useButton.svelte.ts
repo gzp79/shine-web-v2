@@ -61,17 +61,17 @@ export const useButtonStyle: Action = (node: HTMLElement, params?: UseButtonPara
                 `bg-${color}`,
                 `text-on-${color}`,
                 `border-on-${color}`,
-                !disabled && 'hover:highlight'
+                !disabled && 'hover:brightness-highlight'
             ],
             variant === 'outline' && [
                 containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
                 containerInfo && !baseColor ? `border-${containerInfo.border}` : `border-on-${color}`,
-                !disabled && 'hover:highlight-backdrop'
+                !disabled && 'hover:backdrop-brightness-highlight'
             ],
             variant === 'ghost' && [
                 containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
                 'border-transparent',
-                !disabled && 'hover:highlight-backdrop'
+                !disabled && 'hover:backdrop-brightness-highlight'
             ]
         )
     );

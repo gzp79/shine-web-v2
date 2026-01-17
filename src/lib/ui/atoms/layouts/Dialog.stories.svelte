@@ -1,25 +1,29 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
+    import { expect, waitFor, within } from 'storybook/test';
     import type { Component } from 'svelte';
     import { actionColorList, spacingList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Firefox from '@lib/ui/atoms/glyphs/brands/Firefox.svelte';
+    import Typography from '@lib/ui/atoms//Typography.svelte';
     import Dots from '@lib/ui/atoms/icons/animated/Dots.svelte';
+    import Fatal from '@lib/ui/atoms/icons/common/Fatal.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import { layoutWidthList } from '@lib/ui/atoms/layouts';
-    import Card, { type CardProps } from '@lib/ui/atoms/layouts/Card.svelte';
+    import Dialog, { type DialogProps } from '@lib/ui/atoms/layouts/Dialog.svelte';
+    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
 
     type ExtraProps = {
         content?: string;
     };
 
-    const { Story } = defineMeta<unknown, Component<CardProps & ExtraProps>>({
-        component: Card,
-        title: 'Atoms/Layouts/Card',
+    const { Story } = defineMeta<unknown, Component<DialogProps & ExtraProps>>({
+        title: 'Atoms/Layouts/Dialog',
+        component: Dialog,
         args: {
+            to: '#storybook-root',
+            trigger: 'Open Dialog',
+            open: true,
             content: 'medium'
         },
         argTypes: {
@@ -34,20 +38,6 @@
                 control: { type: 'select' },
                 options: ['default', ...layoutWidthList],
                 mapping: {
-                    default: undefined
-                }
-            },
-            margin: {
-                control: { type: 'select' },
-                options: ['default', ...spacingList.map((s) => ` ${s}`)],
-                mapping: {
-                    ...spacingList.reduce(
-                        (acc, s) => {
-                            acc[` ${s}`] = s;
-                            return acc;
-                        },
-                        {} as Record<string, number>
-                    ),
                     default: undefined
                 }
             },
@@ -74,20 +64,26 @@
                     medium: lorem.medium,
                     long: lorem.long
                 }
-            },
-            children: { control: false, table: { disable: true } }
+            }
         },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
+        play: async () => {
+            const portal = document.body.querySelector('#storybook-root') as HTMLElement;
+            expect(portal).not.toBeNull();
+            const canvas = within(portal);
+
+            await waitFor(async () => {
+                const dialog = await canvas.getByRole('dialog');
+                await expect(dialog).toBeVisible();
+            });
         }
     });
 </script>
 
-{#snippet cardIcon(props: { class: string })}
-    <Firefox class={props.class} />
-{/snippet}
+<script lang="ts">
+    let isOpen = $state(true);
+</script>
 
-{#snippet cardContent(args: CardProps & ExtraProps)}
+{#snippet dialogContent(args: DialogProps & ExtraProps)}
     <Typography variant="text">
         {args.content}
     </Typography>
@@ -95,112 +91,115 @@
 
 <Story name="Box like">
     {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
+        {@const { children, content, ...otherArgs } = args}
+        <Dialog {...otherArgs} contentClass="max-h-48">
+            {@render dialogContent(args)}
+        </Dialog>
     {/snippet}
 </Story>
 
 <Story name="With title">
     {#snippet template(args)}
         {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} title="Card Title" contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
+        <Dialog {...otherArgs} title="Dialog Title" contentClass="max-h-48">
+            {@render dialogContent(args)}
+        </Dialog>
     {/snippet}
 </Story>
 
 <Story name="With icon">
     {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} icon={cardIcon} contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
+        {@const { children, content, ...otherArgs } = args}
+        <Dialog {...otherArgs} closeIcon={true} contentClass="max-h-48">
+            {@render dialogContent(args)}
+        </Dialog>
     {/snippet}
 </Story>
 
 <Story name="With title and icon">
     {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} title="Card Title" icon={cardIcon} contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
+        {@const { children, content, ...otherArgs } = args}
+        <Dialog {...otherArgs} closeIcon={true} title="Dialog Title" contentClass="max-h-48">
+            {@render dialogContent(args)}
+        </Dialog>
     {/snippet}
 </Story>
 
 <Story name="With actions">
     {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} contentClass="max-h-48">
-            {@render cardContent(args)}
+        {@const { children, content, ...otherArgs } = args}
+        <Dialog {...otherArgs} contentClass="max-h-48">
+            {@render dialogContent(args)}
             {#snippet actions()}
                 <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
                 <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
             {/snippet}
-        </Card>
+        </Dialog>
     {/snippet}
 </Story>
 
 <Story name="With title and actions">
     {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} title="Card Title" contentClass="max-h-48">
-            {@render cardContent(args)}
+        {@const { children, content, ...otherArgs } = args}
+        <Dialog {...otherArgs} contentClass="max-h-48">
+            {@render dialogContent(args)}
             {#snippet actions()}
                 <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
                 <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
             {/snippet}
-        </Card>
+        </Dialog>
     {/snippet}
 </Story>
 
 <Story name="With icon and actions">
     {#snippet template(args)}
         {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} icon={cardIcon} contentClass="max-h-48">
-            {@render cardContent(args)}
+        <Dialog {...otherArgs} closeIcon={true} contentClass="max-h-48">
+            {@render dialogContent(args)}
             {#snippet actions()}
                 <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
                 <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
             {/snippet}
-        </Card>
+        </Dialog>
     {/snippet}
 </Story>
 
-<Story name="With all features">
+<Story name="With fully customized">
     {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} contentClass="max-h-48">
-            {#snippet icon({ class: cls })}
-                <Firefox class={cn(cls, 'grayscale-100')} />
+        {@const { children, trigger, ...otherArgs } = args}
+        <Dialog {...otherArgs} contentClass="max-h-48">
+            {#snippet trigger({ class: cls })}
+                <div class={cn(cls, 'rounded-sm')}>Open Dialog</div>
             {/snippet}
             {#snippet title({ class: cls })}
                 <Typography element="h1" variant="h2" class={cls}>Custom Title Snippet <Dots /></Typography>
             {/snippet}
-            {@render cardContent(args)}
+            {#snippet closeIcon({ class: cls })}
+                <Fatal class={cn(cls, 'hover:backdrop-brightness-100 hover:fill-[red]')} />
+            {/snippet}
+            {@render dialogContent(args)}
             {#snippet actions()}
                 <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
                 <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
             {/snippet}
-        </Card>
+        </Dialog>
     {/snippet}
 </Story>
 
-<Story name="Nesting">
+<Story name="Manual open/close" args={{ open: isOpen }}>
     {#snippet template(args)}
         {@const { children, ...otherArgs } = args}
-        <Card title="Parent Card">
-            {#snippet icon({ class: cls })}
-                <Dots class={cls} />
+        <Stack direction="column">
+            <Button onclick={() => (isOpen = true)}>Open Dialog</Button>
+            <Button onclick={() => (isOpen = true)}>Open 2</Button>
+            <Button onclick={() => (isOpen = true)}>Open 3</Button>
+        </Stack>
+
+        <Dialog {...otherArgs} title="Alert Dialog" bind:open={isOpen} role="alertdialog">
+            <Typography variant="text">This is an alert dialog. It requires user interaction to dismiss.</Typography>
+            {#snippet actions()}
+                <Button onclick={() => (isOpen = false)}>Close</Button>
             {/snippet}
-            <Card {...otherArgs} title="Title" icon={cardIcon} contentClass="max-h-48">
-                {@render cardContent(args)}
-                {#snippet actions()}
-                    <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                    <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-                {/snippet}
-            </Card>
-        </Card>
+        </Dialog>
     {/snippet}
 </Story>

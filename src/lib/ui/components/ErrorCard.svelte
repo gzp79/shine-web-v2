@@ -5,7 +5,7 @@
     import Fatal from '@lib/ui//atoms/icons/common/Fatal.svelte';
     import Card from '@lib/ui//atoms/layouts/Card.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
-    import { type Width } from '@lib/ui/atoms/layouts';
+    import { type LayoutWidth } from '@lib/ui/atoms/layouts';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import type { AppError } from '@lib/utils';
@@ -16,7 +16,7 @@
         /** The error object containing message and optional details */
         error: AppError;
         /** Width of the error card */
-        width?: Width;
+        width?: LayoutWidth;
         /** Optional content to render below the error details */
         children?: Snippet;
         /** Optional action buttons (e.g., retry, dismiss) */
@@ -37,12 +37,16 @@
     let errorLabel = $derived(errorTypeLabels[error.kind] ?? 'Error');
 </script>
 
-<Card role="alert" aria-live="assertive" {width} color="danger" {actions}>
-    {#snippet title()}
-        <Typography variant="h1">{caption ?? $t('common.somethingWentWrong')}</Typography>
-    {/snippet}
-    {#snippet icon()}
-        <Fatal size="md" />
+<Card
+    {width}
+    color="danger"
+    title={caption ?? $t('common.somethingWentWrong')}
+    {actions}
+    role="alert"
+    aria-live="assertive"
+>
+    {#snippet icon({ class: cls })}
+        <Fatal class={cls} />
     {/snippet}
 
     <Stack>

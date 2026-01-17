@@ -2,13 +2,33 @@ You are able to use the Svelte MCP server, where you have access to comprehensiv
 
 ## Project Configuration
 
-This project uses **Svelte 5 with rune mode** and **SvelteKit with remote functions**. When writing ANY Svelte code:
+### Tech Stack & Requirements
 
-- ALWAYS use runes (`$state`, `$derived`, `$effect`, `$props`, etc.) instead of legacy syntax
-- PREFER remote functions for server-side logic and data fetching over traditional load functions
-- Use TypeScript for type safety across client-server boundaries
+- **Framework**: Svelte 5 (rune mode only)
+- **Backend Framework**: SvelteKit with remote functions
+- **CSS**: Tailwind 4 with some custom utilities in app.css file
+- **Testing**: Storybook 10 + vites-addon + @storybook/addon-svelte-csf
+- **Language**: TypeScript (required for all code)
 
-**See [SKILL.md](SKILL-remote-functions.md) for complete svelte-remote-functions guidance including query, form, command patterns, validation, and best practices.**
+### Svelte Code Rules
+
+When writing Svelte components and scripts:
+
+1. **MANDATORY**: Use only runes (`$state`, `$derived`, `$effect`, `$props`) - never use legacy reactive syntax
+2. **MANDATORY**: Use TypeScript for type safety
+3. **REQUIRED**: Use remote functions for server-side logic and data fetching (not traditional load functions)
+
+**Reference**: [SKILL-remote-functions.md](SKILL-remote-functions.md) for patterns, validation, and best practices.
+
+### Storybook Stories
+
+When creating or editing story files (`.stories.svelte`):
+
+1. **MANDATORY**: Use CSF (Component Story Format) only
+2. **MANDATORY**: Use TypeScript for type safety
+3. **REQUIRED**: Follow testing utilities from `storybook/test`
+
+**Reference**: [SKILL-storybook.md](SKILL-storybook.md) for patterns, assertions, and metadata configuration.
 
 ## Available MCP Tools:
 

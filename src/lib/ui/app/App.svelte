@@ -27,18 +27,23 @@
     class="relative flex min-h-full min-w-full flex-col overflow-hidden"
 >
     {#if showToolbar}
-        <Dropdown.Menu>
-            <Dropdown.Trigger class="absolute right-4 top-4 z-10" aria-label={$t('common.settings')}>
-                <Settings />
-            </Dropdown.Trigger>
-            <Dropdown.Content class="w-32" align="start" collisionPadding={16}>
-                <Dropdown.Label>{$t('common.settings')}</Dropdown.Label>
-                <Dropdown.Separator />
-                <ThemeMenu expandIcon="left" />
-                <LanguageMenu expandIcon="left" />
-                <Dropdown.Separator />
-                <Dropdown.Item>LogoutMenu</Dropdown.Item>
-            </Dropdown.Content>
+        {#snippet settingsTrigger()}
+            <Settings />
+        {/snippet}
+        <Dropdown.Menu
+            trigger={settingsTrigger}
+            triggerClass="absolute right-4 top-4 z-10"
+            to="#popover"
+            class="w-32"
+            align="start"
+            collisionPadding={16}
+        >
+            <Dropdown.Label>{$t('common.settings')}</Dropdown.Label>
+            <Dropdown.Separator />
+            <ThemeMenu expandIcon="left" />
+            <LanguageMenu expandIcon="left" />
+            <Dropdown.Separator />
+            <Dropdown.Item>LogoutMenu</Dropdown.Item>
         </Dropdown.Menu>
     {/if}
     {@render children()}

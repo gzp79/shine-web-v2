@@ -25,21 +25,20 @@
     let currentTheme = $derived(themeIcons[theme.current]);
 </script>
 
-<Dropdown.Sub>
-    <Dropdown.SubTrigger {expandIcon}>
-        {@const Icon = currentTheme}
-        <Icon />
-        {$t('common.theme.name')}</Dropdown.SubTrigger
-    >
-    <Dropdown.SubContent>
-        <Dropdown.RadioGroup bind:value={theme.current}>
-            {#each themeList as themeOption (themeOption)}
-                {@const Icon = themeIcons[themeOption]}
-                <Dropdown.RadioItem value={themeOption} closeOnSelect={false}>
-                    <Icon />
-                    {$t(`common.theme.${themeOption}`)}
-                </Dropdown.RadioItem>
-            {/each}
-        </Dropdown.RadioGroup>
-    </Dropdown.SubContent>
+{#snippet subTrigger()}
+    {@const Icon = currentTheme}
+    <Icon />
+    {$t('common.theme.name')}
+{/snippet}
+
+<Dropdown.Sub {expandIcon} trigger={subTrigger}>
+    <Dropdown.RadioGroup bind:value={theme.current}>
+        {#each themeList as themeOption (themeOption)}
+            {@const Icon = themeIcons[themeOption]}
+            <Dropdown.RadioItem value={themeOption} closeOnSelect={false}>
+                <Icon />
+                {$t(`common.theme.${themeOption}`)}
+            </Dropdown.RadioItem>
+        {/each}
+    </Dropdown.RadioGroup>
 </Dropdown.Sub>

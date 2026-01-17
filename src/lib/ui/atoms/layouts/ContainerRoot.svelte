@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import type { ClassValue } from 'svelte/elements';
+    import type { AriaRole, ClassValue } from 'svelte/elements';
     import { type ActionColor, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
-    import { type Width } from '@lib/ui/atoms/layouts';
+    import { type LayoutWidth } from '@lib/ui/atoms/layouts';
     import { cn, createContext } from '@lib/ui/utils';
 
     export type ContainerRootProps = {
@@ -10,10 +10,10 @@
         border?: boolean;
         shadow?: boolean;
         ghost?: boolean;
-        width?: Width;
+        width?: LayoutWidth;
         margin?: ResponsiveSpacing;
         'data-slot': string;
-        role?: string;
+        role?: AriaRole;
         class?: ClassValue | null;
         children: Snippet;
     };
@@ -24,6 +24,7 @@
         fgColor1: string;
         fgColor2: string;
         border: string;
+        colorIndex: number;
     }
     const [getContainerContext, setContainerContext] = createContext<ContainerInfo>('Container');
     export { getContainerContext };
@@ -84,7 +85,7 @@
     });
     setContainerContext(context);
 
-    const widthVariants: Record<Width, string> = {
+    const widthVariants: Record<LayoutWidth, string> = {
         fit: 'max-w-full w-fit',
         sm: 'w-[60%] lg:w-[60%]',
         md: 'w-[75%] lg:w-[70%]',

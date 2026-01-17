@@ -4,7 +4,7 @@
     import { expect } from 'storybook/test';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
-    import { widthList } from '@lib/ui/atoms/layouts';
+    import { layoutWidthList } from '@lib/ui/atoms/layouts';
     import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
     import type { AppError } from '@lib/utils';
 
@@ -15,7 +15,7 @@
         argTypes: {
             width: {
                 control: { type: 'select' },
-                options: ['default', ...widthList],
+                options: ['default', ...layoutWidthList],
                 mapping: {
                     default: undefined
                 }

@@ -1,6 +1,7 @@
 <script module lang="ts">
     import type { ButtonRootProps } from 'bits-ui';
     import { Button } from 'bits-ui';
+    import type { ClassValue } from 'clsx';
     import { type ActionColor, type Size } from '@lib/ui/atoms';
     import { type InputVariant } from '@lib/ui/atoms/input';
     import { type ContainerInfo, getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
@@ -13,20 +14,27 @@
         variant?: InputVariant;
         disabled?: boolean;
         highlight?: boolean;
+        class?: ClassValue;
     };
 
     export type ButtonProps = ButtonRootProps & ButtonStyleParams;
 
-    export const getStyle = (style: ButtonStyleParams, containerInfo?: ContainerInfo): string => {
+    export const getButtonStyle = (
+        style: ButtonStyleParams,
+        containerInfo: 'auto' | 'root' | ContainerInfo
+    ): string => {
         const {
             color: baseColor = undefined,
             variant = 'filled',
             size = 'md',
             wide = false,
             disabled = false,
-            highlight = false
+            highlight = false,
+            class: className
         } = style;
 
+        const cntInfo =
+            containerInfo === 'auto' ? getContainerContext() : containerInfo === 'root' ? null : containerInfo;
         const color = baseColor ?? 'primary';
 
         const sizeMods: Record<Size, string> = {
@@ -52,18 +60,20 @@
                 `bg-${color}`,
                 `text-on-${color}`,
                 `border-on-${color}`,
-                !disabled && 'hover:highlight'
+                !disabled && 'hover:brightness-highlight'
             ],
             variant === 'outline' && [
-                containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
-                containerInfo && !baseColor ? `border-${containerInfo.border}` : `border-on-${color}`,
-                !disabled && 'hover:highlight-backdrop'
+                cntInfo && !baseColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
+                cntInfo && !baseColor ? `border-${cntInfo.border}` : `border-on-${color}`,
+                !disabled && 'hover:backdrop-brightness-highlight'
             ],
             variant === 'ghost' && [
-                containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
+                cntInfo && !baseColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
                 'border-transparent',
-                !disabled && 'hover:highlight-backdrop'
-            ]
+                !disabled && 'hover:backdrop-brightness-highlight'
+            ],
+
+            className
         );
     };
 </script>
@@ -76,12 +86,25 @@
         wide = false,
         disabled = false,
         highlight = false,
+        class: className,
         children,
         ...restProps
     }: ButtonProps = $props();
 
-    let containerInfo = getContainerContext();
-    let cls = $derived(getStyle({ color: baseColor, variant, size, wide, disabled, highlight }, containerInfo));
+    let cls = $derived(
+        getButtonStyle(
+            {
+                color: baseColor,
+                variant,
+                size,
+                wide,
+                disabled,
+                highlight,
+                class: className
+            },
+            'auto'
+        )
+    );
 </script>
 
 <Button.Root {disabled} class={cls} {...restProps}>

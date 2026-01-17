@@ -20,21 +20,20 @@
     let currentFlag = $derived(flagIcons[languageFlags[locale.current]]);
 </script>
 
-<Dropdown.Sub>
-    <Dropdown.SubTrigger {expandIcon}>
-        {@const FlagIcon = currentFlag}
-        <FlagIcon />
-        {lang[locale.current as keyof typeof lang]}
-    </Dropdown.SubTrigger>
-    <Dropdown.SubContent>
-        <Dropdown.RadioGroup bind:value={locale.current}>
-            {#each langList as langOption (langOption)}
-                {@const FlagIcon = flagIcons[languageFlags[langOption]]}
-                <Dropdown.RadioItem value={langOption} closeOnSelect={false}>
-                    <FlagIcon />
-                    {lang[langOption as keyof typeof lang]}
-                </Dropdown.RadioItem>
-            {/each}
-        </Dropdown.RadioGroup>
-    </Dropdown.SubContent>
+{#snippet subTrigger()}
+    {@const FlagIcon = currentFlag}
+    <FlagIcon />
+    {lang[locale.current as keyof typeof lang]}
+{/snippet}
+
+<Dropdown.Sub {expandIcon} trigger={subTrigger}>
+    <Dropdown.RadioGroup bind:value={locale.current}>
+        {#each langList as langOption (langOption)}
+            {@const FlagIcon = flagIcons[languageFlags[langOption]]}
+            <Dropdown.RadioItem value={langOption} closeOnSelect={false}>
+                <FlagIcon />
+                {lang[langOption as keyof typeof lang]}
+            </Dropdown.RadioItem>
+        {/each}
+    </Dropdown.RadioGroup>
 </Dropdown.Sub>

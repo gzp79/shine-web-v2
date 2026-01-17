@@ -1,4 +1,2 @@
 
-pnpm run lint
-pnpm run check
-pnpm run test:unit
+pnpm run pre-commit

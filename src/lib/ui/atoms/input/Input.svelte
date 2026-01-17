@@ -72,11 +72,6 @@
         cn(
             'rounded-lg border-2',
 
-            'focus-visible:outline-none',
-            'focus-visible:ring-2',
-            'focus-visible:ring-inset',
-            `focus-visible:ring-${color}-2`,
-
             invalid && '!border-on-danger',
 
             sizeMods[size],
@@ -87,7 +82,7 @@
                 `text-on-${color}`,
                 `placeholder:text-${color}-2`,
                 `border-on-${color}`,
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:highlight'
+                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:brightness-highlight'
             ],
             variant === 'outline' && [
                 containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
@@ -95,7 +90,7 @@
                     ? `placeholder:text-${containerInfo.fgColor2}`
                     : `placeholder:text-${color}-2`,
                 containerInfo && !baseColor ? `border-${containerInfo.border}` : `border-on-${color}`,
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:highlight-backdrop'
+                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:backdrop-brightness-highlight'
             ],
             variant === 'ghost' && [
                 containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
@@ -103,7 +98,7 @@
                     ? `placeholder:text-${containerInfo.fgColor2}`
                     : `placeholder:text-${color}-2`,
                 'border-transparent',
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:highlight-backdrop'
+                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:backdrop-brightness-highlight'
             ],
 
             className
