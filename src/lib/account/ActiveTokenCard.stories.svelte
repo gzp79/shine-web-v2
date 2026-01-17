@@ -1,8 +1,8 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
-    import { clickDialogButton } from '@sb/pagemodels/dialog';
-    import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/pagemodels/error';
-    import { expectLoadingState, waitForLoadingToComplete } from '@sb/pagemodels/loading';
+    import { clickDialogButton } from '@sb/models/dialog';
+    import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/models/error';
+    import { expectLoadingState, waitForLoadingToComplete } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, waitFor, within } from 'storybook/test';
     import { v4 as uuid } from 'uuid';
@@ -110,7 +110,7 @@
         const canvas = within(canvasElement);
         await waitForLoadingToComplete(canvas);
 
-        await step('Unlink token', async () => {
+        await step('Revoke token', async () => {
             const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
             await unlink.click();
             await clickDialogButton(/confirmText/i);
@@ -123,7 +123,7 @@
             await waitForErrorToBeRemoved(canvas);
         });
 
-        await step('After revoke, the tokens are reloaded', async () => {
+        await step('Wait for tokens to refresh', async () => {
             const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
             expect(unlink).toBeDisabled();
             await waitFor(async () => {

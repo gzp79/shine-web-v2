@@ -1,7 +1,7 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
-    import { expectErrorState } from '@sb/pagemodels/error';
-    import { expectLoadingState } from '@sb/pagemodels/loading';
+    import { expectErrorState } from '@sb/models/error';
+    import { expectLoadingState } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, within } from 'storybook/test';
     import { v4 as uuid } from 'uuid';

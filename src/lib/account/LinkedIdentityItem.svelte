@@ -3,8 +3,8 @@
     import { logAPI } from '@lib/loggers';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import brands, { type BrandGlyph } from '@lib/ui/atoms/glyphs/brands/all';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
+    import ConfirmationButton from '@lib/ui/components/ConfirmationButton.svelte';
     import { type AppError, createAppError } from '@lib/utils';
     import type { LinkedIdentity } from './account.remote';
 
@@ -37,9 +37,9 @@
 </script>
 
 <Card width="full">
-    {#snippet icon()}
+    {#snippet icon({ class: cls })}
         {@const ProviderImage = providerImage}
-        <ProviderImage size="full" />
+        <ProviderImage class={cls} />
     {/snippet}
 
     <PropertyList
@@ -79,8 +79,18 @@
     />
 
     {#snippet actions()}
-        <Button disabled={dirty || disabled} color="danger" onclick={handleUnlink}>
+        <ConfirmationButton
+            disabled={dirty || disabled}
+            color="danger"
+            confirmation={{
+                title: $t('account.unlinkConfirmation.title'),
+                question: $t('account.unlinkConfirmation.question'),
+                confirm: $t('account.unlinkConfirmation.confirmText'),
+                cancel: $t('account.unlinkConfirmation.cancelText')
+            }}
+            onConfirm={handleUnlink}
+        >
             {$t('account.unlink')}
-        </Button>
+        </ConfirmationButton>
     {/snippet}
 </Card>

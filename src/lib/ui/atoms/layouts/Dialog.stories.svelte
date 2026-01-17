@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
-    import { withinPopover } from '@sb/pagemodels/popover';
+    import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, waitFor } from 'storybook/test';
     import type { Component } from 'svelte';

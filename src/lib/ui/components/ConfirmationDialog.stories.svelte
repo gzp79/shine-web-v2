@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { withinPopover } from '@sb/pagemodels/popover';
+    import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, waitFor, within } from 'storybook/test';
     import { actionColorList } from '@lib/ui/atoms';

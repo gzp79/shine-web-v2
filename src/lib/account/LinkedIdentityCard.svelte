@@ -36,11 +36,7 @@
     };
 </script>
 
-<Card width="lg">
-    {#snippet title()}
-        {$t('account.identities.title')}
-    {/snippet}
-
+<Card width="lg" title={$t('account.identities.title')}>
     <svelte:boundary>
         {#snippet pending()}
             <Stack class="items-center">
