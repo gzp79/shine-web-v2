@@ -49,6 +49,7 @@ jobs:
               run: |
                   pnpm run lint
                   pnpm run check
+                  pnpm audit --audit-level=high --prod
                   pnpm run build
                   pnpm dlx wrangler deploy --dry-run --outdir ./.svelte-kit/cloudflare-tmp
                   cp ./.svelte-kit/cloudflare-tmp/_worker.js ./.svelte-kit/cloudflare/_worker.js
