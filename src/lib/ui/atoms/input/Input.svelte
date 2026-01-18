@@ -5,6 +5,7 @@
     import type { InputVariant } from '@lib/ui/atoms/input';
     import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import { cn } from '@lib/ui/utils';
+    import { getInputGroupContext } from './InputGroup.svelte';
 
     export const inputTypeList = [
         'text',
@@ -43,9 +44,9 @@
 
 <script lang="ts">
     let {
-        color: baseColor = undefined,
-        variant = 'filled',
-        size = 'md',
+        color: baseColor,
+        variant: baseVariant,
+        size: baseSize,
         wide = false,
         disabled = false,
         invalid = false,
@@ -58,21 +59,26 @@
         ...restProps
     }: InputProps = $props();
 
-    let containerInfo = getContainerContext();
-    let color = $derived(baseColor ?? 'primary');
+    const containerInfo = getContainerContext();
+    const groupInfo = getInputGroupContext();
+
+    const color = $derived(baseColor ?? groupInfo?.color ?? 'primary');
+    const size = $derived(baseSize ?? groupInfo?.size ?? 'md');
+    const variant = $derived(baseVariant ?? groupInfo?.variant ?? 'filled');
 
     const sizeMods: Record<Size, string> = {
-        xs: 'text-xs leading-none px-2 py-1.5',
-        sm: 'text-sm leading-none px-3 py-2',
-        md: 'text-md leading-none px-4 py-3',
-        lg: 'text-lg leading-none px-5 py-4'
+        xs: 'text-xs leading-none h-8 px-2',
+        sm: 'text-sm leading-none h-10 px-3',
+        md: 'text-md leading-none h-12 px-4',
+        lg: 'text-lg leading-none h-14 px-5'
     };
 
-    let cls = $derived(
+    const cls = $derived(
         cn(
+            `gzp-${size}`,
             'rounded-lg border-2',
             `focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-on-${color}`,
-            invalid && '!border-on-danger',
+            invalid && 'ring-2 ring-inset ring-on-danger',
 
             sizeMods[size],
             wide ? 'w-full' : 'w-fit',

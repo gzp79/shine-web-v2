@@ -54,7 +54,7 @@
     let colorIndex: number = ((getContainerColorIndex() ?? -1) + 1) % colorRotation.length;
     setContainerColorIndex(colorIndex);
 
-    let colors = $derived.by(() => {
+    const colors = $derived.by(() => {
         if (color) {
             return {
                 fgColor: 'on-' + color,
@@ -93,7 +93,7 @@
         full: 'w-full'
     };
 
-    let cls = $derived(
+    const cls = $derived(
         cn(
             'rounded-lg',
             'min-h-0 min-w-0',

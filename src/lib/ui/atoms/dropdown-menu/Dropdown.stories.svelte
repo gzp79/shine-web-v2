@@ -12,6 +12,7 @@
         args: {
             class: 'w-56',
             align: 'start',
+            trigger: 'Open menu',
             open: true
         },
         play: async ({ canvasElement }) => {
@@ -25,9 +26,7 @@
     let radioValue = $state<string>('');
 </script>
 
-{#snippet trigger()}Open{/snippet}
-
-<Story name="Simple" args={{ trigger }}>
+<Story name="Simple">
     <Dropdown.Group heading="Account Settings">
         <Dropdown.Item>
             Profile
@@ -55,7 +54,6 @@
 
 <Story
     name="SubMenu"
-    args={{ trigger }}
     play={async () => {
         const canvas = withinPopover();
 
@@ -94,7 +92,6 @@
 
 <Story
     name="Checkbox"
-    args={{ trigger }}
     play={async ({ canvasElement }) => {
         const canvas = withinPopover();
         const heading = await canvas.getByText(/Choose some .*/);
@@ -131,7 +128,6 @@
 
 <Story
     name="Radio"
-    args={{ trigger }}
     play={async ({ canvasElement }) => {
         const canvas = withinPopover();
         const heading = await canvas.getByText(/Choose one .*/);

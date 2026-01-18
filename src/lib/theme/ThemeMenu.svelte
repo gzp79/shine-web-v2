@@ -22,7 +22,7 @@
         system: DarkLightIcon
     };
 
-    let currentTheme = $derived(themeIcons[theme.current]);
+    const currentTheme = $derived(themeIcons[theme.current]);
 </script>
 
 {#snippet subTrigger()}

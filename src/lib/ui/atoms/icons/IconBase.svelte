@@ -43,7 +43,7 @@
         full: 'w-auto h-full object-contain'
     };
 
-    let svgClass = $derived(
+    const svgClass = $derived(
         cn(
             color ? `stroke-on-${color}` : 'stroke-current',
             color ? `fill-on-${color}` : 'fill-current',

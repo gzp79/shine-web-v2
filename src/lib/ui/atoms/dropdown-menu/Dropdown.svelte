@@ -3,14 +3,14 @@
     import type { ClassValue } from 'clsx';
     import { type Snippet, createContext } from 'svelte';
     import { fade } from 'svelte/transition';
-    import { cn } from '@lib/ui/utils';
-    import { getButtonStyle } from '../input/Button.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/button-style.svelte';
+    import { type AsChildSnippet, cn, isAsChildSnippet } from '@lib/ui/utils';
 
     export type MenuProps = WithoutChildrenOrChild<DropdownMenuPrimitive.RootProps> &
         WithoutChildrenOrChild<DropdownMenuPrimitive.ContentProps> & {
             to?: string;
-            trigger?: Snippet;
-            triggerClass?: ClassValue;
+            trigger?: string | Snippet<[{ class: string }]> | AsChildSnippet;
+            triggerStyle?: ButtonStyleConfig;
             children?: Snippet;
             class?: ClassValue;
         };
@@ -27,7 +27,7 @@
         onOpenChangeComplete,
         sideOffset = 4,
         trigger,
-        triggerClass,
+        triggerStyle,
         children,
         class: className,
         ...restProps
@@ -35,10 +35,13 @@
 
     setContext(() => to);
 
-    let triggerCls = $derived(getButtonStyle({ class: triggerClass }, 'root'));
+    let triggerStl = createButtonStyle(() => ({
+        ...triggerStyle,
+        useGroupFocus: typeof trigger !== 'string' && !isAsChildSnippet(trigger)
+    }));
 
     const contentColor = 'container';
-    let contentCls = $derived(
+    const contentCls = $derived(
         cn(
             'overflow-y-auto overflow-x-hidden',
             `bg-${contentColor} text-on-${contentColor} `,
@@ -53,9 +56,29 @@
 </script>
 
 <DropdownMenuPrimitive.Root bind:open {onOpenChange} {onOpenChangeComplete}>
-    {#if trigger}
-        <DropdownMenuPrimitive.Trigger data-slot="dropdown-menu-trigger" class={triggerCls}>
-            {@render trigger()}
+    {#if typeof trigger === 'string'}
+        <DropdownMenuPrimitive.Trigger
+            data-slot="dropdown-menu-trigger"
+            disabled={triggerStyle?.disabled}
+            class={triggerStl.class}
+        >
+            {trigger}
+        </DropdownMenuPrimitive.Trigger>
+    {:else if isAsChildSnippet(trigger)}
+        <DropdownMenuPrimitive.Trigger
+            data-slot="dropdown-menu-trigger"
+            disabled={triggerStyle?.disabled}
+            class={triggerStl.class}
+        >
+            {@render trigger.asChild()}
+        </DropdownMenuPrimitive.Trigger>
+    {:else}
+        <DropdownMenuPrimitive.Trigger
+            data-slot="dropdown-menu-trigger"
+            disabled={triggerStyle?.disabled}
+            class="group focus-visible:ring-0 outline-none"
+        >
+            {@render trigger?.({ class: triggerStl.class })}
         </DropdownMenuPrimitive.Trigger>
     {/if}
 

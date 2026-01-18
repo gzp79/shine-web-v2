@@ -32,7 +32,7 @@
 
     const portalTo = getPortalContext();
 
-    let triggerCls = $derived(
+    const triggerCls = $derived(
         cn(
             'outline-hidden flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm',
             'data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
@@ -43,7 +43,7 @@
     );
 
     const color = 'container';
-    let contentCls = $derived(
+    const contentCls = $derived(
         cn(
             'overflow-y-auto overflow-x-hidden',
             `bg-${color} text-on-${color} `,

@@ -6,9 +6,9 @@
     import { t } from '@lib/i18n/i18n.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
-    import { getButtonStyle } from '@lib/ui/atoms/input/Button.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/button-style.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { cn } from '@lib/ui/utils';
+    import { type AsChildSnippet, cn, isAsChildSnippet } from '@lib/ui/utils';
     import { type LayoutWidth, colorRotation, nextColorIndex } from '.';
     import ContainerContent, { type ContainerContentProps } from './ContainerContent.svelte';
     import ContainerRoot, { type ContainerRootProps, getContainerContext } from './ContainerRoot.svelte';
@@ -21,11 +21,8 @@
         Pick<ContainerRootProps, 'color' | 'shadow' | 'width'> &
         Pick<ContainerContentProps, 'padding'> & {
             role?: AriaRole;
-            trigger?: string | Snippet<[{ class: string }]>;
-            // Extra props for the trigger element (for example: disabled).
-            triggerX?: DialogTriggerXProps;
-            // By default trigger has a filled, button-like style.
-            triggerClass?: ClassValue;
+            trigger?: string | Snippet<[{ class: string }]> | AsChildSnippet;
+            triggerStyle?: ButtonStyleConfig;
             closeIcon?: boolean | Snippet<[{ class: string }]>;
             closeIconClass?: ClassValue;
             title?: string | Snippet<[{ class: string }]>;
@@ -55,8 +52,7 @@
         padding = 2,
 
         trigger,
-        triggerX,
-        triggerClass,
+        triggerStyle,
         closeIcon,
         closeIconClass,
         title,
@@ -86,8 +82,11 @@
         full: 'w-full p-2'
     };
 
-    let triggerCls = $derived(getButtonStyle({ class: triggerClass, useGroupFocus: true }, 'auto'));
-    let overlayCls = $derived(
+    const triggerStl = createButtonStyle(() => ({
+        ...triggerStyle,
+        useGroupFocus: typeof trigger !== 'string' && !isAsChildSnippet(trigger)
+    }));
+    const overlayCls = $derived(
         cn(
             'fixed inset-0 z-40',
             'bg-black/50 backdrop-blur-sm',
@@ -95,7 +94,7 @@
             'data-[state=closed]:animate-out data-[state=closed]:fade-out-0'
         )
     );
-    let dialogCls = $derived(
+    const dialogCls = $derived(
         cn(
             'z-50',
             'fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]',
@@ -106,10 +105,10 @@
         )
     );
 
-    let headerCls = $derived(
+    const headerCls = $derived(
         cn('w-full', `bg-${headerColor} text-on-${headerColor}`, 'flex flex-row items-center justify-between', 'p-2')
     );
-    let closeIconCls = $derived(
+    const closeIconCls = $derived(
         cn(
             'flex shrink-0',
             'h-8 w-8',
@@ -120,7 +119,7 @@
             closeIconClass
         )
     );
-    let titleCls = $derived(
+    const titleCls = $derived(
         cn(
             'inline-flex shrink-0 whitespace-nowrap outline-none',
             'flex-1',
@@ -130,21 +129,25 @@
             titleClass
         )
     );
-    let actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
+    const actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
 </script>
 
 <DialogPrimitive.Root bind:open {onOpenChange} {onOpenChangeComplete}>
     {#if typeof trigger === 'string'}
-        <DialogPrimitive.Trigger data-slot="dialog-trigger" class={triggerCls} {...triggerX}>
+        <DialogPrimitive.Trigger data-slot="dialog-trigger" disabled={triggerStyle?.disabled} class={triggerStl.class}>
             {trigger}
+        </DialogPrimitive.Trigger>
+    {:else if isAsChildSnippet(trigger)}
+        <DialogPrimitive.Trigger data-slot="dialog-trigger" disabled={triggerStyle?.disabled} class={triggerStl.class}>
+            {@render trigger.asChild()}
         </DialogPrimitive.Trigger>
     {:else}
         <DialogPrimitive.Trigger
             data-slot="dialog-trigger"
-            {...triggerX}
+            disabled={triggerStyle?.disabled}
             class="group focus-visible:ring-0 outline-none"
         >
-            {@render trigger?.({ class: triggerCls })}
+            {@render trigger?.({ class: triggerStl.class })}
         </DialogPrimitive.Trigger>
     {/if}
 

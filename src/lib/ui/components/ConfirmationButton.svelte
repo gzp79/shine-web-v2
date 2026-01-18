@@ -1,10 +1,10 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import { type ButtonStyleProps, getButtonStyle } from '@lib/ui/atoms/input/Button.svelte';
-    import { type DialogTriggerXProps } from '@lib/ui/atoms/layouts/Dialog.svelte';
+    import { type ButtonStyleConfig } from '@lib/ui/atoms/input/button-style.svelte';
     import ConfirmationDialog, { type ConfirmationDialogProps } from '@lib/ui/components/ConfirmationDialog.svelte';
+    import { asChildSnippet } from '@lib/ui/utils';
 
-    export type ConfirmationButtonProps = ButtonStyleProps & {
+    export type ConfirmationButtonProps = ButtonStyleConfig & {
         to?: ConfirmationDialogProps['to'];
         confirmation: Omit<ConfirmationDialogProps, 'to' | 'onConfirm' | 'onCancel'>;
         onConfirm?: ConfirmationDialogProps['onConfirm'];
@@ -27,29 +27,13 @@
         children,
         class: className
     }: ConfirmationButtonProps = $props();
-
-    let btnCls = $derived(
-        getButtonStyle(
-            {
-                color,
-                wide,
-                size,
-                variant,
-                disabled,
-                class: className,
-                useGroupFocus: true
-            },
-            'auto'
-        )
-    );
-
-    let triggerX = $derived({ disabled } satisfies DialogTriggerXProps);
 </script>
 
-<ConfirmationDialog {...confirmation} {to} {triggerX} {onConfirm} {onCancel}>
-    {#snippet trigger()}
-        <div class={btnCls}>
-            {@render children?.()}
-        </div>
-    {/snippet}
-</ConfirmationDialog>
+<ConfirmationDialog
+    {...confirmation}
+    {to}
+    {onConfirm}
+    {onCancel}
+    trigger={asChildSnippet(children)}
+    triggerStyle={{ color, variant, size, wide, disabled, class: className, useGroupFocus: true }}
+/>

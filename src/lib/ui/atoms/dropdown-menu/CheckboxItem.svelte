@@ -21,7 +21,7 @@
         ...restProps
     }: CheckboxItemProps = $props();
 
-    let cls = $derived(
+    const cls = $derived(
         cn(
             'flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm',
             'data-highlighted:bg-sub-container data-highlighted:text-on-sub-container',

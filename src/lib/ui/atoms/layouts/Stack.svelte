@@ -41,7 +41,7 @@
         ...restProps
     }: StackProps = $props();
 
-    let clsStack = $derived(
+    const clsStack = $derived(
         cn(
             'flex',
             toResponsiveClass(direction, (m, dir) => (dir === 'row' ? [`${m}flex-row`] : [`${m}flex-col`])),

@@ -8,7 +8,7 @@
 <script lang="ts">
     let { ref = $bindable(null), class: className, ...restProps }: HeadingProps = $props();
 
-    let cls = $derived(cn('px-2 py-1.5 text-sm font-semibold', className));
+    const cls = $derived(cn('px-2 py-1.5 text-sm font-semibold', className));
 </script>
 
 <DropdownMenuPrimitive.GroupHeading bind:ref data-slot="dropdown-menu-heading" class={cls} {...restProps} />

@@ -19,7 +19,7 @@
         ...restProps
     }: GroupProps = $props();
 
-    let headingCls = $derived(cn('px-2 py-1.5 text-sm font-semibold', headingClass));
+    const headingCls = $derived(cn('px-2 py-1.5 text-sm font-semibold', headingClass));
 </script>
 
 <DropdownMenuPrimitive.Group bind:ref data-slot="dropdown-menu-group" class={className} {...restProps}>

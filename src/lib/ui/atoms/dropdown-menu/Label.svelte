@@ -9,7 +9,7 @@
 <script lang="ts">
     let { ref = $bindable(null), class: className, children, ...restProps }: LabelProps = $props();
 
-    let cls = $derived(
+    const cls = $derived(
         cn(
             'text-sm font-semibold', //
             'px-2 py-1.5',

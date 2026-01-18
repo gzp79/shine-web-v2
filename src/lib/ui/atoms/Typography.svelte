@@ -65,8 +65,8 @@
         bold: 'font-bold'
     };
 
-    let el = $derived(element ?? variantElement[variant]);
-    let textClass = $derived(
+    const el = $derived(element ?? variantElement[variant]);
+    const textClass = $derived(
         cn(variantClasses[variant], weightClasses[weight], underline && 'underline', italic && 'italic', className)
     );
 </script>

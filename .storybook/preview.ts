@@ -31,7 +31,7 @@ const preview: Preview = {
                         'Layouts',
                         ['Stack', 'Grid', 'Box', 'Card'],
                         'Inputs',
-                        ['Button'],
+                        ['Button', 'Input', 'InputGroup'],
                         'Data',
                         ['ProgressBar', 'PropertyList'],
                         'Menu',

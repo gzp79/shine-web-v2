@@ -33,5 +33,5 @@ export function simpleHash(str: string): string {
 }
 
 export * from './_context';
-export * from './_ref_binding';
+export * from './_binding';
 export * from './_event_helpers';

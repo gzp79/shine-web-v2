@@ -12,7 +12,7 @@
 <script lang="ts">
     let { children, class: className }: Props = $props();
 
-    let mainClass = $derived(cn('h-full w-full', 'flex flex-col items-center justify-center p-4 md:p-8', className));
+    const mainClass = $derived(cn('h-full w-full', 'flex flex-col items-center justify-center p-4 md:p-8', className));
 </script>
 
 <main data-slot="app-content" class={mainClass}>

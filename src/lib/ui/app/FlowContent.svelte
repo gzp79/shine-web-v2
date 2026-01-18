@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
+    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
-    import Stack from '../atoms/layouts/Stack.svelte';
 
     export interface Props {
         class?: ClassValue | null;
@@ -13,7 +13,7 @@
 <script lang="ts">
     let { children, class: className }: Props = $props();
 
-    let mainClass = $derived(cn('w-full', 'p-4 overflow-y-auto md:p-8', className));
+    const mainClass = $derived(cn('w-full', 'p-4 overflow-y-auto md:p-8', className));
 </script>
 
 <main data-slot="app-content" class={mainClass}>

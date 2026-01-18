@@ -7,6 +7,8 @@
     import Spinner from '@lib/ui/atoms/icons/animated/Spinner.svelte';
     import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
     import { inputVariantList } from '@lib/ui/atoms/input';
+    import Button from '@lib/ui/atoms/input/Button.svelte';
+    import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ConfirmationButton, { type ConfirmationButtonProps } from '@lib/ui/components/ConfirmationButton.svelte';
@@ -148,5 +150,16 @@
                 </Box>
             </Box>
         </Box>
+    {/snippet}
+</Story>
+
+<Story name="In InputGroup">
+    {#snippet template(args)}
+        {@const { children, color, variant, size, ...otherArgs } = args}
+        <InputGroup {color} {variant} {size}>
+            <Button>Left</Button>
+            <ConfirmationButton {...otherArgs}>Confirm</ConfirmationButton>
+            <Button>Right</Button>
+        </InputGroup>
     {/snippet}
 </Story>

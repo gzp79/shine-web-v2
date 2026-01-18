@@ -34,7 +34,7 @@
         other: 'Error'
     };
 
-    let errorLabel = $derived(errorTypeLabels[error.kind] ?? 'Error');
+    const errorLabel = $derived(errorTypeLabels[error.kind] ?? 'Error');
 </script>
 
 <Card

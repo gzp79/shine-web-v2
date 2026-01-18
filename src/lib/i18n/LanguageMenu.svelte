@@ -17,7 +17,7 @@
         en: 'GB',
         hu: 'HU'
     };
-    let currentFlag = $derived(flagIcons[languageFlags[locale.current]]);
+    const currentFlag = $derived(flagIcons[languageFlags[locale.current]]);
 </script>
 
 {#snippet subTrigger()}

@@ -42,7 +42,7 @@
         'aria-live': ariaLive = undefined
     }: CardProps = $props();
 
-    let iconCls = $derived(
+    const iconCls = $derived(
         cn(
             'flex shrink-0',
             'h-12 w-12 sm:w-12 my-2 sm:ms-2',
@@ -50,7 +50,7 @@
             iconClass
         )
     );
-    let titleCls = $derived(
+    const titleCls = $derived(
         cn(
             'inline-flex shrink-0 whitespace-nowrap outline-none',
             `px-2 sm:${icon && 'p-2'} gap-2`,
@@ -61,7 +61,7 @@
             titleClass
         )
     );
-    let actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
+    const actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
 </script>
 
 <ContainerRoot data-slot="card" border {color} {shadow} {width} {margin}>
