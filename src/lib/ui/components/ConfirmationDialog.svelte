@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { type Snippet } from 'svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
-    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/button-style.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
     import Dialog, { type DialogProps } from '@lib/ui/atoms/layouts/Dialog.svelte';
     import { type RefBinding } from '@lib/ui/utils';
 

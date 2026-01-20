@@ -3,6 +3,7 @@
     import type { HTMLInputAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
+    import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
     import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import { cn } from '@lib/ui/utils';
     import { getInputGroupContext } from './InputGroup.svelte';
@@ -22,7 +23,7 @@
         'time',
         'datetime-local'
 
-        // requires special handling:
+        // requires dedicated components:
         //'checkbox',
         //'radio',
         //'file',
@@ -59,12 +60,13 @@
         ...restProps
     }: InputProps = $props();
 
-    const containerInfo = getContainerContext();
+    const cntInfo = getContainerContext();
     const groupInfo = getInputGroupContext();
 
-    const color = $derived(baseColor ?? groupInfo?.color ?? 'primary');
-    const size = $derived(baseSize ?? groupInfo?.size ?? 'md');
-    const variant = $derived(baseVariant ?? groupInfo?.variant ?? 'filled');
+    const hasColor = $derived(!!(groupInfo?.color ?? baseColor));
+    const color = $derived(groupInfo?.color ?? baseColor ?? 'primary');
+    const size = $derived(groupInfo?.size ?? baseSize ?? 'md');
+    const variant = $derived(groupInfo?.variant ?? baseVariant ?? 'filled');
 
     const sizeMods: Record<Size, string> = {
         xs: 'text-xs leading-none h-8 px-2',
@@ -75,9 +77,8 @@
 
     const cls = $derived(
         cn(
-            `gzp-${size}`,
             'rounded-lg border-2',
-            `focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-on-${color}`,
+            ringClass('focus-visible', color),
             invalid && 'ring-2 ring-inset ring-on-danger',
 
             sizeMods[size],
@@ -87,25 +88,19 @@
                 `bg-${color}`,
                 `text-on-${color}`,
                 `placeholder:text-${color}-2`,
-                `border-on-${color}`,
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:brightness-highlight'
+                `border-on-${color}`
             ],
             variant === 'outline' && [
-                containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
-                containerInfo && !baseColor
-                    ? `placeholder:text-${containerInfo.fgColor2}`
-                    : `placeholder:text-${color}-2`,
-                containerInfo && !baseColor ? `border-${containerInfo.border}` : `border-on-${color}`,
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:backdrop-brightness-highlight'
+                cntInfo && !hasColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
+                cntInfo && !hasColor ? `placeholder:text-${cntInfo.fgColor2}` : `placeholder:text-${color}-2`,
+                cntInfo && !hasColor ? `border-${cntInfo.border}` : `border-on-${color}`
             ],
             variant === 'ghost' && [
-                containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
-                containerInfo && !baseColor
-                    ? `placeholder:text-${containerInfo.fgColor2}`
-                    : `placeholder:text-${color}-2`,
-                'border-transparent',
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:backdrop-brightness-highlight'
+                cntInfo && !hasColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
+                cntInfo && !hasColor ? `placeholder:text-${cntInfo.fgColor2}` : `placeholder:text-${color}-2`,
+                'border-transparent'
             ],
+            disabled ? '!opacity-30 !cursor-not-allowed' : hoverClass(variant),
 
             className
         )

@@ -6,7 +6,7 @@
     import { t } from '@lib/i18n/i18n.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
-    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/button-style.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { type AsChildSnippet, cn, isAsChildSnippet } from '@lib/ui/utils';
     import { type LayoutWidth, colorRotation, nextColorIndex } from '.';

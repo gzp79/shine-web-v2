@@ -32,14 +32,28 @@
         ['text-primary', 'text-secondary', 'text-info', 'text-warning', 'text-danger', 'text-success'],
         ['text-primary-1', 'text-secondary-1', 'text-info-1', 'text-warning-1', 'text-danger-1', 'text-success-1'],
         ['text-primary-2', 'text-secondary-2', 'text-info-2', 'text-warning-2', 'text-danger-2', 'text-success-2'],
-        ['text-on-primary','text-on-secondary', 'text-on-info', 'text-on-warning', 'text-on-danger', 'text-on-success'],        
+        ['text-on-primary', 'text-on-secondary', 'text-on-info', 'text-on-warning', 'text-on-danger', 'text-on-success'],
 
         ['placeholder:text-surface', 'placeholder:text-container', 'placeholder:text-sub-container'],
         ['placeholder:text-on-surface', 'placeholder:text-on-container', 'placeholder:text-on-sub-container'],
         ['placeholder:text-primary', 'placeholder:text-secondary', 'placeholder:text-info', 'placeholder:text-warning', 'placeholder:text-danger', 'placeholder:text-success'],
         ['placeholder:text-primary-1', 'placeholder:text-secondary-1', 'placeholder:text-info-1', 'placeholder:text-warning-1', 'placeholder:text-danger-1', 'placeholder:text-success-1'],
         ['placeholder:text-primary-2', 'placeholder:text-secondary-2', 'placeholder:text-info-2', 'placeholder:text-warning-2', 'placeholder:text-danger-2', 'placeholder:text-success-2'],
-        ['placeholder:text-on-primary','placeholder:text-on-secondary', 'placeholder:text-on-info', 'placeholder:text-on-warning', 'placeholder:text-on-danger', 'placeholder:text-on-success'],        
+        ['placeholder:text-on-primary', 'placeholder:text-on-secondary', 'placeholder:text-on-info', 'placeholder:text-on-warning', 'placeholder:text-on-danger', 'placeholder:text-on-success'],
+
+        ['hover:ring-inset', 'hover:ring-outset'],
+        ['hover:ring-0', 'hover:ring-1', 'hover:ring-2', 'hover:ring-3', 'hover:ring-4'],
+        ['hover:ring-primary', 'hover:ring-secondary', 'hover:ring-info', 'hover:ring-warning', 'hover:ring-danger', 'hover:ring-success'],
+        ['hover:ring-on-primary', 'hover:ring-on-secondary', 'hover:ring-on-info', 'hover:ring-on-warning', 'hover:ring-on-danger', 'hover:ring-on-success'],
+        ['hover:ring-primary-1', 'hover:ring-secondary-1', 'hover:ring-info-1', 'hover:ring-warning-1', 'hover:ring-danger-1', 'hover:ring-success-1'],
+        ['hover:ring-primary-2', 'hover:ring-secondary-2', 'hover:ring-info-2', 'hover:ring-warning-2', 'hover:ring-danger-2', 'hover:ring-success-2'],
+
+        ['active:ring-inset', 'active:ring-outset'],
+        ['active:ring-0', 'active:ring-1', 'active:ring-2', 'active:ring-3', 'active:ring-4'],
+        ['active:ring-primary', 'active:ring-secondary', 'active:ring-info', 'active:ring-warning', 'active:ring-danger', 'active:ring-success'],
+        ['active:ring-on-primary', 'active:ring-on-secondary', 'active:ring-on-info', 'active:ring-on-warning', 'active:ring-on-danger', 'active:ring-on-success'],
+        ['active:ring-primary-1', 'active:ring-secondary-1', 'active:ring-info-1', 'active:ring-warning-1', 'active:ring-danger-1', 'active:ring-success-1'],
+        ['active:ring-primary-2', 'active:ring-secondary-2', 'active:ring-info-2', 'active:ring-warning-2', 'active:ring-danger-2', 'active:ring-success-2'],
 
         ['focus:ring-inset', 'focus:ring-outset'],
         ['focus:ring-0', 'focus:ring-1', 'focus:ring-2', 'focus:ring-3', 'focus:ring-4'],
@@ -57,7 +71,7 @@
 
         ['focus-visible:ring-inset', 'focus-visible:ring-outset'],
         ['focus-visible:ring-0', 'focus-visible:ring-1', 'focus-visible:ring-2', 'focus-visible:ring-3', 'focus-visible:ring-4'],
-        ['focus-visible:ring-primary', 'focus-visible:ring-secondary', 'focus-visible:ring-info', 'focus-visible:ring-warning', 'focus-visible:ring-danger', 'focus-visible:ring-success'],        
+        ['focus-visible:ring-primary', 'focus-visible:ring-secondary', 'focus-visible:ring-info', 'focus-visible:ring-warning', 'focus-visible:ring-danger', 'focus-visible:ring-success'],
         ['focus-visible:ring-on-primary', 'focus-visible:ring-on-secondary', 'focus-visible:ring-on-info', 'focus-visible:ring-on-warning', 'focus-visible:ring-on-danger', 'focus-visible:ring-on-success'],
         ['focus-visible:ring-primary-1', 'focus-visible:ring-secondary-1', 'focus-visible:ring-info-1', 'focus-visible:ring-warning-1', 'focus-visible:ring-danger-1', 'focus-visible:ring-success-1'],
         ['focus-visible:ring-primary-2', 'focus-visible:ring-secondary-2', 'focus-visible:ring-info-2', 'focus-visible:ring-warning-2', 'focus-visible:ring-danger-2', 'focus-visible:ring-success-2'],
@@ -74,21 +88,21 @@
         ['border-primary', 'border-secondary', 'border-info', 'border-warning', 'border-danger', 'border-success'],
         ['border-primary-1', 'border-secondary-1', 'border-info-1', 'border-warning-1', 'border-danger-1', 'border-success-1'],
         ['border-primary-2', 'border-secondary-2', 'border-info-2', 'border-warning-2', 'border-danger-2', 'border-success-2'],
-        ['border-on-primary','border-on-secondary', 'border-on-info', 'border-on-warning', 'border-on-danger', 'border-on-success'],    
-        
+        ['border-on-primary', 'border-on-secondary', 'border-on-info', 'border-on-warning', 'border-on-danger', 'border-on-success'],
+
         ['fill-surface', 'fill-container', 'fill-sub-container'],
         ['fill-on-surface', 'fill-on-container', 'fill-on-sub-container'],
         ['fill-primary', 'fill-secondary', 'fill-info', 'fill-warning', 'fill-danger', 'fill-success'],
         ['fill-primary-1', 'fill-secondary-1', 'fill-info-1', 'fill-warning-1', 'fill-danger-1', 'fill-success-1'],
         ['fill-primary-2', 'fill-secondary-2', 'fill-info-2', 'fill-warning-2', 'fill-danger-2', 'fill-success-2'],
-        ['fill-on-primary','fill-on-secondary', 'fill-on-info', 'fill-on-warning', 'fill-on-danger', 'fill-on-success'],
+        ['fill-on-primary', 'fill-on-secondary', 'fill-on-info', 'fill-on-warning', 'fill-on-danger', 'fill-on-success'],
 
         ['stroke-surface', 'stroke-container', 'stroke-sub-container'],
         ['stroke-on-surface', 'stroke-on-container', 'stroke-on-sub-container'],
         ['stroke-primary', 'stroke-secondary', 'stroke-info', 'stroke-warning', 'stroke-danger', 'stroke-success'],
         ['stroke-primary-1', 'stroke-secondary-1', 'stroke-info-1', 'stroke-warning-1', 'stroke-danger-1', 'stroke-success-1'],
         ['stroke-primary-2', 'stroke-secondary-2', 'stroke-info-2', 'stroke-warning-2', 'stroke-danger-2', 'stroke-success-2'],
-        ['stroke-on-primary','stroke-on-secondary', 'stroke-on-info', 'stroke-on-warning', 'stroke-on-danger', 'stroke-on-success'],                
+        ['stroke-on-primary', 'stroke-on-secondary', 'stroke-on-info', 'stroke-on-warning', 'stroke-on-danger', 'stroke-on-success'],
 
         ['bg-data-gray-1', 'bg-data-gray-2', 'bg-data-gray-3', 'bg-data-gray-4', 'bg-data-gray-5', 'bg-data-gray-6', 'bg-data-gray-7'], 
         ['text-data-gray-1', 'text-data-gray-2', 'text-data-gray-3', 'text-data-gray-4', 'text-data-gray-5', 'text-data-gray-6', 'text-data-gray-7'],
@@ -104,7 +118,7 @@
         ['md:justify-start', 'md:justify-end', 'md:justify-center', 'md:justify-between', 'md:justify-around', 'md:justify-evenly'],
         ['lg:justify-start', 'lg:justify-end', 'lg:justify-center', 'lg:justify-between', 'lg:justify-around', 'lg:justify-evenly'],
         ['xl:justify-start', 'xl:justify-end', 'xl:justify-center', 'xl:justify-between', 'xl:justify-around', 'xl:justify-evenly'],
-        
+
         ['items-start', 'items-end', 'items-center', 'items-baseline', 'items-stretch'],
         ['xs:items-start', 'xs:items-end', 'xs:items-center', 'xs:items-baseline', 'xs:items-stretch'],
         ['sm:items-start', 'sm:items-end', 'sm:items-center', 'sm:items-baseline', 'sm:items-stretch'],
@@ -178,12 +192,12 @@
         ['lg:my-0', 'lg:my-0.5', 'lg:my-1', 'lg:my-2', 'lg:my-3', 'lg:my-4', 'lg:my-5', 'lg:my-6', 'lg:my-7', 'lg:my-8', 'lg:my-9', 'lg:my-10', 'lg:my-11', 'lg:my-12', 'lg:my-14', 'lg:my-16', 'lg:my-20', 'lg:my-24', 'lg:my-28', 'lg:my-32', 'lg:my-36', 'lg:my-40', 'lg:my-44', 'lg:my-48', 'lg:my-52', 'lg:my-56'],
         ['xl:my-0', 'xl:my-0.5', 'xl:my-1', 'xl:my-2', 'xl:my-3', 'xl:my-4', 'xl:my-5', 'xl:my-6', 'xl:my-7', 'xl:my-8', 'xl:my-9', 'xl:my-10', 'xl:my-11', 'xl:my-12', 'xl:my-14', 'xl:my-16', 'xl:my-20', 'xl:my-24', 'xl:my-28', 'xl:my-32', 'xl:my-36', 'xl:my-40', 'xl:my-44', 'xl:my-48', 'xl:my-52', 'xl:my-56'],
 
-        ['flex-row','flex-col'],
-        ['xs:flex-row','xs:flex-col'],
-        ['sm:flex-row','sm:flex-col'],
-        ['md:flex-row','md:flex-col'],
-        ['lg:flex-row','lg:flex-col'],
-        ['xl:flex-row','xl:flex-col'],
+        ['flex-row', 'flex-col'],
+        ['xs:flex-row', 'xs:flex-col'],
+        ['sm:flex-row', 'sm:flex-col'],
+        ['md:flex-row', 'md:flex-col'],
+        ['lg:flex-row', 'lg:flex-col'],
+        ['xl:flex-row', 'xl:flex-col'],
 
         ['min-w-fit', 'w-fit', 'w-full'],
         ['xs:min-w-fit', 'xs:w-fit', 'xs:w-full'],

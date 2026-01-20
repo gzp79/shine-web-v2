@@ -21,6 +21,23 @@ export type ButtonStyle = {
     class: string;
 };
 
+// On use make sure the generated classes are exported in the TailwindClasses config
+export function ringClass(prefix: string, color: string): string {
+    return ['ring-2 ', 'ring-inset', `ring-on-${color}`].map((cls) => `${prefix}:${cls}`).join(' ');
+}
+
+export function hoverClass(variant: InputVariant): string {
+    if (variant === 'filled') {
+        return 'hover:brightness-highlight';
+    } else if (variant === 'outline') {
+        return 'hover:backdrop-brightness-highlight';
+    } else if (variant === 'ghost') {
+        return 'hover:backdrop-brightness-highlight';
+    } else {
+        return '';
+    }
+}
+
 export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle => {
     const style = $derived<ButtonStyleConfig>({
         variant: 'filled',
@@ -36,6 +53,7 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
     const cntInfo = $derived(style.ignoreContainerContext ? undefined : getContainerContext());
     const groupInfo = getInputGroupContext();
 
+    const hasColor = $derived(!!(groupInfo?.color ?? style.color));
     const color = $derived(groupInfo?.color ?? style.color ?? 'primary');
     const size = $derived(groupInfo?.size ?? style.size ?? 'md');
     const variant = $derived(groupInfo?.variant ?? style.variant ?? 'filled');
@@ -48,9 +66,11 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
     };
 
     const focusRing = $derived(
-        ['ring-2 ', 'ring-inset', `ring-on-${color}`]
-            .map((cls) => (style.showFocus ? `focus:${cls}` : `focus-visible:${cls}`))
-            .map((cls) => (style.useGroupFocus ? `group-${cls}` : cls))
+        [
+            style.useGroupFocus ? 'group-' : '', //
+            'focus',
+            style.showFocus ? '' : '-visible'
+        ].join('')
     );
 
     const cls = $derived(
@@ -58,30 +78,23 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
             'border-2',
             groupInfo ? 'rounded-md' : 'rounded-full',
             'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap outline-none text-center',
-            focusRing,
+            ringClass(focusRing, color),
             style.wide ? 'min-w-full justify-around' : 'w-fit',
-            !style.disabled &&
-                (groupInfo ? `active:ring-2 active:ring-inset active:ring-on-${color}` : 'active:scale-95'),
+            !style.disabled && (groupInfo ? ringClass('active', color) : 'active:scale-95'),
             style.disabled && '!opacity-30 !cursor-not-allowed',
 
             sizeMods[size],
 
-            variant === 'filled' && [
-                `bg-${color}`,
-                `text-on-${color}`,
-                `border-on-${color}`,
-                !style.disabled && 'hover:brightness-highlight'
-            ],
+            variant === 'filled' && [`bg-${color}`, `text-on-${color}`, `border-on-${color}`],
             variant === 'outline' && [
-                cntInfo && !style.color ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
-                cntInfo && !style.color ? `border-${cntInfo.border}` : `border-on-${color}`,
-                !style.disabled && 'hover:backdrop-brightness-highlight'
+                cntInfo && !hasColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
+                cntInfo && !hasColor ? `border-${cntInfo.border}` : `border-on-${color}`
             ],
             variant === 'ghost' && [
-                cntInfo && !style.color ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
-                'border-transparent',
-                !style.disabled && 'hover:backdrop-brightness-highlight'
+                cntInfo && !hasColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
+                'border-transparent'
             ],
+            !style.disabled && hoverClass(variant),
 
             style.class
         )

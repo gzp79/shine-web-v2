@@ -1,7 +1,7 @@
 <script module lang="ts">
     import type { ButtonRootProps } from 'bits-ui';
     import { Button } from 'bits-ui';
-    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/button-style.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
 
     export type ButtonProps = ButtonRootProps & ButtonStyleConfig;
 </script>
