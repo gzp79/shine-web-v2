@@ -27,11 +27,9 @@ export function ringClass(prefix: string, color: string): string {
 }
 
 export function hoverClass(variant: InputVariant): string {
-    if (variant === 'filled') {
+    if (variant === 'filled' || variant === 'accent') {
         return 'hover:brightness-highlight';
-    } else if (variant === 'outline') {
-        return 'hover:backdrop-brightness-highlight';
-    } else if (variant === 'ghost') {
+    } else if (variant === 'outline' || variant === 'ghost') {
         return 'hover:backdrop-brightness-highlight';
     } else {
         return '';
@@ -86,6 +84,8 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
             sizeMods[size],
 
             variant === 'filled' && [`bg-${color}`, `text-on-${color}`, `border-on-${color}`],
+            variant === 'accent' && [`bg-${color}`, `text-on-${color}`, `border-on-${color}`, 'brightness-highlight'],
+
             variant === 'outline' && [
                 cntInfo && !hasColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
                 cntInfo && !hasColor ? `border-${cntInfo.border}` : `border-on-${color}`

@@ -1,11 +1,12 @@
 <script module lang="ts">
     import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, fn, screen, waitFor, within } from 'storybook/test';
+    import { action } from 'storybook/actions';
+    import { expect, fn, waitFor, within } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import { inputVariantList } from '@lib/ui/atoms/input';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
+    import Button, { type NativeButtonAction } from '@lib/ui/atoms/input/Button.svelte';
     import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -15,7 +16,7 @@
         title: 'Components/ComboButton',
         component: ComboButton,
         args: {
-            options: ['Option 1', 'Option 2', 'Option 3'],
+            options: [{ caption: 'Option 1' }, { caption: 'Option 2' }, { caption: 'Option 3' }],
             current: 0
         },
         argTypes: {
@@ -52,7 +53,13 @@
 
 <Story
     name="Default"
-    args={{ onClick: fn() }}
+    args={{
+        options: [
+            { caption: 'Option 1', onclick: fn(action('Option 1 click')) },
+            { caption: 'Option 2', onclick: fn(action('Option 2 click')) },
+            { caption: 'Option 3', onclick: fn(action('Option 3 click')) }
+        ]
+    }}
     play={async ({ canvasElement, args, step }) => {
         const canvas = within(canvasElement);
 
@@ -76,12 +83,11 @@
         // click action button
         await expect(btns[0]).toHaveTextContent('Option 2');
         btns[0].click();
-        expect(args.onClick).toHaveBeenCalledTimes(1);
-        expect(args.onClick).toHaveBeenCalledWith(1);
+        expect((args.options[0] as NativeButtonAction).onclick).toHaveBeenCalledTimes(0);
+        expect((args.options[1] as NativeButtonAction).onclick).toHaveBeenCalledTimes(1);
+        expect((args.options[2] as NativeButtonAction).onclick).toHaveBeenCalledTimes(0);
     }}
->
-    Button
-</Story>
+/>
 
 {#snippet buttonSet(args: ComboButtonProps)}
     <Stack direction="row" alignment="center" justification="start" wrap margin={2}>
@@ -152,6 +158,17 @@
         </Stack>
     {/snippet}
 </Story>
+
+<Story
+    name="Mixed action and href"
+    args={{
+        options: [
+            { caption: 'click', onclick: action('click') },
+            { caption: 'href', href: 'https://example.com' },
+            { caption: 'none' }
+        ]
+    }}
+/>
 
 <Story name="In Box">
     {#snippet template(args)}

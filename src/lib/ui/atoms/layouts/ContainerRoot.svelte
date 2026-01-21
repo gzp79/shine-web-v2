@@ -74,16 +74,24 @@
         }
     });
 
-    // convert props into state, so it can be updated and children reactively
-    let context = $state({} as ContainerInfo);
-    $effect(() => {
-        context.fgColor = colors.fgColor;
-        context.fgColor1 = colors.fgColor1;
-        context.fgColor2 = colors.fgColor2;
-        context.bgColor = colors.bgColor;
-        context.border = colors.border;
+    setContainerContext({
+        get fgColor() {
+            return colors.fgColor;
+        },
+        get fgColor1() {
+            return colors.fgColor1;
+        },
+        get fgColor2() {
+            return colors.fgColor2;
+        },
+        get bgColor() {
+            return colors.bgColor;
+        },
+        get border() {
+            return colors.border;
+        },
+        colorIndex
     });
-    setContainerContext(context);
 
     const widthVariants: Record<LayoutWidth, string> = {
         fit: 'max-w-full w-fit',

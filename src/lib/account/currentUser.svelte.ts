@@ -7,13 +7,16 @@ import { queryCurrentUserInfo } from './account.remote';
 const UPDATE_INTERVAL_MS = 15 * 60 * 1000;
 const CURRENT_USER_CONTEXT_KEY = Symbol('current-user-context');
 
-type AuthenticatedCurrentUser = {
+export type AuthenticatedCurrentUser = {
     authenticated: true;
     id: string;
+    isLinked: boolean;
     name: string;
     email: string;
+    isEmailVerified: boolean;
+    createdAt: Date;
 };
-type UnauthenticatedCurrentUser = {
+export type UnauthenticatedCurrentUser = {
     authenticated: false;
 };
 export type CurrentUser = AuthenticatedCurrentUser | UnauthenticatedCurrentUser;

@@ -45,36 +45,39 @@
 
 <Story
     name="Loading"
-    args={{
-        sessions: mockQuery.loading()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectLoadingState(canvas);
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveSessionCard {...args} sessions={mockQuery.loading()} />
+    {/snippet}
+</Story>
 
 <Story
     name="Error"
-    args={{
-        sessions: mockQuery.error(createOtherError('Test error, failed to fetch linked sessions'))
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectErrorState(canvas, /Test error, failed to fetch linked sessions/);
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveSessionCard
+            {...args}
+            sessions={mockQuery.error(createOtherError('Test error, failed to fetch linked sessions'))}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Simple"
-    args={{
-        sessions: mockQuery.success(sampleSessions())
-    }}
-/>
+<Story name="Simple">
+    {#snippet template(args)}
+        <ActiveSessionCard {...args} sessions={mockQuery.success(sampleSessions())} />
+    {/snippet}
+</Story>
 
-<Story
-    name="Async and refreshed"
-    args={{
-        sessions: mockQuery.async(async () => sampleSessions(), 2000)
-    }}
-/>
+<Story name="Async and refreshed">
+    {#snippet template(args)}
+        <ActiveSessionCard {...args} sessions={mockQuery.async(async () => sampleSessions(), 1000)} />
+    {/snippet}
+</Story>

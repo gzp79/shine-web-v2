@@ -35,7 +35,7 @@
 
     setContext(() => to);
 
-    let triggerStl = createButtonStyle(() => ({
+    const triggerStl = createButtonStyle(() => ({
         ...triggerStyle,
         useGroupFocus: typeof trigger !== 'string' && !isAsChildSnippet(trigger)
     }));

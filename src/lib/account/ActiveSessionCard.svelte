@@ -22,7 +22,7 @@
     };
 </script>
 
-<Card shadow width="lg" title={$t('account.activeSessions.title')}>
+<Card width="md" title={$t('account.activeSessions.title')}>
     <svelte:boundary>
         {#snippet pending()}
             <Stack class="items-center">

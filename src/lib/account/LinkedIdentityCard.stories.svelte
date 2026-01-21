@@ -21,7 +21,7 @@
     });
 
     const userId = uuid();
-    const sampleIdentities: LinkedIdentity[] = [
+    const sampleIdentities = (): LinkedIdentity[] => [
         {
             userId,
             provider: 'google',
@@ -33,7 +33,7 @@
         {
             userId,
             provider: 'github',
-            providerUserId: 'johndoe',
+            providerUserId: uuid(),
             linkedAt: new Date('2024-02-10'),
             name: 'John Doe',
             email: 'john.doe@github.com'
@@ -43,58 +43,64 @@
 
 <Story
     name="Loading"
-    args={{
-        identities: mockQuery.loading(),
-        unlink: () => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectLoadingState(canvas);
     }}
-/>
+>
+    {#snippet template(args)}
+        <LinkedIdentityCard {...args} identities={mockQuery.loading()} unlink={() => async.never()} />
+    {/snippet}
+</Story>
 
 <Story
     name="Error"
-    args={{
-        identities: mockQuery.error(createOtherError('Test error, failed to fetch linked identities')),
-        unlink: () => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectErrorState(canvas, /Test error, failed to fetch linked identities/);
     }}
-/>
+>
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.error(createOtherError('Test error, failed to fetch linked identities'))}
+            unlink={() => async.never()}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Simple"
-    args={{
-        identities: mockQuery.success(sampleIdentities),
-        unlink: () => async.delay(1000)
-    }}
-/>
+<Story name="Simple">
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.success(sampleIdentities())}
+            unlink={() => async.delay(1000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Async and refreshed"
-    args={{
-        identities: mockQuery.async(async () => sampleIdentities, 1000),
-        unlink: (_tokenHash: string) => async.delay(1000)
-    }}
-/>
+<Story name="Async and refreshed">
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.async(async () => sampleIdentities(), 1000)}
+            unlink={(_tokenHash: string) => async.delay(1000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Unlink - Never resolve"
-    args={{
-        identities: mockQuery.async(async () => sampleIdentities, 1000),
-        unlink: () => async.never()
-    }}
-/>
+<Story name="Unlink - Never resolve">
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.async(async () => sampleIdentities(), 1000)}
+            unlink={() => async.never()}
+        />
+    {/snippet}
+</Story>
 
 <Story
     name="Unlink - Fail"
-    args={{
-        identities: mockQuery.async(async () => sampleIdentities, 100),
-        unlink: () => async.rejected(createOtherError('A test error occurred while unlinking the identity'))
-    }}
     play={async ({ canvasElement, step }) => {
         const canvas = within(canvasElement);
         await waitForLoadingToComplete(canvas);
@@ -120,4 +126,12 @@
             });
         });
     }}
-/>
+>
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.async(async () => sampleIdentities(), 100)}
+            unlink={() => async.rejected(createOtherError('A test error occurred while unlinking the identity'))}
+        />
+    {/snippet}
+</Story>

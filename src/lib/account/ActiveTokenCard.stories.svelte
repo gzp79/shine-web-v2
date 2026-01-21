@@ -35,7 +35,7 @@
         ...overrides
     });
 
-    const sampleTokens: ActiveToken[] = [
+    const sampleTokens = (): ActiveToken[] => [
         createToken({
             kind: 'access',
             country: 'US',
@@ -53,59 +53,68 @@
 
 <Story
     name="Loading"
-    args={{
-        tokens: mockQuery.loading<ActiveToken[]>(),
-        revoke: (_tokenHash: string) => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectLoadingState(canvas);
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.loading<ActiveToken[]>()}
+            revoke={(_tokenHash: string) => async.never()}
+        />
+    {/snippet}
+</Story>
 
 <Story
     name="Error"
-    args={{
-        tokens: mockQuery.error<ActiveToken[]>(createOtherError('Test error, failed to fetch linked tokens')),
-        revoke: (_tokenHash: string) => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectErrorState(canvas, /Test error, failed to fetch linked tokens/);
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.error<ActiveToken[]>(createOtherError('Test error, failed to fetch linked tokens'))}
+            revoke={(_tokenHash: string) => async.never()}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Simple"
-    args={{
-        tokens: mockQuery.success(sampleTokens),
-        revoke: (_tokenHash: string) => async.delay(2000)
-    }}
-/>
+<Story name="Simple">
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.success(sampleTokens())}
+            revoke={(_tokenHash: string) => async.delay(2000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Async and refreshed"
-    args={{
-        tokens: mockQuery.async(async () => sampleTokens, 2000),
-        revoke: (_tokenHash: string) => async.delay(2000)
-    }}
-/>
+<Story name="Async and refreshed">
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.async(async () => sampleTokens(), 2000)}
+            revoke={(_tokenHash: string) => async.delay(2000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Revoke - Never resolve"
-    args={{
-        tokens: mockQuery.async(async () => sampleTokens, 100),
-        revoke: (_tokenHash: string) => async.never()
-    }}
-/>
+<Story name="Revoke - Never resolve">
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.async(async () => sampleTokens(), 100)}
+            revoke={(_tokenHash: string) => async.never()}
+        />
+    {/snippet}
+</Story>
 
 <Story
     name="Revoke - Fail"
-    args={{
-        tokens: mockQuery.async(async () => sampleTokens, 100),
-        revoke: (_tokenHash: string) =>
-            async.rejected(createOtherError('A test error occurred while revoking the token'))
-    }}
     play={async ({ canvasElement, step }) => {
         const canvas = within(canvasElement);
         await waitForLoadingToComplete(canvas);
@@ -131,4 +140,13 @@
             });
         });
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.async(async () => sampleTokens(), 100)}
+            revoke={(_tokenHash: string) =>
+                async.rejected(createOtherError('A test error occurred while revoking the token'))}
+        />
+    {/snippet}
+</Story>

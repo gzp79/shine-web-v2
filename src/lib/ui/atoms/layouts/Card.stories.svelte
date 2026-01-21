@@ -136,7 +136,7 @@
             {@render cardContent(args)}
             {#snippet actions()}
                 <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+                <Button variant="accent" onclick={() => alert('Confirm clicked')}>Confirm</Button>
             {/snippet}
         </Card>
     {/snippet}

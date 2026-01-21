@@ -17,7 +17,7 @@
 </script>
 
 <main data-slot="app-content" class={mainClass}>
-    <Stack spacing={4} class="items-center justify-center">
+    <Stack spacing={8} class="items-center justify-center">
         {@render children()}
     </Stack>
 </main>

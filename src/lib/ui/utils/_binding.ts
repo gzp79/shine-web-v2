@@ -4,7 +4,7 @@ import type { Snippet } from 'svelte';
  * Type-safe helper for Svelte 5 rune-based ref binding with snippets.
  * Usage example in a component:
  *   const el = $state<HTMLElement | null>(null);
- *   {@render snippet(ref: { get: () => el, set: (v) => (el = v) })}
+ *   {@render snippet({ref: { get: () => el, set: (v) => (el = v) }})}
  *
  * In the snippet:
  *   <div bind:this={ref.get, ref.set} />

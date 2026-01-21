@@ -87,6 +87,9 @@ export default defineConfig({
             targets: [...additionalAssets]
         })
     ],
+    optimizeDeps: {
+        include: ['@storybook/svelte', 'storybook/test']
+    },
     ...(isTest ? {} : serverConfigs()),
     test: {
         expect: {

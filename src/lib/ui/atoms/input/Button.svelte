@@ -1,9 +1,22 @@
 <script module lang="ts">
     import type { ButtonRootProps } from 'bits-ui';
     import { Button } from 'bits-ui';
+    import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
 
-    export type ButtonProps = ButtonRootProps & ButtonStyleConfig;
+    export type LinkAction = {
+        href: HTMLAnchorAttributes['href'];
+        type?: never;
+        disabled?: HTMLButtonAttributes['disabled'];
+    };
+    export type NativeButtonAction = {
+        type?: HTMLButtonAttributes['type'];
+        href?: never;
+        disabled?: HTMLButtonAttributes['disabled'];
+        onclick?: HTMLButtonAttributes['onclick'];
+    };
+    export type ButtonAction = LinkAction | NativeButtonAction;
+    export type ButtonProps = ButtonRootProps & ButtonAction & ButtonStyleConfig;
 </script>
 
 <script lang="ts">

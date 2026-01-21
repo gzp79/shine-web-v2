@@ -24,38 +24,6 @@ const CurrentUserSchema = z.object({
     details: CurrentUserDetailsSchema
 });
 
-const LinkedIdentitySchema = z.object({
-    userId: z.string(),
-    provider: z.string(),
-    providerUserId: z.string(),
-    linkedAt: z.iso.datetime().transform((dt) => new Date(dt)),
-    name: z.string().nullable(),
-    email: z.string().nullable()
-});
-export type LinkedIdentity = z.infer<typeof LinkedIdentitySchema>;
-
-const LinkedIdentitiesSchema = z.object({
-    links: z.array(LinkedIdentitySchema)
-});
-export type LinkedIdentities = z.infer<typeof LinkedIdentitiesSchema>;
-
-const ActiveSessionSchema = z.object({
-    userId: z.string(),
-    tokenHash: z.string(),
-    fingerprint: z.string(),
-    createdAt: z.iso.datetime().transform((dt) => new Date(dt)),
-    agent: z.string(),
-    country: z.string().nullable(),
-    region: z.string().nullable(),
-    city: z.string().nullable()
-});
-export type ActiveSession = z.infer<typeof ActiveSessionSchema>;
-
-const ActiveSessionsSchema = z.object({
-    sessions: z.array(ActiveSessionSchema)
-});
-export type ActiveSessions = z.infer<typeof ActiveSessionsSchema>;
-
 export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
     logAPI.trace('getCurrentUser...');
     const url = `${config.identityUrl}/api/auth/user/info?method=full`;
@@ -72,8 +40,11 @@ export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
             return {
                 authenticated: true,
                 id: user.userId,
+                isLinked: user.isLinked,
                 name: user.name,
-                email: user.details.email || ''
+                email: user.details.email || '',
+                isEmailVerified: user.isEmailConfirmed,
+                createdAt: user.details.createdAt
             };
         } else if (response.status == 401) {
             logAPI.info('getCurrentUser failed with 401', await response.text());
@@ -85,6 +56,21 @@ export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
         }
     });
 });
+
+const LinkedIdentitySchema = z.object({
+    userId: z.string(),
+    provider: z.string(),
+    providerUserId: z.string(),
+    linkedAt: z.iso.datetime().transform((dt) => new Date(dt)),
+    name: z.string().nullable(),
+    email: z.string().nullable()
+});
+export type LinkedIdentity = z.infer<typeof LinkedIdentitySchema>;
+
+const LinkedIdentitiesSchema = z.object({
+    links: z.array(LinkedIdentitySchema)
+});
+export type LinkedIdentities = z.infer<typeof LinkedIdentitiesSchema>;
 
 export const queryLinkedIdentities = query(async (): Promise<LinkedIdentity[]> => {
     logAPI.log('getLinkedIdentities...');
@@ -114,6 +100,23 @@ export const queryLinkedIdentities = query(async (): Promise<LinkedIdentity[]> =
         return identities.links;
     });
 });
+
+const ActiveSessionSchema = z.object({
+    userId: z.string(),
+    tokenHash: z.string(),
+    fingerprint: z.string(),
+    createdAt: z.iso.datetime().transform((dt) => new Date(dt)),
+    agent: z.string(),
+    country: z.string().nullable(),
+    region: z.string().nullable(),
+    city: z.string().nullable()
+});
+export type ActiveSession = z.infer<typeof ActiveSessionSchema>;
+
+const ActiveSessionsSchema = z.object({
+    sessions: z.array(ActiveSessionSchema)
+});
+export type ActiveSessions = z.infer<typeof ActiveSessionsSchema>;
 
 export const queryActiveSessions = query(async (): Promise<ActiveSession[]> => {
     logAPI.log('getActiveSessions...');

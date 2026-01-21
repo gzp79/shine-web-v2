@@ -2,22 +2,31 @@
     import type { Snippet } from 'svelte';
     import Dropdown from '@lib/ui/atoms/dropdown-menu';
     import DropdownIcon from '@lib/ui/atoms/icons/common/Dropdown.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
+    import Button, { type ButtonAction } from '@lib/ui/atoms/input/Button.svelte';
     import InputGroup, { type InputGroupProps, marginClass } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { asChildSnippet, cn, range } from '@lib/ui/utils';
     import * as kbd from '@lib/ui/utils/kbd';
 
+    export type Option = ButtonAction & {
+        caption: string | Snippet;
+    };
+
     export type ComboButtonProps = Omit<InputGroupProps, 'data-slot' | 'children'> & {
-        options: (string | Snippet)[];
+        options: Option[];
         current?: number;
-        onClick?: (current: number) => void;
+        disabled?: boolean;
     };
 </script>
 
 <script lang="ts">
-    let { options, current = 0, onClick, ...restProps }: ComboButtonProps = $props();
+    let { options, current = $bindable(0), disabled, ...restProps }: ComboButtonProps = $props();
 
     let open = $state(false);
+    let action = $derived.by<ButtonAction>(() => {
+        const { caption, ...buttonAction } = options[current];
+        return buttonAction;
+    });
+
     // Classes for buttons to remove outer rounding when ComboButton is inside InputGroup
     const actionBtnCls = $derived(cn(`[*:not(:first-child)>&]:rounded-s-none [&:not(:first-child)>&]:${marginClass}`));
     const menuBtnCls = $derived(
@@ -33,16 +42,17 @@
             open = true;
         }
     };
-    const handleActionClick = () => {
-        onClick?.(current);
+    const handleActionSelect = (idx: number) => {
+        current = idx;
     };
 </script>
 
 {#snippet item(idx: number)}
-    {#if typeof options[idx] === 'string'}
-        {options[idx]}
+    {@const option = options[idx]}
+    {#if typeof option.caption === 'string'}
+        {option.caption}
     {:else}
-        {@render options[idx]?.()}
+        {@render option?.caption()}
     {/if}
 {/snippet}
 
@@ -51,11 +61,10 @@
 {/snippet}
 
 <InputGroup data-slot="combo-button" {...restProps}>
-    <Button class={actionBtnCls} onkeydown={handleActionKey} onclick={handleActionClick}>{@render item(current)}</Button
-    >
-    <Dropdown.Menu trigger={asChildSnippet(dropdownBtn)} triggerStyle={{ class: menuBtnCls }} bind:open>
+    <Button class={actionBtnCls} onkeydown={handleActionKey} {...action} {disabled}>{@render item(current)}</Button>
+    <Dropdown.Menu trigger={asChildSnippet(dropdownBtn)} triggerStyle={{ disabled, class: menuBtnCls }} bind:open>
         {#each range(0, options.length) as idx (idx)}
-            <Dropdown.Item closeOnSelect onSelect={() => (current = idx)}>
+            <Dropdown.Item closeOnSelect onSelect={() => handleActionSelect(idx)}>
                 {@render item(idx)}
             </Dropdown.Item>
         {/each}
