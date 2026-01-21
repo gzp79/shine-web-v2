@@ -1,6 +1,7 @@
 <script module lang="ts">
+    import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
+    import { expect, fn, screen, waitFor, within } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import { inputVariantList } from '@lib/ui/atoms/input';
@@ -13,7 +14,10 @@
     const { Story } = defineMeta({
         title: 'Components/ComboButton',
         component: ComboButton,
-        args: {},
+        args: {
+            options: ['Option 1', 'Option 2', 'Option 3'],
+            current: 0
+        },
         argTypes: {
             color: {
                 control: { type: 'select' },
@@ -46,7 +50,38 @@
 <script lang="ts">
 </script>
 
-<Story name="Default">Button</Story>
+<Story
+    name="Default"
+    args={{ onClick: fn() }}
+    play={async ({ canvasElement, args, step }) => {
+        const canvas = within(canvasElement);
+
+        // click menu button
+        const btns = await canvas.getAllByRole('button');
+        btns[1].click();
+
+        // click option 2
+        const menu = await waitFor(async () => {
+            const portalCanvas = withinPopover();
+            const menu = (await portalCanvas.getByRole('menu')) as HTMLElement;
+            expect(menu).toBeVisible();
+            return menu;
+        });
+        const option = within(menu).getAllByRole('menuitem', { name: /option 2/i });
+        await option[0].click();
+        waitFor(async () => {
+            expect(menu).not.toBeVisible();
+        });
+
+        // click action button
+        await expect(btns[0]).toHaveTextContent('Option 2');
+        btns[0].click();
+        expect(args.onClick).toHaveBeenCalledTimes(1);
+        expect(args.onClick).toHaveBeenCalledWith(1);
+    }}
+>
+    Button
+</Story>
 
 {#snippet buttonSet(args: ComboButtonProps)}
     <Stack direction="row" alignment="center" justification="start" wrap margin={2}>
