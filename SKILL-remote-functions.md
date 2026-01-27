@@ -197,17 +197,7 @@ export const addLike = command(z.string(), async (id) => {
 
 **Default:** All queries refresh after form/command (inefficient).
 
-**Better:** Specify which queries to refresh (single-flight mutation).
-
-### Server-side Refresh
-
-```typescript
-export const createPost = form(async (data) => {
-    await db.insert(data);
-    getPosts().refresh(); // ← Only refresh affected queries
-    redirect(303, '/posts');
-});
-```
+**Better:** Specify which queries to refresh (single-flight mutation) from the client.
 
 ### Client-side Refresh
 
@@ -465,7 +455,7 @@ export function handleValidationError({ event, issues }) {
 3. **Use single-flight mutations** instead of refreshing all queries
 4. **Validate all arguments** with Standard Schema
 5. **Use optimistic updates** for better perceived performance
-6. **Server-side refresh when possible** for simpler code
+6. **Use client-side refresh** for explicit control over query updates
 7. **Use query.batch()** when fetching multiple items to prevent N+1 queries
 8. **Use form.for(id)** when rendering multiple forms for isolated state
 9. **Prefix sensitive fields with underscore** (\_password, \_apiKey) to prevent sending back to client

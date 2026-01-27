@@ -2,7 +2,7 @@ import { command, query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { async, createFetchError, getPassThroughHeaders, parseResponse, retryWithBackoff } from '@lib/utils';
+import { createFetchError, getPassThroughHeaders, parseResponse, retryWithBackoff } from '@lib/utils';
 import type { CurrentUser } from './currentUser.svelte';
 
 const IdentityKindSchema = z.enum(['user']);
@@ -76,8 +76,6 @@ export const queryLinkedIdentities = query(async (): Promise<LinkedIdentity[]> =
     logAPI.log('getLinkedIdentities...');
     const url = `${config.identityUrl}/api/auth/user/links`;
     const headers = getPassThroughHeaders();
-
-    await async.delay(2000);
 
     return await retryWithBackoff(async (retry) => {
         const response = await fetch(url, {

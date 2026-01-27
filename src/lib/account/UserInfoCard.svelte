@@ -2,6 +2,7 @@
     import { logoutAllUrl, logoutUrl } from '@lib/account/account';
     import { t } from '@lib/i18n/i18n.svelte';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
+    import { Alert } from '@lib/ui/atoms/data/alert';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -69,10 +70,9 @@
 
         {@const user = await userInfo}
         {#if user.authenticated}
-            <Stack>
+            <Stack class="items-center justify-center">
                 {#if !user.isLinked}
-                    <!-- <Alert variant="warning" caption={$t('account.linkWarning')} /> -->
-                    Link alert
+                    <Alert variant="warning" title={$t('account.linkWarning')} />
                 {/if}
 
                 <PropertyList

@@ -17,6 +17,22 @@ export type RefBinding<T extends HTMLElement = HTMLElement> = {
     set: (el: T | null) => void;
 };
 
+export type ChildOrChildren<T extends unknown[] = []> =
+    | {
+          child: Snippet<T>;
+      }
+    | {
+          children?: Snippet;
+      };
+
+export function isChildSnippet<T extends unknown[]>(obj: unknown): obj is { child: Snippet<T> } {
+    return typeof obj === 'object' && obj !== null && 'child' in obj;
+}
+
+export function isChildrenSnippet(obj: unknown): obj is { children: Snippet } {
+    return typeof obj === 'object' && obj !== null && 'children' in obj;
+}
+
 export type AsChildSnippet<T extends unknown[] = []> = {
     asChild: Snippet<T>;
 };
