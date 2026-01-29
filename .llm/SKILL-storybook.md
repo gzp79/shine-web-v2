@@ -80,24 +80,11 @@ export const FormSubmission = {
 
 Query variants: `getBy...`, `queryBy...` (null if missing), `findBy...` (async), and plural `getAllBy...`
 
-### Common userEvent Methods
+### Common userEvent Methods & Assertions
 
-- `click()`, `dblClick()`, `hover()`, `unhover()`
-- `type(element, text)`, `keyboard('{Shift>}A{/Shift}')`
-- `selectOptions()`, `deselectOptions()`, `clear()`
-- `tab()`
+**Methods**: `click()`, `dblClick()`, `hover()`, `type(element, text)`, `keyboard()`, `selectOptions()`, `clear()`, `tab()`
 
-### Assertions
-
-```typescript
-await expect(element).toBeVisible();
-await expect(element).toBeInTheDocument();
-await expect(element).toBeDisabled();
-await expect(element).toHaveClass('active');
-await expect(element).toHaveAttribute('aria-label', 'Close');
-await expect(element).toHaveTextContent('Welcome');
-await expect(element).toHaveLength(3);
-```
+**Assertions**: `toBeVisible()`, `toBeInTheDocument()`, `toBeDisabled()`, `toHaveClass()`, `toHaveAttribute()`, `toHaveTextContent()`, `toHaveLength()`
 
 ### Spy on Functions
 
@@ -115,7 +102,7 @@ export const ClickHandler = {
 
 ## Setup & Teardown
 
-Run via `beforeEach()` at component level or globally in `.storybook/preview.ts`:
+Component level:
 
 ```typescript
 const { Story } = defineMeta({
@@ -127,12 +114,12 @@ const { Story } = defineMeta({
 });
 ```
 
-At preview level for global setup:
+Global in `.storybook/preview.ts`:
 
 ```typescript
 const preview: Preview = {
     async beforeAll() {
-        /* Runs once at start */
+        /* Once at start */
     },
     async beforeEach() {
         /* Before each story */
@@ -164,46 +151,6 @@ Available: `state`, `stores`, `forms`, `navigation`, `hrefs`
 - **Focus stories**: One primary use case per story
 - **Tag for docs**: Add `tags: ['autodocs']` to auto-generate documentation
 - **Type safety**: Always use TypeScript
-
-## Common Patterns
-
-**Form submission**:
-
-```typescript
-export const SubmitSuccess = {
-    play: async ({ canvas, userEvent, step }) => {
-        await step('Fill form', async () => {
-            await userEvent.type(canvas.getByLabelText('Username'), 'testuser');
-        });
-        await step('Submit', async () => {
-            await userEvent.click(canvas.getByRole('button', { name: /submit/i }));
-        });
-        await expect(canvas.getByText('Success!')).toBeInTheDocument();
-    }
-};
-```
-
-**Conditional rendering**:
-
-```typescript
-export const WithCondition = {
-    args: { showContent: true },
-    play: async ({ canvas }) => {
-        await expect(canvas.getByText('Conditional content')).toBeVisible();
-    }
-};
-```
-
-**Error states**:
-
-```typescript
-export const WithError = {
-    args: { hasError: true, errorMessage: 'Invalid email' },
-    play: async ({ canvas }) => {
-        await expect(canvas.getByRole('alert')).toHaveTextContent('Invalid email');
-    }
-};
-```
 
 ## Resources
 

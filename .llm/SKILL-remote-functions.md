@@ -225,16 +225,6 @@ await addLike(id).updates(getLikes(id));
 
 The override applies immediately and reverts on error.
 
-## Detailed Documentation
-
-For complete implementation details, read the reference files:
-
-- **references/quick-reference.md** - Start here for syntax and common patterns
-- **references/query.md** - Complete query function documentation
-- **references/form.md** - Form functions with progressive enhancement
-- **references/command.md** - Imperative command functions
-- **references/invalidation.md** - Data refresh and optimistic update patterns
-
 ## Common Workflows
 
 ### Creating a Resource
@@ -256,130 +246,31 @@ For complete implementation details, read the reference files:
 3. Call `submit().updates()` for targeted refresh
 4. Handle success/error states
 
-## Common Mistakes to Avoid
+## Critical Syntax Rules
 
-### ❌ Query Without Validation Schema
+**Function signatures:**
 
-**WRONG - Missing Zod schema:**
+- ✅ No args: `query(async () => { })`
+- ✅ With args: `query(z.schema(), async (arg) => { })`
+- ❌ NEVER: `query(async ({}) => { })` or `query(async (arg) => { })` without schema
+- ❌ NEVER: `query(z.schema(), async (arg, event) => { })` - use `getRequestEvent()` instead
 
-```typescript
-// ❌ DON'T: Arguments without validation
-export const getPost = query(async (slug) => {
-    return await db.getPost(slug);
-});
-```
+**Calling functions:**
 
-**CORRECT:**
+- ✅ `getPosts()` or `getPost('slug')`
+- ❌ Missing required arguments: `getPost()`
 
-```typescript
-// ✅ DO: Always validate arguments
-import { z } from 'zod';
-
-export const getPost = query(z.string(), async (slug) => {
-    return await db.getPost(slug);
-});
-```
-
-### ❌ Invalid Empty Object Syntax
-
-**WRONG - Empty object parameter:**
+**Request context:**
 
 ```typescript
-// ❌ DON'T: Use empty object syntax
-export const getPosts = query(async ({}) => {
-    return await db.getAllPosts();
-});
-```
-
-**CORRECT:**
-
-```typescript
-// ✅ DO: Omit parameters entirely
-export const getPosts = query(async () => {
-    return await db.getAllPosts();
-});
-```
-
-### ❌ Missing Arguments When Calling
-
-**WRONG - Forgetting required arguments:**
-
-```typescript
-// ❌ DON'T: Call without required arguments
-const post = getPost(); // Missing slug parameter!
-```
-
-**CORRECT:**
-
-```typescript
-// ✅ DO: Always pass required arguments
-const post = getPost(params.slug);
-```
-
-### ❌ Using Event as Parameter
-
-**WRONG - Event as second parameter:**
-
-```typescript
-// ❌ DON'T: Use event as function parameter
-export const getUser = query(z.string(), async (id, event) => {
-    const session = event.cookies.get('session');
-    return await db.getUser(id);
-});
-
-// ❌ Also wrong for commands
-export const updateUser = command(z.string(), async (id, event) => {
-    const userId = event.locals.user.id;
-    await db.update(id, userId);
-});
-```
-
-**CORRECT:**
-
-```typescript
-// ✅ DO: Use getRequestEvent()
+// ✅ DO
 import { getRequestEvent } from '$app/server';
 
-export const getUser = query(z.string(), async (id) => {
-    const { cookies } = getRequestEvent();
-    const session = cookies.get('session');
-    return await db.getUser(id);
-});
+const { cookies, locals } = getRequestEvent();
 
-// ✅ For commands too
-export const updateUser = command(z.string(), async (id) => {
-    const { locals } = getRequestEvent();
-    const userId = locals.user.id;
-    await db.update(id, userId);
-});
+// ❌ DON'T
+async (id, event) => {}; // Never use event parameter
 ```
-
-### ⚠️ Critical Syntax Rules
-
-**Query function signatures:**
-
-- ✅ **No arguments:** `query(async () => { })`
-- ✅ **With arguments:** `query(z.schema(), async (arg) => { })`
-- ❌ **NEVER use:** `query(async ({}) => { })`
-- ❌ **NEVER skip validation:** `query(async (arg) => { })` without schema
-- ❌ **NEVER use event parameter:** `query(z.schema(), async (arg, event) => { })`
-
-**When calling remote functions:**
-
-- ✅ **No args:** `getPosts()`
-- ✅ **With args:** `getPost('slug-value')`
-- ❌ **NEVER forget** required arguments
-
-**Form and Command:**
-
-- Forms can omit schema if using `FormData`
-- Commands should always validate arguments with Zod
-- Both follow same validation patterns as queries
-
-**Accessing request context:**
-
-- ✅ **DO:** `import { getRequestEvent } from '$app/server'` then use `getRequestEvent()`
-- ❌ **DON'T:** Use `event` as a function parameter
 
 ## Validation
 
@@ -388,37 +279,19 @@ Always validate arguments using Standard Schema (Zod recommended):
 ```typescript
 import { z } from 'zod';
 
-// String
+// Primitives: z.string(), z.number(), z.boolean()
 query(z.string(), async (id) => {});
 
-// Number
-query(z.number(), async (count) => {});
-
-// Object
-query(
+// Objects with sensitive fields (underscore prefix not sent back)
+form(
     z.object({
-        id: z.string(),
-        name: z.string()
+        username: z.string(),
+        _password: z.string().min(8)
     }),
     async (data) => {}
 );
 
-// Optional
-query(z.string().optional(), async (id) => {});
-
-// Sensitive fields (underscore prefix)
-form(
-    z.object({
-        username: z.string(),
-        _password: z.string().min(8),
-        _apiKey: z.string().optional()
-    }),
-    async (data) => {
-        // _password and _apiKey not sent back to client
-    }
-);
-
-// Complex schemas
+// Complex nested schemas
 query(
     z.object({
         filters: z.object({
@@ -430,21 +303,11 @@ query(
 );
 ```
 
-### Custom Validation Error Handling
-
-Customize how validation errors are returned (e.g., for security):
+**Custom error handling** in `hooks.server.ts`:
 
 ```typescript
-// hooks.server.ts
 export function handleValidationError({ event, issues }) {
-    // Hide validation details from client
-    return {
-        message: 'Invalid request',
-        code: 'VALIDATION_ERROR'
-    };
-
-    // Or return detailed errors
-    // return { issues };
+    return { message: 'Invalid request', code: 'VALIDATION_ERROR' };
 }
 ```
 
@@ -464,7 +327,7 @@ export function handleValidationError({ event, issues }) {
 
 - Commands cannot be called during render
 - Queries are cached: `getX() === getX()`
-- Data serialized with devalue (supports Date, Map, Set)
-- Inside remote functions, `RequestEvent` differs (no params/route.id, url.pathname is always `/`)
-- Sensitive fields (underscore-prefixed) are never sent back to the client after form submission
-- Use `handleValidationError` hook in hooks.server.ts to customize validation error responses
+- Data serialized with devalue (Date, Map, Set supported)
+- Sensitive fields (underscore-prefixed) never sent back to client
+- Inside remote functions: `RequestEvent` differs (no params/route.id, url.pathname is `/`)
+- Customize validation errors via `handleValidationError` in hooks.server.ts

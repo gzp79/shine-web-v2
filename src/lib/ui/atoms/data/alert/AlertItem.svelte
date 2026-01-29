@@ -3,9 +3,10 @@
     import type { HTMLAttributes } from 'svelte/elements';
     import { type ChildOrChildren, cn, isChildSnippet } from '@lib/ui/utils';
 
-    export type AlertItemProps = HTMLAttributes<HTMLDivElement> & {
+    export type AlertItemBaseProps = HTMLAttributes<HTMLDivElement> & {
         class?: ClassValue;
-    } & ChildOrChildren<[{ class: string }]>;
+    };
+    export type AlertItemProps = AlertItemBaseProps & ChildOrChildren<[{ class: string }]>;
 </script>
 
 <script lang="ts">

@@ -2,7 +2,7 @@ import { query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { async, createFetchError, retryWithBackoff } from '@lib/utils';
+import { createFetchError, retryWithBackoff } from '@lib/utils';
 
 async function fetchLatestAssetVersion(): Promise<string> {
     const latestUrl = `${config.assetUrl}/latest.json`;
@@ -85,16 +85,12 @@ export const queryAssetUrl = query(z.string(), async (key: string): Promise<stri
 });
 
 export const queryAssetUrls = query(z.array(z.string()), async (keys: string[]): Promise<Record<string, string>> => {
-    console.log('STARTING BG links');
-    await async.delay(5000);
-    console.log('STARTING BG links wait done');
-    // const manifest = await getOrRefreshManifest();
-    // const result: Record<string, string> = {};
-    // for (const key of keys) {
-    //     const relative = manifest.links[key] ?? 'not-found';
-    //     result[key] = config.assetUrl + '/' + relative;
-    // }
-    // logAPI.log(`Resolved asset keys: ${JSON.stringify(result)}`);
-    // return result;
-    return { A: 'htttp://example.com' };
+    const manifest = await getOrRefreshManifest();
+    const result: Record<string, string> = {};
+    for (const key of keys) {
+        const relative = manifest.links[key] ?? 'not-found';
+        result[key] = config.assetUrl + '/' + relative;
+    }
+    logAPI.log(`Resolved asset keys: ${JSON.stringify(result)}`);
+    return result;
 });

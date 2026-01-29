@@ -8,8 +8,6 @@
 <script lang="ts">
     import { page } from '$app/state';
     import { config } from '@config';
-    import { redirect } from '@sveltejs/kit';
-    import { string } from 'zod';
     import { queryCurrentUserInfo } from '@lib/account/account.remote';
     import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/login.remote';
     import { queryAssetUrls } from '@lib/assets/assets.remote';
@@ -104,6 +102,11 @@
         {JSON.stringify(await providers)} <br />
         {JSON.stringify(await currentUser)} <br />
         {JSON.stringify(await backgroundUrls)} <br />
+        prompt: {prompt} <br />
+        extraInfo: {JSON.stringify(extraInfo)} <br />
+        captcha: {captcha} <br />
+        rememberMe: {rememberMe} <br />
+        showLoading: {showLoading} <br />
 
         <a href="/account">Go to Login Page</a>
     </svelte:boundary>

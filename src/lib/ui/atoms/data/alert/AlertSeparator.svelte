@@ -1,8 +1,8 @@
 <script lang="ts" module>
-    import AlertItem, { type AlertItemProps } from '@lib/ui/atoms/data/alert/AlertItem.svelte';
+    import AlertItem, { type AlertItemBaseProps } from '@lib/ui/atoms/data/alert/AlertItem.svelte';
     import { cn } from '@lib/ui/utils';
 
-    export type AlertSeparatorProps = Omit<AlertItemProps, 'data-slot' | 'children' | 'child'>;
+    export type AlertSeparatorProps = Omit<AlertItemBaseProps, 'data-slot'>;
 </script>
 
 <script lang="ts">

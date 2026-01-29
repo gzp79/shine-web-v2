@@ -17,7 +17,6 @@
             opacity && `opacity: ${opacity}`
         ].join('; ')
     );
-    $inspect('style', style);
 </script>
 
 <div class={cls} {style}></div>

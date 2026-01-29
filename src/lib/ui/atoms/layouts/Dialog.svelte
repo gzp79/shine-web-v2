@@ -114,7 +114,7 @@
             'h-8 w-8',
             'p-1',
             'justify-end align-center',
-            'hover:rounded-m    d hover:backdrop-brightness-highlight',
+            'hover:rounded-md hover:backdrop-brightness-highlight',
             'group-focus-visible:ring-2 group-focus-visible:ring-inset group-focus-visible:ring-on-surface',
             closeIconClass
         )
