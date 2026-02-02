@@ -1,12 +1,10 @@
 <script module lang="ts">
-    import type { WithElementRef } from 'bits-ui';
     import type { HTMLInputAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
+    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
-    import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import { cn } from '@lib/ui/utils';
-    import { getInputGroupContext } from './InputGroup.svelte';
 
     export const inputTypeList = [
         'text',
@@ -31,7 +29,7 @@
     ];
     export type InputType = (typeof inputTypeList)[number];
 
-    type InputBaseProps = WithElementRef<Omit<HTMLInputAttributes, 'type' | 'size'> & { type?: InputType }>;
+    type InputBaseProps = Omit<HTMLInputAttributes, 'type' | 'size'> & { type?: InputType };
 
     export type InputProps = InputBaseProps & {
         color?: ActionColor;
@@ -49,9 +47,8 @@
         variant: baseVariant,
         size: baseSize,
         wide = false,
-        disabled = false,
+        disabled: baseDisabled,
         invalid = false,
-        ref = $bindable(null),
         value = $bindable(),
         type = 'text',
         files = $bindable(),
@@ -60,13 +57,13 @@
         ...restProps
     }: InputProps = $props();
 
-    const cntInfo = getContainerContext();
-    const groupInfo = getInputGroupContext();
+    const ctx = getInputGroupContext();
 
-    const hasColor = $derived(!!(groupInfo?.color ?? baseColor));
-    const color = $derived(groupInfo?.color ?? baseColor ?? 'primary');
-    const size = $derived(groupInfo?.size ?? baseSize ?? 'md');
-    const variant = $derived(groupInfo?.variant ?? baseVariant ?? 'filled');
+    // Precedence: explicit prop > InputGroupContext (from Field or InputGroup) > default
+    const color = $derived(baseColor ?? ctx?.color ?? 'primary');
+    const size = $derived(baseSize ?? ctx?.size ?? 'md');
+    const variant = $derived(baseVariant ?? ctx?.variant ?? 'filled');
+    const disabled = $derived(baseDisabled || ctx?.disabled || false);
 
     const sizeMods: Record<Size, string> = {
         xs: 'text-xs leading-none h-8 px-2',
@@ -90,16 +87,15 @@
                 `placeholder:text-${color}-2`,
                 `border-on-${color}`
             ],
-            variant === 'outline' && [
-                cntInfo && !hasColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
-                cntInfo && !hasColor ? `placeholder:text-${cntInfo.fgColor2}` : `placeholder:text-${color}-2`,
-                cntInfo && !hasColor ? `border-${cntInfo.border}` : `border-on-${color}`
+            variant === 'accent' && [
+                `bg-${color}`,
+                `text-on-${color}`,
+                `placeholder:text-${color}-2`,
+                `border-on-${color}`,
+                'brightness-highlight'
             ],
-            variant === 'ghost' && [
-                cntInfo && !hasColor ? `text-${cntInfo.fgColor}` : `text-on-${color}`,
-                cntInfo && !hasColor ? `placeholder:text-${cntInfo.fgColor2}` : `placeholder:text-${color}-2`,
-                'border-transparent'
-            ],
+            variant === 'outline' && [`text-on-${color}`, `placeholder:text-on-${color}-2`, `border-on-${color}`],
+            variant === 'ghost' && [`text-on-${color}`, `placeholder:text-${color}-2`, 'border-transparent'],
             disabled ? '!opacity-30 !cursor-not-allowed' : hoverClass(variant),
 
             className
@@ -108,7 +104,6 @@
 </script>
 
 <input
-    bind:this={ref}
     data-slot={dataSlot}
     class={cls}
     {type}

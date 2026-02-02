@@ -3,12 +3,22 @@
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { tick } from 'svelte';
-    import Dropdown from '@lib/ui/atoms/dropdown-menu';
-    import Menu from '@lib/ui/atoms/dropdown-menu/Dropdown.svelte';
+    import {
+        DropdownCheckboxGroup,
+        DropdownCheckboxItem,
+        DropdownGroup,
+        DropdownItem,
+        DropdownMenu,
+        DropdownRadioGroup,
+        DropdownRadioItem,
+        DropdownSeparator,
+        DropdownShortcut,
+        DropdownSubMenu
+    } from '@lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({
         title: 'Atoms/Menu/Dropdown',
-        component: Menu,
+        component: DropdownMenu,
         args: {
             class: 'w-56',
             align: 'start',
@@ -27,29 +37,29 @@
 </script>
 
 <Story name="Simple">
-    <Dropdown.Group heading="Account Settings">
-        <Dropdown.Item>
+    <DropdownGroup heading="Account Settings">
+        <DropdownItem>
             Profile
-            <Dropdown.Shortcut>⇧⌘P</Dropdown.Shortcut>
-        </Dropdown.Item>
-        <Dropdown.Item>
+            <DropdownShortcut>⇧⌘P</DropdownShortcut>
+        </DropdownItem>
+        <DropdownItem>
             Billing
-            <Dropdown.Shortcut>⌘B</Dropdown.Shortcut>
-        </Dropdown.Item>
-        <Dropdown.Item>
+            <DropdownShortcut>⌘B</DropdownShortcut>
+        </DropdownItem>
+        <DropdownItem>
             Settings
-            <Dropdown.Shortcut>⌘S</Dropdown.Shortcut>
-        </Dropdown.Item>
-        <Dropdown.Item>
+            <DropdownShortcut>⌘S</DropdownShortcut>
+        </DropdownItem>
+        <DropdownItem>
             Keyboard shortcuts
-            <Dropdown.Shortcut>⌘K</Dropdown.Shortcut>
-        </Dropdown.Item>
-    </Dropdown.Group>
-    <Dropdown.Separator />
-    <Dropdown.Item dangerous>
+            <DropdownShortcut>⌘K</DropdownShortcut>
+        </DropdownItem>
+    </DropdownGroup>
+    <DropdownSeparator />
+    <DropdownItem dangerous>
         Log out
-        <Dropdown.Shortcut>⇧⌘Q</Dropdown.Shortcut>
-    </Dropdown.Item>
+        <DropdownShortcut>⇧⌘Q</DropdownShortcut>
+    </DropdownItem>
 </Story>
 
 <Story
@@ -73,21 +83,21 @@
         });
     }}
 >
-    <Dropdown.Item>Team</Dropdown.Item>
-    <Dropdown.Sub trigger="Invite users">
-        <Dropdown.Item>Email</Dropdown.Item>
-        <Dropdown.Item>Message</Dropdown.Item>
-        <Dropdown.Item>Facebook</Dropdown.Item>
-        <Dropdown.Item>SMS</Dropdown.Item>
-        <Dropdown.Item>Chat</Dropdown.Item>
-        <Dropdown.Item>Voice</Dropdown.Item>
-        <Dropdown.Separator />
-        <Dropdown.Item closeOnSelect={false}>More (won't close)...</Dropdown.Item>
-    </Dropdown.Sub>
-    <Dropdown.Item>
+    <DropdownItem>Team</DropdownItem>
+    <DropdownSubMenu trigger="Invite users">
+        <DropdownItem>Email</DropdownItem>
+        <DropdownItem>Message</DropdownItem>
+        <DropdownItem>Facebook</DropdownItem>
+        <DropdownItem>SMS</DropdownItem>
+        <DropdownItem>Chat</DropdownItem>
+        <DropdownItem>Voice</DropdownItem>
+        <DropdownSeparator />
+        <DropdownItem closeOnSelect={false}>More (won't close)...</DropdownItem>
+    </DropdownSubMenu>
+    <DropdownItem>
         New Team
-        <Dropdown.Shortcut>⌘+T</Dropdown.Shortcut>
-    </Dropdown.Item>
+        <DropdownShortcut>⌘+T</DropdownShortcut>
+    </DropdownItem>
 </Story>
 
 <Story
@@ -114,16 +124,16 @@
         });
     }}
 >
-    <Dropdown.CheckboxGroup bind:value={checks}>
-        <Dropdown.Group heading="Choose some [{checks.join(',')}]">
+    <DropdownCheckboxGroup bind:value={checks}>
+        <DropdownGroup heading="Choose some [{checks.join(',')}]">
             {#each Array(4) as _, i (i)}
-                <Dropdown.Separator />
-                <Dropdown.CheckboxItem value="ch1" closeOnSelect={false}>Value 1</Dropdown.CheckboxItem>
-                <Dropdown.CheckboxItem value="ch2" disabled closeOnSelect={false}>Value 2</Dropdown.CheckboxItem>
-                <Dropdown.CheckboxItem value="ch3" closeOnSelect={false}>Value 3</Dropdown.CheckboxItem>
+                <DropdownSeparator />
+                <DropdownCheckboxItem value="ch1" closeOnSelect={false}>Value 1</DropdownCheckboxItem>
+                <DropdownCheckboxItem value="ch2" disabled closeOnSelect={false}>Value 2</DropdownCheckboxItem>
+                <DropdownCheckboxItem value="ch3" closeOnSelect={false}>Value 3</DropdownCheckboxItem>
             {/each}
-        </Dropdown.Group>
-    </Dropdown.CheckboxGroup>
+        </DropdownGroup>
+    </DropdownCheckboxGroup>
 </Story>
 
 <Story
@@ -144,14 +154,14 @@
         });
     }}
 >
-    <Dropdown.RadioGroup bind:value={radioValue}>
-        <Dropdown.Group heading="Choose one [{radioValue}]">
+    <DropdownRadioGroup bind:value={radioValue}>
+        <DropdownGroup heading="Choose one [{radioValue}]">
             {#each Array(4) as _, i (i)}
-                <Dropdown.Separator />
-                <Dropdown.RadioItem value="r1" closeOnSelect={false}>Value 1</Dropdown.RadioItem>
-                <Dropdown.RadioItem value="r2" disabled closeOnSelect={false}>Value 2</Dropdown.RadioItem>
-                <Dropdown.RadioItem value="r3" closeOnSelect={false}>Value 3</Dropdown.RadioItem>
+                <DropdownSeparator />
+                <DropdownRadioItem value="r1" closeOnSelect={false}>Value 1</DropdownRadioItem>
+                <DropdownRadioItem value="r2" disabled closeOnSelect={false}>Value 2</DropdownRadioItem>
+                <DropdownRadioItem value="r3" closeOnSelect={false}>Value 3</DropdownRadioItem>
             {/each}
-        </Dropdown.Group>
-    </Dropdown.RadioGroup>
+        </DropdownGroup>
+    </DropdownRadioGroup>
 </Story>

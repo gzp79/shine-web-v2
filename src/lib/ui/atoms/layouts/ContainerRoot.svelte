@@ -2,11 +2,12 @@
     import type { Snippet } from 'svelte';
     import type { AriaRole, ClassValue } from 'svelte/elements';
     import { type ActionColor, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
-    import { type LayoutWidth } from '@lib/ui/atoms/layouts';
+    import { type LayoutWidth, clampColorIndex, nextColorIndex } from '@lib/ui/atoms/layouts';
     import { cn, createContext } from '@lib/ui/utils';
 
     export type ContainerRootProps = {
         color?: ActionColor;
+        nestingLevel?: number;
         border?: boolean;
         shadow?: boolean;
         ghost?: boolean;
@@ -19,78 +20,48 @@
     };
 
     export interface ContainerInfo {
-        bgColor: string;
-        fgColor: string;
-        fgColor1: string;
-        fgColor2: string;
-        border: string;
+        color: ActionColor;
+        nestingLevel: number;
         colorIndex: number;
     }
-    const [getContainerContext, setContainerContext] = createContext<ContainerInfo>('Container');
+    const { tryGet: getContainerContext, set: setContainerContext } = createContext<ContainerInfo>('Container');
     export { getContainerContext };
-
-    const [getContainerNestingLevel, setContainerNestingLevel] = createContext<number>('ContainerNestingLevel');
-    const [getContainerColorIndex, setContainerColorIndex] = createContext<number>('ContainerColorIndex');
 </script>
 
 <script lang="ts">
     let {
-        color = undefined,
+        color: baseColor = undefined,
         border = true,
         shadow = true,
         ghost = false,
         width = 'fit',
         margin = undefined,
         class: className = undefined,
+        nestingLevel: baseLevel = undefined,
         children,
         ...restProps
     }: ContainerRootProps = $props();
 
     const colorRotation = ['container', 'sub-container', 'surface'];
 
-    let nestingLevel: number = (getContainerNestingLevel() ?? -1) + 1;
-    setContainerNestingLevel(nestingLevel);
+    let parentContext = getContainerContext();
 
-    let colorIndex: number = ((getContainerColorIndex() ?? -1) + 1) % colorRotation.length;
-    setContainerColorIndex(colorIndex);
+    let nestingLevel: number = $derived(baseLevel ?? (parentContext?.nestingLevel ?? -1) + 1);
+    let parentColorIndex: number = $derived(clampColorIndex(baseLevel ?? parentContext?.colorIndex ?? 0));
+    let colorIndex: number = $derived(nextColorIndex(parentColorIndex));
 
-    const colors = $derived.by(() => {
-        if (color) {
-            return {
-                fgColor: 'on-' + color,
-                fgColor1: color + '-1',
-                fgColor2: color + '-2',
-                bgColor: color,
-                border: 'on-' + color
-            };
-        } else {
-            return {
-                fgColor: 'on-' + colorRotation[colorIndex],
-                fgColor1: 'primary-1',
-                fgColor2: 'primary-2',
-                bgColor: colorRotation[colorIndex],
-                border: 'on-' + colorRotation[(colorIndex + colorRotation.length - 1) % colorRotation.length]
-            };
-        }
-    });
+    const color = $derived(baseColor === undefined ? (colorRotation[colorIndex] as ActionColor) : baseColor);
 
     setContainerContext({
-        get fgColor() {
-            return colors.fgColor;
+        get color() {
+            return color;
         },
-        get fgColor1() {
-            return colors.fgColor1;
+        get nestingLevel() {
+            return nestingLevel;
         },
-        get fgColor2() {
-            return colors.fgColor2;
-        },
-        get bgColor() {
-            return colors.bgColor;
-        },
-        get border() {
-            return colors.border;
-        },
-        colorIndex
+        get colorIndex() {
+            return colorIndex;
+        }
     });
 
     const widthVariants: Record<LayoutWidth, string> = {
@@ -107,10 +78,10 @@
             'min-h-0 min-w-0',
             'flex flex-col',
             widthVariants[width],
-            border && `border border-${colors.border}`,
-            !ghost && `bg-${colors.bgColor}`,
-            `text-${colors.fgColor}`,
-            shadow && `shadow-md shadow-${colors.fgColor}`,
+            border && `border border-on-${color}`,
+            !ghost && `bg-${color}`,
+            `text-on-${color}`,
+            shadow && `shadow-md shadow-on-${color}`,
             'overflow-clip',
             toSpacingClasses(margin, { all: 'm', x: 'mx', y: 'my' }),
             className

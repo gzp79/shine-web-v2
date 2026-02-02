@@ -3,7 +3,7 @@
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
     import { fade } from 'svelte/transition';
-    import { type ExpandIconSide, getPortalContext } from '@lib/ui/atoms/dropdown-menu';
+    import { type ExpandIconSide, getMenuContext } from '@lib/ui/atoms/dropdown-menu';
     import DropdownIcon from '@lib/ui/atoms/icons/common/Dropdown.svelte';
     import { cn } from '@lib/ui/utils';
     import './Dropdown.svelte';
@@ -30,7 +30,7 @@
         ...restProps
     }: SubProps = $props();
 
-    const portalTo = getPortalContext();
+    const { portal: portalTo } = getMenuContext();
 
     const triggerCls = $derived(
         cn(

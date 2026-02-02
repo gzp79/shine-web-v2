@@ -1,10 +1,10 @@
 <script module lang="ts">
     import { DropdownMenu as DropdownMenuPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
     import type { ClassValue } from 'clsx';
-    import { type Snippet, createContext } from 'svelte';
+    import { type Snippet } from 'svelte';
     import { fade } from 'svelte/transition';
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
-    import { type AsChildSnippet, cn, isAsChildSnippet } from '@lib/ui/utils';
+    import { type AsChildSnippet, cn, createContext, isAsChildSnippet } from '@lib/ui/utils';
 
     export type MenuProps = WithoutChildrenOrChild<DropdownMenuPrimitive.RootProps> &
         WithoutChildrenOrChild<DropdownMenuPrimitive.ContentProps> & {
@@ -15,8 +15,8 @@
             class?: ClassValue;
         };
 
-    const [getContext, setContext] = createContext<() => string>();
-    export const getPortalContext = (): string => getContext()();
+    const { get: getMenuContext, set: setMenuContext } = createContext<{ portal: string }>('DropdownMenu');
+    export { getMenuContext };
 </script>
 
 <script lang="ts">
@@ -33,7 +33,11 @@
         ...restProps
     }: MenuProps = $props();
 
-    setContext(() => to);
+    setMenuContext({
+        get portal() {
+            return to;
+        }
+    });
 
     const triggerStl = createButtonStyle(() => ({
         ...triggerStyle,

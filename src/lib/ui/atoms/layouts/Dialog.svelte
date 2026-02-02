@@ -9,9 +9,9 @@
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { type AsChildSnippet, cn, isAsChildSnippet } from '@lib/ui/utils';
-    import { type LayoutWidth, colorRotation, nextColorIndex } from '.';
+    import { type LayoutWidth, colorRotation } from '.';
     import ContainerContent, { type ContainerContentProps } from './ContainerContent.svelte';
-    import ContainerRoot, { type ContainerRootProps, getContainerContext } from './ContainerRoot.svelte';
+    import ContainerRoot, { type ContainerRootProps } from './ContainerRoot.svelte';
 
     export type DialogTriggerXProps = Omit<DialogPrimitive.TriggerProps, 'children' | 'child' | 'class'>;
 
@@ -63,8 +63,7 @@
         contentClass
     }: DialogProps = $props();
 
-    const colorIndex = getContainerContext()?.colorIndex ?? 0;
-    const headerColor = $derived(color ? `${color}-1` : colorRotation[nextColorIndex(colorIndex)]);
+    const headerColor = $derived(color ? `${color}-1` : colorRotation[1]);
 
     const alertLikeRoles = ['alertdialog'];
     const escapeKeydownBehaviorWithRole = $derived(
@@ -159,7 +158,7 @@
             escapeKeydownBehavior={escapeKeydownBehaviorWithRole}
             interactOutsideBehavior={interactOutsideBehaviorWithRole}
         >
-            <ContainerRoot data-slot="card" border {color} {shadow} width="full">
+            <ContainerRoot data-slot="card" border {color} {shadow} width="full" nestingLevel={0}>
                 <Stack direction="column" spacing={0}>
                     {#if title || closeIcon}
                         <div class={headerCls}>

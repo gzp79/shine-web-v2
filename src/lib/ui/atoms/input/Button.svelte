@@ -32,6 +32,6 @@
     }));
 </script>
 
-<Button.Root {disabled} class={buttonStl.class} {...restProps}>
+<Button.Root disabled={buttonStl.disabled} class={buttonStl.class} {...restProps}>
     {@render children?.()}
 </Button.Root>
