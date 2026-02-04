@@ -2,7 +2,7 @@
     import type { Snippet } from 'svelte';
     import { type ButtonStyleConfig } from '@lib/ui/atoms/input/style.svelte';
     import ConfirmationDialog, { type ConfirmationDialogProps } from '@lib/ui/components/ConfirmationDialog.svelte';
-    import { asChildSnippet } from '@lib/ui/utils';
+    import { fromSnippet } from '@lib/ui/utils';
 
     export type ConfirmationButtonProps = ButtonStyleConfig & {
         to?: ConfirmationDialogProps['to'];
@@ -34,6 +34,6 @@
     {to}
     {onConfirm}
     {onCancel}
-    trigger={asChildSnippet(children)}
+    trigger={fromSnippet(children)}
     triggerStyle={{ color, variant, size, wide, disabled, class: className, useGroupFocus: true }}
 />

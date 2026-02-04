@@ -5,7 +5,7 @@
     import { tick } from 'svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
     import { type Theme, createThemeContext, themeList } from '@lib/theme/theme.svelte';
-    import Dropdown from '@lib/ui/atoms/dropdown-menu';
+    import { DropdownGroup, DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({
         title: 'Components/App/ThemeMenu',
@@ -61,20 +61,16 @@
     }}
 >
     {#snippet template(args)}
-        <Dropdown.Menu open={true} class="w-56" align="start">
-            {#snippet trigger()}
-                Setting [{theme.current}]
-            {/snippet}
-
-            <Dropdown.Group heading="Settings">
-                <Dropdown.Item>Profile</Dropdown.Item>
-                <Dropdown.Item>Account</Dropdown.Item>
-            </Dropdown.Group>
-            <Dropdown.Separator />
+        <DropdownMenu open={true} class="w-56" align="start" trigger={`Setting [${theme.current}]`}>
+            <DropdownGroup heading="Settings">
+                <DropdownItem>Profile</DropdownItem>
+                <DropdownItem>Account</DropdownItem>
+            </DropdownGroup>
+            <DropdownSeparator />
             <ThemeMenu {...args} />
-            <Dropdown.Separator />
-            <Dropdown.Item>Help</Dropdown.Item>
-        </Dropdown.Menu>
+            <DropdownSeparator />
+            <DropdownItem>Help</DropdownItem>
+        </DropdownMenu>
 
         <div id="popover"></div>
     {/snippet}

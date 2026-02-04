@@ -1,10 +1,10 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import Dropdown from '@lib/ui/atoms/dropdown-menu';
+    import { DropdownItem, DropdownMenu } from '@lib/ui/atoms/dropdown-menu';
     import DropdownIcon from '@lib/ui/atoms/icons/common/Dropdown.svelte';
     import Button, { type ButtonAction } from '@lib/ui/atoms/input/Button.svelte';
     import InputGroup, { type InputGroupProps, marginClass } from '@lib/ui/atoms/input/InputGroup.svelte';
-    import { asChildSnippet, cn, range } from '@lib/ui/utils';
+    import { cn, fromComponent, range } from '@lib/ui/utils';
     import * as kbd from '@lib/ui/utils/kbd';
 
     export type Option = ButtonAction & {
@@ -56,17 +56,13 @@
     {/if}
 {/snippet}
 
-{#snippet dropdownBtn()}
-    <DropdownIcon />
-{/snippet}
-
 <InputGroup data-slot="combo-button" {...restProps}>
     <Button class={actionBtnCls} onkeydown={handleActionKey} {...action} {disabled}>{@render item(current)}</Button>
-    <Dropdown.Menu trigger={asChildSnippet(dropdownBtn)} triggerStyle={{ disabled, class: menuBtnCls }} bind:open>
+    <DropdownMenu trigger={fromComponent(DropdownIcon)} triggerStyle={{ disabled, class: menuBtnCls }} bind:open>
         {#each range(0, options.length) as idx (idx)}
-            <Dropdown.Item closeOnSelect onSelect={() => handleActionSelect(idx)}>
+            <DropdownItem closeOnSelect onSelect={() => handleActionSelect(idx)}>
                 {@render item(idx)}
-            </Dropdown.Item>
+            </DropdownItem>
         {/each}
-    </Dropdown.Menu>
+    </DropdownMenu>
 </InputGroup>

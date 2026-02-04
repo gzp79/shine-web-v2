@@ -11,7 +11,7 @@
 </script>
 
 <AlertItem data-slot="alert-separator" role="separator" class={cls} {...restProps}>
-    {#snippet child({ class: cls })}
+    {#snippet template({ class: cls })}
         <hr class={cls} />
     {/snippet}
 </AlertItem>

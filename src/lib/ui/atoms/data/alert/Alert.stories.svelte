@@ -12,7 +12,6 @@
         alertVariantList
     } from '@lib/ui/atoms/data/alert';
     import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
-    import { cn } from '@lib/ui/utils';
 
     const { Story } = defineMeta({
         component: Alert,
@@ -78,6 +77,7 @@
                     Some additional custom alert content goes here.
                 </Typography>
             </AlertItem>
+            <AlertTitle class="h3 text-center">That's all folks!</AlertTitle>
         </Alert>
     {/snippet}
 </Story>

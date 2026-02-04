@@ -13,7 +13,7 @@
 </script>
 
 <AlertItem data-slot="alert-title" class={cls} {...restProps}>
-    {#snippet child({ class: cls })}
+    {#snippet template({ class: cls })}
         <Typography element="h2" variant="h3" class={cls}>
             {@render children?.()}
         </Typography>

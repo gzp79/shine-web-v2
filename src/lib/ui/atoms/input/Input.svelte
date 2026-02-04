@@ -26,7 +26,7 @@
         //'radio',
         //'file',
         //'color'
-    ];
+    ] as const;
     export type InputType = (typeof inputTypeList)[number];
 
     type InputBaseProps = Omit<HTMLInputAttributes, 'type' | 'size'> & { type?: InputType };
@@ -51,7 +51,6 @@
         invalid = false,
         value = $bindable(),
         type = 'text',
-        files = $bindable(),
         class: className,
         'data-slot': dataSlot = 'input',
         ...restProps

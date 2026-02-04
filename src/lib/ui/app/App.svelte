@@ -4,8 +4,9 @@
     import { t } from '@lib/i18n/i18n.svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
     import { type Theme } from '@lib/theme/theme.svelte';
-    import Dropdown from '@lib/ui/atoms/dropdown-menu';
+    import { DropdownItem, DropdownLabel, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
     import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
+    import { fromComponent } from '../utils';
 
     export type AppProps = {
         theme?: Theme;
@@ -27,24 +28,21 @@
     class="relative flex min-h-full min-w-full flex-col overflow-hidden"
 >
     {#if showToolbar}
-        {#snippet settingsTrigger()}
-            <Settings />
-        {/snippet}
-        <Dropdown.Menu
-            trigger={settingsTrigger}
+        <DropdownMenu
+            trigger={fromComponent(Settings)}
             triggerStyle={{ class: 'absolute right-4 top-4 z-10' }}
             to="#popover"
             class="w-32"
             align="start"
             collisionPadding={16}
         >
-            <Dropdown.Label>{$t('common.settings')}</Dropdown.Label>
-            <Dropdown.Separator />
+            <DropdownLabel>{$t('common.settings')}</DropdownLabel>
+            <DropdownSeparator />
             <ThemeMenu expandIcon="left" />
             <LanguageMenu expandIcon="left" />
-            <Dropdown.Separator />
-            <Dropdown.Item>LogoutMenu</Dropdown.Item>
-        </Dropdown.Menu>
+            <DropdownSeparator />
+            <DropdownItem>LogoutMenu</DropdownItem>
+        </DropdownMenu>
     {/if}
     {@render children()}
 

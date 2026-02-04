@@ -29,7 +29,7 @@
     let email = $state('');
     let emailError = $state('');
 
-    function validateEmail() {
+    const validateEmail = () => {
         if (!email) {
             emailError = 'Email is required';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -37,7 +37,7 @@
         } else {
             emailError = '';
         }
-    }
+    };
 </script>
 
 <Story name="Default">

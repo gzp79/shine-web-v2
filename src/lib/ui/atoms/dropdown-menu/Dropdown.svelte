@@ -4,12 +4,12 @@
     import { type Snippet } from 'svelte';
     import { fade } from 'svelte/transition';
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
-    import { type AsChildSnippet, cn, createContext, isAsChildSnippet } from '@lib/ui/utils';
+    import { type WrappedComponent, cn, createContext, isWrappedComponent } from '@lib/ui/utils';
 
     export type MenuProps = WithoutChildrenOrChild<DropdownMenuPrimitive.RootProps> &
         WithoutChildrenOrChild<DropdownMenuPrimitive.ContentProps> & {
             to?: string;
-            trigger?: string | Snippet<[{ class: string }]> | AsChildSnippet;
+            trigger?: string | WrappedComponent | Snippet<[{ class: string }]>;
             triggerStyle?: ButtonStyleConfig;
             children?: Snippet;
             class?: ClassValue;
@@ -41,7 +41,7 @@
 
     const triggerStl = createButtonStyle(() => ({
         ...triggerStyle,
-        useGroupFocus: typeof trigger !== 'string' && !isAsChildSnippet(trigger)
+        useGroupFocus: typeof trigger !== 'string' && !isWrappedComponent(trigger)
     }));
 
     const contentColor = 'container';
@@ -68,13 +68,14 @@
         >
             {trigger}
         </DropdownMenuPrimitive.Trigger>
-    {:else if isAsChildSnippet(trigger)}
+    {:else if isWrappedComponent(trigger)}
         <DropdownMenuPrimitive.Trigger
             data-slot="dropdown-menu-trigger"
             disabled={triggerStyle?.disabled}
             class={triggerStl.class}
         >
-            {@render trigger.asChild()}
+            {@const Trigger = trigger.component}
+            <Trigger />
         </DropdownMenuPrimitive.Trigger>
     {:else}
         <DropdownMenuPrimitive.Trigger

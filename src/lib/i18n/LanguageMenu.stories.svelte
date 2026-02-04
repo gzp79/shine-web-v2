@@ -4,7 +4,7 @@
     import { expect, userEvent, waitFor, within } from 'storybook/test';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
     import { createLocaleContext, langList } from '@lib/i18n/i18n.svelte';
-    import Dropdown from '@lib/ui/atoms/dropdown-menu';
+    import { DropdownGroup, DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
     import { waitForCookie } from '@lib/utils';
 
     const { Story } = defineMeta({
@@ -58,19 +58,15 @@
     }}
 >
     {#snippet template(args)}
-        <Dropdown.Menu open={true} class="w-56" align="start">
-            {#snippet trigger()}
-                Settings [{language.current}]
-            {/snippet}
-
-            <Dropdown.Group heading="Settings">
-                <Dropdown.Item>Profile</Dropdown.Item>
-                <Dropdown.Item>Account</Dropdown.Item>
-            </Dropdown.Group>
-            <Dropdown.Separator />
+        <DropdownMenu open={true} class="w-56" align="start" trigger={`Settings [${language.current}]`}>
+            <DropdownGroup heading="Settings">
+                <DropdownItem>Profile</DropdownItem>
+                <DropdownItem>Account</DropdownItem>
+            </DropdownGroup>
+            <DropdownSeparator />
             <LanguageMenu {...args} />
-            <Dropdown.Separator />
-            <Dropdown.Item>Help</Dropdown.Item>
-        </Dropdown.Menu>
+            <DropdownSeparator />
+            <DropdownItem>Help</DropdownItem>
+        </DropdownMenu>
     {/snippet}
 </Story>

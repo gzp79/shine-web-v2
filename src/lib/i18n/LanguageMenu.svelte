@@ -1,7 +1,12 @@
 <script module lang="ts">
     import lang from '@translations/lang.json';
     import { getLocaleContext, langList } from '@lib/i18n/i18n.svelte';
-    import Dropdown, { type ExpandIconSide } from '@lib/ui/atoms/dropdown-menu';
+    import {
+        DropdownRadioGroup,
+        DropdownRadioItem,
+        DropdownSubMenu,
+        type ExpandIconSide
+    } from '@lib/ui/atoms/dropdown-menu';
     import flagIcons from '@lib/ui/atoms/glyphs/flags/all';
 
     export type LanguageMenuProps = {
@@ -26,14 +31,14 @@
     {lang[locale.current as keyof typeof lang]}
 {/snippet}
 
-<Dropdown.Sub {expandIcon} trigger={subTrigger}>
-    <Dropdown.RadioGroup bind:value={locale.current}>
+<DropdownSubMenu {expandIcon} trigger={subTrigger}>
+    <DropdownRadioGroup bind:value={locale.current}>
         {#each langList as langOption (langOption)}
             {@const FlagIcon = flagIcons[languageFlags[langOption]]}
-            <Dropdown.RadioItem value={langOption} closeOnSelect={false}>
+            <DropdownRadioItem value={langOption} closeOnSelect={false}>
                 <FlagIcon />
                 {lang[langOption as keyof typeof lang]}
-            </Dropdown.RadioItem>
+            </DropdownRadioItem>
         {/each}
-    </Dropdown.RadioGroup>
-</Dropdown.Sub>
+    </DropdownRadioGroup>
+</DropdownSubMenu>

@@ -8,7 +8,13 @@
     import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { type AsChildSnippet, cn, isAsChildSnippet } from '@lib/ui/utils';
+    import {
+        type WrappedComponent,
+        type WrappedSnippet,
+        cn,
+        isWrappedComponent,
+        isWrappedSnippet
+    } from '@lib/ui/utils';
     import { type LayoutWidth, colorRotation } from '.';
     import ContainerContent, { type ContainerContentProps } from './ContainerContent.svelte';
     import ContainerRoot, { type ContainerRootProps } from './ContainerRoot.svelte';
@@ -21,7 +27,7 @@
         Pick<ContainerRootProps, 'color' | 'shadow' | 'width'> &
         Pick<ContainerContentProps, 'padding'> & {
             role?: AriaRole;
-            trigger?: string | Snippet<[{ class: string }]> | AsChildSnippet;
+            trigger?: string | WrappedComponent | WrappedSnippet | Snippet<[{ class: string }]>;
             triggerStyle?: ButtonStyleConfig;
             closeIcon?: boolean | Snippet<[{ class: string }]>;
             closeIconClass?: ClassValue;
@@ -83,7 +89,7 @@
 
     const triggerStl = createButtonStyle(() => ({
         ...triggerStyle,
-        useGroupFocus: typeof trigger !== 'string' && !isAsChildSnippet(trigger)
+        useGroupFocus: typeof trigger !== 'string' && !isWrappedComponent(trigger) && !isWrappedSnippet(trigger)
     }));
     const overlayCls = $derived(
         cn(
@@ -136,9 +142,14 @@
         <DialogPrimitive.Trigger data-slot="dialog-trigger" disabled={triggerStyle?.disabled} class={triggerStl.class}>
             {trigger}
         </DialogPrimitive.Trigger>
-    {:else if isAsChildSnippet(trigger)}
+    {:else if isWrappedComponent(trigger)}
         <DialogPrimitive.Trigger data-slot="dialog-trigger" disabled={triggerStyle?.disabled} class={triggerStl.class}>
-            {@render trigger.asChild()}
+            {@const Trigger = trigger.component}
+            <Trigger />
+        </DialogPrimitive.Trigger>
+    {:else if isWrappedSnippet(trigger)}
+        <DialogPrimitive.Trigger data-slot="dialog-trigger" disabled={triggerStyle?.disabled} class={triggerStl.class}>
+            {@render trigger.snippet()}
         </DialogPrimitive.Trigger>
     {:else}
         <DialogPrimitive.Trigger

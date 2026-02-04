@@ -14,7 +14,7 @@
 </script>
 
 <AlertItem data-slot="alert-description" class={cls} {...restProps}>
-    {#snippet child({ class: cls })}
+    {#snippet template({ class: cls })}
         <Typography element="p" variant="text" class={cls} {children} />
     {/snippet}
 </AlertItem>

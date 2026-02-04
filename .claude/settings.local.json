@@ -1,5 +1,10 @@
 {
-    "permissions": {
-        "allow": ["WebFetch(domain:mcp.svelte.dev)", "mcp__svelte__svelte-autofixer", "mcp__svelte__get-documentation"]
-    }
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:mcp.svelte.dev)",
+      "mcp__svelte__svelte-autofixer",
+      "mcp__svelte__get-documentation",
+      "WebFetch(domain:github.com)"
+    ]
+  }
 }
