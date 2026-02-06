@@ -1,7 +1,7 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
     import { type ButtonStyleConfig } from '@lib/ui/atoms/input/style.svelte';
-    import ConfirmationDialog, { type ConfirmationDialogProps } from '@lib/ui/components/ConfirmationDialog.svelte';
+    import ConfirmationDialog, { type ConfirmationDialogProps } from '@lib/ui/components/dialogs/ConfirmationDialog.svelte';
     import { fromSnippet } from '@lib/ui/utils';
 
     export type ConfirmationButtonProps = ButtonStyleConfig & {

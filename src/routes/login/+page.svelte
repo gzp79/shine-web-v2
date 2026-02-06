@@ -16,8 +16,8 @@
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Overlay from '@lib/ui/atoms/Overlay.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
-    import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/LoadingCard.svelte';
+    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { createAppError } from '@lib/utils';
 
     const prompt = $derived(page.url.searchParams.get('prompt'));

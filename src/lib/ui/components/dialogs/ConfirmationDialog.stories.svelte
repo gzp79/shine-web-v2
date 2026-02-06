@@ -7,7 +7,7 @@
     import ConfirmationDialog from './ConfirmationDialog.svelte';
 
     const { Story } = defineMeta({
-        title: 'Components/ConfirmationDialog',
+        title: 'Components/Dialogs/ConfirmationDialog',
         component: ConfirmationDialog,
         args: {
             trigger: 'Open Dialog',

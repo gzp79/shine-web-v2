@@ -5,12 +5,12 @@
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import { layoutWidthList } from '@lib/ui/atoms/layouts';
-    import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
+    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import type { AppError } from '@lib/utils';
 
     const { Story } = defineMeta({
         component: ErrorCard,
-        title: 'Components/Status/Error',
+        title: 'Components/Cards/ErrorCard',
         args: {},
         argTypes: {
             width: {

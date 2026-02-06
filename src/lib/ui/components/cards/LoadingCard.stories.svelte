@@ -4,11 +4,11 @@
     import type { Component } from 'svelte';
     import Stack from '@lib/ui//atoms/layouts/Stack.svelte';
     import { sizeList } from '@lib/ui/atoms';
-    import LoadingCard, { type LoadingProps } from '@lib/ui/components/LoadingCard.svelte';
+    import LoadingCard, { type LoadingProps } from '@lib/ui/components/cards/LoadingCard.svelte';
 
     const { Story } = defineMeta<unknown, Component<LoadingProps>>({
         component: LoadingCard,
-        title: 'Components/Status/Loading',
+        title: 'Components/Cards/LoadingCard',
         args: {},
         argTypes: {
             size: {

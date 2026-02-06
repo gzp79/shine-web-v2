@@ -10,10 +10,10 @@
     import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ComboButton, { type ComboButtonProps } from '@lib/ui/components/ComboButton.svelte';
+    import ComboButton, { type ComboButtonProps } from '@lib/ui/components/buttons/ComboButton.svelte';
 
     const { Story } = defineMeta({
-        title: 'Components/ComboButton',
+        title: 'Components/Buttons/ComboButton',
         component: ComboButton,
         args: {
             options: [{ caption: 'Option 1' }, { caption: 'Option 2' }, { caption: 'Option 3' }],
