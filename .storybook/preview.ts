@@ -10,10 +10,12 @@ i18n.loadTranslations('en', '/');
 if (typeof document !== 'undefined') {
     const style = document.createElement('style');
     style.textContent = `
-        body, #storybook-root {
+        #storybook-root {
             overflow: auto !important;
             height: auto !important;
-            padding: 1rem !important;
+            padding: 5px !important;
+            outline: 2px solid rgba(255, 0, 0, 0.5) !important;
+            outline-offset: -5px;
         }
     `;
     document.head.appendChild(style);
@@ -38,7 +40,7 @@ const preview: Preview = {
                         ['Dropdown']
                     ],
                     'Components',
-                    ['App', ['MessageContent', 'FlowContent', 'ThemeMenu', 'LanguageMenu'], 'Status']
+                    ['App', ['CenteredLayout', 'StackLayout', 'ThemeMenu', 'LanguageMenu'], 'Status']
                 ]
             }
         }

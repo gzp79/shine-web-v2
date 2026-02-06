@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { type MockSetting, MockSettingSchema, applyMock } from '@mocks/currentMocks';
     import { availableUserMocks } from '@mocks/data/user';
-    import MessageContent from '@lib/ui/app/MessageContent.svelte';
+    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -68,7 +68,7 @@
     });
 </script>
 
-<MessageContent>
+<CenteredLayout>
     <Stack>
         <Typography variant="h1">Mock Settings</Typography>
 
@@ -92,4 +92,4 @@
             </div>
         {/if}
     </Stack>
-</MessageContent>
+</CenteredLayout>

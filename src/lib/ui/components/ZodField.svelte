@@ -1,37 +1,42 @@
 <script lang="ts" module>
+    import type { z } from 'zod';
     import type { FieldProps } from '@lib/ui/atoms/input/Field.svelte';
+    import Field from '@lib/ui/atoms/input/Field.svelte';
     import type { InputProps } from '@lib/ui/atoms/input/Input.svelte';
     import type { InputType } from '@lib/ui/atoms/input/Input.svelte';
-
-    export type ValidationResult<T> = { success: true; data: T } | { success: false; error: string };
-
-    export type ZodFieldProps<T> = Omit<FieldProps, 'status' | 'statusVariant' | 'children'> & {
-        type?: InputType;
-        rawInput?: string;
-        schema: z.ZodType<T>;
-        onValue?: (value: T) => void;
-        wide?: InputProps['wide'];
-    };
-</script>
-
-<script lang="ts" generics="T">
-    import type z from 'zod';
-    import Field from '@lib/ui/atoms/input/Field.svelte';
     import Input from '@lib/ui/atoms/input/Input.svelte';
 
-    let { type = 'text', rawInput = $bindable(''), schema, onValue, wide, ...fieldProps }: ZodFieldProps<T> = $props();
+    export type ZodFieldProps<Schema extends z.ZodType> = Omit<FieldProps, 'status' | 'statusVariant' | 'children'> &
+        Pick<InputProps, 'wide'> & {
+            type?: InputType;
+            rawInput?: string;
+            schema: Schema;
+            onValue?: (value: z.infer<Schema>) => void;
+        };
+</script>
 
+<script lang="ts" generics="Schema extends z.ZodType">
+    type ValueType = z.infer<Schema>;
     type Validation =
         | {
               success: true;
               error: undefined;
-              value: T;
+              value: ValueType;
           }
         | {
               success: false;
               error: string;
               value: undefined;
           };
+
+    let {
+        type = 'text',
+        rawInput = $bindable(''),
+        schema,
+        onValue,
+        wide,
+        ...fieldProps
+    }: ZodFieldProps<Schema> = $props();
 
     const validation: Validation = $derived.by(() => {
         console.log('Validating input:', rawInput);

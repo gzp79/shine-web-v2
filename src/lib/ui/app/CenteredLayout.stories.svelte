@@ -4,14 +4,15 @@
     import { createLocaleContext } from '@lib/i18n/i18n.svelte';
     import { createThemeContext } from '@lib/theme/theme.svelte';
     import App from '@lib/ui/app/App.svelte';
-    import AppMessageContent from '@lib/ui/app/MessageContent.svelte';
+    import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
+    import AppCenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
 
     const { Story } = defineMeta({
-        title: 'Components/App/MessageContent',
-        component: AppMessageContent,
+        title: 'Components/App/CenteredLayout',
+        component: AppCenteredLayout,
         play: async ({ canvasElement }) => {
             expect(canvasElement).toBeDefined();
         }
@@ -26,11 +27,11 @@
 <Story name="Single button">
     {#snippet template(args)}
         <App theme={theme.current} locale={locale.current}>
-            <AppMessageContent>
+            <AppCenteredLayout>
                 <Button color="primary">
                     <Typography>Click Me</Typography>
                 </Button>
-            </AppMessageContent>
+            </AppCenteredLayout>
         </App>
     {/snippet}
 </Story>
@@ -38,12 +39,42 @@
 <Story name="Some box">
     {#snippet template(args)}
         <App theme={theme.current} locale={locale.current}>
-            <AppMessageContent>
+            <AppCenteredLayout>
                 <Box color="primary">
                     <Typography variant="h1">Welcome</Typography>
                     <Typography>This is a center message.</Typography>
                 </Box>
-            </AppMessageContent>
+            </AppCenteredLayout>
+        </App>
+    {/snippet}
+</Story>
+
+<Story name="App menu">
+    {#snippet template(args)}
+        <App theme={theme.current} locale={locale.current}>
+            {@const appMenu = getMenuContext()}
+            <AppCenteredLayout>
+                <Button
+                    onclick={() => {
+                        appMenu.register({
+                            id: 'menu-id',
+                            section: 'context',
+                            label: 'New Item'
+                        });
+                    }}>Register</Button
+                >
+                <Button
+                    onclick={() => {
+                        appMenu.unregister('menu-id');
+                    }}>Unregister</Button
+                >
+                <Typography
+                    >Registered items: {appMenu
+                        .getItemsBySection('context')
+                        .map((item) => item.label)
+                        .join(', ')}</Typography
+                >
+            </AppCenteredLayout>
         </App>
     {/snippet}
 </Story>

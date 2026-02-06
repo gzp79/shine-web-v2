@@ -13,7 +13,7 @@
     import { queryAssetUrls } from '@lib/assets/assets.remote';
     import { t } from '@lib/i18n/i18n.svelte';
     import { logUser } from '@lib/loggers';
-    import MessageContent from '@lib/ui/app/MessageContent.svelte';
+    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Overlay from '@lib/ui/atoms/Overlay.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
@@ -73,7 +73,7 @@
     const showLoading = $derived(waitLoading || !captcha || !returnUrl);
 </script>
 
-<MessageContent>
+<CenteredLayout>
     <svelte:boundary>
         {#snippet pending()}
             <LoadingCard />
@@ -110,4 +110,4 @@
 
         <a href="/account">Go to Login Page</a>
     </svelte:boundary>
-</MessageContent>
+</CenteredLayout>

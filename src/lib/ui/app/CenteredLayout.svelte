@@ -4,7 +4,7 @@
     import Overlay, { type OverlayProps } from '@lib/ui/atoms/Overlay.svelte';
     import { cn } from '@lib/ui/utils';
 
-    export interface MessageContentProps {
+    export interface CenteredLayoutProps {
         class?: ClassValue | null;
         overlay?: OverlayProps;
         children: Snippet;
@@ -12,7 +12,7 @@
 </script>
 
 <script lang="ts">
-    let { children, overlay, class: className }: MessageContentProps = $props();
+    let { children, overlay, class: className }: CenteredLayoutProps = $props();
 
     const mainClass = $derived(
         cn('relative h-full w-full', 'flex flex-col items-center justify-center p-4 md:p-8', className)

@@ -4,7 +4,7 @@
     import { setCurrentUserStore } from '@lib/account/currentUser.svelte';
     import { t } from '@lib/i18n/i18n.svelte';
     import { logUser } from '@lib/loggers';
-    import MessageContent from '@lib/ui/app/MessageContent.svelte';
+    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/LoadingCard.svelte';
@@ -29,7 +29,7 @@
 
 <svelte:boundary>
     {#snippet failed(error, reset)}
-        <MessageContent>
+        <CenteredLayout>
             <ErrorCard error={createAppError(error)} width="full">
                 <Button
                     onclick={async () => {
@@ -38,22 +38,22 @@
                     }}>{$t('common.refresh')}</Button
                 >
             </ErrorCard>
-        </MessageContent>
+        </CenteredLayout>
     {/snippet}
 
     {#snippet pending()}
-        <MessageContent>
+        <CenteredLayout>
             <LoadingCard />
-        </MessageContent>
+        </CenteredLayout>
     {/snippet}
 
     {#await currentUser then user}
         {#if user.authenticated}
             {@render children()}
         {:else}
-            <MessageContent>
+            <CenteredLayout>
                 <LoadingCard />
-            </MessageContent>
+            </CenteredLayout>
         {/if}
     {/await}
 </svelte:boundary>

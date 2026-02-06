@@ -1,13 +1,14 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
+    import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { z } from 'zod';
     import Stack from '@lib/ui/atoms//layouts/Stack.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ZodField from '@lib/ui/components/ZodField.svelte';
 
     const { Story } = defineMeta({
-        component: ZodField<any>,
+        title: 'Components/ZodField',
+        component: ZodField,
         args: {
             disabled: false
         },
@@ -22,13 +23,11 @@
     });
 
     const emailSchema = z.string().email({ message: 'Please enter a valid email address' });
-    const EmailField = ZodField<z.infer<typeof emailSchema>>;
 
     const ageSchema = z
         .number()
         .min(18, { message: 'You must be at least 18 years old' })
         .max(120, { message: 'Age must be less than or equal to 120' });
-    const AgeField = ZodField<z.infer<typeof ageSchema>>;
 </script>
 
 <script lang="ts">
@@ -47,10 +46,60 @@
     <Button onclick={() => (rawInput = val)}>{name}</Button>
 {/snippet}
 
-<Story name="Email Validation">
+<Story
+    name="Email Validation"
+    play={async ({ canvasElement, step }) => {
+        const canvas = within(canvasElement);
+        const user = userEvent.setup();
+
+        const input = canvas.getByRole('textbox') as HTMLInputElement;
+
+        await step('Type invalid email and verify validation error appears', async () => {
+            await user.clear(input);
+            await user.type(input, 'invalid-email');
+
+            await waitFor(() => {
+                expect(canvas.getByText('Please enter a valid email address')).toBeInTheDocument();
+            });
+            expect(input).toHaveAttribute('aria-invalid', 'true');
+        });
+
+        await step('Type valid email and verify error disappears', async () => {
+            await user.clear(input);
+            await user.type(input, 'valid@example.com');
+
+            await waitFor(() => {
+                expect(canvas.queryByText('Please enter a valid email address')).not.toBeInTheDocument();
+            });
+            expect(input).not.toHaveAttribute('aria-invalid', 'true');
+        });
+
+        await step('Set rawInput to invalid email programmatically and verify validation', async () => {
+            const invalidButton = canvas.getByRole('button', { name: 'Invalid Email' });
+            await user.click(invalidButton);
+
+            await waitFor(() => {
+                expect(input).toHaveValue('foo_example.com');
+                expect(canvas.getByText('Please enter a valid email address')).toBeInTheDocument();
+            });
+            expect(input).toHaveAttribute('aria-invalid', 'true');
+        });
+
+        await step('Set rawInput to valid email programmatically and verify validation', async () => {
+            const validButton = canvas.getByRole('button', { name: 'Valid Email' });
+            await user.click(validButton);
+
+            await waitFor(() => {
+                expect(input).toHaveValue('foo@example.com');
+                expect(canvas.queryByText('Please enter a valid email address')).not.toBeInTheDocument();
+            });
+            expect(input).not.toHaveAttribute('aria-invalid', 'true');
+        });
+    }}
+>
     {#snippet template(args)}
         <Stack spacing={4}>
-            <EmailField
+            <ZodField
                 {...args}
                 type="email"
                 schema={emailSchema}
@@ -69,17 +118,19 @@
 
 <Story name="Age Validation">
     {#snippet template(args)}
-        <AgeField
-            {...args}
-            type="number"
-            schema={ageSchema}
-            bind:rawInput
-            onValue={(val) => (validated = val)}
-            label="Age"
-            description="Enter a valid age between 18 and 120"
-            required
-        />
-        {@render showValue()}
-        {@render setDefault('Valid Age', '25')}
+        <Stack spacing={4}>
+            <ZodField
+                {...args}
+                type="number"
+                schema={ageSchema}
+                bind:rawInput
+                onValue={(val) => (validated = val)}
+                label="Age"
+                description="Enter a valid age between 18 and 120"
+                required
+            />
+            {@render showValue()}
+            {@render setDefault('Valid Age', '25')}
+        </Stack>
     {/snippet}
 </Story>

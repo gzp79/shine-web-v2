@@ -3,8 +3,8 @@ import type { Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
 import { getCookie, setCookie } from '@lib/utils';
 
-export type Theme = 'light' | 'dark' | 'system';
-export const themeList: Theme[] = ['light', 'dark', 'system'];
+export const themeList = ['light', 'dark', 'system'] as const;
+export type Theme = (typeof themeList)[number];
 export const defaultTheme = 'system' as Theme;
 
 function normalizeTheme(candidate?: string | null): Theme {

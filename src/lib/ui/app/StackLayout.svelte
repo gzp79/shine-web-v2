@@ -4,14 +4,14 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
 
-    export interface Props {
+    export interface StackLayoutProps {
         class?: ClassValue | null;
         children: Snippet;
     }
 </script>
 
 <script lang="ts">
-    let { children, class: className }: Props = $props();
+    let { children, class: className }: StackLayoutProps = $props();
 
     const mainClass = $derived(cn('w-full', 'p-4 overflow-y-auto md:p-8', className));
 </script>
