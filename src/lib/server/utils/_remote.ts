@@ -1,5 +1,5 @@
 import { getRequestEvent } from '$app/server';
-import type { AppError } from './_error';
+import type { AppError } from '../../utils/_error';
 
 export type WithRefresh = { refresh: () => Promise<void> };
 export type WithError<E = AppError> = { error?: E };

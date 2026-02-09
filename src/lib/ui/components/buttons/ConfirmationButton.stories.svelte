@@ -11,7 +11,9 @@
     import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ConfirmationButton, { type ConfirmationButtonProps } from '@lib/ui/components/buttons/ConfirmationButton.svelte';
+    import ConfirmationButton, {
+        type ConfirmationButtonProps
+    } from '@lib/ui/components/buttons/ConfirmationButton.svelte';
 
     const { Story } = defineMeta({
         title: 'Components/Buttons/ConfirmationButton',

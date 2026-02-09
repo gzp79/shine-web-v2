@@ -6,7 +6,7 @@ You are able to use the Svelte MCP server, where you have access to comprehensiv
 
 - **Framework**: Svelte 5 (rune mode only)
 - **Backend Framework**: SvelteKit with remote functions
-- **CSS**: Tailwind 4 with some custom utilities in app.css file
+- **CSS**: Tailwind 4 with custom semantic color system
 - **Testing**: Storybook 10 + vites-addon + @storybook/addon-svelte-csf
 - **Language**: TypeScript (required for all code)
 
@@ -25,6 +25,22 @@ You are able to use the Svelte MCP server, where you have access to comprehensiv
 3. Follow testing utilities from `storybook/test`
 
 **Reference**: [SKILL-storybook.md](SKILL-storybook.md) for patterns and assertions.
+
+### CSS & Styling
+
+1. Use semantic color tokens only (never standard Tailwind colors)
+2. Use custom theme colors: `bg-surface`, `bg-primary`, `bg-danger`, etc.
+3. Always pair background colors with matching `text-on-*` variants
+
+**Reference**: [SKILL-css.md](SKILL-css.md) for semantic colors and Tailwind patterns.
+
+### UI Components
+
+1. Box uses `containerClass` and `contentClass` (NOT `class`)
+2. Stack uses `spacing` prop (NOT `gap`)
+3. Use semantic color system and responsive props
+
+**Reference**: [SKILL-components.md](SKILL-components.md) for component APIs and common patterns.
 
 ## Available MCP Tools
 

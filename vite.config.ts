@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vitest/config';
-import { vitePluginAssetConverter } from './scripts/vite-asset-converter';
+import { buildAssets } from './scripts/vite-asset-converter';
 import { config } from './src/generated/config';
 import svelteConfig from './svelte.config';
 
@@ -25,7 +25,10 @@ if (isCI && config.environment !== 'prod') {
 }
 
 const additionalAssets = [];
-if (config.environment !== 'prod') {
+
+// If assets are served from the web server, ensure they are built before starting the server and included in the static copy targets
+if (config.assetUrl === config.webUrl) {
+    await buildAssets();
     additionalAssets.push({
         src: 'static-generated/assets/*',
         dest: ''
@@ -80,7 +83,6 @@ function serverConfigs() {
 
 export default defineConfig({
     plugins: [
-        !isCI && vitePluginAssetConverter(config.environment),
         tailwindcss(),
         sveltekit(),
         viteStaticCopy({

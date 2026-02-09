@@ -1,17 +1,13 @@
 import { query } from '$app/server';
-import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { createFetchError, getPassThroughHeaders, parseResponse, retryWithBackoff } from '@lib/utils';
-
-const ProviderSchema = z.object({
-    providers: z.array(z.string())
-});
-export type Provider = z.infer<typeof ProviderSchema>;
+import { ProviderSchema, authUrl } from '@lib/server/api/auth';
+import { getPassThroughHeaders } from '@lib/server/utils';
+import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 
 export const queryExternalLoginProviders = query(async (): Promise<string[]> => {
     logAPI.log('getExternalLoginProviders...');
-    const url = `${config.identityUrl}/api/auth/providers`;
+    const url = authUrl.providers();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {

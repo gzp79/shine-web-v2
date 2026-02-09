@@ -14,9 +14,6 @@ export interface Config {
     assetUrl: string;
     gameUrl: string;
 
-    // when null, mock is disabled
-    mocks?: string[];
-
     turnstile: {
         disable?: boolean;
         siteKey: string;

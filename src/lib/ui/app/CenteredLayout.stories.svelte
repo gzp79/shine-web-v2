@@ -48,33 +48,3 @@
         </App>
     {/snippet}
 </Story>
-
-<Story name="App menu">
-    {#snippet template(args)}
-        <App theme={theme.current} locale={locale.current}>
-            {@const appMenu = getMenuContext()}
-            <AppCenteredLayout>
-                <Button
-                    onclick={() => {
-                        appMenu.register({
-                            id: 'menu-id',
-                            section: 'context',
-                            label: 'New Item'
-                        });
-                    }}>Register</Button
-                >
-                <Button
-                    onclick={() => {
-                        appMenu.unregister('menu-id');
-                    }}>Unregister</Button
-                >
-                <Typography
-                    >Registered items: {appMenu
-                        .getItemsBySection('context')
-                        .map((item) => item.label)
-                        .join(', ')}</Typography
-                >
-            </AppCenteredLayout>
-        </App>
-    {/snippet}
-</Story>

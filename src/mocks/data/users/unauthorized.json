@@ -1,0 +1,8 @@
+{
+    "status": 401,
+    "type": "unauthorized",
+    "instance": null,
+    "detail": "Missing session info",
+    "extension": null,
+    "sensitive": null
+}

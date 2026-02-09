@@ -48,25 +48,30 @@ For complex layouts, use render functions with snippets:
 
 ## Interaction Testing
 
-Use `play()` with `step()` to group related actions and make tests readable:
+Use `play()` with `step()` to group related actions.:
 
 ```typescript
-import { expect, userEvent } from 'storybook/test';
+import { withinPopover } from '@sb/models/popover';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
-export const FormSubmission = {
-    play: async ({ canvas, userEvent, step }) => {
-        await step('Fill credentials', async () => {
-            await userEvent.type(canvas.getByLabelText('Email'), 'user@example.com');
-            await userEvent.type(canvas.getByLabelText('Password'), 'secret123');
+<Story name="Interactive" play={async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement);
+    const button = canvas.getByRole('button', { name: 'Open' });
+
+    await step('Open menu', async () => {
+        await userEvent.click(button);
+
+        const popover = withinPopover();
+        await waitFor(() => {
+            const item = popover.getByRole('menuitem', { name: 'Option 1' });
+            expect(item).toBeVisible();
         });
+    });
 
-        await step('Submit form', async () => {
-            await userEvent.click(canvas.getByRole('button', { name: /submit/i }));
-        });
-
-        await expect(canvas.getByText('Success!')).toBeInTheDocument();
-    }
-};
+    await step('Close menu', async () => {
+        await userEvent.click(button, { pointerEventsCheck: 0 });
+    });
+}} />
 ```
 
 ### Query Priority
@@ -78,7 +83,17 @@ export const FormSubmission = {
 5. `getByAltText()` - Images by alt
 6. `getByTestId()` - Last resort
 
-Query variants: `getBy...`, `queryBy...` (null if missing), `findBy...` (async), and plural `getAllBy...`
+**Query variants:**
+
+- `getBy...` / `queryBy...` - Synchronous (no `await`)
+- `findBy...` - Async (use `await`), waits for element to exist
+- `getAllBy...` / `queryAllBy...` - Synchronous (no `await`), returns arrays
+
+**Async patterns:**
+
+- For elements already in DOM: Use `getBy...` (no `await`)
+- For elements that need visibility check: Use `waitFor()` with `getBy...` + `expect().toBeVisible()`
+- Avoid `findBy...` + separate `waitFor()` - combine in single `waitFor()` instead
 
 ### Common userEvent Methods & Assertions
 
@@ -145,11 +160,15 @@ Available: `state`, `stores`, `forms`, `navigation`, `hrefs`
 
 ## Best Practices
 
-- **Use steps**: Group related interactions with `step()` for readability
-- **Query by role**: `getByRole()` is most accessible
+- **Use steps**: Group related interactions with `step()` for clear test visualization
+- **Query by role**: `getByRole()` is most accessible and recommended
+- **No unnecessary async**: Don't `await` synchronous queries (`getBy...`, `queryBy...`)
+- **Simplify waitFor**: Use `waitFor(() => { expect(...) })` without `async` if no `await` inside
+- **Use `within()`**: Always use `within(canvasElement)` for scoped queries
+- **Portal elements**: Use `withinPopover()` for popup/dropdown/dialog content
+- **Combine checks**: Put element query + visibility check in single `waitFor()`
 - **Meaningful names**: Describe state ("FilledForm", "WithError", "Disabled")
 - **Focus stories**: One primary use case per story
-- **Tag for docs**: Add `tags: ['autodocs']` to auto-generate documentation
 - **Type safety**: Always use TypeScript
 
 ## Resources

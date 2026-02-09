@@ -2,35 +2,19 @@ import { command, query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { createFetchError, getPassThroughHeaders, parseResponse, retryWithBackoff } from '@lib/utils';
+import { CurrentUserSchema, authUrl } from '@lib/server/api/auth';
+import { getPassThroughHeaders } from '@lib/server/utils';
+import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 import type { CurrentUser } from './currentUser.svelte';
-
-const IdentityKindSchema = z.enum(['user']);
-
-const CurrentUserDetailsSchema = z.object({
-    kind: IdentityKindSchema,
-    createdAt: z.iso.datetime().transform((dt) => new Date(dt)),
-    email: z.email().nullable()
-});
-
-const CurrentUserSchema = z.object({
-    userId: z.string(),
-    name: z.string(),
-    isLinked: z.boolean(),
-    isEmailConfirmed: z.boolean(),
-    roles: z.array(z.string()),
-    sessionLength: z.number(),
-    remainingSessionTime: z.number(),
-    details: CurrentUserDetailsSchema
-});
 
 export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
     logAPI.trace('getCurrentUser...');
-    const url = `${config.identityUrl}/api/auth/user/info?method=full`;
+    const url = authUrl.myInfo();
     const headers = getPassThroughHeaders();
+    const params = new URLSearchParams({ method: 'full' });
 
     return await retryWithBackoff(async (retry) => {
-        const response = await fetch(url, {
+        const response = await fetch(url + '?' + params, {
             method: 'GET',
             headers
         });

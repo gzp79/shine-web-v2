@@ -73,7 +73,7 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
             groupInfo ? 'rounded-md' : 'rounded-full',
             'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap outline-none text-center',
             ringClass(focusRing, color),
-            style.wide ? 'min-w-full justify-around' : 'w-fit',
+            style.wide ? 'min-w-full justify-start' : 'w-fit',
             !disabled && (groupInfo ? ringClass('active', color) : 'active:scale-95'),
             disabled && '!opacity-30 !cursor-not-allowed',
 

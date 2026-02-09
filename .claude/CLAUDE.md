@@ -8,5 +8,7 @@ This project uses a centralized `.llm` directory for AI tool configuration that 
 
 ## Skills & Patterns
 
+@.llm/SKILL-components.md
+@.llm/SKILL-css.md
 @.llm/SKILL-storybook.md
 @.llm/SKILL-remote-functions.md
