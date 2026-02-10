@@ -8,12 +8,12 @@ export type Spacing = (typeof spacingList)[number];
 export type ResponsiveSpacing =
     | ResponsiveProp<Spacing>
     | {
-          x: Spacing | ResponsiveProp<Spacing>;
-          y: Spacing | ResponsiveProp<Spacing>;
+          x: ResponsiveProp<Spacing>;
+          y: ResponsiveProp<Spacing>;
       }
     | {
-          col: Spacing | ResponsiveProp<Spacing>;
-          row: Spacing | ResponsiveProp<Spacing>;
+          col: ResponsiveProp<Spacing>;
+          row: ResponsiveProp<Spacing>;
       };
 
 export function toSpacingClasses(prop: ResponsiveSpacing | undefined, prefix: { all: string; x: string; y: string }) {

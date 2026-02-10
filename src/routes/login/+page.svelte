@@ -16,11 +16,7 @@
     import Overlay from '@lib/ui/atoms/Overlay.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Logo from '@lib/ui/atoms/glyphs/Logo.svelte';
-    import Discord from '@lib/ui/atoms/glyphs/brands/Discord.svelte';
-    import Email from '@lib/ui/atoms/glyphs/brands/Email.svelte';
-    import Github from '@lib/ui/atoms/glyphs/brands/Github.svelte';
-    import Google from '@lib/ui/atoms/glyphs/brands/Google.svelte';
-    import User from '@lib/ui/atoms/glyphs/brands/User.svelte';
+    import allBrands from '@lib/ui/atoms/glyphs/brands/all';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -68,11 +64,7 @@
     const providers = queryExternalLoginProviders();
     const currentUser = queryCurrentUserInfo();
     const backgroundUrls = queryAssetUrls(['loginBackground', 'loginBackground_alt']);
-    const backgroundBrightUrls = queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']);
-
-    // Split backgrounds: bg1 for full screen, bg2 for card area
-    const bg1 = $derived(Object.values(await backgroundUrls));
-    const bg2 = $derived(Object.values(await backgroundBrightUrls));
+    //const backgroundBrightUrls = queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']);
 
     const hasCaptcha = !config.turnstile.disable;
     if (!hasCaptcha) {
@@ -87,7 +79,7 @@
     //const showLoading = $derived(waitLoading || !captcha || !returnUrl);
 </script>
 
-<CenteredLayout class="p-0 md:p-0">
+<CenteredLayout padding={0}>
     <svelte:boundary>
         {#snippet pending()}
             <LoadingCard />
@@ -109,114 +101,76 @@
             </ErrorCard>
         {/snippet}
 
-        <!-- Full screen background (bg1) -->
-        <Overlay src={bg1} opacity={0.25} fixed={true} />
+        <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
 
-        <!-- Login<br />
-        {await returnUrl()} <br />
-        {JSON.stringify(await providers)} <br />
-        {JSON.stringify(await currentUser)} <br />
-        {JSON.stringify(await backgroundUrls)} <br />
-        prompt: {prompt} <br />
-        extraInfo: {JSON.stringify(extraInfo)} <br />
-        captcha: {captcha} <br />
-        rememberMe: {rememberMe} <br />
-        showLoading: {showLoading} <br /> -->
+        <Stack spacing={0} class="w-full h-full p-2">
+            <Logo class="justify-center  h-[20%] w-auto flex items-center fill-on-container p-4" />
 
-        <Stack spacing={{ xs: 0 }} alignment="center" class="w-full h-full">
-            <Logo class="max-h-[20%] w-auto fill-on-container p-2" />
+            <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1} class="h-[80%]">
+                <div class="hidden lg:flex lg:flex-4"></div>
 
-            <Stack
-                direction={{ xs: 'column', md: 'row' }}
-                spacing={{ xs: 2 }}
-                alignment="center"
-                class="w-full min-h-[60%] grow"
-            >
-                <!-- Login Hint Area
-                <div class="hidden lg:flex flex-1 items-center justify-center p-8">
-                    {#if extraInfo.loginText}
-                        <Typography variant="h3" class="text-center max-w-md">
-                            {extraInfo.loginText}
-                        </Typography>
-                    {:else}
-                        <Stack spacing={2} alignment="center">
-                            <Typography variant="h2" class="text-center">Welcome to Shine</Typography>
-                            <Typography variant="h5" class="text-center opacity-80">
-                                Sign in with your preferred provider
-                            </Typography>
-                        </Stack>
-                    {/if}
-                </div> -->
-
-                {#if extraInfo.loginText}
-                    <Typography variant="text" class="text-center">
-                        {extraInfo.loginText}
-                    </Typography>
-                {/if}
-
-                <!-- Container for Box with its own background (bg2) -->
-                <div class="relative flex-1 flex items-center justify-center rounded-3xl px-40">
-                    <Box
-                        ghost={true}
-                        border={false}
-                        containerClass="rounded-3xl align-self-center flex-1 relative z-10"
-                        contentClass="p-3 flex flex-col h-full"
+                <Stack
+                    spacing={0}
+                    justification="evenly"
+                    class="h-[80%] w-fit mx-auto p-2 lg:h-full lg:w-auto lg:mx-0 lg:flex-2 max-h-[min(100%,60vh)]"
+                >
+                    <Typography variant="h4" element="h1" class="flex justify-center flex-1 p-2 min-h-fit lg:hidden"
+                        >{extraInfo.loginText}</Typography
                     >
-                        <Stack spacing={2} class="shrink-0">
+                    <Stack spacing={0} class="w-full min-h-0 p-2 grow max-h-fit">
+                        <Stack class="shrink">
                             <Button wide size="lg">
-                                <User />
+                                <allBrands.user />
                                 Continue as FreeUser
                             </Button>
-                            <Typography variant="text" class="text-center">Not you? Switch account</Typography>
+                            <Typography variant="text" class="text-center shrink-0">Not you? Switch account</Typography>
                         </Stack>
-                        <hr />
-
-                        <Box border={false} ghost={true} width="full" contentClass="p-0 pe-2 overflow-y-auto min-h-0">
-                            <Stack spacing={2}>
+                        <Box
+                            border={false}
+                            ghost={true}
+                            containerClass="w-full flex-1"
+                            contentClass="flex flex-col gap-2"
+                        >
+                            {#each await providers as provider (provider)}
                                 <Button wide>
-                                    <Email size="sm" />
-                                    Email
+                                    {@const ProviderIcon = allBrands[provider]}
+                                    {#if ProviderIcon}
+                                        <ProviderIcon size="sm" />
+                                    {/if}
+                                    {provider}
                                 </Button>
-
                                 <Button wide>
-                                    <Discord size="sm" />
-                                    Discord
+                                    {@const ProviderIcon = allBrands[provider]}
+                                    {#if ProviderIcon}
+                                        <ProviderIcon size="sm" />
+                                    {/if}
+                                    {provider}
                                 </Button>
-
                                 <Button wide>
-                                    <Github size="sm" />
-                                    Github
+                                    {@const ProviderIcon = allBrands[provider]}
+                                    {#if ProviderIcon}
+                                        <ProviderIcon size="sm" />
+                                    {/if}
+                                    {provider}
                                 </Button>
-
-                                <Button wide>
-                                    <Google size="sm" />
-                                    Google
-                                </Button>
-
-                                <Button wide>
-                                    <Google size="sm" />
-                                    Google
-                                </Button>
-                            </Stack>
+                            {/each}
                         </Box>
-                        <Typography class="text-slate-800 font-medium cursor-pointer">Remember me</Typography>
-                    </Box>
-                    <div
-                        class="absolute top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat bg-fixed pointer-events-none z-20"
-                        style="background-image: {bg2
-                            .map((url) => `url(${url})`)
-                            .join(
-                                ','
-                            )}; opacity: 0.3; mask-image: radial-gradient(ellipse at center, black 30%, transparent 70%); -webkit-mask-image: radial-gradient(ellipse at center, black 60%, transparent 70%);"
-                    ></div>
-                </div>
-                <hr class="w-full md:hidden" />
-                <div class="relative w-full flex justify-center items-center p-3 h-[15%]">
-                    <Button variant="outline">Explore as Guest</Button>
+                        <Typography variant="h5" element="h1" class="flex justify-start p-4 shrink">
+                            Remember me
+                        </Typography>
+                    </Stack>
+                </Stack>
+
+                <div class="hidden w-px bg-gray-300 lg:block"></div>
+
+                <hr class="lg:hidden" />
+
+                <div class="w-px bg-[white] hidden lg:block"></div>
+
+                <div class="flex items-center justify-center flex-1 p-3 min-h-fit lg:px-2">
+                    <Button>Continue with Google</Button>
                 </div>
             </Stack>
         </Stack>
-
-        <!-- <a href="/account">Go to Login Page</a> -->
     </svelte:boundary>
 </CenteredLayout>

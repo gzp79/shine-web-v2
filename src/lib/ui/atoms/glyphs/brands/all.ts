@@ -16,7 +16,7 @@ import Safari from '@lib/ui/atoms/glyphs/brands/Safari.svelte';
 import Twitter from '@lib/ui/atoms/glyphs/brands/Twitter.svelte';
 import User from '@lib/ui/atoms/glyphs/brands/User.svelte';
 
-const all = {
+const all: GlyphSet = {
     chrome: Chrome,
     edge: Edge,
     opera: Opera,
@@ -34,7 +34,7 @@ const all = {
 
     email: Email,
     user: User
-} satisfies GlyphSet;
+};
 
 export type BrandGlyph = keyof typeof all;
 export default all;
