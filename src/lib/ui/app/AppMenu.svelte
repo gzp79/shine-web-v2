@@ -97,7 +97,7 @@
 
 <DropdownMenu
     trigger={fromComponent(Hamburger)}
-    triggerStyle={{ class: 'absolute right-0 top-0 z-10 gap-0 h-8 w-8 p-0 rounded-sm' }}
+    triggerStyle={{ class: 'absolute right-0 top-0 z-10 gap-0 h-8 w-8 p-0 m-4 rounded-sm' }}
     to="#popover"
     {collisionPadding}
 >

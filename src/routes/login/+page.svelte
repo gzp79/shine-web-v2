@@ -1,6 +1,7 @@
 <script module lang="ts">
     export type HintInfo = {
-        loginText?: string;
+        longHint?: string;
+        shortHint?: string;
         allowGuest: boolean;
     };
 </script>
@@ -30,22 +31,26 @@
         switch (hint) {
             case 'login-expired':
                 return {
-                    loginText: $t('login.info.loginExpired'),
+                    longHint: $t('login.info.loginExpired'),
+                    shortHint: $t('login.info.loginExpiredShort'),
                     allowGuest: true
                 };
             case 'email-confirm':
                 return {
-                    loginText: $t('login.info.emailConfirm'),
+                    longHint: $t('login.info.emailConfirm'),
+                    shortHint: $t('login.info.emailConfirmShort'),
                     allowGuest: false
                 };
             case 'email-change':
                 return {
-                    loginText: $t('login.info.emailChange'),
+                    longHint: $t('login.info.emailChange'),
+                    shortHint: $t('login.info.emailChangeShort'),
                     allowGuest: false
                 };
             default:
                 return {
-                    loginText: 'Sign in',
+                    longHint: 'Sign in to your account',
+                    shortHint: 'Sign in',
                     allowGuest: true
                 };
         }
@@ -104,22 +109,26 @@
         <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
 
         <Stack spacing={0} class="w-full h-full p-2">
-            <Logo class="justify-center  h-[20%] w-auto flex items-center fill-on-container p-4" />
+            <Logo class="justify-center h-[20%] w-auto flex items-center fill-on-container p-4" />
 
             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1} class="h-[80%]">
-                <div class="hidden lg:flex lg:flex-4"></div>
+                <div class="hidden p-8 lg:flex lg:flex-4">
+                    <Typography variant="h4" element="h1">
+                        {extraInfo.longHint}
+                    </Typography>
+                </div>
 
                 <Stack
                     spacing={0}
                     justification="evenly"
-                    class="h-[80%] w-fit mx-auto p-2 lg:h-full lg:w-auto lg:mx-0 lg:flex-2 max-h-[min(100%,60vh)]"
+                    class="h-[80%] w-fit mx-auto p-2 lg:h-full lg:w-auto lg:mx-0 lg:flex-2 lg:max-w-92 max-h-[min(100%,60vh)]"
                 >
-                    <Typography variant="h4" element="h1" class="flex justify-center flex-1 p-2 min-h-fit lg:hidden"
-                        >{extraInfo.loginText}</Typography
-                    >
+                    <Typography variant="h4" element="h1" class="flex justify-center flex-1 p-2 min-h-fit lg:hidden">
+                        {extraInfo.shortHint}
+                    </Typography>
                     <Stack spacing={0} class="w-full min-h-0 p-2 grow max-h-fit">
                         <Stack class="shrink">
-                            <Button wide size="lg">
+                            <Button wide color="secondary" size="lg">
                                 <allBrands.user />
                                 Continue as FreeUser
                             </Button>
@@ -132,21 +141,7 @@
                             contentClass="flex flex-col gap-2"
                         >
                             {#each await providers as provider (provider)}
-                                <Button wide>
-                                    {@const ProviderIcon = allBrands[provider]}
-                                    {#if ProviderIcon}
-                                        <ProviderIcon size="sm" />
-                                    {/if}
-                                    {provider}
-                                </Button>
-                                <Button wide>
-                                    {@const ProviderIcon = allBrands[provider]}
-                                    {#if ProviderIcon}
-                                        <ProviderIcon size="sm" />
-                                    {/if}
-                                    {provider}
-                                </Button>
-                                <Button wide>
+                                <Button wide color="secondary">
                                     {@const ProviderIcon = allBrands[provider]}
                                     {#if ProviderIcon}
                                         <ProviderIcon size="sm" />
