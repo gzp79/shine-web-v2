@@ -3,13 +3,14 @@
         opacity?: number;
         src: string | string[];
         class?: string;
+        style?: string;
     };
 </script>
 
 <script lang="ts">
     import { cn } from '@lib/ui/utils';
 
-    let { opacity = 0.5, src, class: className }: OverlayProps = $props();
+    let { opacity, src, class: className, style }: OverlayProps = $props();
 
     const cls = $derived(
         cn(
@@ -19,12 +20,13 @@
             className
         )
     );
-    const style = $derived(
+    const stl = $derived(
         [
             `background-image: ${(typeof src === 'string' ? [src] : src).map((url) => `url(${url})`).join(',')}`,
-            opacity && `opacity: ${opacity}`
+            opacity ? `opacity: ${opacity}` : '',
+            style && style
         ].join('; ')
     );
 </script>
 
-<div class={cls} {style}></div>
+<div class={cls} style={stl}></div>

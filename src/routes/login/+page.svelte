@@ -24,6 +24,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { createAppError } from '@lib/utils';
+    import MovingBlob from './MovingBlob.svelte';
 
     //const prompt = $derived(page.url.searchParams.get('prompt'));
     const extraInfo: HintInfo = $derived.by(() => {
@@ -69,7 +70,7 @@
     const providers = queryExternalLoginProviders();
     const currentUser = queryCurrentUserInfo();
     const backgroundUrls = queryAssetUrls(['loginBackground', 'loginBackground_alt']);
-    //const backgroundBrightUrls = queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']);
+    const backgroundBrightUrls = queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']);
 
     const hasCaptcha = !config.turnstile.disable;
     if (!hasCaptcha) {
@@ -79,6 +80,7 @@
     // when captcha is disabled use a test (site) key that always passes the server side validation
     //let captcha = $state(hasCaptcha ? '' : '1x00000000000000000000AA');
     //let rememberMe = $state(true);
+    let guestAreaRef: HTMLDivElement | undefined = $state();
 
     //let waitLoading = $state(true);
     //const showLoading = $derived(waitLoading || !captcha || !returnUrl);
@@ -107,8 +109,13 @@
         {/snippet}
 
         <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
+        <MovingBlob
+            src={Object.values(await backgroundBrightUrls)}
+            size={{ xs: 150, lg: 250 }}
+            excludedElement={guestAreaRef}
+        />
 
-        <Stack spacing={0} class="w-full h-full p-2">
+        <Stack spacing={0} class="relative w-full h-full p-2">
             <Logo class="justify-center h-[20%] w-auto flex items-center fill-on-container p-4" />
 
             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1} class="h-[80%]">
@@ -162,8 +169,11 @@
 
                 <div class="w-px bg-[white] hidden lg:block"></div>
 
-                <div class="flex items-center justify-center flex-1 p-3 min-h-fit lg:px-2">
-                    <Button>Continue with Google</Button>
+                <div
+                    bind:this={guestAreaRef}
+                    class="flex items-center justify-center flex-1 p-3 min-h-fit lg:px-2 backdrop-saturate-90"
+                >
+                    <Button>Continue as Guest</Button>
                 </div>
             </Stack>
         </Stack>

@@ -1,5 +1,6 @@
 export type MediaType = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-export type MediaPrefixType = '' | 'sm:' | 'md:' | 'lg:' | 'xl:';
+export type MediaVarPostfixType = '' | '-sm' | '-md' | '-lg' | '-xl';
+export type MediaClassPrefixType = '' | 'sm:' | 'md:' | 'lg:' | 'xl:';
 
 export type ResponsiveProp<T extends NonNullable<unknown>> =
     | T
@@ -13,8 +14,8 @@ export type ResponsiveProp<T extends NonNullable<unknown>> =
 
 export function toResponsiveClass<T extends NonNullable<unknown>>(
     prop: T | ResponsiveProp<T>,
-    className: (media: MediaPrefixType, prop: T) => string | string[]
-): string | string[] {
+    className: (media: MediaClassPrefixType, prop: T) => string | string[]
+): string[] {
     if (typeof prop === 'object' && 'xs' in prop) {
         const res = [
             className('', prop.xs),
@@ -25,6 +26,24 @@ export function toResponsiveClass<T extends NonNullable<unknown>>(
         ].flat();
         return res;
     } else {
-        return className('', prop);
+        return [className('', prop)].flat();
+    }
+}
+
+export function toResponsiveVar<T extends NonNullable<unknown>>(
+    prop: T | ResponsiveProp<T>,
+    format: (media: MediaVarPostfixType, prop: T) => string | string[]
+): string[] {
+    if (typeof prop === 'object' && 'xs' in prop) {
+        const res = [
+            format('', prop.xs),
+            prop.sm ? format('-sm', prop.sm) : [],
+            prop.md ? format('-md', prop.md) : [],
+            prop.lg ? format('-lg', prop.lg) : [],
+            prop.xl ? format('-xl', prop.xl) : []
+        ].flat();
+        return res;
+    } else {
+        return [format('', prop)].flat();
     }
 }
