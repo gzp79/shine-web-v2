@@ -10,6 +10,8 @@ export const queryExternalLoginProviders = query(async (): Promise<string[]> => 
     const url = authUrl.providers();
     const headers = getPassThroughHeaders();
 
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     return await retryWithBackoff(async (retry) => {
         const response = await fetch(url, {
             method: 'GET',

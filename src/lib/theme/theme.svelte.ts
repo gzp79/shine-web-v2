@@ -5,7 +5,7 @@ import { getCookie, setCookie } from '@lib/utils';
 
 export const themeList = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themeList)[number];
-export const defaultTheme = 'system' as Theme;
+export const defaultTheme = 'dark' as Theme;
 
 function normalizeTheme(candidate?: string | null): Theme {
     return themeList.includes(candidate as Theme) ? (candidate as Theme) : defaultTheme;
@@ -30,18 +30,18 @@ export type ThemeContext = {
 };
 
 export function createThemeContext(): ThemeContext {
-    let rune = $state(loadTheme());
+    let theme = $state(loadTheme());
 
     $effect(() => {
-        setCookie('theme', rune);
+        setCookie('theme', theme);
     });
 
     const store = {
         get current() {
-            return rune;
+            return theme;
         },
         set current(value: Theme) {
-            rune = normalizeTheme(value);
+            theme = normalizeTheme(value);
         }
     };
     setContext(THEME_CONTEXT_KEY, store);

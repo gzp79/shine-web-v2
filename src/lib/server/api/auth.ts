@@ -1,7 +1,7 @@
 import { config } from '@config';
 import z from 'zod';
 import { IdentityKindSchema } from '@lib/server/api/identity';
-import { joinURL } from '@lib/server/utils';
+import { joinURL } from '@lib/utils';
 
 export const authUrl = {
     providers() {
