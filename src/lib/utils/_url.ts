@@ -1,3 +1,21 @@
+export type QueryParam = string | number | boolean;
+
+export function toQueryString(params?: Record<string, QueryParam>): string {
+    if (!params) return '';
+    return (
+        '?' +
+        new URLSearchParams(
+            Object.entries(params).reduce(
+                (acc, [key, value]) => {
+                    acc[key] = value.toString();
+                    return acc;
+                },
+                {} as Record<string, string>
+            )
+        ).toString()
+    );
+}
+
 export function joinURL(...parts: string[]): string {
     return parts.reduce((acc, part, index) => {
         if (index === 0) {

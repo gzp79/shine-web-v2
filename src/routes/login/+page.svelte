@@ -12,7 +12,6 @@
     import { queryCurrentUserInfo } from '@lib/account/account.remote';
     import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/login.remote';
     import { queryAssetUrls } from '@lib/assets/assets.remote';
-    import { authUrl } from '@lib/client/api/auth';
     import { t } from '@lib/i18n/i18n.svelte';
     import { logUser } from '@lib/loggers';
     import { getThemeContext } from '@lib/theme/theme.svelte';
@@ -129,7 +128,6 @@
             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1} class="h-[80%]">
                 <div class="hidden p-8 lg:flex lg:flex-4">
                     <Typography variant="h4" element="h1">
-                        {captcha}
                         {extraInfo.longHint}
                     </Typography>
                 </div>
@@ -143,13 +141,18 @@
                         {extraInfo.shortHint}
                     </Typography>
                     <Stack spacing={0} class="w-full min-h-0 p-2 grow max-h-fit">
-                        <Stack class="shrink">
-                            <Button wide color="secondary" size="lg">
-                                <allBrands.user />
-                                Continue as FreeUser
-                            </Button>
-                            <Typography variant="text" class="text-center shrink-0">Not you? Switch account</Typography>
-                        </Stack>
+                        {@const user = await currentUser}
+                        {#if user.authenticated}
+                            <Stack class="shrink">
+                                <Button wide color="secondary" size="lg">
+                                    <allBrands.user />
+                                    Continue as {user.name}
+                                </Button>
+                                <Typography variant="text" class="text-center shrink-0"
+                                    >Not you? Switch account</Typography
+                                >
+                            </Stack>
+                        {/if}
                         <Box
                             border={false}
                             ghost={true}
@@ -157,17 +160,19 @@
                             contentClass="flex flex-col gap-2"
                         >
                             {#each await providers as provider (provider)}
-                                <Button
-                                    wide
-                                    color="secondary"
-                                    href={authUrl.externalLoginUrl(provider, rememberMe, captcha, await returnUrl())}
-                                >
-                                    {@const ProviderIcon = allBrands[provider]}
-                                    {#if ProviderIcon}
-                                        <ProviderIcon size="sm" />
-                                    {/if}
-                                    {provider}
-                                </Button>
+                                <form method="GET" action="/api/auth/{provider}/login">
+                                    <input type="hidden" name="rememberMe" value={rememberMe} />
+                                    <input type="hidden" name="captcha" value={captcha} />
+                                    <input type="hidden" name="redirectUrl" value={await returnUrl()} />
+
+                                    <Button wide color="secondary" type="submit">
+                                        {@const ProviderIcon = allBrands[provider]}
+                                        {#if ProviderIcon}
+                                            <ProviderIcon size="sm" />
+                                        {/if}
+                                        {provider}
+                                    </Button>
+                                </form>
                             {/each}
                         </Box>
                         <Typography variant="h5" element="h1" class="flex justify-start p-4 shrink">
@@ -186,7 +191,11 @@
                     bind:this={guestAreaRef}
                     class="flex items-center justify-center flex-1 p-3 min-h-fit lg:px-2 backdrop-saturate-90"
                 >
-                    <Button>Continue as Guest</Button>
+                    <form method="GET" action="/api/auth/guest/login">
+                        <input type="hidden" name="captcha" value={captcha} />
+                        <input type="hidden" name="redirectUrl" value={await returnUrl()} />
+                        <Button type="submit">Continue as Guest</Button>
+                    </form>
                 </div>
             </Stack>
         </Stack>

@@ -21,7 +21,7 @@ if (config.environment === 'mock') {
             }
 
             print.warning();
-            throw new Error(`No handler for ${request.url}`);
+            throw new Error(`No handler for ${request.url}, ${server.listHandlers().join(', ')}`);
         }
     });
 }

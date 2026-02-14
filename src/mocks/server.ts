@@ -1,8 +1,21 @@
 import type { RequestHandler } from 'msw';
 import { setupServer } from 'msw/node';
+import { defaultExternalLogin, defaultGuestLogin } from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
-import { unauthorizedUser } from './data/users/mock';
+import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
 
-export const defaultServer: Array<RequestHandler> = [defaultProviders, unauthorizedUser];
+export const mockForLoginPage: Array<RequestHandler> = [
+    defaultProviders,
+    unauthorizedUser,
+    defaultExternalLogin,
+    defaultGuestLogin
+];
 
-export const server = setupServer(...defaultServer);
+export const mockForGuestUser: Array<RequestHandler> = [
+    defaultProviders,
+    defaultGuestUser,
+    defaultExternalLogin,
+    defaultGuestLogin
+];
+
+export const server = setupServer(...mockForGuestUser);
