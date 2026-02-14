@@ -38,7 +38,7 @@
         'aria-label': ariaLabel
     }: GlyphBaseProps = $props();
 
-    let svgClass = $derived(
+    const svgClass = $derived(
         cn(
             iconSizes[size],
             disabled && '!opacity-30',

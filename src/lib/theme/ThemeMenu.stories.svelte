@@ -1,10 +1,11 @@
 <script module lang="ts">
+    import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, userEvent, within } from 'storybook/test';
+    import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { tick } from 'svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
     import { type Theme, createThemeContext, themeList } from '@lib/theme/theme.svelte';
-    import Dropdown from '@lib/ui/atoms/dropdown-menu';
+    import { DropdownGroup, DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({
         title: 'Components/App/ThemeMenu',
@@ -24,25 +25,26 @@
     };
 
     let theme = createThemeContext();
-    const waitForTransition = (ms = 500) => new Promise((resolve) => setTimeout(resolve, ms));
 </script>
 
 <Story
     name="ThemeSelector"
     play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        const trigger = await canvas.getByRole('button');
-
-        // Open dropdown
-        await userEvent.click(trigger!, { pointerEventsCheck: 0 });
-        await waitForTransition();
+        const canvas = withinPopover();
 
         // Open theme submenu
-        const themeSubTrigger = await canvas.getByRole('menuitem', { name: themeRegexp });
-        await userEvent.hover(themeSubTrigger!);
-        await waitForTransition();
+        const themeSubTrigger = await waitFor(async () => {
+            const themeSubTrigger = await canvas.getByRole('menuitem', { name: themeRegexp });
+            await expect(themeSubTrigger).toBeVisible();
+            return themeSubTrigger;
+        });
 
-        // Check each theme option
+        await userEvent.hover(themeSubTrigger!);
+        await waitFor(async () => {
+            const optionItem = await canvas.getByRole('menuitemradio', { name: regexps['system'] });
+            await expect(optionItem).toBeVisible();
+        });
+
         for (const option of themeList) {
             await expect(option).toBeDefined();
             const optionItem = await canvas.getByRole('menuitemradio', { name: regexps[option] });
@@ -51,26 +53,24 @@
             await expect(theme.current).toBe(option);
         }
 
-        // Close dropdown
+        const trigger = await within(canvasElement).getByRole('button');
         await userEvent.click(trigger!, { pointerEventsCheck: 0 });
-        await waitForTransition();
+        await waitFor(async () => {
+            await expect(themeSubTrigger).not.toBeVisible();
+        });
     }}
 >
     {#snippet template(args)}
-        <Dropdown.Menu>
-            <Dropdown.Trigger>Setting [{theme.current}]</Dropdown.Trigger>
-            <Dropdown.Content class="w-56" align="start">
-                <Dropdown.Group>
-                    <Dropdown.GroupHeading>Settings</Dropdown.GroupHeading>
-                    <Dropdown.Item>Profile</Dropdown.Item>
-                    <Dropdown.Item>Account</Dropdown.Item>
-                </Dropdown.Group>
-                <Dropdown.Separator />
-                <ThemeMenu {...args} />
-                <Dropdown.Separator />
-                <Dropdown.Item>Help</Dropdown.Item>
-            </Dropdown.Content>
-        </Dropdown.Menu>
+        <DropdownMenu open={true} class="w-56" align="start" trigger={`Setting [${theme.current}]`}>
+            <DropdownGroup heading="Settings">
+                <DropdownItem>Profile</DropdownItem>
+                <DropdownItem>Account</DropdownItem>
+            </DropdownGroup>
+            <DropdownSeparator />
+            <ThemeMenu {...args} />
+            <DropdownSeparator />
+            <DropdownItem>Help</DropdownItem>
+        </DropdownMenu>
 
         <div id="popover"></div>
     {/snippet}

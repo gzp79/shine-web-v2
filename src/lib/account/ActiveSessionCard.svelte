@@ -3,8 +3,8 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ErrorCard from '@lib/ui/components/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/LoadingCard.svelte';
+    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type QueryLike, createAppError } from '@lib/utils';
     import ActiveSessionItem from './ActiveSessionItem.svelte';
     import type { ActiveSession } from './account.remote';
@@ -22,11 +22,7 @@
     };
 </script>
 
-<Card shadow width="lg">
-    {#snippet title()}
-        {$t('account.activeSessions.title')}
-    {/snippet}
-
+<Card width="md" title={$t('account.activeSessions.title')}>
     <svelte:boundary>
         {#snippet pending()}
             <Stack class="items-center">

@@ -1,6 +1,7 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
+    import Typography from '@lib/ui/atoms/Typography.svelte';
     import ContainerContent, { type ContainerContentProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
     import ContainerRoot, { type ContainerRootProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -11,9 +12,9 @@
 
     export type CardProps = RootProps &
         ContentProps & {
-            icon?: Snippet;
+            icon?: Snippet<[{ class: string }]>;
             iconClass?: ClassValue | null;
-            title?: Snippet;
+            title?: string | Snippet<[{ class: string }]>;
             titleClass?: ClassValue | null;
             children: Snippet;
             contentClass?: ClassValue | null;
@@ -41,7 +42,7 @@
         'aria-live': ariaLive = undefined
     }: CardProps = $props();
 
-    let iconCls = $derived(
+    const iconCls = $derived(
         cn(
             'flex shrink-0',
             'h-12 w-12 sm:w-12 my-2 sm:ms-2',
@@ -49,7 +50,7 @@
             iconClass
         )
     );
-    let titleCls = $derived(
+    const titleCls = $derived(
         cn(
             'inline-flex shrink-0 whitespace-nowrap outline-none',
             `px-2 sm:${icon && 'p-2'} gap-2`,
@@ -60,7 +61,7 @@
             titleClass
         )
     );
-    let actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
+    const actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
 </script>
 
 <ContainerRoot data-slot="card" border {color} {shadow} {width} {margin}>
@@ -72,7 +73,7 @@
         aria-live={ariaLive}
     >
         {#if icon}
-            <div class={iconCls}>{@render icon()}</div>
+            {@render icon({ class: iconCls })}
         {/if}
         <Stack
             direction="column"
@@ -82,9 +83,13 @@
             class="min-w-0 flex-1 overflow-clip"
         >
             {#if title}
-                <div class={titleCls}>
-                    {@render title()}
-                </div>
+                {#if typeof title === 'string'}
+                    <div class={titleCls}>
+                        <Typography element="h1" variant="h2">{title}</Typography>
+                    </div>
+                {:else}
+                    {@render title({ class: titleCls })}
+                {/if}
             {/if}
 
             <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>

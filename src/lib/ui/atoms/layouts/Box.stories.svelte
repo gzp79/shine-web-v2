@@ -4,7 +4,7 @@
     import { expect } from 'storybook/test';
     import { actionColorList, spacingList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
-    import { widthList } from '@lib/ui/atoms/layouts';
+    import { layoutWidthList } from '@lib/ui/atoms/layouts';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
 
@@ -22,7 +22,7 @@
             },
             width: {
                 control: { type: 'select' },
-                options: ['default', ...widthList],
+                options: ['default', ...layoutWidthList],
                 mapping: {
                     default: undefined
                 }

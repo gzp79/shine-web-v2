@@ -1,7 +1,16 @@
 import clsx, { type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { extendTailwindMerge } from 'tailwind-merge';
 
-export function cn(...inputs: ClassValue[]) {
+const twMerge = extendTailwindMerge({
+    extend: {
+        classGroups: {
+            brightness: [{ brightness: ['highlight'] }],
+            'backdrop-brightness': [{ 'backdrop-brightness': ['highlight'] }]
+        }
+    }
+});
+
+export function cn(...inputs: ClassValue[]): string {
     return twMerge(clsx(inputs));
 }
 
@@ -23,4 +32,6 @@ export function simpleHash(str: string): string {
     return (hash >>> 0).toString(16);
 }
 
-export { createContext } from './_context';
+export * from './_context';
+export * from './_binding.ts';
+export * from './_event_helpers';

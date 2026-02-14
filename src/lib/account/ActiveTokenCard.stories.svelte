@@ -1,7 +1,8 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
-    import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/pagemodels/error';
-    import { expectLoadingState, waitForLoadingToComplete } from '@sb/pagemodels/loading';
+    import { clickDialogButton } from '@sb/models/dialog';
+    import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/models/error';
+    import { expectLoadingState, waitForLoadingToComplete } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, waitFor, within } from 'storybook/test';
     import { v4 as uuid } from 'uuid';
@@ -34,7 +35,7 @@
         ...overrides
     });
 
-    const sampleTokens: ActiveToken[] = [
+    const sampleTokens = (): ActiveToken[] => [
         createToken({
             kind: 'access',
             country: 'US',
@@ -52,76 +53,100 @@
 
 <Story
     name="Loading"
-    args={{
-        tokens: mockQuery.loading<ActiveToken[]>(),
-        revoke: (_tokenHash: string) => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectLoadingState(canvas);
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.loading<ActiveToken[]>()}
+            revoke={(_tokenHash: string) => async.never()}
+        />
+    {/snippet}
+</Story>
 
 <Story
     name="Error"
-    args={{
-        tokens: mockQuery.error<ActiveToken[]>(createOtherError('Test error, failed to fetch linked tokens')),
-        revoke: (_tokenHash: string) => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectErrorState(canvas, /Test error, failed to fetch linked tokens/);
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.error<ActiveToken[]>(createOtherError('Test error, failed to fetch linked tokens'))}
+            revoke={(_tokenHash: string) => async.never()}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Simple"
-    args={{
-        tokens: mockQuery.success(sampleTokens),
-        revoke: (_tokenHash: string) => async.delay(2000)
-    }}
-/>
+<Story name="Simple">
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.success(sampleTokens())}
+            revoke={(_tokenHash: string) => async.delay(2000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Async and refreshed"
-    args={{
-        tokens: mockQuery.async(async () => sampleTokens, 2000),
-        revoke: (_tokenHash: string) => async.delay(2000)
-    }}
-/>
+<Story name="Async and refreshed">
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.async(async () => sampleTokens(), 2000)}
+            revoke={(_tokenHash: string) => async.delay(2000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Revoke - Never resolve"
-    args={{
-        tokens: mockQuery.async(async () => sampleTokens, 100),
-        revoke: (_tokenHash: string) => async.never()
-    }}
-/>
+<Story name="Revoke - Never resolve">
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.async(async () => sampleTokens(), 100)}
+            revoke={(_tokenHash: string) => async.never()}
+        />
+    {/snippet}
+</Story>
 
 <Story
     name="Revoke - Fail"
-    args={{
-        tokens: mockQuery.async(async () => sampleTokens, 100),
-        revoke: (_tokenHash: string) =>
-            async.rejected(createOtherError('A test error occurred while revoking the token'))
-    }}
-    play={async ({ canvasElement }) => {
+    play={async ({ canvasElement, step }) => {
         const canvas = within(canvasElement);
         await waitForLoadingToComplete(canvas);
 
-        const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
-        await unlink.click();
-        const error = await waitForErrorState(canvas, /A test error occurred while revoking the token/);
-        const closeBtn = await within(error).getByRole('button', { name: /retry/i });
-        await closeBtn.click();
-        await waitForErrorToBeRemoved(canvas);
+        await step('Revoke token', async () => {
+            const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
+            await unlink.click();
+            await clickDialogButton(/confirmText/i);
+        });
 
-        {
+        await step('Handle error', async () => {
+            const error = await waitForErrorState(canvas, /A test error occurred while revoking the token/);
+            const closeBtn = await within(error).getByRole('button', { name: /retry/i });
+            await closeBtn.click();
+            await waitForErrorToBeRemoved(canvas);
+        });
+
+        await step('Wait for tokens to refresh', async () => {
             const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
             expect(unlink).toBeDisabled();
-            waitFor(async () => {
+            await waitFor(async () => {
                 expect(unlink).not.toBeDisabled();
             });
-        }
+        });
     }}
-/>
+>
+    {#snippet template(args)}
+        <ActiveTokenCard
+            {...args}
+            tokens={mockQuery.async(async () => sampleTokens(), 100)}
+            revoke={(_tokenHash: string) =>
+                async.rejected(createOtherError('A test error occurred while revoking the token'))}
+        />
+    {/snippet}
+</Story>

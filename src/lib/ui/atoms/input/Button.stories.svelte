@@ -19,8 +19,7 @@
             size: undefined,
             variant: 'filled',
             wide: undefined,
-            disabled: undefined,
-            highlight: undefined
+            disabled: undefined
         },
         argTypes: {
             color: {

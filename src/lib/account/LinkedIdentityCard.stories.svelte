@@ -1,9 +1,10 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
-    import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/pagemodels/error';
-    import { expectLoadingState, waitForLoadingToComplete } from '@sb/pagemodels/loading';
+    import { clickDialogButton } from '@sb/models/dialog';
+    import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/models/error';
+    import { expectLoadingState, waitForLoadingToComplete } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, within } from 'storybook/test';
+    import { expect, waitFor, within } from 'storybook/test';
     import { settled } from 'svelte';
     import { v4 as uuid } from 'uuid';
     import { async, createOtherError } from '@lib/utils';
@@ -20,7 +21,7 @@
     });
 
     const userId = uuid();
-    const sampleIdentities: LinkedIdentity[] = [
+    const sampleIdentities = (): LinkedIdentity[] => [
         {
             userId,
             provider: 'google',
@@ -32,7 +33,7 @@
         {
             userId,
             provider: 'github',
-            providerUserId: 'johndoe',
+            providerUserId: uuid(),
             linkedAt: new Date('2024-02-10'),
             name: 'John Doe',
             email: 'john.doe@github.com'
@@ -42,67 +43,95 @@
 
 <Story
     name="Loading"
-    args={{
-        identities: mockQuery.loading(),
-        unlink: () => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectLoadingState(canvas);
     }}
-/>
+>
+    {#snippet template(args)}
+        <LinkedIdentityCard {...args} identities={mockQuery.loading()} unlink={() => async.never()} />
+    {/snippet}
+</Story>
 
 <Story
     name="Error"
-    args={{
-        identities: mockQuery.error(createOtherError('Test error, failed to fetch linked identities')),
-        unlink: () => async.never()
-    }}
     play={async ({ canvasElement }) => {
         const canvas = within(canvasElement);
         await expectErrorState(canvas, /Test error, failed to fetch linked identities/);
     }}
-/>
+>
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.error(createOtherError('Test error, failed to fetch linked identities'))}
+            unlink={() => async.never()}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Simple"
-    args={{
-        identities: mockQuery.success(sampleIdentities),
-        unlink: () => async.delay(1000)
-    }}
-/>
+<Story name="Simple">
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.success(sampleIdentities())}
+            unlink={() => async.delay(1000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Async and refreshed"
-    args={{
-        identities: mockQuery.async(async () => sampleIdentities, 1000),
-        unlink: (_tokenHash: string) => async.delay(1000)
-    }}
-/>
+<Story name="Async and refreshed">
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.async(async () => sampleIdentities(), 1000)}
+            unlink={(_tokenHash: string) => async.delay(1000)}
+        />
+    {/snippet}
+</Story>
 
-<Story
-    name="Unlink - Never resolve"
-    args={{
-        identities: mockQuery.async(async () => sampleIdentities, 1000),
-        unlink: () => async.never()
-    }}
-/>
+<Story name="Unlink - Never resolve">
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.async(async () => sampleIdentities(), 1000)}
+            unlink={() => async.never()}
+        />
+    {/snippet}
+</Story>
 
 <Story
     name="Unlink - Fail"
-    args={{
-        identities: mockQuery.async(async () => sampleIdentities, 100),
-        unlink: () => async.rejected(createOtherError('A test error occurred while unlinking the identity'))
-    }}
-    play={async ({ canvasElement }) => {
+    play={async ({ canvasElement, step }) => {
         const canvas = within(canvasElement);
         await waitForLoadingToComplete(canvas);
 
-        const unlink = canvas.getAllByRole('button', { name: /unlink/i })[0];
-        await unlink.click();
-        const error = await waitForErrorState(canvas, /A test error occurred while unlinking the identity/);
-        const closeBtn = await within(error).getByRole('button', { name: /retry/i });
-        await closeBtn.click();
-        await waitForErrorToBeRemoved(canvas);
+        await step('Unlink identity', async () => {
+            const unlink = canvas.getAllByRole('button', { name: /unlink/i })[0];
+            await unlink.click();
+            await clickDialogButton(/confirmText/i);
+        });
+
+        await step('Handle error', async () => {
+            const error = await waitForErrorState(canvas, /A test error occurred while unlinking the identity/);
+            const closeBtn = await within(error).getByRole('button', { name: /retry/i });
+            await closeBtn.click();
+            await waitForErrorToBeRemoved(canvas);
+        });
+
+        await step('Wait for identities to refresh', async () => {
+            const unlink = canvas.getAllByRole('button', { name: /unlink/i })[0];
+            expect(unlink).toBeDisabled();
+            await waitFor(async () => {
+                expect(unlink).not.toBeDisabled();
+            });
+        });
     }}
-/>
+>
+    {#snippet template(args)}
+        <LinkedIdentityCard
+            {...args}
+            identities={mockQuery.async(async () => sampleIdentities(), 100)}
+            unlink={() => async.rejected(createOtherError('A test error occurred while unlinking the identity'))}
+        />
+    {/snippet}
+</Story>

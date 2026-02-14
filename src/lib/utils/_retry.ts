@@ -35,10 +35,12 @@ export async function retryWithBackoff<T>(
         try {
             return await fn(createRetryObject(attempt, maxRetries));
         } catch (error) {
-            if (isRetryError(error)) {
+            const shouldRetry = isRetryError(error) || (isAppError(error) && error.shouldRetry);
+            if (shouldRetry) {
                 if (attempt >= maxRetries) {
-                    logAPI.error('Retry limit exceeded in retryWithBackoff with a last error:', error.innerError);
-                    const err = createRetryLimitError(maxRetries, error.innerError);
+                    const innerError = isRetryError(error) ? error.innerError : error;
+                    logAPI.error('Retry limit exceeded in retryWithBackoff with a last error:', innerError);
+                    const err = createRetryLimitError(maxRetries, innerError);
                     throw err;
                 }
 
@@ -47,7 +49,7 @@ export async function retryWithBackoff<T>(
                 const jitter = Math.random() * 0.1 * timeout;
                 await async.delay(timeout + jitter);
             } else {
-                logAPI.error('Non-retryable error encountered in retryWithBackoff', error);
+                logAPI.error('Encountered an error that cannot be retried.', error);
                 throw error;
             }
         }

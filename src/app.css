@@ -8,6 +8,7 @@ Color helper:
  and a rule of thumb, the dark colors are the inverted light colors (light: 100 dark: 900).
 */
 
+/* theme section only defines the tailwind utility classes to generate, the actual values are defined in the theme- sections */
 @theme {
     --breakpoint-xs: 0;
     --breakpoint-sm: 480px;
@@ -17,6 +18,55 @@ Color helper:
 
     --color-*: initial;
 
+    --color-surface: undefined;
+    --color-on-surface: undefined;
+    --color-container: undefined;
+    --color-on-container: undefined;
+    --color-sub-container: undefined;
+    --color-on-sub-container: undefined;
+
+    --color-primary: undefined;
+    --color-primary-1: undefined;
+    --color-primary-2: undefined;
+    --color-on-primary: undefined;
+
+    --color-secondary: undefined;
+    --color-secondary-1: undefined;
+    --color-secondary-2: undefined;
+    --color-on-secondary: undefined;
+
+    --color-info: undefined;
+    --color-info-1: undefined;
+    --color-info-2: undefined;
+    --color-on-info: undefined;
+
+    --color-warning: undefined;
+    --color-warning-1: undefined;
+    --color-warning-2: undefined;
+    --color-on-warning: undefined;
+
+    --color-danger: undefined;
+    --color-danger-1: undefined;
+    --color-danger-2: undefined;
+    --color-on-danger: undefined;
+
+    --color-success: undefined;
+    --color-success-1: undefined;
+    --color-success-2: undefined;
+    --color-on-success: undefined;
+
+    --color-data-gray-1: undefined;
+    --color-data-gray-2: undefined;
+    --color-data-gray-3: undefined;
+    --color-data-gray-4: undefined;
+    --color-data-gray-5: undefined;
+    --color-data-gray-6: undefined;
+    --color-data-gray-7: undefined;
+
+    --hover-action-brightness: undefined;
+}
+
+@utility theme-light {
     --color-surface: #ffffff;
     --color-on-surface: #000000;
     --color-container: #f3f3f3;
@@ -115,12 +165,18 @@ Color helper:
 }
 
 @layer base {
+    [data-theme='light'] {
+        @apply theme-light;
+    }
     [data-theme='dark'] {
         @apply theme-dark;
     }
-    @media (prefers-color-scheme: dark) {
-        [data-theme='system'] {
+    [data-theme='system'] {
+        @media (prefers-color-scheme: dark) {
             @apply theme-dark;
+        }
+        @media (prefers-color-scheme: light) {
+            @apply theme-light;
         }
     }
 
@@ -136,16 +192,13 @@ Color helper:
 }
 
 @layer utilities {
-    .highlight {
+    .brightness-highlight,
+    .hover\:brightness-highlight:hover {
         @apply brightness-(--hover-action-brightness);
     }
-    .hover\:highlight:hover {
-        @apply brightness-(--hover-action-brightness);
-    }
-    .highlight-backdrop {
-        @apply backdrop-brightness-(--hover-action-brightness);
-    }
-    .hover\:highlight-backdrop:hover {
+
+    .backdrop-brightness-highlight,
+    .hover\:backdrop-brightness-highlight:hover {
         @apply backdrop-brightness-(--hover-action-brightness);
     }
 
@@ -226,14 +279,11 @@ Color helper:
     }
 }
 
-body {
-    @apply flex h-full w-full flex-col overflow-hidden p-2;
+:focus,
+:focus-visible {
+    outline: none;
 }
 
 #app {
     @apply flex h-full w-full flex-col overflow-hidden;
-}
-
-#storybook-root {
-    @apply m-4;
 }

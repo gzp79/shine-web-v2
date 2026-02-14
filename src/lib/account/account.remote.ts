@@ -2,26 +2,43 @@ import { command, query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { async, createFetchError, getPassThroughHeaders, parseResponse, retryWithBackoff } from '@lib/utils';
+import { CurrentUserSchema, authUrl } from '@lib/server/api/auth';
+import { getPassThroughHeaders } from '@lib/server/utils';
+import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 import type { CurrentUser } from './currentUser.svelte';
 
-const IdentityKindSchema = z.enum(['user']);
+export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
+    logAPI.trace('getCurrentUser...');
+    const url = authUrl.myInfo();
+    const headers = getPassThroughHeaders();
+    const params = new URLSearchParams({ method: 'full' });
 
-const CurrentUserDetailsSchema = z.object({
-    kind: IdentityKindSchema,
-    createdAt: z.iso.datetime().transform((dt) => new Date(dt)),
-    email: z.email().nullable()
-});
-
-const CurrentUserSchema = z.object({
-    userId: z.string(),
-    name: z.string(),
-    isLinked: z.boolean(),
-    isEmailConfirmed: z.boolean(),
-    roles: z.array(z.string()),
-    sessionLength: z.number(),
-    remainingSessionTime: z.number(),
-    details: CurrentUserDetailsSchema
+    return await retryWithBackoff(async (retry) => {
+        const response = await fetch(url + '?' + params, {
+            method: 'GET',
+            headers
+        });
+        if (response.ok) {
+            const user = await parseResponse(CurrentUserSchema, response);
+            logAPI.info('getCurrentUser completed,', user);
+            return {
+                authenticated: true,
+                id: user.userId,
+                isLinked: user.isLinked,
+                name: user.name,
+                email: user.details.email || '',
+                isEmailVerified: user.isEmailConfirmed,
+                createdAt: user.details.createdAt
+            };
+        } else if (response.status == 401) {
+            logAPI.info('getCurrentUser failed with 401', await response.text());
+            return { authenticated: false };
+        } else {
+            const err = await createFetchError(response, 'Failed to get current user');
+            logAPI.error(`getCurrentUser failed, retry ${retry.current}/${retry.limit}`, err);
+            return retry(err);
+        }
+    });
 });
 
 const LinkedIdentitySchema = z.object({
@@ -39,59 +56,10 @@ const LinkedIdentitiesSchema = z.object({
 });
 export type LinkedIdentities = z.infer<typeof LinkedIdentitiesSchema>;
 
-const ActiveSessionSchema = z.object({
-    userId: z.string(),
-    tokenHash: z.string(),
-    fingerprint: z.string(),
-    createdAt: z.iso.datetime().transform((dt) => new Date(dt)),
-    agent: z.string(),
-    country: z.string().nullable(),
-    region: z.string().nullable(),
-    city: z.string().nullable()
-});
-export type ActiveSession = z.infer<typeof ActiveSessionSchema>;
-
-const ActiveSessionsSchema = z.object({
-    sessions: z.array(ActiveSessionSchema)
-});
-export type ActiveSessions = z.infer<typeof ActiveSessionsSchema>;
-
-export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
-    logAPI.trace('getCurrentUser...');
-    const url = `${config.identityUrl}/api/auth/user/info?method=full`;
-    const headers = getPassThroughHeaders();
-
-    return await retryWithBackoff(async (retry) => {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers
-        });
-        if (response.ok) {
-            const user = await parseResponse(CurrentUserSchema, response);
-            logAPI.info('getCurrentUser completed,', user);
-            return {
-                authenticated: true,
-                id: user.userId,
-                name: user.name,
-                email: user.details.email || ''
-            };
-        } else if (response.status == 401) {
-            logAPI.info('getCurrentUser failed with 401', await response.text());
-            return { authenticated: false };
-        } else {
-            const err = await createFetchError(response, 'Failed to get current user');
-            logAPI.error(`getCurrentUser failed, retry ${retry.current}/${retry.limit}`, err);
-            return retry(err);
-        }
-    });
-});
-
 export const queryLinkedIdentities = query(async (): Promise<LinkedIdentity[]> => {
     logAPI.log('getLinkedIdentities...');
     const url = `${config.identityUrl}/api/auth/user/links`;
     const headers = getPassThroughHeaders();
-
-    await async.delay(2000);
 
     return await retryWithBackoff(async (retry) => {
         const response = await fetch(url, {
@@ -114,6 +82,23 @@ export const queryLinkedIdentities = query(async (): Promise<LinkedIdentity[]> =
         return identities.links;
     });
 });
+
+const ActiveSessionSchema = z.object({
+    userId: z.string(),
+    tokenHash: z.string(),
+    fingerprint: z.string(),
+    createdAt: z.iso.datetime().transform((dt) => new Date(dt)),
+    agent: z.string(),
+    country: z.string().nullable(),
+    region: z.string().nullable(),
+    city: z.string().nullable()
+});
+export type ActiveSession = z.infer<typeof ActiveSessionSchema>;
+
+const ActiveSessionsSchema = z.object({
+    sessions: z.array(ActiveSessionSchema)
+});
+export type ActiveSessions = z.infer<typeof ActiveSessionsSchema>;
 
 export const queryActiveSessions = query(async (): Promise<ActiveSession[]> => {
     logAPI.log('getActiveSessions...');

@@ -1,14 +1,19 @@
-import { type ResponsiveProp, type Spacing, toResponsiveClass } from '.';
+import { type ResponsiveProp, toResponsiveClass } from './_responsive-prop';
+
+export const spacingList = [
+    0, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56
+] as const;
+export type Spacing = (typeof spacingList)[number];
 
 export type ResponsiveSpacing =
     | ResponsiveProp<Spacing>
     | {
-          x: Spacing | ResponsiveProp<Spacing>;
-          y: Spacing | ResponsiveProp<Spacing>;
+          x: ResponsiveProp<Spacing>;
+          y: ResponsiveProp<Spacing>;
       }
     | {
-          col: Spacing | ResponsiveProp<Spacing>;
-          row: Spacing | ResponsiveProp<Spacing>;
+          col: ResponsiveProp<Spacing>;
+          row: ResponsiveProp<Spacing>;
       };
 
 export function toSpacingClasses(prop: ResponsiveSpacing | undefined, prefix: { all: string; x: string; y: string }) {

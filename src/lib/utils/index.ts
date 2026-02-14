@@ -6,5 +6,4 @@ export * from './_schema';
 export * from './_type';
 export * from './_auto-refresh.svelte';
 export * from './_retry';
-export * from './_remote';
 export * from './_random';

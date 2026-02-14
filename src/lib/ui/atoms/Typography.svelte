@@ -3,7 +3,7 @@
     import type { Snippet } from 'svelte';
     import { cn } from '@lib/ui/utils';
 
-    export const variantList = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'text', 'footnote', 'code', 'legend'] as const;
+    export const variantList = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'text', 'footnote', 'code'] as const;
     export type Variant = (typeof variantList)[number];
 
     export const weightList = ['normal', 'emphasis', 'bold'] as const;
@@ -41,8 +41,7 @@
         h6: 'h6',
         text: 'p',
         footnote: 'p',
-        code: 'code',
-        legend: 'legend'
+        code: 'code'
     };
 
     const sharedHClasses = 'inline-flex gap-1 text-ellipsis text-pretty';
@@ -54,9 +53,8 @@
         h5: `text-lg ${sharedHClasses}`,
         h6: `text-base ${sharedHClasses}`,
         text: 'text-base text-justify',
-        footnote: 'text-sm',
-        code: 'text-sm',
-        legend: 'text-base'
+        footnote: 'text-sm text-justify',
+        code: 'text-sm'
     };
 
     const weightClasses: Record<Weight, string> = {
@@ -65,8 +63,8 @@
         bold: 'font-bold'
     };
 
-    let el = $derived(element ?? variantElement[variant]);
-    let textClass = $derived(
+    const el = $derived(element ?? variantElement[variant]);
+    const textClass = $derived(
         cn(variantClasses[variant], weightClasses[weight], underline && 'underline', italic && 'italic', className)
     );
 </script>

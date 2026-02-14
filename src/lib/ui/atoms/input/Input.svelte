@@ -1,9 +1,9 @@
 <script module lang="ts">
-    import type { WithElementRef } from 'bits-ui';
     import type { HTMLInputAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
-    import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
+    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
     import { cn } from '@lib/ui/utils';
 
     export const inputTypeList = [
@@ -21,15 +21,15 @@
         'time',
         'datetime-local'
 
-        // requires special handling:
+        // requires dedicated components:
         //'checkbox',
         //'radio',
         //'file',
         //'color'
-    ];
+    ] as const;
     export type InputType = (typeof inputTypeList)[number];
 
-    type InputBaseProps = WithElementRef<Omit<HTMLInputAttributes, 'type' | 'size'> & { type?: InputType }>;
+    type InputBaseProps = Omit<HTMLInputAttributes, 'type' | 'size'> & { type?: InputType };
 
     export type InputProps = InputBaseProps & {
         color?: ActionColor;
@@ -43,41 +43,39 @@
 
 <script lang="ts">
     let {
-        color: baseColor = undefined,
-        variant = 'filled',
-        size = 'md',
+        color: baseColor,
+        variant: baseVariant,
+        size: baseSize,
         wide = false,
-        disabled = false,
+        disabled: baseDisabled,
         invalid = false,
-        ref = $bindable(null),
         value = $bindable(),
         type = 'text',
-        files = $bindable(),
         class: className,
         'data-slot': dataSlot = 'input',
         ...restProps
     }: InputProps = $props();
 
-    let containerInfo = getContainerContext();
-    let color = $derived(baseColor ?? 'primary');
+    const ctx = getInputGroupContext();
+
+    // Precedence: explicit prop > InputGroupContext (from Field or InputGroup) > default
+    const color = $derived(baseColor ?? ctx?.color ?? 'primary');
+    const size = $derived(baseSize ?? ctx?.size ?? 'md');
+    const variant = $derived(baseVariant ?? ctx?.variant ?? 'filled');
+    const disabled = $derived(baseDisabled || ctx?.disabled || false);
 
     const sizeMods: Record<Size, string> = {
-        xs: 'text-xs leading-none px-2 py-1.5',
-        sm: 'text-sm leading-none px-3 py-2',
-        md: 'text-md leading-none px-4 py-3',
-        lg: 'text-lg leading-none px-5 py-4'
+        xs: 'text-xs leading-none h-8 px-2',
+        sm: 'text-sm leading-none h-10 px-3',
+        md: 'text-md leading-none h-12 px-4',
+        lg: 'text-lg leading-none h-14 px-5'
     };
 
-    let cls = $derived(
+    const cls = $derived(
         cn(
             'rounded-lg border-2',
-
-            'focus-visible:outline-none',
-            'focus-visible:ring-2',
-            'focus-visible:ring-inset',
-            `focus-visible:ring-${color}-2`,
-
-            invalid && '!border-on-danger',
+            ringClass('focus-visible', color),
+            invalid && 'ring-2 ring-inset ring-on-danger',
 
             sizeMods[size],
             wide ? 'w-full' : 'w-fit',
@@ -86,25 +84,18 @@
                 `bg-${color}`,
                 `text-on-${color}`,
                 `placeholder:text-${color}-2`,
+                `border-on-${color}`
+            ],
+            variant === 'accent' && [
+                `bg-${color}`,
+                `text-on-${color}`,
+                `placeholder:text-${color}-2`,
                 `border-on-${color}`,
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:highlight'
+                'brightness-highlight'
             ],
-            variant === 'outline' && [
-                containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
-                containerInfo && !baseColor
-                    ? `placeholder:text-${containerInfo.fgColor2}`
-                    : `placeholder:text-${color}-2`,
-                containerInfo && !baseColor ? `border-${containerInfo.border}` : `border-on-${color}`,
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:highlight-backdrop'
-            ],
-            variant === 'ghost' && [
-                containerInfo && !baseColor ? `text-${containerInfo.fgColor}` : `text-on-${color}`,
-                containerInfo && !baseColor
-                    ? `placeholder:text-${containerInfo.fgColor2}`
-                    : `placeholder:text-${color}-2`,
-                'border-transparent',
-                disabled ? '!opacity-30 !cursor-not-allowed' : 'hover:highlight-backdrop'
-            ],
+            variant === 'outline' && [`text-on-${color}`, `placeholder:text-on-${color}-2`, `border-on-${color}`],
+            variant === 'ghost' && [`text-on-${color}`, `placeholder:text-${color}-2`, 'border-transparent'],
+            disabled ? '!opacity-30 !cursor-not-allowed' : hoverClass(variant),
 
             className
         )
@@ -112,7 +103,6 @@
 </script>
 
 <input
-    bind:this={ref}
     data-slot={dataSlot}
     class={cls}
     {type}

@@ -1,0 +1,1 @@
+{ "providers": ["gitlab", "google", "github", "discord"] }

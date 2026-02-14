@@ -1,4 +1,8 @@
+import type { RequestHandler } from 'msw';
 import { setupServer } from 'msw/node';
-import { handlers } from './handlers';
+import { defaultProviders } from './data/providers/mocks';
+import { unauthorizedUser } from './data/users/mock';
 
-export const server = setupServer(...handlers);
+export const defaultServer: Array<RequestHandler> = [defaultProviders, unauthorizedUser];
+
+export const server = setupServer(...defaultServer);

@@ -1,30 +1,22 @@
 import { config } from '@config';
+import type { Handle } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
 import '@lib/prelude-math';
 
+// Initialize MSW for mock environment
 if (config.environment === 'mock') {
     console.info('Starting server mock worker...');
-
-    const { server } = await import('@mocks/server');
     const { bypass } = await import('msw');
+    const { server } = await import('@mocks/server');
 
     server.listen({
         onUnhandledRequest(request, print) {
-            const url = new URL(request.url);
-
             logAPI.log(`[MSW] unhandled request: ${request.url}`);
 
-            const passThrough: [string, RegExp][] = [
-                //['https://echo.free.beeceptor.com', /.*/]
-            ];
-            if (passThrough.some(([host, path]) => request.url.startsWith(host) && path.test(url.pathname))) {
-                logAPI.log(`[MSW] Passing through ${request.url}`);
-                return;
+            if (request.url.startsWith(config.webUrl)) {
+                return bypass(request);
             }
-
-            const proxyToLocal: [string, RegExp][] = [[config.assetUrl, /^\/assets\//]];
-            if (proxyToLocal.some(([host, path]) => request.url.startsWith(host) && path.test(url.pathname))) {
-                logAPI.log(`[MSW] Proxy to local ${request.url}`);
+            if (request.url.startsWith(config.assetUrl)) {
                 return bypass(request);
             }
 
@@ -34,4 +26,6 @@ if (config.environment === 'mock') {
     });
 }
 
-export {};
+export const handle: Handle = async ({ event, resolve }) => {
+    return resolve(event);
+};

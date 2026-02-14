@@ -35,7 +35,7 @@
         hidden: ''
     };
 
-    let contentCls = $derived(
+    const contentCls = $derived(
         cn('w-full', toSpacingClasses(padding, { all: 'p', x: 'px', y: 'py' }), scrollClass[overflow], className)
     );
 </script>

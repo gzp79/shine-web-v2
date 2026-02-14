@@ -10,9 +10,12 @@ i18n.loadTranslations('en', '/');
 if (typeof document !== 'undefined') {
     const style = document.createElement('style');
     style.textContent = `
-        body, #storybook-root {
+        #storybook-root {
             overflow: auto !important;
             height: auto !important;
+            padding: 5px !important;
+            outline: 2px solid rgba(255, 0, 0, 0.5) !important;
+            outline-offset: -5px;
         }
     `;
     document.head.appendChild(style);
@@ -30,14 +33,14 @@ const preview: Preview = {
                         'Layouts',
                         ['Stack', 'Grid', 'Box', 'Card'],
                         'Inputs',
-                        ['Button'],
+                        ['Button', 'Input', 'InputGroup'],
                         'Data',
                         ['ProgressBar', 'PropertyList'],
                         'Menu',
                         ['Dropdown']
                     ],
                     'Components',
-                    ['App', ['MessageContent', 'FlowContent', 'ThemeMenu', 'LanguageMenu'], 'Status']
+                    ['App', ['CenteredLayout', 'StackLayout', 'ThemeMenu', 'LanguageMenu'], 'Status']
                 ]
             }
         }
@@ -84,6 +87,19 @@ const preview: Preview = {
                 document.documentElement.classList.add('bg-surface', 'text-on-surface');
             }
 
+            return story();
+        },
+        (story) => {
+            // popup are added to a separate root element with id "popover".
+            // In application this is handled by the app shell, but in Storybook we need to create it ourselves.
+            if (typeof document !== 'undefined') {
+                let popupRoot = document.getElementById('popover');
+                if (!popupRoot) {
+                    popupRoot = document.createElement('div');
+                    popupRoot.id = 'popover';
+                    document.body.appendChild(popupRoot);
+                }
+            }
             return story();
         }
     ]

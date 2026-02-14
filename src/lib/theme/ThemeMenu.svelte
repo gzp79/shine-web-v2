@@ -1,7 +1,12 @@
 <script module lang="ts">
     import { t } from '@lib/i18n/i18n.svelte';
     import { getThemeContext, themeList } from '@lib/theme/theme.svelte';
-    import Dropdown, { type ExpandIconSide } from '@lib/ui/atoms/dropdown-menu';
+    import {
+        DropdownRadioGroup,
+        DropdownRadioItem,
+        DropdownSubMenu,
+        type ExpandIconSide
+    } from '@lib/ui/atoms/dropdown-menu';
     import DarkIcon from '@lib/ui/atoms/icons/common/Dark.svelte';
     import DarkLightIcon from '@lib/ui/atoms/icons/common/DarkLight.svelte';
     import LightIcon from '@lib/ui/atoms/icons/common/Light.svelte';
@@ -22,24 +27,23 @@
         system: DarkLightIcon
     };
 
-    let currentTheme = $derived(themeIcons[theme.current]);
+    const currentTheme = $derived(themeIcons[theme.current]);
 </script>
 
-<Dropdown.Sub>
-    <Dropdown.SubTrigger {expandIcon}>
-        {@const Icon = currentTheme}
-        <Icon />
-        {$t('common.theme.name')}</Dropdown.SubTrigger
-    >
-    <Dropdown.SubContent>
-        <Dropdown.RadioGroup bind:value={theme.current}>
-            {#each themeList as themeOption (themeOption)}
-                {@const Icon = themeIcons[themeOption]}
-                <Dropdown.RadioItem value={themeOption} closeOnSelect={false}>
-                    <Icon />
-                    {$t(`common.theme.${themeOption}`)}
-                </Dropdown.RadioItem>
-            {/each}
-        </Dropdown.RadioGroup>
-    </Dropdown.SubContent>
-</Dropdown.Sub>
+{#snippet subTrigger()}
+    {@const Icon = currentTheme}
+    <Icon />
+    {$t('common.theme.name')}
+{/snippet}
+
+<DropdownSubMenu {expandIcon} trigger={subTrigger}>
+    <DropdownRadioGroup bind:value={theme.current}>
+        {#each themeList as themeOption (themeOption)}
+            {@const Icon = themeIcons[themeOption]}
+            <DropdownRadioItem value={themeOption} closeOnSelect={false}>
+                <Icon />
+                {$t(`common.theme.${themeOption}`)}
+            </DropdownRadioItem>
+        {/each}
+    </DropdownRadioGroup>
+</DropdownSubMenu>

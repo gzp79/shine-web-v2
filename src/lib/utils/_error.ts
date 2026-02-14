@@ -5,6 +5,7 @@ export type BaseAppError = {
     kind: AppErrorKind;
     message: string;
     details?: unknown;
+    shouldRetry?: boolean;
 };
 
 export type FetchError = BaseAppError & {
@@ -46,6 +47,7 @@ export async function createFetchError(response: Response, message = `HTTP ${res
         type: 'app-error',
         kind: 'fetch',
         message,
+        shouldRetry: response.status >= 500 || response.status === 429,
         details: { status: response.status, body }
     };
 }

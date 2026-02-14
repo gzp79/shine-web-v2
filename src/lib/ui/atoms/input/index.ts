@@ -1,4 +1,4 @@
-export const inputVariantList = ['filled', 'outline', 'ghost'];
+export const inputVariantList = ['filled', 'accent', 'outline', 'ghost'];
 export type InputVariant = (typeof inputVariantList)[number];
 
 export type LinkType = 'none' | 'hash' | 'internal' | 'external' | 'protocol';

@@ -11,11 +11,11 @@
     let { name, element = $bindable() }: Props = $props();
 
     let selfElement = $state<HTMLElement | null>(null);
-    let targetElement = $derived(element /*?? (selfElement?.parentNode as HTMLElement)*/ ?? selfElement);
-    let variableName = $derived(name.startsWith('--') ? name : `--${name}`);
-
     let version = $state(0);
     let value = $state('');
+
+    const targetElement = $derived(element /*?? (selfElement?.parentNode as HTMLElement)*/ ?? selfElement);
+    const variableName = $derived(name.startsWith('--') ? name : `--${name}`);
 
     $effect(() => {
         void version;
