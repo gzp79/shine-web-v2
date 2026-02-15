@@ -11,12 +11,12 @@ export const authUrl = {
         return joinURL(config.identityUrl, '/api/auth/user/info');
     },
 
-    tokenLoginUrl(params?: { redirect: string }): string {
+    tokenLoginUrl(params?: { redirectUrl: string; errorUrl: string }): string {
         const queryString = toQueryString(
             params && {
-                redirectUrl: `${config.webUrl}${params.redirect}`,
-                errorUrl: `${config.webUrl}/error`,
-                rememberMe: 'false'
+                redirectUrl: `${config.webUrl}${params.redirectUrl}`,
+                errorUrl: `${config.webUrl}${params.errorUrl}`,
+                rememberMe: 'true'
             }
         );
         return joinURL(config.identityUrl, `auth/token/login${queryString}`);

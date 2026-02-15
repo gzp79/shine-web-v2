@@ -1,16 +1,12 @@
 import { error } from '@sveltejs/kit';
 import { authUrl } from '@lib/server/api/auth';
-import { getPassThroughHeaders } from '@lib/server/utils';
+import { getPassThroughHeaders, sanitizedReturnUrl } from '@lib/server/utils';
 import type { RequestHandler } from './$types';
 
-/**
- * Simple pass-through proxy for guest login
- */
 export const GET: RequestHandler = async ({ url, fetch }) => {
-    // Build the identity server URL - just forward all query parameters as-is
     const identityUrl = authUrl.guestLoginUrl({
         captcha: url.searchParams.get('captcha') || '',
-        redirectUrl: url.searchParams.get('returnUrl') || '/game'
+        redirectUrl: sanitizedReturnUrl(url.searchParams.get('returnUrl'))
     });
     const headers = getPassThroughHeaders();
 

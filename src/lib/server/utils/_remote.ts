@@ -24,3 +24,21 @@ export function getPassThroughHeaders(): Headers {
 
     return headers;
 }
+
+export function sanitizedReturnUrl(rawUrl: string | null | undefined): string {
+    console.log('Raw return URL:', rawUrl);
+    if (rawUrl) {
+        try {
+            const parsed = new URL(rawUrl, 'http://localhost');
+            if (parsed.origin === 'http://localhost' && rawUrl.startsWith('/')) {
+                const sanitized = parsed.pathname + parsed.search + parsed.hash;
+                console.info('Sanitized return URL:', sanitized);
+                return sanitized;
+            }
+        } catch (e) {
+            console.error(`Failed to parse return URL (${rawUrl}):`, e);
+        }
+    }
+    console.info('Returning default /game URL');
+    return '/game';
+}

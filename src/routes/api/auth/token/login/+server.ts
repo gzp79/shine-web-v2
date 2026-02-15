@@ -3,24 +3,23 @@ import { authUrl } from '@lib/server/api/auth';
 import { getPassThroughHeaders, sanitizedReturnUrl } from '@lib/server/utils';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ params, url, fetch }) => {
-    const provider = params.provider;
-    if (!provider) {
-        throw error(400, 'Provider parameter is required');
-    }
+export const GET: RequestHandler = async ({ url, fetch }) => {
+    const returnUrl = url.searchParams.get('returnUrl');
 
-    const identityUrl = authUrl.externalLoginUrl(provider, {
-        captcha: url.searchParams.get('captcha') || '',
-        redirectUrl: sanitizedReturnUrl(url.searchParams.get('returnUrl')),
-        rememberMe: url.searchParams.get('rememberMe') === 'true'
-    });
+    const redirectUrl = sanitizedReturnUrl(returnUrl);
+    const errorUrl = `/login?${new URLSearchParams({
+        ...(returnUrl ? { returnUrl } : {}),
+        prompt: 'true'
+    })}`;
+
+    const identityUrl = authUrl.tokenLoginUrl({ redirectUrl, errorUrl });
     const headers = getPassThroughHeaders();
 
     try {
         const response = await fetch(identityUrl, {
             method: 'GET',
             headers,
-            redirect: 'manual' // Don't follow redirects, let the client handle them
+            redirect: 'manual'
         });
 
         return new Response(response.body, {
@@ -29,7 +28,7 @@ export const GET: RequestHandler = async ({ params, url, fetch }) => {
             headers: response.headers
         });
     } catch (err) {
-        console.error('Auth proxy error:', err);
+        console.error('Token auth proxy error:', err);
         throw error(502, 'Failed to connect to identity server');
     }
 };

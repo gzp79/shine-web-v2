@@ -1,6 +1,5 @@
 import { config } from '@config';
 import type { Handle } from '@sveltejs/kit';
-import { logAPI } from '@lib/loggers';
 import '@lib/prelude-math';
 
 // Initialize MSW for mock environment
@@ -11,7 +10,7 @@ if (config.environment === 'mock') {
 
     server.listen({
         onUnhandledRequest(request, print) {
-            logAPI.log(`[MSW] unhandled request: ${request.url}`);
+            //logAPI.log(`[MSW] unhandled request: ${request.url}`);
 
             if (request.url.startsWith(config.webUrl)) {
                 return bypass(request);

@@ -8,7 +8,7 @@ import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 import type { CurrentUser } from './currentUser.svelte';
 
 export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
-    logAPI.trace('getCurrentUser...');
+    logAPI.log('getCurrentUser...');
     const url = authUrl.myInfo();
     const headers = getPassThroughHeaders();
     const params = new URLSearchParams({ method: 'full' });

@@ -30,7 +30,11 @@
     import { async, createAppError } from '@lib/utils';
     import MovingBlob from './MovingBlob.svelte';
 
-    //const prompt = $derived(page.url.searchParams.get('prompt'));
+    let theme = getThemeContext();
+
+    const prompt = $derived(!!page.url.searchParams.get('prompt'));
+    const returnUrl = $derived(page.url.searchParams.get('returnUrl') ?? undefined);
+
     const extraInfo: HintInfo = $derived.by(() => {
         let hint = page.url.searchParams.get('hint') || '';
         switch (hint) {
@@ -61,40 +65,67 @@
         }
     });
 
-    let theme = getThemeContext();
+    //const currentUser = $derived(queryCurrentUserInfo());
+    //const providers = $derived(queryExternalLoginProviders());
+    const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
+    const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
 
-    const returnUrl = async (): Promise<string> => {
-        const rawUrl = page.url.searchParams.get('returnUrl') ?? '';
-        const target = decodeURIComponent(rawUrl) ?? '/game';
-        const sanitizedURL = await querySanitizedReturnUrl(target);
-        logUser.log(`Sanitized returnUrl: [${sanitizedURL}]`);
-        return sanitizedURL;
-    };
-
-    const providers = queryExternalLoginProviders();
-    const currentUser = queryCurrentUserInfo();
-    const backgroundUrls = queryAssetUrls(['loginBackground', 'loginBackground_alt']);
-    const backgroundBrightUrls = queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']);
-
-    // when captcha is disabled use a test (site) key that always passes the server side validation
+    let isRedirecting = $state(false);
+    let isError = $state(false);
     let captcha = $state('');
     let rememberMe = $state(true);
-    let guestAreaRef: HTMLDivElement | undefined = $state();
+    let guestAreaRef = $state<HTMLDivElement | undefined>();
 
     let waitLoading = $state(true);
+
     $effect(() => {
-        async.delay(5000).then(() => (waitLoading = false));
+        // Brief delay to avoid flickering if resources load quickly
+        async.delay(500).then(() => (waitLoading = false));
     });
-    const showLoading = $derived(waitLoading || !captcha || $effect.pending());
+
+    // Show loading when:
+    // - There is no error, in which case an error card is shown
+    // - Initial load (waitLoading)
+    // - No captcha yet, or captcha is refreshing (for interactive login)
+    // - Currently redirecting
+    // - Some async effect is pending (like fetching user info or login providers)
+    // - Boundary is pending (awaiting content to load)
+    const showLoading = $derived(!isError && (isRedirecting || waitLoading || (prompt && !captcha)));
+
+    $effect(() => {
+        (async () => {
+            if (!prompt) {
+                isRedirecting = true;
+                logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
+                const user = await queryCurrentUserInfo();
+                if (user.authenticated) {
+                    const url = await querySanitizedReturnUrl(returnUrl);
+                    logUser.log(`Redirecting user with an active session to ${url}`);
+                    window.location.href = url;
+                } else {
+                    // if we have no authenticated user, try the token flow that will either
+                    // - authenticate and redirect the user to the target url
+                    // - or fail and redirect the user to the login page with a prompt
+                    logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
+                    const queryString = returnUrl ? `?${new URLSearchParams({ returnUrl })}` : '';
+                    window.location.href = `api/auth/token/login${queryString}`;
+                }
+            }
+        })();
+    });
 </script>
 
 <CenteredLayout padding={0}>
-    <svelte:boundary>
+    <svelte:boundary
+        onerror={() => {
+            isError = true;
+        }}
+    >
         {#snippet pending()}
-            {#if backgroundUrls.current}
+            {console.log('pending', Date.now())}
+            {#if backgroundUrls.ready}
                 <Overlay src={Object.values(backgroundUrls.current)} opacity={0.25} />
             {/if}
-            <LoadingCard />
         {/snippet}
 
         {#snippet failed(error, reset)}
@@ -102,8 +133,9 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await currentUser.refresh();
-                            await providers.refresh();
+                            await queryCurrentUserInfo().refresh();
+                            await queryExternalLoginProviders().refresh();
+                            isError = false;
                             reset();
                         }}
                     >
@@ -113,6 +145,7 @@
             </ErrorCard>
         {/snippet}
 
+        {console.log('core', Date.now())}
         <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
         {#if !showLoading}
             <MovingBlob
@@ -141,7 +174,7 @@
                         {extraInfo.shortHint}
                     </Typography>
                     <Stack spacing={0} class="w-full min-h-0 p-2 grow max-h-fit">
-                        {@const user = await currentUser}
+                        {@const user = await queryCurrentUserInfo()}
                         {#if user.authenticated}
                             <Stack class="shrink">
                                 <Button wide color="secondary" size="lg">
@@ -159,11 +192,11 @@
                             containerClass="w-full flex-1"
                             contentClass="flex flex-col gap-2"
                         >
-                            {#each await providers as provider (provider)}
+                            {#each await queryExternalLoginProviders() as provider (provider)}
                                 <form method="GET" action="/api/auth/{provider}/login">
                                     <input type="hidden" name="rememberMe" value={rememberMe} />
                                     <input type="hidden" name="captcha" value={captcha} />
-                                    <input type="hidden" name="redirectUrl" value={await returnUrl()} />
+                                    <input type="hidden" name="redirectUrl" value={returnUrl} />
 
                                     <Button wide color="secondary" type="submit">
                                         {@const ProviderIcon = allBrands[provider]}
@@ -193,7 +226,7 @@
                 >
                     <form method="GET" action="/api/auth/guest/login">
                         <input type="hidden" name="captcha" value={captcha} />
-                        <input type="hidden" name="redirectUrl" value={await returnUrl()} />
+                        <input type="hidden" name="redirectUrl" value={returnUrl} />
                         <Button type="submit">Continue as Guest</Button>
                     </form>
                 </div>
@@ -201,8 +234,12 @@
         </Stack>
     </svelte:boundary>
 
+    {console.log('dialog', Date.now())}
     <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
         <LoadingCard variant="ghost" label="Waiting server" />
-        <Turnstile siteKey={config.turnstile.siteKey} size="normal" theme={theme.current} bind:token={captcha} />
+        {#if prompt}
+            <!-- Show captcha only for interactive login -->
+            <Turnstile siteKey={config.turnstile.siteKey} size="normal" theme={theme.current} bind:token={captcha} />
+        {/if}
     </Dialog>
 </CenteredLayout>
