@@ -277,6 +277,46 @@ Color helper:
     .table-lg > tfoot > tr > :where(th, td) {
         @apply px-4 py-3;
     }
+
+    /* Scroll shadow - used by the scrollShadow attachment 
+    --ss-clr: shadow color
+    --ss-size: shadow size
+    --ss-top: scroll container's top relative to the element
+    --ss-left: scroll container's left relative to the element
+    --ss-w: scroll container's width
+    --ss-h: scroll container's height    
+    --ss-i-t: top shadow intensity
+    --ss-i-l: left shadow intensity
+    --ss-i-b: bottom shadow intensity
+    --ss-i-r: right shadow intensity
+    */
+    [data-scroll-shadow]::after {
+        content: '';
+        position: absolute;
+        top: var(--ss-top);
+        left: var(--ss-left);
+        width: var(--ss-w);
+        height: var(--ss-h);
+        pointer-events: none;
+
+        background:
+            radial-gradient(farthest-side at 50% 0, rgba(from var(--ss-clr) r g b / var(--ss-i-t)), rgba(0, 0, 0, 0))
+                100% 0,
+            radial-gradient(farthest-side at 0 50%, rgba(from var(--ss-clr) r g b / var(--ss-i-l)), rgba(0, 0, 0, 0)) 0%
+                50%,
+            radial-gradient(farthest-side at 100% 50%, rgba(from var(--ss-clr) r g b / var(--ss-i-r)), rgba(0, 0, 0, 0))
+                100% 50%,
+            radial-gradient(farthest-side at 50% 100%, rgba(from var(--ss-clr) r g b / var(--ss-i-b)), rgba(0, 0, 0, 0))
+                50% 100%;
+
+        background-repeat: no-repeat;
+        background-size:
+            100% var(--ss-size),
+            var(--ss-size) 100%,
+            var(--ss-size) 100%,
+            100% var(--ss-size);
+        background-attachment: scroll, scroll, scroll, scroll;
+    }
 }
 
 :focus,

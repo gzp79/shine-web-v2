@@ -196,7 +196,13 @@
                         </div>
                     {/if}
 
-                    <ContainerContent data-slot="card-content" {padding} {scrollShadow} overflow="y" class={contentClass}>
+                    <ContainerContent
+                        data-slot="card-content"
+                        {padding}
+                        {scrollShadow}
+                        overflow="y"
+                        class={contentClass}
+                    >
                         {@render children?.()}
                     </ContainerContent>
 
