@@ -25,6 +25,7 @@
         margin = undefined,
         padding = 4,
         overflow = 'xy',
+        scrollShadow = false,
 
         containerClass = undefined,
         contentClass = undefined,
@@ -36,7 +37,7 @@
 </script>
 
 <ContainerRoot data-slot="box" {color} {border} {shadow} {ghost} {width} {margin} class={containerClass}>
-    <ContainerContent data-slot="box-content" {padding} {overflow} class={contentClass} {...contentRest}>
+    <ContainerContent data-slot="box-content" {padding} {overflow} {scrollShadow} class={contentClass} {...contentRest}>
         {@render children()}
     </ContainerContent>
 </ContainerRoot>

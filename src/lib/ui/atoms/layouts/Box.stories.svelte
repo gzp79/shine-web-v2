@@ -7,6 +7,7 @@
     import { layoutWidthList } from '@lib/ui/atoms/layouts';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { Alert } from '../data/alert';
 
     const { Story } = defineMeta({
         component: Box,
@@ -165,6 +166,44 @@
                 <Typography>Hidden Overflow</Typography>
                 <Typography variant="text" class="min-w-96">{lorem.long}</Typography>
             </Box>
+        </Stack>
+    {/snippet}
+</Story>
+
+<Story name="Overflow With Shadow">
+    {#snippet template(args)}
+        {@const { children, overflow, scrollShadow, ...otherArgs } = args}
+        <Stack direction="row" wrap alignment="center">
+            <Box {...otherArgs} border overflow="y" scrollShadow containerClass="max-h-32 max-w-64">
+                <Typography>Vertical Scroll (y)</Typography>
+                <Typography variant="text" class="min-w-96">{lorem.long}</Typography>
+            </Box>
+            <Box {...otherArgs} border overflow="x" scrollShadow containerClass="max-h-32 max-w-64">
+                <Typography>Horizontal Scroll (x)</Typography>
+                <Typography variant="text" class="min-w-96">{lorem.long}</Typography>
+            </Box>
+            <div class="flex flex-col items-center">
+                <Alert variant="warning">
+                    Overflow XY may have shadow issues on the scroller side in chromium-based browsers.
+                </Alert>
+                <Box {...otherArgs} border overflow="xy" scrollShadow containerClass="max-h-32 max-w-64">
+                    <Typography>Auto Overflow (xy)</Typography>
+                    <Typography variant="text" class="min-w-96">{lorem.long}</Typography>
+                </Box>
+            </div>
+            <Box {...otherArgs} border overflow="hidden" scrollShadow containerClass="max-h-32 max-w-64">
+                <Typography>Hidden Overflow</Typography>
+                <Typography variant="text" class="min-w-96">{lorem.long}</Typography>
+            </Box>
+            <div
+                class="bg-center bg-cover w-92 h-92 flex items-center justify-center"
+                style="background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1200&q=80');"
+            >
+                <Box {...otherArgs} border ghost overflow="y" scrollShadow contentClass="max-h-32 max-w-64">
+                    <Typography>Horizontal Scroll (x) With Ghost</Typography>
+                    <Typography variant="text" class="min-w-96">{lorem.long}</Typography>
+                </Box>
+            </div>
         </Stack>
     {/snippet}
 </Story>

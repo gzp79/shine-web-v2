@@ -189,6 +189,7 @@
                         <Box
                             border={false}
                             ghost={true}
+                            scrollShadow
                             containerClass="w-full flex-1"
                             contentClass="flex flex-col gap-2"
                         >

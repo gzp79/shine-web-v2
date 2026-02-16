@@ -20,13 +20,11 @@
             errorType === 'auth-error' ||
             errorType === 'auth-session-expired'
         ) {
-            const searchParams = new URLSearchParams({ prompt: 'true' });
-            if (errorType !== 'auth-login-required') {
-                searchParams.append('hint', 'login-expired');
-            }
-            if (returnUrl) {
-                searchParams.append('target', returnUrl);
-            }
+            const searchParams = new URLSearchParams({
+                prompt: 'true',
+                ...(errorType === 'auth-login-required' ? { hint: 'login' } : { hint: 'login-expired' }),
+                ...(returnUrl ? { target: returnUrl } : {})
+            });
             return resolve('/login') + `?${searchParams}`;
         } else if (errorType === 'auth-email-login') {
             return resolve('/public/email-login');

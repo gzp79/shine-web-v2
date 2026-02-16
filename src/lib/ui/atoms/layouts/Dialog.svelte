@@ -25,7 +25,7 @@
         Pick<DialogPrimitive.PortalProps, 'to'> &
         Pick<DialogPrimitive.ContentProps, 'escapeKeydownBehavior' | 'interactOutsideBehavior' | 'onOpenAutoFocus'> &
         Pick<ContainerRootProps, 'color' | 'shadow' | 'width'> &
-        Pick<ContainerContentProps, 'padding'> & {
+        Pick<ContainerContentProps, 'padding' | 'scrollShadow'> & {
             role?: AriaRole;
             trigger?: string | WrappedComponent | WrappedSnippet | Snippet<[{ class: string }]>;
             triggerStyle?: ButtonStyleConfig;
@@ -56,6 +56,7 @@
         shadow = true,
         width = 'fit',
         padding = 2,
+        scrollShadow = false,
 
         trigger,
         triggerStyle,
@@ -195,7 +196,7 @@
                         </div>
                     {/if}
 
-                    <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>
+                    <ContainerContent data-slot="card-content" {padding} {scrollShadow} overflow="y" class={contentClass}>
                         {@render children?.()}
                     </ContainerContent>
 

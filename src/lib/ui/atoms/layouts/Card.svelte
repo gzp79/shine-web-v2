@@ -30,6 +30,7 @@
         width = 'fit',
         margin = undefined,
         padding = 2,
+        scrollShadow = false,
         icon = undefined,
         iconClass = undefined,
         title = undefined,
@@ -92,7 +93,7 @@
                 {/if}
             {/if}
 
-            <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>
+            <ContainerContent data-slot="card-content" {padding} {scrollShadow} overflow="y" class={contentClass}>
                 {@render children()}
             </ContainerContent>
 
