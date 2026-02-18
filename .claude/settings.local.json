@@ -6,5 +6,7 @@
             "mcp__svelte__get-documentation",
             "WebFetch(domain:github.com)"
         ]
-    }
+    },
+    "enabledMcpjsonServers": ["svelte"],
+    "enableAllProjectMcpServers": true
 }

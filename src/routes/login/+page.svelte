@@ -1,15 +1,8 @@
 <script module lang="ts">
-    export type HintInfo = {
-        longHint?: string;
-        shortHint?: string;
-        allowGuest: boolean;
-    };
-</script>
-
-<script lang="ts">
     import { page } from '$app/state';
     import { config } from '@config';
     import { queryCurrentUserInfo } from '@lib/account/account.remote';
+    import type { ErrorType, Hint, HintInfo } from '@lib/account/auth';
     import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/login.remote';
     import { queryAssetUrls } from '@lib/assets/assets.remote';
     import { t } from '@lib/i18n/i18n.svelte';
@@ -30,40 +23,56 @@
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
     import { async, createAppError, pascalCase } from '@lib/utils';
     import MovingBlob from './MovingBlob.svelte';
+</script>
 
+<script lang="ts">
     let theme = getThemeContext();
 
     const prompt = $derived(!!page.url.searchParams.get('prompt'));
     const returnUrl = $derived(page.url.searchParams.get('returnUrl') ?? undefined);
 
     const extraInfo: HintInfo = $derived.by(() => {
-        let hint = page.url.searchParams.get('hint') || '';
-        switch (hint) {
-            case 'login-expired':
-                return {
-                    longHint: $t('login.info.loginExpired'),
-                    shortHint: $t('login.info.loginExpiredShort'),
-                    allowGuest: true
-                };
-            case 'email-confirm':
-                return {
-                    longHint: $t('login.info.emailConfirm'),
-                    shortHint: $t('login.info.emailConfirmShort'),
-                    allowGuest: false
-                };
-            case 'email-change':
-                return {
-                    longHint: $t('login.info.emailChange'),
-                    shortHint: $t('login.info.emailChangeShort'),
-                    allowGuest: false
-                };
-            default:
-                return {
-                    longHint: 'Sign in to your account',
-                    shortHint: 'Sign in',
-                    allowGuest: true
-                };
+        let hint = page.url.searchParams.get('hint');
+        let errorType = page.url.searchParams.get('errorType');
+
+        if (hint) {
+            switch (hint as Hint) {
+                case 'login-expired':
+                    return {
+                        longHint: $t('login.info.loginExpired'),
+                        shortHint: $t('login.info.loginExpiredShort'),
+                        allowGuest: true
+                    };
+                case 'email-confirm':
+                    return {
+                        longHint: $t('login.info.emailConfirm'),
+                        shortHint: $t('login.info.emailConfirmShort'),
+                        allowGuest: false
+                    };
+                case 'email-change':
+                    return {
+                        longHint: $t('login.info.emailChange'),
+                        shortHint: $t('login.info.emailChangeShort'),
+                        allowGuest: false
+                    };
+            }
         }
+        if (errorType) {
+            switch (errorType as ErrorType) {
+                case 'auth-login-required':
+                    return {
+                        longHint: 'Sign in to your account',
+                        shortHint: 'Sign in',
+                        allowGuest: true
+                    };
+            }
+        }
+
+        return {
+            longHint: 'Sign in to your account',
+            shortHint: 'Sign in',
+            allowGuest: true
+        };
     });
 
     //const currentUser = $derived(queryCurrentUserInfo());
@@ -124,7 +133,6 @@
         }}
     >
         {#snippet pending()}
-            {console.log('pending', Date.now())}
             {#if backgroundUrls.ready}
                 <Overlay src={Object.values(backgroundUrls.current)} opacity={0.25} />
             {/if}
@@ -147,7 +155,6 @@
             </ErrorCard>
         {/snippet}
 
-        {console.log('core', Date.now())}
         <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
         {#if !showLoading}
             <MovingBlob
@@ -259,7 +266,6 @@
         </Stack>
     </svelte:boundary>
 
-    {console.log('dialog', Date.now())}
     <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
         <LoadingCard variant="ghost" label="Waiting server" />
         {#if prompt}

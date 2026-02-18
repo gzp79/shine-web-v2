@@ -1,6 +1,13 @@
-import { error } from '@sveltejs/kit';
+import { resolve } from '$app/paths';
+import { redirect } from '@sveltejs/kit';
+import { logAPI } from '@lib/loggers';
 import { authUrl } from '@lib/server/api/auth';
-import { getPassThroughHeaders, sanitizedReturnUrl } from '@lib/server/utils';
+import {
+    filterIncompatibleHeaders,
+    getPassThroughHeaders,
+    sanitizedReturnUrl,
+    validateProxyResponse
+} from '@lib/server/utils';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
@@ -15,20 +22,25 @@ export const GET: RequestHandler = async ({ url, fetch }) => {
     const identityUrl = authUrl.tokenLoginUrl({ redirectUrl, errorUrl });
     const headers = getPassThroughHeaders();
 
+    let response;
     try {
-        const response = await fetch(identityUrl, {
+        logAPI.log('Proxying token login request to identity server:', identityUrl);
+        response = await fetch(identityUrl, {
             method: 'GET',
             headers,
             redirect: 'manual'
         });
-
-        return new Response(response.body, {
-            status: response.status,
-            statusText: response.statusText,
-            headers: response.headers
-        });
     } catch (err) {
-        console.error('Token auth proxy error:', err);
-        throw error(502, 'Failed to connect to identity server');
+        logAPI.error('Token auth proxy error:', err);
+        throw redirect(302, resolve('/error') + '?errorType=server-down');
     }
+
+    validateProxyResponse(response);
+
+    logAPI.log(`Received response from identity server: ${response.status} ${response.statusText}`);
+    return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: filterIncompatibleHeaders(response.headers)
+    });
 };
