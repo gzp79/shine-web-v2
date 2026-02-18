@@ -21,7 +21,7 @@
     data-lang={locale}
     data-theme={theme}
     data-slot="app"
-    class="relative flex min-h-full min-w-full flex-col overflow-hidden bg-surface text-on-surface"
+    class="relative flex flex-col min-w-full min-h-full overflow-hidden bg-surface text-on-surface"
 >
     <AppMenu />
     {@render children()}

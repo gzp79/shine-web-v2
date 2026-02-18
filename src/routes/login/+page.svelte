@@ -21,13 +21,14 @@
     import Logo from '@lib/ui/atoms/glyphs/Logo.svelte';
     import allBrands from '@lib/ui/atoms/glyphs/brands/all';
     import Button from '@lib/ui/atoms/input/Button.svelte';
+    import Switch from '@lib/ui/atoms/input/Switch.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
-    import { async, createAppError } from '@lib/utils';
+    import { async, createAppError, pascalCase } from '@lib/utils';
     import MovingBlob from './MovingBlob.svelte';
 
     let theme = getThemeContext();
@@ -70,6 +71,7 @@
     const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
     const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
 
+    let isLogin = $state(false);
     let isRedirecting = $state(false);
     let isError = $state(false);
     let captcha = $state('');
@@ -156,10 +158,10 @@
         {/if}
 
         <Stack spacing={0} class="relative w-full h-full p-2">
-            <Logo class="justify-center h-[20%] w-auto flex items-center fill-on-container p-4" />
+            <Logo class="justify-center h-[20%] w-auto flex items-center fill-on-container p-2 pb-0" />
 
             <Stack direction={{ xs: 'column', lg: 'row' }} spacing={1} class="h-[80%]">
-                <div class="hidden p-8 lg:flex lg:flex-4">
+                <div class="items-center justify-center hidden p-8 max-h-[min(100%,40rem)] lg:flex lg:flex-4">
                     <Typography variant="h4" element="h1">
                         {extraInfo.longHint}
                     </Typography>
@@ -168,7 +170,7 @@
                 <Stack
                     spacing={0}
                     justification="evenly"
-                    class="h-[80%] w-fit mx-auto p-2 lg:h-full lg:w-auto lg:mx-0 lg:flex-2 lg:max-w-92 max-h-[min(100%,60vh)]"
+                    class="h-[80%] w-fit mx-auto px-2 lg:h-full lg:w-auto lg:mx-0 lg:flex-3 lg:max-w-92 max-h-[min(100%,40rem)]"
                 >
                     <Typography variant="h4" element="h1" class="flex justify-center flex-1 p-2 min-h-fit lg:hidden">
                         {extraInfo.shortHint}
@@ -176,59 +178,81 @@
                     <Stack spacing={0} class="w-full min-h-0 p-2 grow max-h-fit">
                         {@const user = await queryCurrentUserInfo()}
                         {#if user.authenticated}
-                            <Stack class="shrink">
-                                <Button wide color="secondary" size="lg">
-                                    <allBrands.user />
+                            <Stack class="shrink" spacing={4}>
+                                <Button
+                                    wide
+                                    color="secondary"
+                                    size="lg"
+                                    disabled={isLogin}
+                                    class="drop-shadow-on-secondary drop-shadow-md"
+                                >
+                                    <allBrands.user size="sm" />
                                     Continue as {user.name}
                                 </Button>
-                                <Typography variant="text" class="text-center shrink-0"
-                                    >Not you? Switch account</Typography
-                                >
+                                <div
+                                    class="relative w-full h-0.5 bg-linear-to-r from-transparent via-on-container to-transparent lg:w-[160%] lg:left-[-10%]"
+                                ></div>
+                                <Typography variant="text" class="text-center shrink-0">
+                                    Not you? Switch account
+                                </Typography>
                             </Stack>
                         {/if}
                         <Box
                             border={false}
                             ghost={true}
                             scrollShadow
-                            containerClass="w-full flex-1"
+                            containerClass="w-full flex-1 px-4"
                             contentClass="flex flex-col gap-2"
                         >
                             {#each await queryExternalLoginProviders() as provider (provider)}
-                                <form method="GET" action="/api/auth/{provider}/login">
+                                <form
+                                    method="GET"
+                                    action="/api/auth/{provider}/login"
+                                    onsubmit={() => (isLogin = true)}
+                                >
                                     <input type="hidden" name="rememberMe" value={rememberMe} />
                                     <input type="hidden" name="captcha" value={captcha} />
                                     <input type="hidden" name="redirectUrl" value={returnUrl} />
 
-                                    <Button wide color="secondary" type="submit">
+                                    <Button wide color="primary" type="submit" disabled={isLogin}>
                                         {@const ProviderIcon = allBrands[provider]}
                                         {#if ProviderIcon}
                                             <ProviderIcon size="sm" />
                                         {/if}
-                                        {provider}
+                                        {pascalCase(provider)}
                                     </Button>
                                 </form>
                             {/each}
+                            <Button wide color="primary" type="submit" disabled={isLogin}>
+                                {@const ProviderIcon = allBrands['email']}
+                                {#if ProviderIcon}
+                                    <ProviderIcon size="sm" />
+                                {/if}
+                                Email
+                            </Button>
                         </Box>
-                        <Typography variant="h5" element="h1" class="flex justify-start p-4 shrink">
-                            Remember me
-                        </Typography>
+                        <Stack direction="row" alignment="center" justification="start" class="px-8 py-2 shrink">
+                            <Switch bind:checked={rememberMe} id="rememberMe" />
+                            <Typography variant="h5" element="label" for="rememberMe">Remember me</Typography>
+                        </Stack>
                     </Stack>
                 </Stack>
 
-                <div class="hidden w-px bg-gray-300 lg:block"></div>
-
-                <hr class="lg:hidden" />
-
-                <div class="w-px bg-[white] hidden lg:block"></div>
+                <div
+                    class="block w-full h-0.5 bg-linear-to-r from-transparent via-on-container to-transparent lg:hidden"
+                ></div>
+                <div
+                    class="hidden relative top-[-10%] w-0.5 h-[110%] bg-linear-to-b from-transparent via-on-container to-transparent lg:block"
+                ></div>
 
                 <div
                     bind:this={guestAreaRef}
-                    class="flex items-center justify-center flex-1 p-3 min-h-fit lg:px-2 backdrop-saturate-90"
+                    class="flex items-center justify-center p-3 flex-2 lg:max-w-96 min-h-fit lg:px-2 backdrop-saturate-90"
                 >
-                    <form method="GET" action="/api/auth/guest/login">
+                    <form method="GET" action="/api/auth/guest/login" onsubmit={() => (isLogin = true)}>
                         <input type="hidden" name="captcha" value={captcha} />
                         <input type="hidden" name="redirectUrl" value={returnUrl} />
-                        <Button type="submit">Continue as Guest</Button>
+                        <Button wide color="primary" type="submit" disabled={isLogin}>Continue as Guest</Button>
                     </form>
                 </div>
             </Stack>

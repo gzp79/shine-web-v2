@@ -24,7 +24,7 @@
         width = 'fit',
         margin = undefined,
         padding = 4,
-        overflow = 'xy',
+        overflow = 'y',
         scrollShadow = false,
 
         containerClass = undefined,

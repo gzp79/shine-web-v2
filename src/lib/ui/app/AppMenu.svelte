@@ -6,6 +6,7 @@
     import { createContext } from '@lib/ui/utils';
     import Hamburger from '../atoms/icons/common/Hamburger.svelte';
     import { fromComponent } from '../utils';
+    import FullscreenMenu from './FullscreenMenu.svelte';
 
     export type MenuSection = 'global' | 'context' | 'user';
 
@@ -99,9 +100,12 @@
     trigger={fromComponent(Hamburger)}
     triggerStyle={{ class: 'absolute right-0 top-0 z-10 gap-0 h-8 w-8 p-0 m-4 rounded-sm' }}
     to="#popover"
+    side="left"
     {collisionPadding}
 >
     <!-- Setting section -->
+
+    <FullscreenMenu />
     <ThemeMenu expandIcon="left" />
     <LanguageMenu expandIcon="left" />
     {#each globalItems as item (item.id)}

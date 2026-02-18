@@ -81,7 +81,7 @@
             alignment={{ xs: 'center', sm: 'start' }}
             justification="center"
             spacing={2}
-            class="min-w-0 flex-1 overflow-clip"
+            class="flex-1 min-w-0 overflow-clip"
         >
             {#if title}
                 {#if typeof title === 'string'}
