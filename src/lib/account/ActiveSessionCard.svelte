@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -7,7 +7,7 @@
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type QueryLike, createAppError } from '@lib/utils';
     import ActiveSessionItem from './ActiveSessionItem.svelte';
-    import type { ActiveSession } from './account.remote';
+    import type { ActiveSession } from './auth.remote';
 
     export type ActiveSessionCardProps = {
         sessions: QueryLike<ActiveSession[]>;
@@ -17,12 +17,14 @@
 <script lang="ts">
     let { sessions }: ActiveSessionCardProps = $props();
 
+    const locale = getLocaleContext();
+
     const refreshSessions = async () => {
         await sessions.refresh();
     };
 </script>
 
-<Card width="md" title={$t('account.activeSessions.title')}>
+<Card width="md" title={locale.t('account.activeSessionsTitle')}>
     <svelte:boundary>
         {#snippet pending()}
             <Stack class="items-center">
@@ -39,7 +41,7 @@
                             reset();
                         }}
                     >
-                        {$t('common.retry')}
+                        {locale.t('common.retry')}
                     </Button>
                 {/snippet}
             </ErrorCard>

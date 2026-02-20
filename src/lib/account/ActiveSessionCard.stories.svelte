@@ -7,7 +7,7 @@
     import { v4 as uuid } from 'uuid';
     import { createOtherError, randomString } from '@lib/utils';
     import ActiveSessionCard from './ActiveSessionCard.svelte';
-    import { type ActiveSession } from './account.remote';
+    import { type ActiveSession } from './auth.remote';
 
     const { Story } = defineMeta({
         component: ActiveSessionCard,

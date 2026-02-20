@@ -47,12 +47,12 @@ function applyConfigToLoglevel(confStr: string | null | undefined) {
     //console.log('Applying log config', cfg);
 
     if (cfg.global) {
-        log.setLevel(cfg.global);
+        log.setLevel(cfg.global, false);
     }
     for (const tag of Object.keys(cfg.perTag)) {
         const lvl = cfg.perTag[tag];
         const logger = log.getLogger(tag);
-        logger.setLevel(lvl);
+        logger.setLevel(lvl, false);
     }
 }
 
@@ -76,7 +76,7 @@ if (typeof window !== 'undefined') {
 
 function createLogger(namespace: string) {
     const logger = log.getLogger(namespace);
-    logger.setLevel(log.getLevel());
+    logger.setLevel(log.getLevel(), false);
     return {
         trace: (...args: unknown[]) => logger.trace(`[${namespace}]`, ...args),
         log: (...args: unknown[]) => logger.debug(`[${namespace}]`, ...args),
@@ -89,6 +89,7 @@ function createLogger(namespace: string) {
 export const logAPI = createLogger('api');
 export const logUser = createLogger('user');
 export const logI18n = createLogger('i18n');
+export const logTheme = createLogger('theme');
 
 // Apply initial config on module load
 applyConfigToLoglevel(readConfig());

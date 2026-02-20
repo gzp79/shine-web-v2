@@ -1,13 +1,13 @@
 <script module lang="ts">
     import { page } from '$app/state';
     import { config } from '@config';
-    import { queryCurrentUserInfo } from '@lib/account/account.remote';
     import type { ErrorType, Hint, HintInfo } from '@lib/account/auth';
-    import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/login.remote';
+    import { queryCurrentUserInfo } from '@lib/account/auth.remote';
+    import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/auth.remote';
     import { queryAssetUrls } from '@lib/assets/assets.remote';
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
-    import { getThemeContext } from '@lib/theme/theme.svelte';
+    import { getThemeContext } from '@lib/theme/_theme.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Overlay from '@lib/ui/atoms/Overlay.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
@@ -27,6 +27,7 @@
 
 <script lang="ts">
     let theme = getThemeContext();
+    let locale = getLocaleContext();
 
     const prompt = $derived(!!page.url.searchParams.get('prompt'));
     const returnUrl = $derived(page.url.searchParams.get('returnUrl') ?? undefined);
@@ -39,20 +40,20 @@
             switch (hint as Hint) {
                 case 'login-expired':
                     return {
-                        longHint: $t('login.info.loginExpired'),
-                        shortHint: $t('login.info.loginExpiredShort'),
+                        longHint: locale.t('login.infoLoginExpired'),
+                        shortHint: locale.t('login.infoLoginExpiredShort'),
                         allowGuest: true
                     };
                 case 'email-confirm':
                     return {
-                        longHint: $t('login.info.emailConfirm'),
-                        shortHint: $t('login.info.emailConfirmShort'),
+                        longHint: locale.t('login.infoEmailConfirm'),
+                        shortHint: locale.t('login.infoEmailConfirmShort'),
                         allowGuest: false
                     };
                 case 'email-change':
                     return {
-                        longHint: $t('login.info.emailChange'),
-                        shortHint: $t('login.info.emailChangeShort'),
+                        longHint: locale.t('login.infoEmailChange'),
+                        shortHint: locale.t('login.infoEmailChangeShort'),
                         allowGuest: false
                     };
             }
@@ -139,7 +140,7 @@
         {/snippet}
 
         {#snippet failed(error, reset)}
-            <ErrorCard error={createAppError(error)} width="full">
+            <ErrorCard error={createAppError(error)}>
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
@@ -149,7 +150,7 @@
                             reset();
                         }}
                     >
-                        {$t('common.retry')}
+                        {locale.t('common.retry')}
                     </Button>
                 {/snippet}
             </ErrorCard>

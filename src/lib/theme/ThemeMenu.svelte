@@ -1,6 +1,6 @@
 <script module lang="ts">
-    import { t } from '@lib/i18n/i18n.svelte';
-    import { getThemeContext, themeList } from '@lib/theme/theme.svelte';
+    import { getLocaleContext } from '@lib/i18n';
+    import { getThemeContext, themeList } from '@lib/theme/_theme.svelte';
     import {
         DropdownRadioGroup,
         DropdownRadioItem,
@@ -19,7 +19,8 @@
 <script lang="ts">
     let { expandIcon = 'right' }: ThemeMenuProps = $props();
 
-    let theme = getThemeContext();
+    const theme = getThemeContext();
+    const locale = getLocaleContext();
 
     const themeIcons = {
         dark: DarkIcon,
@@ -33,7 +34,7 @@
 {#snippet subTrigger()}
     {@const Icon = currentTheme}
     <Icon />
-    {$t('common.theme.name')}
+    {locale.t('common.themeName')}
 {/snippet}
 
 <DropdownSubMenu {expandIcon} trigger={subTrigger}>
@@ -42,7 +43,7 @@
             {@const Icon = themeIcons[themeOption]}
             <DropdownRadioItem value={themeOption} closeOnSelect={false}>
                 <Icon />
-                {$t(`common.theme.${themeOption}`)}
+                {locale.t(`theme.${themeOption}`)}
             </DropdownRadioItem>
         {/each}
     </DropdownRadioGroup>

@@ -1,3 +1,8 @@
+---
+name: components
+description: Reference for Svelte component APIs in this project. Use when writing or modifying UI components (Stack, Box, Card, Button, Input, Typography, etc.). Shows correct prop usage and common patterns.
+---
+
 # UI Component Reference
 
 ## Layout Components

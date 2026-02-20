@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import type { Size } from '@lib/ui/atoms';
     import Typography, { type Variant } from '@lib/ui/atoms/Typography.svelte';
     import Dots from '@lib/ui/atoms/icons/animated/Dots.svelte';
@@ -24,11 +24,13 @@
     };
 
     let { size = 'md', label, variant = 'default' }: LoadingProps = $props();
+
+    const locale = getLocaleContext();
 </script>
 
 <Box role="status" aria-live="polite" width="fit" border={variant !== 'ghost'} ghost={variant === 'ghost'}>
     <Typography variant={textVariant[size]} element="p">
-        {label ?? $t('common.loading')}
+        {label ?? locale.t('common.loading')}
         <Dots />
     </Typography>
 </Box>

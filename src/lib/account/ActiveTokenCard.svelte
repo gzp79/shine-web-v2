@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
@@ -7,7 +7,7 @@
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type AppError, type QueryLike, createAppError } from '@lib/utils';
     import ActiveTokenItem from './ActiveTokenItem.svelte';
-    import type { ActiveToken } from './account.remote';
+    import type { ActiveToken } from './auth.remote';
 
     export type ActiveTokenCardProps = {
         tokens: QueryLike<ActiveToken[]>;
@@ -17,6 +17,8 @@
 
 <script lang="ts">
     let { tokens, revoke }: ActiveTokenCardProps = $props();
+
+    const locale = getLocaleContext();
 
     let revokeError = $state<AppError | undefined>(undefined);
 
@@ -37,7 +39,7 @@
     };
 </script>
 
-<Card width="md" title={$t('account.activeTokens.title')}>
+<Card width="md" title={locale.t('account.activeTokensTitle')}>
     <svelte:boundary>
         {#snippet pending()}
             <Stack class="items-center">
@@ -54,7 +56,7 @@
                             reset();
                         }}
                     >
-                        {$t('common.retry')}
+                        {locale.t('common.retry')}
                     </Button>
                 {/snippet}
             </ErrorCard>

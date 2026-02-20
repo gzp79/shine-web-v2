@@ -8,7 +8,7 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import { createOtherError } from '@lib/utils';
     import UserInfoCard from './UserInfoCard.svelte';
-    import type { CurrentUser } from './currentUser.svelte';
+    import type { CurrentUser } from './currentUserStore.svelte';
 
     const { Story } = defineMeta({
         component: UserInfoCard,

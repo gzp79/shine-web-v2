@@ -2,10 +2,46 @@ import { command, query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { CurrentUserSchema, authUrl } from '@lib/server/api/auth';
-import { getPassThroughHeaders } from '@lib/server/utils';
+import { CurrentUserSchema, ProviderSchema, authUrl } from '@lib/server/api/auth';
+import { getPassThroughHeaders, sanitizedReturnUrl } from '@lib/server/utils';
 import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
-import type { CurrentUser } from './currentUser.svelte';
+import type { CurrentUser } from './currentUserStore.svelte';
+
+export const queryExternalLoginProviders = query(async (): Promise<string[]> => {
+    logAPI.log('getExternalLoginProviders...');
+    const url = authUrl.providers();
+    const headers = getPassThroughHeaders();
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    return await retryWithBackoff(async (retry) => {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers
+        });
+
+        if (!response.ok) {
+            const err = await createFetchError(response, 'Failed to get external login providers');
+            logAPI.error(`getExternalLoginProviders failed, retry ${retry.current}/${retry.limit}`, err);
+            if (response.status >= 500) {
+                return retry(err);
+            } else {
+                throw err;
+            }
+        }
+
+        const tokens = await parseResponse(ProviderSchema, response);
+        logAPI.log('getExternalLoginProviders completed,', tokens);
+        return tokens.providers;
+    });
+});
+
+export const querySanitizedReturnUrl = query(
+    z.string().optional().nullable(),
+    async (rawUrl: string | null | undefined): Promise<string> => {
+        return sanitizedReturnUrl(rawUrl);
+    }
+);
 
 export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
     logAPI.log('getCurrentUser...');

@@ -1,6 +1,6 @@
 <script module lang="ts">
-    import { logoutAllUrl, logoutUrl } from '@lib/account/account';
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { resolve } from '$app/paths';
+    import { getLocaleContext } from '@lib/i18n';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import { Alert } from '@lib/ui/atoms/data/alert';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -10,7 +10,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type QueryLike, createAppError } from '@lib/utils';
-    import type { AuthenticatedCurrentUser, CurrentUser } from './currentUser.svelte';
+    import type { AuthenticatedCurrentUser, CurrentUser } from './currentUserStore.svelte';
 
     export type UserInfoCardProps = {
         userInfo: QueryLike<CurrentUser>;
@@ -19,6 +19,8 @@
 
 <script lang="ts">
     let { userInfo }: UserInfoCardProps = $props();
+
+    const locale = getLocaleContext();
 
     let hasError = $state(false);
     let hasUserInfo = $derived(!!userInfo?.current);
@@ -38,13 +40,13 @@
     <ComboButton
         disabled={!hasUserInfo}
         options={[
-            { caption: $t('account.logout'), href: logoutUrl },
-            { caption: $t('account.logoutAll'), href: logoutAllUrl }
+            { caption: locale.t('account.logout'), href: resolve('/api/auth/logout') },
+            { caption: locale.t('account.logoutAll'), href: resolve('/api/auth/logout') + '?all=true' }
         ]}
     />
 {/snippet}
 
-<Card width="md" title={$t('account.userInfo.title')} actions={hasError ? undefined : actions}>
+<Card width="md" title={locale.t('account.userInfoTitle')} actions={hasError ? undefined : actions}>
     <svelte:boundary onerror={() => (hasError = true)}>
         {#snippet pending()}
             <Stack class="items-center">
@@ -62,7 +64,7 @@
                             reset();
                         }}
                     >
-                        {$t('common.retry')}
+                        {locale.t('common.retry')}
                     </Button>
                 {/snippet}
             </ErrorCard>
@@ -72,20 +74,20 @@
         {#if user.authenticated}
             <Stack class="items-center justify-center">
                 {#if !user.isLinked}
-                    <Alert variant="warning" title={$t('account.linkWarning')} />
+                    <Alert variant="warning" title={locale.t('account.linkWarning')} />
                 {/if}
 
                 <PropertyList
                     size="xs"
                     wide
                     items={[
-                        { key: $t('account.userName'), value: user.name, valueClass: 'break-all' },
-                        { key: $t('account.userId'), value: user.id, valueClass: 'break-all' },
-                        { key: $t('account.email'), value: emailItem },
-                        // { key: $t('account.role'), value: user.roles.join(', ') },
+                        { key: locale.t('account.userName'), value: user.name, valueClass: 'break-all' },
+                        { key: locale.t('account.userId'), value: user.id, valueClass: 'break-all' },
+                        { key: locale.t('account.email'), value: emailItem },
+                        // { key: locale.t('account.role'), value: user.roles.join(', ') },
                         {
-                            key: $t('account.registrationDate'),
-                            // value: $t('common.dateTime ', { value: user.createdAt }, { date: { dateStyle: 'long' } })
+                            key: locale.t('account.registrationDate'),
+                            // value: locale.t('common.dateTime ', { value: user.createdAt }, { date: { dateStyle: 'long' } })
                             value: user.createdAt.toString()
                         }
                     ]}

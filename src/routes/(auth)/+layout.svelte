@@ -1,8 +1,8 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import { setCurrentUserStore } from '@lib/account/currentUser.svelte';
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { setCurrentUserStore } from '@lib/account/currentUserStore.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -12,7 +12,8 @@
 
     let { children } = $props();
 
-    let currentUser = setCurrentUserStore();
+    const currentUser = setCurrentUserStore();
+    const locale = getLocaleContext();
 
     $effect(() => {
         if (currentUser.loading) {
@@ -35,7 +36,7 @@
                     onclick={async () => {
                         await currentUser.refresh();
                         reset();
-                    }}>{$t('common.refresh')}</Button
+                    }}>{locale.t('common.refresh')}</Button
                 >
             </ErrorCard>
         </CenteredLayout>

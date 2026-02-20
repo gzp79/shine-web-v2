@@ -1,3 +1,8 @@
+---
+name: css
+description: Tailwind 4 configuration and semantic color system. Use when writing styles, choosing colors, or working with Tailwind utilities. Covers custom color tokens, responsive breakpoints, and when to use classes vs component props.
+---
+
 # CSS & Tailwind Guide
 
 ## Semantic Color System

@@ -56,7 +56,6 @@
 
 <script lang="ts">
     import { tick } from 'svelte';
-    import { t } from '@lib/i18n/i18n.svelte';
 
     let value = $state();
 </script>

@@ -1,4 +1,6 @@
 import type { TurnstileObject } from 'turnstile-types';
+import { type Locale, type Translator } from '@lib/i18n';
+import { type Theme } from '@lib/theme';
 
 declare global {
     interface Math {
@@ -8,7 +10,15 @@ declare global {
 
     namespace App {
         interface Locals {
-            theme: ThemeProps;
+            theme: Theme;
+            locale: Locale;
+            translator: Translator;
+        }
+
+        interface PageData {
+            theme: Theme;
+            locale: Locale;
+            translator: Translator;
         }
 
         interface Platform {
@@ -24,7 +34,6 @@ declare global {
 
     interface Window {
         turnstile?: TurnstileObject;
-        games?: string[];
     }
 }
 

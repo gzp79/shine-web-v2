@@ -1,10 +1,8 @@
 <script lang="ts">
-    import { invalidate } from '$app/navigation';
     import { type Snippet } from 'svelte';
-    import { createLocaleContext } from '@lib/i18n/i18n.svelte';
-    import { createThemeContext } from '@lib/theme/theme.svelte';
+    import { createLocaleContext } from '@lib/i18n';
+    import { createThemeContext } from '@lib/theme';
     import App from '@lib/ui/app/App.svelte';
-    import { onTabVisible } from '@lib/utils';
     import '../app.css';
 
     type Props = {
@@ -15,12 +13,6 @@
 
     const theme = createThemeContext();
     const locale = createLocaleContext();
-
-    onTabVisible((visible) => {
-        if (visible) {
-            invalidate('data:theme&locale');
-        }
-    });
 </script>
 
 <App theme={theme.current} locale={locale.current}>

@@ -8,7 +8,7 @@
     import { v4 as uuid } from 'uuid';
     import { async, createOtherError } from '@lib/utils';
     import ActiveTokenCard from './ActiveTokenCard.svelte';
-    import { type ActiveToken } from './account.remote';
+    import { type ActiveToken } from './auth.remote';
 
     const { Story } = defineMeta({
         component: ActiveTokenCard,

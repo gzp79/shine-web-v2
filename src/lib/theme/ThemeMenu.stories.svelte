@@ -4,7 +4,7 @@
     import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { tick } from 'svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
-    import { type Theme, createThemeContext, themeList } from '@lib/theme/theme.svelte';
+    import { type Theme, createThemeContext, themeList } from '@lib/theme/_theme.svelte';
     import { DropdownGroup, DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({

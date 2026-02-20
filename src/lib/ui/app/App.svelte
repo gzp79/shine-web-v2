@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { type Snippet } from 'svelte';
-    import { type Theme } from '@lib/theme/theme.svelte';
+    import { type Theme } from '@lib/theme/_theme.svelte';
     import AppMenu, { createMenuContext } from './AppMenu.svelte';
 
     export type AppProps = {

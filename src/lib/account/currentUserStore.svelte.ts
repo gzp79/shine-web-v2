@@ -2,7 +2,7 @@ import { browser } from '$app/environment';
 import type { RemoteQuery } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
 import { type AutoRefresh, type AutoRefreshOptions, type QueryLike, WrappedPromise, autoRefresh } from '@lib/utils';
-import { queryCurrentUserInfo } from './account.remote';
+import { queryCurrentUserInfo } from './auth.remote';
 
 const UPDATE_INTERVAL_MS = 15 * 60 * 1000;
 const CURRENT_USER_CONTEXT_KEY = Symbol('current-user-context');
@@ -24,8 +24,9 @@ export type CurrentUser = AuthenticatedCurrentUser | UnauthenticatedCurrentUser;
 export type CurrentUserStoreOptions = AutoRefreshOptions;
 export type CurrentUserStore = QueryLike<CurrentUser> & AutoRefresh;
 
-/// The disabled user store for server side
-class DisabledCurrentUser extends WrappedPromise<CurrentUser> implements CurrentUserStore {
+/// The user store for server side, that disables any use query and always returns unauthenticated user.
+/// This is to prevent any accidental use of user store in server side code, which may cause leaking of user information to other users.
+class ServerCurrentUserStore extends WrappedPromise<CurrentUser> implements CurrentUserStore {
     protected readonly _promise = Promise.resolve({ authenticated: false } satisfies CurrentUser);
 
     get loading(): boolean {
@@ -53,8 +54,9 @@ class DisabledCurrentUser extends WrappedPromise<CurrentUser> implements Current
     }
 }
 
-/// The current user store for browser side
-class QueryCurrentUser extends WrappedPromise<CurrentUser> implements CurrentUserStore {
+/// The user store for browser side.
+/// It will automatically refresh the user information in the background based on the provided options.
+class BrowserCurrentUserStore extends WrappedPromise<CurrentUser> implements CurrentUserStore {
     protected readonly _promise: RemoteQuery<CurrentUser>;
     private readonly _autoRefresh: AutoRefresh;
 
@@ -94,7 +96,7 @@ class QueryCurrentUser extends WrappedPromise<CurrentUser> implements CurrentUse
 }
 
 export function setCurrentUserStore(options?: CurrentUserStoreOptions): CurrentUserStore {
-    const store = browser ? new QueryCurrentUser(options) : new DisabledCurrentUser();
+    const store = browser ? new BrowserCurrentUserStore(options) : new ServerCurrentUserStore();
     setContext(CURRENT_USER_CONTEXT_KEY, store);
     return store;
 }

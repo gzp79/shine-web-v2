@@ -9,7 +9,7 @@
     import { v4 as uuid } from 'uuid';
     import { async, createOtherError } from '@lib/utils';
     import LinkedIdentityCard from './LinkedIdentityCard.svelte';
-    import { type LinkedIdentity } from './account.remote';
+    import { type LinkedIdentity } from './auth.remote';
 
     const { Story } = defineMeta({
         component: LinkedIdentityCard,

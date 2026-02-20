@@ -2,8 +2,8 @@
     import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, userEvent, waitFor, within } from 'storybook/test';
+    import { getLocaleContext, localeList } from '@lib/i18n';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
-    import { createLocaleContext, langList } from '@lib/i18n/i18n.svelte';
     import { DropdownGroup, DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
     import { waitForCookie } from '@lib/utils';
 
@@ -22,7 +22,7 @@
         hu: new RegExp('Magyar', 'i')
     };
 
-    let language = createLocaleContext();
+    const locale = getLocaleContext();
 </script>
 
 <Story
@@ -31,7 +31,7 @@
         const canvas = withinPopover();
 
         const langSubTrigger = await waitFor(async () => {
-            const langSubTrigger = await canvas.getByRole('menuitem', { name: langRegexps[language.current] });
+            const langSubTrigger = await canvas.getByRole('menuitem', { name: langRegexps[locale.current] });
             await expect(langSubTrigger).toBeVisible();
             return langSubTrigger;
         });
@@ -42,11 +42,11 @@
             await expect(optionItem).toBeVisible();
         });
 
-        for (const langOption of langList) {
+        for (const langOption of localeList) {
             const optionItem = await canvas.getByRole('menuitemradio', { name: langRegexps[langOption] });
             await userEvent.click(optionItem);
             await waitForCookie('lang', langOption);
-            await expect(language.current).toBe(langOption);
+            await expect(locale.current).toBe(langOption);
             await expect(document.documentElement.lang).toBe(langOption);
         }
 
@@ -58,7 +58,7 @@
     }}
 >
     {#snippet template(args)}
-        <DropdownMenu open={true} class="w-56" align="start" trigger={`Settings [${language.current}]`}>
+        <DropdownMenu open={true} class="w-56" align="start" trigger={`Settings [${locale.current}]`}>
             <DropdownGroup heading="Settings">
                 <DropdownItem>Profile</DropdownItem>
                 <DropdownItem>Account</DropdownItem>

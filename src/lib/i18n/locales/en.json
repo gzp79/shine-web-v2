@@ -1,0 +1,89 @@
+{
+    "hello": {
+        "world": "Hello world!"
+    },
+    "common": {
+        "retry": "Retry",
+        "loading": "Loading...",
+        "somethingWentWrong": "Something went wrong",
+        "details": "Details",
+        "refresh": "Refresh",
+        "back": "Back",
+        "close": "Close",
+        "dateTime": "{date}",
+        "welcome": "Welcome",
+        "greeting": "Hello, {name}!",
+        "themeName": "Theme"
+    },
+    "account": {
+        "logout": "Logout",
+        "logoutAll": "Logout from all devices",
+        "userInfoTitle": "User Information",
+        "linkWarning": "This account is not linked to any external identity provider",
+        "userName": "Username",
+        "userId": "User ID",
+        "email": "Email",
+        "role": "Role",
+        "registrationDate": "Registration Date",
+        "tokenHash": "Token Hash",
+        "tokenKind": "Token Type",
+        "activeStatus": "Status",
+        "expired": "Expired",
+        "active": "Active",
+        "creationDate": "Created",
+        "expirationDate": "Expires",
+        "location": "Location",
+        "revokeTokenConfirmationTitle": "Revoke Token",
+        "revokeTokenConfirmationQuestion": "Are you sure you want to revoke this token?",
+        "revokeTokenConfirmationConfirmText": "Revoke",
+        "revokeTokenConfirmationCancelText": "Cancel",
+        "revoke": "Revoke",
+        "sessionFingerprint": "Session ID",
+        "userAgent": "Device / Browser",
+        "loginDate": "Login Date",
+        "identitiesTitle": "Linked Identities",
+        "activeTokensTitle": "Active Tokens",
+        "activeSessionsTitle": "Active Sessions",
+        "provider": "Provider",
+        "providerUserId": "Provider User ID",
+        "linkDate": "Linked Date",
+        "unlink": "Unlink",
+        "unlinkConfirmationTitle": "Unlink Identity",
+        "unlinkConfirmationQuestion": "Are you sure you want to unlink this identity?",
+        "unlinkConfirmationConfirmText": "Unlink",
+        "unlinkConfirmationCancelText": "Cancel",
+        "account": "Account"
+    },
+    "login": {
+        "infoLoginExpired": "Your session has expired. Please sign in again to continue.",
+        "infoLoginExpiredShort": "Session Expired",
+        "infoEmailConfirm": "Please confirm your email address to continue.",
+        "infoEmailConfirmShort": "Confirm Email",
+        "infoEmailChange": "Your email address has been changed. Please sign in again.",
+        "infoEmailChangeShort": "Email Changed",
+        "emailModalTitle": "Check Your Email",
+        "emailWaitUser": "We've sent you a login link. Please check your email and click the link to continue."
+    },
+    "errors": {
+        "networkError": "Network Error",
+        "dataValidationError": "Data Validation Error",
+        "internalError": "Internal Error",
+        "error": "Error"
+    },
+    "error": {
+        "authRegisterExternalIdConflict": "This account is already linked to another identity provider"
+    },
+    "language": {
+        "en": "English",
+        "hu": "Hungarian"
+    },
+    "theme": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+    },
+    "app": {
+        "title": "Application Title",
+        "description": "Application Description"
+    }
+}

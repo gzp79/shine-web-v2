@@ -1,3 +1,8 @@
+---
+name: storybook
+description: Storybook 10 testing patterns with CSF format. Use when writing or debugging .stories.svelte files, play functions, interaction tests, or dealing with Storybook-specific issues.
+---
+
 # Storybook 10 Testing Guide
 
 ## Quick Start
@@ -48,7 +53,7 @@ For complex layouts, use render functions with snippets:
 
 ## Interaction Testing
 
-Use `play()` with `step()` to group related actions.:
+Use `play()` with `step()` to group related actions:
 
 ```typescript
 import { withinPopover } from '@sb/models/popover';
