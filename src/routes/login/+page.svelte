@@ -81,7 +81,7 @@
     const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
     const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
 
-    let isLogin = $state(false);
+    let isLoginSubmitted = $state(false);
     let isRedirecting = $state(false);
     let isError = $state(false);
     let captcha = $state('');
@@ -103,6 +103,8 @@
     // - Some async effect is pending (like fetching user info or login providers)
     // - Boundary is pending (awaiting content to load)
     const showLoading = $derived(!isError && (isRedirecting || waitLoading || (prompt && !captcha)));
+
+    const disableButtons = $derived(isLoginSubmitted || isRedirecting || !captcha);
 
     $effect(() => {
         (async () => {
@@ -191,7 +193,7 @@
                                     wide
                                     color="secondary"
                                     size="lg"
-                                    disabled={isLogin}
+                                    disabled={disableButtons}
                                     class="drop-shadow-on-secondary drop-shadow-md"
                                     href={await querySanitizedReturnUrl(returnUrl)}
                                 >
@@ -217,13 +219,13 @@
                                 <form
                                     method="GET"
                                     action="/api/auth/{provider}/login"
-                                    onsubmit={() => (isLogin = true)}
+                                    onsubmit={() => (isLoginSubmitted = true)}
                                 >
                                     <input type="hidden" name="rememberMe" value={rememberMe} />
                                     <input type="hidden" name="captcha" value={captcha} />
                                     <input type="hidden" name="redirectUrl" value={returnUrl} />
 
-                                    <Button wide color="primary" type="submit" disabled={isLogin}>
+                                    <Button wide color="primary" type="submit" disabled={disableButtons}>
                                         {@const ProviderIcon = allBrands[provider]}
                                         {#if ProviderIcon}
                                             <ProviderIcon size="sm" />
@@ -232,7 +234,7 @@
                                     </Button>
                                 </form>
                             {/each}
-                            <Button wide color="primary" type="submit" disabled={isLogin}>
+                            <Button wide color="primary" type="submit" disabled={disableButtons}>
                                 {@const ProviderIcon = allBrands['email']}
                                 {#if ProviderIcon}
                                     <ProviderIcon size="sm" />
@@ -258,10 +260,10 @@
                     bind:this={guestAreaRef}
                     class="flex items-center justify-center p-3 flex-2 lg:max-w-96 min-h-fit lg:px-2 backdrop-saturate-90"
                 >
-                    <form method="GET" action="/api/auth/guest/login" onsubmit={() => (isLogin = true)}>
+                    <form method="GET" action="/api/auth/guest/login" onsubmit={() => (isLoginSubmitted = true)}>
                         <input type="hidden" name="captcha" value={captcha} />
                         <input type="hidden" name="redirectUrl" value={returnUrl} />
-                        <Button wide color="primary" type="submit" disabled={isLogin}>Continue as Guest</Button>
+                        <Button wide color="primary" type="submit" disabled={disableButtons}>Continue as Guest</Button>
                     </form>
                 </div>
             </Stack>
