@@ -1,11 +1,11 @@
 import type { Preview } from '@storybook/sveltekit';
 import '../src/app.css';
-import { type Locale, getTranslator, localeList } from '../src/lib/i18n';
-import { type Theme, themeList } from '../src/lib/theme';
-import StorybookLayoutProvider from './StorybookLayoutProvider.svelte';
+import { createTranslator, getLocaleWithFallback, loadTranslation, localeList } from '../src/lib/i18n';
+import { getThemeWithFallback, themeList } from '../src/lib/theme';
+import StorybookLayoutProvider from '../src/storybook/StorybookLayoutProvider.svelte';
 
 // Load English translator for toolbar labels
-const enTranslator = await getTranslator('en');
+const enTranslator = createTranslator(await loadTranslation('en'));
 
 // Override app.css styles that break Storybook scrolling
 if (typeof document !== 'undefined') {
@@ -76,38 +76,22 @@ const preview: Preview = {
     },
     decorators: [
         (story, context) => {
-            // Setup popover root element
-            // Popup elements are added to a separate root element with id "popover".
-            // In application this is handled by the app shell, but in Storybook we need to create it ourselves.
-            if (typeof document !== 'undefined') {
-                let popupRoot = document.getElementById('popover');
-                if (!popupRoot) {
-                    popupRoot = document.createElement('div');
-                    popupRoot.id = 'popover';
-                    document.body.appendChild(popupRoot);
-                }
-            }
-
-            // Apply theme to document root
-            const selectedTheme = (context.globals.theme || 'system') as Theme;
+            const selectedTheme = getThemeWithFallback(context.globals.theme);
             if (typeof document !== 'undefined') {
                 document.documentElement.classList.add('bg-surface', 'text-on-surface');
             }
 
-            // Get initial values from globals
-            const selectedLocale = (context.globals.locale || 'en') as Locale;
+            const selectedLocale = getLocaleWithFallback(context.globals.locale);
 
-            console.log(`Decorator: selectedLocale=${selectedLocale}, selectedTheme=${selectedTheme}`);
-
-            // Wrap the story in StorybookLayoutProvider to set up all contexts
+            // Call story() here to get the rendered story
             const storyResult = story();
+
             return {
                 Component: StorybookLayoutProvider,
                 props: {
                     initialLocale: selectedLocale,
                     initialTheme: selectedTheme,
-                    StoryComponent: storyResult.Component,
-                    storyProps: storyResult.props
+                    storyResult
                 }
             };
         }

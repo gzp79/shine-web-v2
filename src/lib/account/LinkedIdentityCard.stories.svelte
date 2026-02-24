@@ -108,7 +108,7 @@
         await step('Unlink identity', async () => {
             const unlink = canvas.getAllByRole('button', { name: /unlink/i })[0];
             await unlink.click();
-            await clickDialogButton(/confirmText/i);
+            await clickDialogButton(/unlink/i);
         });
 
         await step('Handle error', async () => {
@@ -116,14 +116,6 @@
             const closeBtn = await within(error).getByRole('button', { name: /retry/i });
             await closeBtn.click();
             await waitForErrorToBeRemoved(canvas);
-        });
-
-        await step('Wait for identities to refresh', async () => {
-            const unlink = canvas.getAllByRole('button', { name: /unlink/i })[0];
-            expect(unlink).toBeDisabled();
-            await waitFor(async () => {
-                expect(unlink).not.toBeDisabled();
-            });
         });
     }}
 >

@@ -97,7 +97,7 @@ export default defineConfig({
         expect: {
             requireAssertions: true
         },
-        reporters: ['github-actions'],
+        reporters: isCI ? ['github-actions'] : ['default'],
         projects: [
             {
                 extends: './vite.config.ts',

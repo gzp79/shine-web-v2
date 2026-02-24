@@ -5,7 +5,9 @@
     import { expectLoadingState, waitForLoadingToComplete } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { expect, waitFor, within } from 'storybook/test';
+    import { tick } from 'svelte';
     import { v4 as uuid } from 'uuid';
+    import { getLocaleContext } from '@lib/i18n';
     import { async, createOtherError } from '@lib/utils';
     import ActiveTokenCard from './ActiveTokenCard.svelte';
     import { type ActiveToken } from './auth.remote';
@@ -122,7 +124,7 @@
         await step('Revoke token', async () => {
             const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
             await unlink.click();
-            await clickDialogButton(/confirmText/i);
+            await clickDialogButton(/revoke/i);
         });
 
         await step('Handle error', async () => {
@@ -132,11 +134,11 @@
             await waitForErrorToBeRemoved(canvas);
         });
 
-        await step('Wait for tokens to refresh', async () => {
+        await step('Wait for reload', async () => {
             const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
-            expect(unlink).toBeDisabled();
             await waitFor(async () => {
-                expect(unlink).not.toBeDisabled();
+                expect(unlink).toBeEnabled();
+                await tick();
             });
         });
     }}

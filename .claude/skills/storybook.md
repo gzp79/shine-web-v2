@@ -53,7 +53,8 @@ For complex layouts, use render functions with snippets:
 
 ## Interaction Testing
 
-Use `play()` with `step()` to group related actions:
+Use `play()` with `step()` to group related actions.
+`step` must be destructured from the play function argument, not imported from `storybook/test`.
 
 ```typescript
 import { withinPopover } from '@sb/models/popover';
@@ -76,6 +77,19 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
     await step('Close menu', async () => {
         await userEvent.click(button, { pointerEventsCheck: 0 });
     });
+}} />
+```
+
+### Print Warnings in Interactions Panel
+
+Use `printWarning()` from `@sb/models/warning` to display visible warnings in the Interactions panel for testers:
+
+```typescript
+import { printWarning } from '@sb/models/warning';
+
+<Story name="MockedTest" play={async ({ step }) => {
+    await printWarning(step, '⚠️ MOCKED: Cookie persistence not tested');
+    // ... rest of test
 }} />
 ```
 

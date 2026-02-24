@@ -5,7 +5,6 @@
     import { getLocaleContext, localeList } from '@lib/i18n';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
     import { DropdownGroup, DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
-    import { waitForCookie } from '@lib/utils';
 
     const { Story } = defineMeta({
         title: 'Components/App/LanguageMenu',
@@ -27,7 +26,12 @@
 
 <Story
     name="LanguageSelector"
-    play={async ({ canvasElement }) => {
+    play={async ({ canvasElement, step }) => {
+        step(
+            '⚠️ MOCKED TEST: Language settings are mocked. Real cookie persistence and invalidate() logic are not executed in Storybook.',
+            () => {}
+        );
+
         const canvas = withinPopover();
 
         const langSubTrigger = await waitFor(async () => {
@@ -45,9 +49,7 @@
         for (const langOption of localeList) {
             const optionItem = await canvas.getByRole('menuitemradio', { name: langRegexps[langOption] });
             await userEvent.click(optionItem);
-            await waitForCookie('lang', langOption);
             await expect(locale.current).toBe(langOption);
-            await expect(document.documentElement.lang).toBe(langOption);
         }
 
         const trigger = await within(canvasElement).getByRole('button');

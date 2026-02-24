@@ -18,6 +18,6 @@ export async function waitForLoadingState(canvas: Canvas): Promise<HTMLElement> 
 export async function waitForLoadingToComplete(canvas: Canvas) {
     await waitFor(async () => {
         const loading = canvas.queryByRole('status');
-        await expect(loading).not.toBeInTheDocument();
+        await expect(loading).toBeNull();
     });
 }

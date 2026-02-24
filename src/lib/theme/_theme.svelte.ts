@@ -13,7 +13,7 @@ function isThemeSupported(theme: string | undefined | null): theme is Theme {
     return themeList.map((t) => t.toLowerCase()).includes(theme?.toLowerCase() ?? '');
 }
 
-function getThemeWithFallback(candidate: string | undefined | null, fallback: Theme = defaultTheme): Theme {
+export function getThemeWithFallback(candidate: string | undefined | null, fallback: Theme = defaultTheme): Theme {
     return isThemeSupported(candidate) ? candidate : fallback;
 }
 

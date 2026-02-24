@@ -16,6 +16,7 @@
         "build:svgParser": "pnpm dlx peggy -c src/components/atoms/svg/peggy.config.js && node scripts/fix-parser.js",
         "build:assets": "cd ../shine-assets && pnpm run convert:web:ui --out=../shine-web/static-generated/assets",
         "build:css": "pnpm dlx @tailwindcss/cli -i ./src/app.css -o ./temp/app.css",
+        "build:storybook": "storybook build",
         "preview": "vite preview",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "audit:check": "pnpm audit --audit-level=moderate",
@@ -23,9 +24,9 @@
         "lint": "prettier --check . && eslint .",
         "test": "pnpm run test:unit && pnpm run test:e2e",
         "test:unit": "vitest",
+        "test:unit-ui": "vitest --ui --open",
         "test:e2e": "playwright test",
-        "storybook": "storybook dev -p 6006",
-        "build:storybook": "storybook build"
+        "storybook": "storybook dev -p 6006"
     },
     "dependencies": {
         "bits-ui": "^2.15.4",

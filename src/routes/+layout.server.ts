@@ -1,8 +1,4 @@
-import { LOCALE_DATA_KEY } from '@lib/i18n';
-
-export const load = async ({ depends, locals }) => {
-    depends(LOCALE_DATA_KEY);
-
+export const load = async ({ locals }) => {
     return {
         theme: locals.theme,
         locale: locals.locale

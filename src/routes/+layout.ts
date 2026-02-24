@@ -1,8 +1,12 @@
-import { getTranslator } from '@lib/i18n';
+import { LOCALE_DATA_KEY, loadTranslation } from '@lib/i18n';
 
-export const load = async ({ data }) => {
+export const load = async ({ depends, data }) => {
+    depends(LOCALE_DATA_KEY);
+
+    const translator = await loadTranslation(data.locale);
+
     return {
-        translator: await getTranslator(data.locale),
-        ...data
+        ...data,
+        translation: translator
     };
 };

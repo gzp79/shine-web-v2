@@ -4,7 +4,7 @@ import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
 import { logI18n } from '@lib/loggers';
 import { getCookie, onTabVisible, setCookie } from '@lib/utils';
-import { type Locale, type Translator, defaultLocale, localeList } from './_translator';
+import { type Locale, type Translator, createTranslator, defaultLocale, localeList } from './_translator';
 
 export const LOCALE_DATA_KEY = 'data:locale';
 
@@ -12,7 +12,7 @@ function isLocaleSupported(locale: string | undefined | null): locale is Locale 
     return localeList.map((l) => l.toLowerCase()).includes(locale?.toLowerCase() ?? '');
 }
 
-function getLocaleWithFallback(candidate: string | null | undefined, fallback: Locale = defaultLocale): Locale {
+export function getLocaleWithFallback(candidate: string | null | undefined, fallback: Locale = defaultLocale): Locale {
     return isLocaleSupported(candidate) ? candidate : fallback;
 }
 
@@ -45,16 +45,25 @@ export type LocaleContext = {
     readonly t: Translator;
 };
 
-/// Create and provide the locale context, with the initial locale from server or browser, and keep it in sync with cookie changes.
-/// Server logic:
-///  - hooks.server.ts → handle({ event, resolve }), reads locale from cookie and put it in event.locals
-///  - +layout.server.ts → load({ locals, translator }), puts locale and translator in page.data
-//   - +layout.svelte → createLocalContext, creates the context from the page.data
-/// Browser logic:
-///   - +layout.svelte → createLocalContext, creates the context from the page.data
-///   - on update, invalidate(LOCALE_DATA_KEY) and trigger load function
-///   - across tabs it uses onTabVisible to refresh from cookie
+/// Creates and provides the locale context with reactive translation updates.
+///
+/// Data flow (SSR + hydration):
+/// 1. Server-side rendering:
+///    - hooks.server.ts → Reads locale from cookie/accept-language header, stores in event.locals.locale
+///    - +layout.server.ts → Passes locals.locale to page.data.locale (serializable)
+///    - +layout.ts (universal) → Loads translation JSON for page.data.locale, stores in page.data.translation
+///    - +layout.svelte → Calls createLocaleContext(), creates reactive translator from page.data.translation
+///
+/// 2. Browser-side updates:
+///    - +layout.ts (runs in browser too) → Re-loads translation when invalidated via depends(LOCALE_DATA_KEY)
+///    - +layout.svelte → Translator auto-updates via $derived when page.data.translation changes
+///    - On locale change → setCookie() + invalidate(LOCALE_DATA_KEY) re-triggers browser update flow
+///    - On tab focus → Checks cookie, invalidates if changed (keeps tabs in sync)
+///
+/// Key: Locale/translation are serializable (handled by server). Translator is created client-side using $derived for reactivity.
 export function createLocaleContext(): LocaleContext {
+    const translator = $derived(createTranslator(page.data.translation));
+
     const context = {
         get current() {
             return page.data.locale;
@@ -68,7 +77,7 @@ export function createLocaleContext(): LocaleContext {
             }
         },
         get t() {
-            return page.data.translator;
+            return translator;
         }
     } satisfies LocaleContext;
 
@@ -92,5 +101,10 @@ export function setLocaleContext(context: LocaleContext) {
 }
 
 export function getLocaleContext(): LocaleContext {
-    return getContext<LocaleContext>(LOCALE_CONTEXT_KEY);
+    const ctx = getContext<LocaleContext>(LOCALE_CONTEXT_KEY);
+    if (!ctx) {
+        console.log('Locale context not found, returning default context with fallback translator');
+        throw Error('Wtf');
+    }
+    return ctx;
 }

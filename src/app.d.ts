@@ -1,5 +1,5 @@
 import type { TurnstileObject } from 'turnstile-types';
-import { type Locale, type Translator } from '@lib/i18n';
+import { type Locale, type Translation } from '@lib/i18n';
 import { type Theme } from '@lib/theme';
 
 declare global {
@@ -12,13 +12,12 @@ declare global {
         interface Locals {
             theme: Theme;
             locale: Locale;
-            translator: Translator;
         }
 
         interface PageData {
             theme: Theme;
             locale: Locale;
-            translator: Translator;
+            translation: Translation;
         }
 
         interface Platform {
