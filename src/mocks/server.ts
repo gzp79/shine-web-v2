@@ -3,7 +3,7 @@ import { setupServer } from 'msw/node';
 import { defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
-import { withDelay, withLog } from './middleware';
+import { withLog } from './middleware';
 
 export const mockForLoginPage: Array<RequestHandler> = [
     defaultProviders,
@@ -21,4 +21,8 @@ export const mockForGuestUser: Array<RequestHandler> = [
     defaultExternalLogin
 ];
 
-export const server = setupServer(withLog, withDelay(5000), ...mockForLoginPage);
+export const server = setupServer(
+    withLog, //
+    // withDelay(5000),
+    ...mockForGuestUser
+);

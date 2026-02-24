@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import type { Component } from 'svelte';
+    import { type Component, untrack } from 'svelte';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
     import { DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
@@ -40,7 +40,7 @@
 
         const ctx: MenuContext = {
             register(item: MenuItem) {
-                items = [...items.filter((i) => i.id !== item.id), item];
+                items = untrack(() => [...items.filter((i) => i.id !== item.id), item]);
 
                 // Return unregister function
                 return () => {
@@ -49,8 +49,8 @@
             },
 
             unregister(id: string) {
-                const initialLength = items.length;
-                items = items.filter((i) => i.id !== id);
+                const initialLength = untrack(() => items.length);
+                items = untrack(() => items.filter((i) => i.id !== id));
                 return items.length < initialLength;
             },
 

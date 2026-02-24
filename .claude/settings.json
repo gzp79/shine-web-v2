@@ -12,7 +12,10 @@
             "Bash(pnpm build:*)",
             "Bash(pnpm test:*)",
             "Bash(pnpm vitest:*)",
-            "Bash(grep:*)"
+            "Bash(grep:*)",
+            "Bash(head:*)",
+            "Bash(ls:*)",
+            "Bash(test:*)"
         ]
     },
     "enableAllProjectMcpServers": true,

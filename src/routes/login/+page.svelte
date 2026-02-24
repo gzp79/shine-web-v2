@@ -193,6 +193,7 @@
                                     size="lg"
                                     disabled={isLogin}
                                     class="drop-shadow-on-secondary drop-shadow-md"
+                                    href={await querySanitizedReturnUrl(returnUrl)}
                                 >
                                     <allBrands.user size="sm" />
                                     Continue as {user.name}

@@ -21,6 +21,8 @@
     "account": {
         "logout": "Logout",
         "logoutAll": "Logout from all devices",
+        "byeTitle": "Logged Out",
+        "byeMessage": "You have been successfully logged out. Thank you for using our service!",
         "userInfoTitle": "User Information",
         "linkWarning": "This account is not linked to any external identity provider",
         "userName": "Username",

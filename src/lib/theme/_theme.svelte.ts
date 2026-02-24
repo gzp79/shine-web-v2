@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { page } from '$app/state';
-import type { Cookies } from '@sveltejs/kit';
+import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
 import { logTheme } from '@lib/loggers';
 import { getCookie, onTabVisible, setCookie } from '@lib/utils';
@@ -45,8 +45,9 @@ export type ThemeContext = {
 //   - across tabs it uses onTabVisible to refresh from cookie
 export function createThemeContext(): ThemeContext {
     const th = getThemeWithFallback(page.data.theme);
+    logTheme.log(`Initializing theme context with theme: ${th}`);
+
     let theme = $state<Theme>(th);
-    logTheme.log(`Initializing theme context with theme: ${theme}`);
 
     const context = {
         get current() {

@@ -4,7 +4,9 @@
     import { setCurrentUserStore } from '@lib/account/currentUserStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
+    import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
+    import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
@@ -14,6 +16,28 @@
 
     const currentUser = setCurrentUserStore();
     const locale = getLocaleContext();
+    const appMenu = getMenuContext();
+
+    $effect(() => {
+        if (!currentUser.current || !currentUser.current.authenticated) {
+            logUser.log('User not authenticated, skipping menu registration');
+            return;
+        }
+
+        logUser.log('Registering logout menu item');
+        const unregister = appMenu.register({
+            id: 'logout',
+            section: 'user',
+            label: locale.t('account.logout'),
+            icon: Cross,
+            dangerous: true,
+            action: () => {
+                window.location.href = '/api/auth/logout';
+            }
+        });
+
+        return unregister;
+    });
 
     $effect(() => {
         if (currentUser.loading) {

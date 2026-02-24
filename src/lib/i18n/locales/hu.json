@@ -18,6 +18,8 @@
     "account": {
         "logout": "Kijelentkezés",
         "logoutAll": "Kijelentkezés minden eszközről",
+        "byeTitle": "Kijelentkeztél",
+        "byeMessage": "Sikeresen kijelentkeztél. Köszönjük, hogy használod a szolgáltatásunkat!",
         "userInfoTitle": "Felhasználói információk",
         "linkWarning": "Ez a fiók nincs külső szolgáltatóhoz kapcsolva",
         "userName": "Felhasználónév",
