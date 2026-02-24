@@ -13,7 +13,7 @@ describe('Button', () => {
 
         const button = screen.getByRole('button');
         expect(button).toBeInTheDocument();
-        expect(true).toBe("alma");
+        expect(true).toBe('alma');
     });
 
     test('calls onclick handler when clicked', async () => {
