@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     //import { inputVariantList } from '@lib/ui/atoms/input';
     import Switch from '@lib/ui/atoms/input/Switch.svelte';
@@ -39,9 +38,6 @@
             //         default: undefined
             //     }
             // }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>

@@ -1,9 +1,6 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
-    import { expectErrorState } from '@sb/models/error';
-    import { expectLoadingState } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, within } from 'storybook/test';
     import { v4 as uuid } from 'uuid';
     import { createOtherError, randomString } from '@lib/utils';
     import ActiveSessionCard from './ActiveSessionCard.svelte';
@@ -11,11 +8,7 @@
 
     const { Story } = defineMeta({
         component: ActiveSessionCard,
-        title: 'Account/ActiveSessionCard',
-        play: async ({ args, canvasElement }) => {
-            await args.sessions?.refresh();
-            expect(canvasElement).toBeDefined();
-        }
+        title: 'Account/ActiveSessionCard'
     });
 
     const userId = uuid();
@@ -43,25 +36,13 @@
     ];
 </script>
 
-<Story
-    name="Loading"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        await expectLoadingState(canvas);
-    }}
->
+<Story name="Loading">
     {#snippet template(args)}
         <ActiveSessionCard {...args} sessions={mockQuery.loading()} />
     {/snippet}
 </Story>
 
-<Story
-    name="Error"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        await expectErrorState(canvas, /Test error, failed to fetch linked sessions/);
-    }}
->
+<Story name="Error">
     {#snippet template(args)}
         <ActiveSessionCard
             {...args}

@@ -1,8 +1,5 @@
 <script module lang="ts">
-    import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, userEvent, waitFor, within } from 'storybook/test';
-    import { tick } from 'svelte';
     import {
         DropdownCheckboxGroup,
         DropdownCheckboxItem,
@@ -24,9 +21,6 @@
             align: 'start',
             trigger: 'Open menu',
             open: true
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>
@@ -62,27 +56,7 @@
     </DropdownItem>
 </Story>
 
-<Story
-    name="SubMenu"
-    play={async () => {
-        const canvas = withinPopover();
-
-        const subTrigger = await canvas.getByRole('menuitem', { name: 'Invite users' });
-        await userEvent.hover(subTrigger!);
-        const subItem = await waitFor(async () => {
-            const subItem = await canvas.getByRole('menuitem', { name: 'Chat' });
-            await expect(subItem).toBeVisible();
-            return subItem;
-        });
-
-        await userEvent.click(subItem!);
-        await tick();
-        await waitFor(async () => {
-            await expect(subItem).not.toBeVisible();
-            await expect(subTrigger).not.toBeVisible();
-        });
-    }}
->
+<Story name="SubMenu">
     <DropdownItem>Team</DropdownItem>
     <DropdownSubMenu trigger="Invite users">
         <DropdownItem>Email</DropdownItem>
@@ -100,30 +74,7 @@
     </DropdownItem>
 </Story>
 
-<Story
-    name="Checkbox"
-    play={async ({ canvasElement }) => {
-        const canvas = withinPopover();
-        const heading = await canvas.getByText(/Choose some .*/);
-
-        const item1 = (await canvas.getAllByRole('menuitemcheckbox', { name: 'Value 1' }))[0];
-        await userEvent.click(item1!);
-        await tick();
-        const item3 = (await canvas.getAllByRole('menuitemcheckbox', { name: 'Value 3' }))[0];
-        await userEvent.click(item3!);
-        await tick();
-        await expect(heading).toHaveTextContent('Choose some [ch1,ch3]');
-        await userEvent.click(item3!);
-        await tick();
-        await expect(heading).toHaveTextContent('Choose some [ch1]');
-
-        const trigger = await within(canvasElement).getByRole('button');
-        await userEvent.click(trigger!, { pointerEventsCheck: 0 });
-        await waitFor(async () => {
-            await expect(heading).not.toBeVisible();
-        });
-    }}
->
+<Story name="Checkbox">
     <DropdownCheckboxGroup bind:value={checks}>
         <DropdownGroup heading="Choose some [{checks.join(',')}]">
             {#each Array(4) as _, i (i)}
@@ -136,24 +87,7 @@
     </DropdownCheckboxGroup>
 </Story>
 
-<Story
-    name="Radio"
-    play={async ({ canvasElement }) => {
-        const canvas = withinPopover();
-        const heading = await canvas.getByText(/Choose one .*/);
-
-        const item = (await canvas.getAllByRole('menuitemradio', { name: 'Value 1' }))[0];
-        await userEvent.click(item!);
-        await tick();
-        await expect(heading).toHaveTextContent('Choose one [r1]');
-
-        const trigger = await within(canvasElement).getByRole('button');
-        await userEvent.click(trigger!, { pointerEventsCheck: 0 });
-        await waitFor(async () => {
-            await expect(heading).not.toBeVisible();
-        });
-    }}
->
+<Story name="Radio">
     <DropdownRadioGroup bind:value={radioValue}>
         <DropdownGroup heading="Choose one [{radioValue}]">
             {#each Array(4) as _, i (i)}

@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import { getLocaleContext } from '@lib/i18n';
     import { getThemeContext } from '@lib/theme/_theme.svelte';
     import App from '@lib/ui/app/App.svelte';
@@ -11,10 +10,7 @@
 
     const { Story } = defineMeta({
         title: 'Components/App/CenteredLayout',
-        component: AppCenteredLayout,
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
-        }
+        component: AppCenteredLayout
     });
 </script>
 

@@ -1,5 +1,16 @@
 {
     "enabledPlugins": {
         "superpowers@claude-plugins-official": true
-    }
+    },
+    "permissions": {
+        "allow": [
+            "WebFetch(domain:mcp.svelte.dev)",
+            "WebFetch(domain:github.com)",
+            "mcp__svelte__svelte-autofixer",
+            "mcp__svelte__get-documentation",
+            "Bash(pnpm test:unit:*)"
+        ]
+    },
+    "enableAllProjectMcpServers": true,
+    "enabledMcpjsonServers": ["svelte"]
 }

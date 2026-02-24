@@ -1,4 +1,5 @@
-import { expect, waitFor } from 'storybook/test';
+import { waitFor } from '@testing-library/svelte';
+import { expect } from 'vitest';
 import type { Canvas } from './types';
 
 export async function expectErrorState(canvas: Canvas, errorText?: string | RegExp): Promise<HTMLElement> {

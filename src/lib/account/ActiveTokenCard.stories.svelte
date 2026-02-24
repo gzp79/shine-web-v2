@@ -1,11 +1,6 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
-    import { clickDialogButton } from '@sb/models/dialog';
-    import { expectErrorState, waitForErrorState, waitForErrorToBeRemoved } from '@sb/models/error';
-    import { expectLoadingState, waitForLoadingToComplete } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, waitFor, within } from 'storybook/test';
-    import { tick } from 'svelte';
     import { v4 as uuid } from 'uuid';
     import { getLocaleContext } from '@lib/i18n';
     import { async, createOtherError } from '@lib/utils';
@@ -14,11 +9,7 @@
 
     const { Story } = defineMeta({
         component: ActiveTokenCard,
-        title: 'Account/ActiveTokenCard',
-        play: async ({ args, canvasElement }) => {
-            await args.tokens?.refresh();
-            expect(canvasElement).toBeDefined();
-        }
+        title: 'Account/ActiveTokenCard'
     });
 
     const userId = uuid();
@@ -53,13 +44,7 @@
     ];
 </script>
 
-<Story
-    name="Loading"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        await expectLoadingState(canvas);
-    }}
->
+<Story name="Loading">
     {#snippet template(args)}
         <ActiveTokenCard
             {...args}
@@ -69,13 +54,7 @@
     {/snippet}
 </Story>
 
-<Story
-    name="Error"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        await expectErrorState(canvas, /Test error, failed to fetch linked tokens/);
-    }}
->
+<Story name="Error">
     {#snippet template(args)}
         <ActiveTokenCard
             {...args}
@@ -115,34 +94,7 @@
     {/snippet}
 </Story>
 
-<Story
-    name="Revoke - Fail"
-    play={async ({ canvasElement, step }) => {
-        const canvas = within(canvasElement);
-        await waitForLoadingToComplete(canvas);
-
-        await step('Revoke token', async () => {
-            const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
-            await unlink.click();
-            await clickDialogButton(/revoke/i);
-        });
-
-        await step('Handle error', async () => {
-            const error = await waitForErrorState(canvas, /A test error occurred while revoking the token/);
-            const closeBtn = await within(error).getByRole('button', { name: /retry/i });
-            await closeBtn.click();
-            await waitForErrorToBeRemoved(canvas);
-        });
-
-        await step('Wait for reload', async () => {
-            const unlink = canvas.getAllByRole('button', { name: /revoke/i })[0];
-            await waitFor(async () => {
-                expect(unlink).toBeEnabled();
-                await tick();
-            });
-        });
-    }}
->
+<Story name="Revoke - Fail">
     {#snippet template(args)}
         <ActiveTokenCard
             {...args}

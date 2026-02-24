@@ -1,17 +1,12 @@
 <script module lang="ts">
-    import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { getLocaleContext, localeList } from '@lib/i18n';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
     import { DropdownGroup, DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({
         title: 'Components/App/LanguageMenu',
-        component: LanguageMenu,
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
-        }
+        component: LanguageMenu
     });
 </script>
 
@@ -24,41 +19,7 @@
     const locale = getLocaleContext();
 </script>
 
-<Story
-    name="LanguageSelector"
-    play={async ({ canvasElement, step }) => {
-        step(
-            '⚠️ MOCKED TEST: Language settings are mocked. Real cookie persistence and invalidate() logic are not executed in Storybook.',
-            () => {}
-        );
-
-        const canvas = withinPopover();
-
-        const langSubTrigger = await waitFor(async () => {
-            const langSubTrigger = await canvas.getByRole('menuitem', { name: langRegexps[locale.current] });
-            await expect(langSubTrigger).toBeVisible();
-            return langSubTrigger;
-        });
-
-        await userEvent.hover(langSubTrigger!);
-        await waitFor(async () => {
-            const optionItem = await canvas.getByRole('menuitemradio', { name: langRegexps['en'] });
-            await expect(optionItem).toBeVisible();
-        });
-
-        for (const langOption of localeList) {
-            const optionItem = await canvas.getByRole('menuitemradio', { name: langRegexps[langOption] });
-            await userEvent.click(optionItem);
-            await expect(locale.current).toBe(langOption);
-        }
-
-        const trigger = await within(canvasElement).getByRole('button');
-        await userEvent.click(trigger!, { pointerEventsCheck: 0 });
-        await waitFor(async () => {
-            await expect(langSubTrigger).not.toBeVisible();
-        });
-    }}
->
+<Story name="LanguageSelector">
     {#snippet template(args)}
         <DropdownMenu open={true} class="w-56" align="start" trigger={`Settings [${locale.current}]`}>
             <DropdownGroup heading="Settings">

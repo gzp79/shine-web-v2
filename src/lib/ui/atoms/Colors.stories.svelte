@@ -1,14 +1,10 @@
 <script module lang="ts">
     import ColorSample from '@sb/ColorSample.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import { actionColorList, containerColorList } from '@lib/ui/atoms';
 
     const { Story } = defineMeta({
-        title: 'Atoms/Theme/Colors',
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
-        }
+        title: 'Atoms/Theme/Colors'
     });
 </script>
 

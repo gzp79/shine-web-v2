@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Logo from '@lib/ui/atoms/glyphs/Logo.svelte';
     import Discord from '@lib/ui/atoms/glyphs/brands/Discord.svelte';
@@ -15,10 +14,7 @@
 
     const { Story } = defineMeta({
         title: 'Atoms/Layouts/Separator',
-        component: Separator,
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
-        }
+        component: Separator
     });
 </script>
 
