@@ -3,9 +3,8 @@
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
     import { DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
-    import { createContext } from '@lib/ui/utils';
-    import Hamburger from '../atoms/icons/common/Hamburger.svelte';
-    import { fromComponent } from '../utils';
+    import Hamburger from '@lib/ui/atoms/icons/common/Hamburger.svelte';
+    import { createContext, fromComponent } from '@lib/ui/utils';
     import FullscreenMenu from './FullscreenMenu.svelte';
 
     export type MenuSection = 'global' | 'context' | 'user';
