@@ -58,7 +58,6 @@
 
     const ctx = getInputGroupContext();
 
-    // Precedence: explicit prop > InputGroupContext (from Field or InputGroup) > default
     const color = $derived(baseColor ?? ctx?.color ?? 'primary');
     const size = $derived(baseSize ?? ctx?.size ?? 'md');
     const variant = $derived(baseVariant ?? ctx?.variant ?? 'filled');

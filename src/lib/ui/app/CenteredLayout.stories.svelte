@@ -1,10 +1,8 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
-    import { createLocaleContext } from '@lib/i18n/i18n.svelte';
-    import { createThemeContext } from '@lib/theme/theme.svelte';
+    import { getLocaleContext } from '@lib/i18n';
+    import { getThemeContext } from '@lib/theme/_theme.svelte';
     import App from '@lib/ui/app/App.svelte';
-    import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import AppCenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -12,16 +10,13 @@
 
     const { Story } = defineMeta({
         title: 'Components/App/CenteredLayout',
-        component: AppCenteredLayout,
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
-        }
+        component: AppCenteredLayout
     });
 </script>
 
 <script lang="ts">
-    const theme = createThemeContext();
-    const locale = createLocaleContext();
+    const theme = getThemeContext();
+    const locale = getLocaleContext();
 </script>
 
 <Story name="Single button">

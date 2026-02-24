@@ -3,7 +3,8 @@
     import type { Snippet } from 'svelte';
     import type { HTMLAttributes } from 'svelte/elements';
     import { type AriaLive, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
-    import { type Overflow } from '@lib/ui/atoms/layouts';
+    import { type Overflow, scrollShadow } from '@lib/ui/atoms/layouts';
+    import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import { cn } from '@lib/ui/utils';
 
     export type T = HTMLAttributes<HTMLDivElement> & { aaa: string };
@@ -11,6 +12,7 @@
     export type ContainerContentProps = {
         padding?: ResponsiveSpacing;
         overflow?: Overflow;
+        scrollShadow?: boolean;
         'data-slot': string;
         'aria-live'?: AriaLive;
         role?: string;
@@ -23,10 +25,16 @@
     let {
         padding = 4,
         overflow = 'hidden',
+        scrollShadow: enableScrollShadow = false,
         class: className = undefined,
         children,
         ...restProps
     }: ContainerContentProps = $props();
+
+    let containerContext = getContainerContext();
+    if (!containerContext) {
+        throw new Error('ContainerContent must be used within a ContainerRoot');
+    }
 
     const scrollClass: Record<Overflow, string> = {
         y: 'overflow-y-auto overflow-x-hidden flex-1',
@@ -36,10 +44,21 @@
     };
 
     const contentCls = $derived(
-        cn('w-full', toSpacingClasses(padding, { all: 'p', x: 'px', y: 'py' }), scrollClass[overflow], className)
+        cn(
+            'relative w-full',
+            toSpacingClasses(padding, { all: 'p', x: 'px', y: 'py' }),
+            scrollClass[overflow],
+            className
+        )
     );
+
+    const shadowColor = $derived(`var(--color-on-${containerContext.color})`);
 </script>
 
-<div class={contentCls} {...restProps}>
+<div
+    class={contentCls}
+    {@attach enableScrollShadow && overflow !== 'hidden' && scrollShadow(overflow, shadowColor)}
+    {...restProps}
+>
     {@render children()}
 </div>

@@ -1,21 +1,15 @@
-import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { playwright } from '@vitest/browser-playwright';
 import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vitest/config';
 import { buildAssets } from './scripts/vite-asset-converter';
 import { config } from './src/generated/config';
-import svelteConfig from './svelte.config';
-
-const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
 console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment)) {
-    process.env.LOG_LEVEL = 'info,user=trace,api=trace';
+    process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
 }
 
 const isTest = !!process.env.VITEST;
@@ -89,59 +83,23 @@ export default defineConfig({
             targets: [...additionalAssets]
         })
     ],
-    optimizeDeps: {
-        include: ['@storybook/svelte', 'storybook/test']
-    },
     ...(isTest ? {} : serverConfigs()),
     test: {
         expect: {
             requireAssertions: true
         },
-        reporters: ['github-actions'],
-        projects: [
-            {
-                extends: './vite.config.ts',
-                test: {
-                    name: 'client',
-                    browser: {
-                        enabled: true,
-                        provider: playwright(),
-                        instances: [
-                            {
-                                browser: 'chromium',
-                                headless: true
-                            }
-                        ]
-                    },
-                    include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-                    exclude: ['src/lib/server/**']
+        reporters: isCI ? ['github-actions'] : ['default'],
+        browser: {
+            enabled: true,
+            provider: playwright(),
+            instances: [
+                {
+                    browser: 'chromium',
+                    headless: true // Set to false to see browser window (for debugging)
                 }
-            },
-            {
-                extends: './vite.config.ts',
-                plugins: [
-                    storybookTest({
-                        configDir: path.join(dirname, '.storybook')
-                    })
-                ],
-                resolve: {
-                    alias: svelteConfig.kit?.alias || {}
-                },
-                test: {
-                    name: 'storybook',
-                    browser: {
-                        enabled: true,
-                        headless: true,
-                        provider: playwright({}),
-                        instances: [
-                            {
-                                browser: 'chromium'
-                            }
-                        ]
-                    },
-                    setupFiles: ['.storybook/vitest.setup.ts']
-                }
-            }
-        ]
+            ]
+        },
+        include: ['src/**/*.{test,spec}.{js,ts}'],
+        exclude: ['src/lib/server/**']
     }
 });

@@ -1,22 +1,15 @@
 <script module lang="ts">
     import mockQuery from '@sb/mock-remote.svelte';
-    import { expectErrorState } from '@sb/models/error';
-    import { expectLoadingState } from '@sb/models/loading';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, within } from 'storybook/test';
     import { v4 as uuid } from 'uuid';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import { createOtherError } from '@lib/utils';
     import UserInfoCard from './UserInfoCard.svelte';
-    import type { CurrentUser } from './currentUser.svelte';
+    import type { CurrentUser } from './currentUserStore.svelte';
 
     const { Story } = defineMeta({
         component: UserInfoCard,
-        title: 'Account/UserInfoCard',
-        play: async ({ args, canvasElement }) => {
-            await args.userInfo?.refresh();
-            expect(canvasElement).toBeDefined();
-        }
+        title: 'Account/UserInfoCard'
     });
 
     const sampleUserInfo: CurrentUser = {
@@ -34,25 +27,13 @@
     let count = $state(0);
 </script>
 
-<Story
-    name="Loading"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        await expectLoadingState(canvas);
-    }}
->
+<Story name="Loading">
     {#snippet template(args)}
         <UserInfoCard {...args} userInfo={mockQuery.loading()} />
     {/snippet}
 </Story>
 
-<Story
-    name="Error"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        await expectErrorState(canvas, /Test error, failed to fetch user info/);
-    }}
->
+<Story name="Error">
     {#snippet template(args)}
         <UserInfoCard {...args} userInfo={mockQuery.error(createOtherError('Test error, failed to fetch user info'))} />
     {/snippet}

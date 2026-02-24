@@ -3,7 +3,7 @@
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
     import type { AriaRole } from 'svelte/elements';
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
@@ -25,7 +25,7 @@
         Pick<DialogPrimitive.PortalProps, 'to'> &
         Pick<DialogPrimitive.ContentProps, 'escapeKeydownBehavior' | 'interactOutsideBehavior' | 'onOpenAutoFocus'> &
         Pick<ContainerRootProps, 'color' | 'shadow' | 'width'> &
-        Pick<ContainerContentProps, 'padding'> & {
+        Pick<ContainerContentProps, 'padding' | 'scrollShadow'> & {
             role?: AriaRole;
             trigger?: string | WrappedComponent | WrappedSnippet | Snippet<[{ class: string }]>;
             triggerStyle?: ButtonStyleConfig;
@@ -56,6 +56,7 @@
         shadow = true,
         width = 'fit',
         padding = 2,
+        scrollShadow = false,
 
         trigger,
         triggerStyle,
@@ -68,6 +69,8 @@
         children,
         contentClass
     }: DialogProps = $props();
+
+    const locale = getLocaleContext();
 
     const headerColor = $derived(color ? `${color}-1` : colorRotation[1]);
 
@@ -182,7 +185,7 @@
                             </DialogPrimitive.Title>
                             {#if closeIcon}
                                 <DialogPrimitive.Close
-                                    aria-label={$t('common.close')}
+                                    aria-label={locale.t('common.close')}
                                     class="group focus-visible:ring-0 outline-none"
                                 >
                                     {#if closeIcon === true}
@@ -195,7 +198,13 @@
                         </div>
                     {/if}
 
-                    <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>
+                    <ContainerContent
+                        data-slot="card-content"
+                        {padding}
+                        {scrollShadow}
+                        overflow="y"
+                        class={contentClass}
+                    >
                         {@render children?.()}
                     </ContainerContent>
 

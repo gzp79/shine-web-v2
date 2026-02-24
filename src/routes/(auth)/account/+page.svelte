@@ -8,17 +8,18 @@
         queryActiveTokens,
         queryLinkedIdentities,
         revokeToken
-    } from '@lib/account/account.remote';
-    import { getCurrentUserStore } from '@lib/account/currentUser.svelte';
-    import { t } from '@lib/i18n/i18n.svelte';
+    } from '@lib/account/auth.remote';
+    import { getCurrentUserStore } from '@lib/account/currentUserStore.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import StackLayout from '@lib/ui/app/StackLayout.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import { async } from '@lib/utils';
 
-    let currentUser = getCurrentUserStore();
-    let linkedIdentities = queryLinkedIdentities();
-    let activeSessions = queryActiveSessions();
-    let activeTokens = queryActiveTokens();
+    const locale = getLocaleContext();
+    const currentUser = getCurrentUserStore();
+    const linkedIdentities = queryLinkedIdentities();
+    const activeSessions = queryActiveSessions();
+    const activeTokens = queryActiveTokens();
 
     const handleRevokeToken = async (tokenHash: string) => {
         await revokeToken(tokenHash);
@@ -26,7 +27,7 @@
 </script>
 
 <StackLayout>
-    <Typography variant="h1">{$t('account.account')}</Typography>
+    <Typography variant="h1">{locale.t('account.account')}</Typography>
 
     <UserInfoCard userInfo={currentUser} />
     <LinkedIdentityCard

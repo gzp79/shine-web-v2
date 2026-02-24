@@ -7,3 +7,5 @@ export * from './_type';
 export * from './_auto-refresh.svelte';
 export * from './_retry';
 export * from './_random';
+export * from './_url';
+export * from './_string';

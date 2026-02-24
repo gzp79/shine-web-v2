@@ -1,12 +1,12 @@
 <script module lang="ts">
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import { logAPI } from '@lib/loggers';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import brands, { type BrandGlyph } from '@lib/ui/atoms/glyphs/brands/all';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import ConfirmationButton from '@lib/ui/components/buttons/ConfirmationButton.svelte';
     import { type AppError, createAppError } from '@lib/utils';
-    import type { LinkedIdentity } from './account.remote';
+    import type { LinkedIdentity } from './auth.remote';
 
     export type LinkedIdentityItemProps = {
         identity: LinkedIdentity;
@@ -18,6 +18,8 @@
 
 <script lang="ts">
     const { identity, disabled = false, unlink, onerror }: LinkedIdentityItemProps = $props();
+
+    const locale = getLocaleContext();
 
     let dirty = $state(false);
     const providerImage = $derived(brands[identity.provider as BrandGlyph] ?? null);
@@ -46,34 +48,30 @@
         size="xs"
         items={[
             {
-                key: $t('account.provider'),
+                key: locale.t('account.provider'),
                 value: identity.provider
             },
             {
-                key: $t('account.providerUserId'),
+                key: locale.t('account.providerUserId'),
                 value: identity.providerUserId,
                 valueClass: 'break-all'
             },
             identity.name
                 ? {
-                      key: $t('account.userName'),
+                      key: locale.t('account.userName'),
                       value: identity.name
                   }
                 : null,
             identity.email
                 ? {
-                      key: $t('account.email'),
+                      key: locale.t('account.email'),
                       value: identity.email,
                       valueClass: 'break-all'
                   }
                 : null,
             {
-                key: $t('account.linkDate'),
-                value: $t(
-                    'common.dateTime',
-                    { value: identity.linkedAt },
-                    { date: { dateStyle: 'long', timeStyle: 'medium' } }
-                )
+                key: locale.t('account.linkDate'),
+                value: locale.t('common.dateTime', { date: identity.linkedAt })
             }
         ]}
     />
@@ -83,14 +81,14 @@
             disabled={dirty || disabled}
             color="danger"
             confirmation={{
-                title: $t('account.unlinkConfirmation.title'),
-                question: $t('account.unlinkConfirmation.question'),
-                confirm: $t('account.unlinkConfirmation.confirmText'),
-                cancel: $t('account.unlinkConfirmation.cancelText')
+                title: locale.t('account.unlinkConfirmationTitle'),
+                question: locale.t('account.unlinkConfirmationQuestion'),
+                confirm: locale.t('account.unlinkConfirmationConfirmText'),
+                cancel: locale.t('account.unlinkConfirmationCancelText')
             }}
             onConfirm={handleUnlink}
         >
-            {$t('account.unlink')}
+            {locale.t('account.unlink')}
         </ConfirmationButton>
     {/snippet}
 </Card>

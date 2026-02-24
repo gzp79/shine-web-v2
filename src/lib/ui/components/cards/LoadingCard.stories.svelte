@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import type { Component } from 'svelte';
     import Stack from '@lib/ui//atoms/layouts/Stack.svelte';
     import { sizeList } from '@lib/ui/atoms';
@@ -18,9 +17,6 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>

@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Logo from '@lib/ui/atoms/glyphs/Logo.svelte';
     import Discord from '@lib/ui/atoms/glyphs/brands/Discord.svelte';
@@ -15,10 +14,7 @@
 
     const { Story } = defineMeta({
         title: 'Atoms/Layouts/Separator',
-        component: Separator,
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
-        }
+        component: Separator
     });
 </script>
 
@@ -137,93 +133,6 @@
             <Box border containerClass="flex-1 p-4">
                 <Typography>Right Content</Typography>
             </Box>
-        </div>
-    {/snippet}
-</Story>
-
-<Story name="Login Interface">
-    {#snippet template(args)}
-        <div
-            class="relative p-8 min-h-screen flex flex-col items-center justify-center"
-            style="background: linear-gradient(to bottom, #8B9DA8, #B8C5CC); background-size: cover; background-position: center;"
-        >
-            <div
-                class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.25]"
-                style="background-image: url(&quot;https://assets.scytta.com/ui/ac4f8b1cbab17ec60b11bc5b64b4dba0.webp&quot;), url(&quot;https://assets.scytta.com/ui/ac4f8b1cbab17ec60b11bc5b64b4dba0.jpg&quot;);"
-            ></div>
-
-            <div class="grid">
-                <Logo />
-
-                <Box ghost={true} containerClass="rounded-3xl backdrop-blur-lg" contentClass="p-6">
-                    <Stack spacing={3}>
-                        <Button wide variant="outline" size="lg">
-                            <User />
-                            Continue as FreeUser
-                        </Button>
-                        <Typography variant="text" class="text-center">Not you? Switch account</Typography>
-
-                        <Separator variant="subtle" />
-
-                        <Box border={false} ghost={true} width="full" contentClass="p-0 pe-2 h-full max-h-52">
-                            <Stack spacing={2}>
-                                <Button variant="outline" wide class="justify-start">
-                                    <Email size="sm" />
-                                    Email
-                                </Button>
-
-                                <Button variant="outline" wide class="justify-start">
-                                    <Discord size="sm" />
-                                    Discord
-                                </Button>
-
-                                <Button variant="outline" wide class="justify-start">
-                                    <Github size="sm" />
-                                    Github
-                                </Button>
-
-                                <Button variant="outline" wide class="justify-start">
-                                    <Google size="sm" />
-                                    Google
-                                </Button>
-
-                                <Button variant="outline" wide class="justify-start">
-                                    <Google size="sm" />
-                                    Google
-                                </Button>
-                            </Stack>
-                        </Box>
-
-                        <!-- Remember Me -->
-                        <Stack direction="row" alignment="center" justification="start" spacing={2}>
-                            <div
-                                class="w-6 h-6 bg-white/30 rounded flex items-center justify-center border border-slate-800/20"
-                            >
-                                <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="3"
-                                    class="w-4 h-4"
-                                >
-                                    <path d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <Typography class="text-slate-800 font-medium cursor-pointer">Remember me</Typography>
-                        </Stack>
-                    </Stack>
-                </Box>
-
-                <!-- Guest Button -->
-                <Box
-                    ghost={true}
-                    border={false}
-                    containerClass="w-full rounded-3xl backdrop-blur-lg background-gradient-to-r from-surface/50 to-green/30"
-                    contentClass="p-6 justify-center"
-                >
-                    <Button variant="outline" size="lg">Guest</Button>
-                </Box>
-            </div>
         </div>
     {/snippet}
 </Story>

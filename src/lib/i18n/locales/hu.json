@@ -1,0 +1,91 @@
+{
+    "hello": {
+        "world": "Helló világ!"
+    },
+    "common": {
+        "retry": "Újra",
+        "loading": "Betöltés...",
+        "somethingWentWrong": "Valami hiba történt",
+        "details": "Részletek",
+        "refresh": "Frissítés",
+        "back": "Vissza",
+        "close": "Bezár",
+        "dateTime": "{date}",
+        "welcome": "Üdvözöljük",
+        "greeting": "Helló, {name}!",
+        "themeName": "Téma"
+    },
+    "account": {
+        "logout": "Kijelentkezés",
+        "logoutAll": "Kijelentkezés minden eszközről",
+        "byeTitle": "Kijelentkeztél",
+        "byeMessage": "Sikeresen kijelentkeztél. Köszönjük, hogy használod a szolgáltatásunkat!",
+        "userInfoTitle": "Felhasználói információk",
+        "linkWarning": "Ez a fiók nincs külső szolgáltatóhoz kapcsolva",
+        "userName": "Felhasználónév",
+        "userId": "Felhasználó azonosító",
+        "email": "E-mail",
+        "role": "Szerep",
+        "registrationDate": "Regisztráció dátuma",
+        "tokenHash": "Token hash",
+        "tokenKind": "Token típus",
+        "activeStatus": "Állapot",
+        "expired": "Lejárt",
+        "active": "Aktív",
+        "creationDate": "Létrehozva",
+        "expirationDate": "Lejár",
+        "location": "Helyszín",
+        "revokeTokenConfirmationTitle": "Token visszavonása",
+        "revokeTokenConfirmationQuestion": "Biztosan visszavonod ezt a tokent?",
+        "revokeTokenConfirmationConfirmText": "Visszavon",
+        "revokeTokenConfirmationCancelText": "Mégsem",
+        "revoke": "Visszavon",
+        "sessionFingerprint": "Munkamenet azonosító",
+        "userAgent": "Eszköz / Böngésző",
+        "loginDate": "Bejelentkezés dátuma",
+        "identitiesTitle": "Kapcsolt identitások",
+        "activeTokensTitle": "Aktív tokenek",
+        "activeSessionsTitle": "Aktív munkamenetek",
+        "provider": "Szolgáltató",
+        "providerUserId": "Szolgáltató felhasználó azonosító",
+        "linkDate": "Kapcsolás dátuma",
+        "unlink": "Leválaszt",
+        "unlinkConfirmationTitle": "Identitás leválasztása",
+        "unlinkConfirmationQuestion": "Biztosan leválasztod ezt az identitást?",
+        "unlinkConfirmationConfirmText": "Leválaszt",
+        "unlinkConfirmationCancelText": "Mégsem",
+        "account": "Fiók"
+    },
+    "login": {
+        "infoLoginExpired": "A munkameneted lejárt. Kérjük, jelentkezz be újra a folytatáshoz.",
+        "infoLoginExpiredShort": "Munkamenet lejárt",
+        "infoEmailConfirm": "Kérjük, erősítsd meg az e-mail címedet a folytatáshoz.",
+        "infoEmailConfirmShort": "E-mail megerősítés",
+        "infoEmailChange": "Az e-mail címed megváltozott. Kérjük, jelentkezz be újra.",
+        "infoEmailChangeShort": "E-mail módosítva",
+        "emailModalTitle": "Nézd meg az e-mailedet",
+        "emailWaitUser": "Elküldtünk neked egy bejelentkezési linket. Kérjük, nézd meg az e-mailedet és kattints a linkre a folytatáshoz."
+    },
+    "errors": {
+        "networkError": "Hálózati hiba",
+        "dataValidationError": "Adat érvényesítési hiba",
+        "internalError": "Belső hiba",
+        "error": "Hiba"
+    },
+    "error": {
+        "authRegisterExternalIdConflict": "Ez a fiók már kapcsolva van egy másik identitás szolgáltatóhoz"
+    },
+    "language": {
+        "en": "English",
+        "hu": "Magyar"
+    },
+    "theme": {
+        "light": "Világos",
+        "dark": "Sötét",
+        "system": "Rendszer"
+    },
+    "app": {
+        "title": "Alkalmazás cím",
+        "description": "Alkalmazás leírás"
+    }
+}

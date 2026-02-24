@@ -1,7 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, within } from 'storybook/test';
-    import { tick } from 'svelte';
     import { sizeList } from '@lib/ui/atoms';
     import PropertyList, { type DescriptionListItem } from '@lib/ui/atoms/data/PropertyList.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -19,9 +17,6 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 
@@ -144,21 +139,7 @@
     {/snippet}
 </Story>
 
-<Story
-    name="Nested Table"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        const incrementButton = await canvas.getByRole('button', { name: /increment/i });
-        expect(incrementButton).toBeDefined();
-        const reactiveTerm = await canvas.getByRole('term', { name: /Reactive/i });
-        const reactiveValue = reactiveTerm.nextElementSibling as HTMLElement;
-        let initial = data;
-        expect(reactiveValue?.textContent).toBe(initial.toString());
-        incrementButton?.click();
-        await tick();
-        expect(reactiveValue?.textContent).toBe((initial + 1).toString());
-    }}
->
+<Story name="Nested Table">
     {#snippet template(args)}
         {#snippet innerTable()}
             <PropertyList

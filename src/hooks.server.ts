@@ -1,7 +1,8 @@
 import { config } from '@config';
 import type { Handle } from '@sveltejs/kit';
-import { logAPI } from '@lib/loggers';
+import { getLocaleFromRequest } from '@lib/i18n';
 import '@lib/prelude-math';
+import { getThemeFromRequest } from '@lib/theme';
 
 // Initialize MSW for mock environment
 if (config.environment === 'mock') {
@@ -11,7 +12,7 @@ if (config.environment === 'mock') {
 
     server.listen({
         onUnhandledRequest(request, print) {
-            logAPI.log(`[MSW] unhandled request: ${request.url}`);
+            //logAPI.log(`[MSW] unhandled request: ${request.url}`);
 
             if (request.url.startsWith(config.webUrl)) {
                 return bypass(request);
@@ -21,11 +22,14 @@ if (config.environment === 'mock') {
             }
 
             print.warning();
-            throw new Error(`No handler for ${request.url}`);
+            throw new Error(`No handler for ${request.url}, ${server.listHandlers().join(', ')}`);
         }
     });
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
+    event.locals.theme = await getThemeFromRequest(event.cookies, event.request.headers);
+    event.locals.locale = await getLocaleFromRequest(event.cookies, event.request.headers);
+
     return resolve(event);
 };

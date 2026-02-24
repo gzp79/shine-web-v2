@@ -1,11 +1,12 @@
 <script module lang="ts">
-    import type { Component } from 'svelte';
+    import { type Component, untrack } from 'svelte';
     import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
     import { DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
     import { createContext } from '@lib/ui/utils';
     import Hamburger from '../atoms/icons/common/Hamburger.svelte';
     import { fromComponent } from '../utils';
+    import FullscreenMenu from './FullscreenMenu.svelte';
 
     export type MenuSection = 'global' | 'context' | 'user';
 
@@ -39,7 +40,7 @@
 
         const ctx: MenuContext = {
             register(item: MenuItem) {
-                items = [...items.filter((i) => i.id !== item.id), item];
+                items = untrack(() => [...items.filter((i) => i.id !== item.id), item]);
 
                 // Return unregister function
                 return () => {
@@ -48,8 +49,8 @@
             },
 
             unregister(id: string) {
-                const initialLength = items.length;
-                items = items.filter((i) => i.id !== id);
+                const initialLength = untrack(() => items.length);
+                items = untrack(() => items.filter((i) => i.id !== id));
                 return items.length < initialLength;
             },
 
@@ -99,9 +100,12 @@
     trigger={fromComponent(Hamburger)}
     triggerStyle={{ class: 'absolute right-0 top-0 z-10 gap-0 h-8 w-8 p-0 m-4 rounded-sm' }}
     to="#popover"
+    side="left"
     {collisionPadding}
 >
     <!-- Setting section -->
+
+    <FullscreenMenu />
     <ThemeMenu expandIcon="left" />
     <LanguageMenu expandIcon="left" />
     {#each globalItems as item (item.id)}

@@ -3,7 +3,7 @@
     import type { Snippet } from 'svelte';
     import { cn } from '@lib/ui/utils';
 
-    export const variantList = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'text', 'footnote', 'code'] as const;
+    export const variantList = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'text', 'footnote', 'code', 'label'] as const;
     export type Variant = (typeof variantList)[number];
 
     export const weightList = ['normal', 'emphasis', 'bold'] as const;
@@ -17,6 +17,7 @@
         class?: ClassValue | null;
 
         element?: string;
+        for?: string;
         children: Snippet;
     };
 </script>
@@ -29,6 +30,7 @@
         weight = 'normal',
         italic = false,
         class: className,
+        for: forId,
         children
     }: TypographyProps = $props();
 
@@ -41,7 +43,8 @@
         h6: 'h6',
         text: 'p',
         footnote: 'p',
-        code: 'code'
+        code: 'code',
+        label: 'label'
     };
 
     const sharedHClasses = 'inline-flex gap-1 text-ellipsis text-pretty';
@@ -54,7 +57,8 @@
         h6: `text-base ${sharedHClasses}`,
         text: 'text-base text-justify',
         footnote: 'text-sm text-justify',
-        code: 'text-sm'
+        code: 'text-sm',
+        label: `text-lg ${sharedHClasses}`
     };
 
     const weightClasses: Record<Weight, string> = {
@@ -69,4 +73,8 @@
     );
 </script>
 
-<svelte:element this={el} class={textClass}>{@render children()}</svelte:element>
+{#if element === 'label'}
+    <label class={textClass} for={forId}>{@render children()}</label>
+{:else}
+    <svelte:element this={el} class={textClass}>{@render children()}</svelte:element>
+{/if}

@@ -1,6 +1,6 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import { t } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import Dropdown from '@lib/ui//atoms/icons/common/Dropdown.svelte';
     import Fatal from '@lib/ui//atoms/icons/common/Fatal.svelte';
     import Card from '@lib/ui//atoms/layouts/Card.svelte';
@@ -27,11 +27,13 @@
 <script lang="ts">
     let { caption, error, width = 'fit', children, actions }: ErrorCardProps = $props();
 
+    const locale = getLocaleContext();
+
     const errorTypeLabels: Record<string, string> = {
-        fetch: 'Network Error',
-        schema: 'Data Validation Error',
-        internal: 'Internal Error',
-        other: 'Error'
+        fetch: locale.t('errors.networkError'),
+        schema: locale.t('errors.dataValidationError'),
+        internal: locale.t('errors.internalError'),
+        other: locale.t('errors.error')
     };
 
     const errorLabel = $derived(errorTypeLabels[error.kind] ?? 'Error');
@@ -40,7 +42,7 @@
 <Card
     {width}
     color="danger"
-    title={caption ?? $t('common.somethingWentWrong')}
+    title={caption ?? locale.t('common.somethingWentWrong')}
     {actions}
     role="alert"
     aria-live="assertive"
@@ -58,7 +60,7 @@
                 <summary class="list-none select-none text-sm font-medium text-text-secondary hover:text-text-primary">
                     <span class="inline-flex items-center gap-1">
                         <Dropdown class="-rotate-90 group-open:rotate-0 transition-transform duration-300" />
-                        {$t('common.details')}
+                        {locale.t('common.details')}
                     </span>
                 </summary>
 

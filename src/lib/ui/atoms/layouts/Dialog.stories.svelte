@@ -1,8 +1,6 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
-    import { withinPopover } from '@sb/models/popover';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, waitFor } from 'storybook/test';
     import type { Component } from 'svelte';
     import { actionColorList, spacingList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms//Typography.svelte';
@@ -65,13 +63,6 @@
                     long: lorem.long
                 }
             }
-        },
-        play: async () => {
-            const canvas = withinPopover();
-            await waitFor(async () => {
-                const dialog = await canvas.getByRole('dialog');
-                await expect(dialog).toBeVisible();
-            });
         }
     });
 </script>

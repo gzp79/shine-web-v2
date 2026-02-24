@@ -1,12 +1,11 @@
 <script module lang="ts">
-    import { t } from '@lib/i18n/i18n.svelte';
-    import { formatLocation } from '@lib/i18n/utils';
+    import { getLocaleContext } from '@lib/i18n';
     import { logAPI } from '@lib/loggers';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import ConfirmationButton from '@lib/ui/components/buttons/ConfirmationButton.svelte';
     import { type AppError, createAppError } from '@lib/utils';
-    import type { ActiveToken } from './account.remote';
+    import type { ActiveToken } from './auth.remote';
 
     export type ActiveTokenItemProps = {
         token: ActiveToken;
@@ -19,8 +18,10 @@
 <script lang="ts">
     let { token, revoke, disabled = false, onerror }: ActiveTokenItemProps = $props();
 
+    const locale = getLocaleContext();
+
     let dirty = $state(false);
-    const location = $derived(formatLocation(token));
+    const location = 'FIXME'; // $derived(formatLocation(token));
 
     const handleRevoke = async () => {
         dirty = true;
@@ -41,37 +42,29 @@
         size="xs"
         items={[
             {
-                key: $t('account.tokenHash'),
+                key: locale.t('account.tokenHash'),
                 value: token.tokenHash,
                 valueClass: 'break-all'
             },
             {
-                key: $t('account.tokenKind'),
+                key: locale.t('account.tokenKind'),
                 value: token.kind
             },
             {
-                key: $t('account.activeStatus'),
-                value: token.isExpired ? $t('account.expired') : $t('account.active'),
+                key: locale.t('account.activeStatus'),
+                value: token.isExpired ? locale.t('account.expired') : locale.t('account.active'),
                 valueClass: token.isExpired ? 'bg-warning text-on-warning px-1 inline-block' : ''
             },
             {
-                key: $t('account.creationDate'),
-                value: $t(
-                    'common.dateTime',
-                    { value: token.createdAt },
-                    { date: { dateStyle: 'long', timeStyle: 'medium' } }
-                )
+                key: locale.t('account.creationDate'),
+                value: locale.t('common.dateTime', { date: token.createdAt })
             },
             {
-                key: $t('account.expirationDate'),
-                value: $t(
-                    'common.dateTime',
-                    { value: token.expireAt },
-                    { date: { dateStyle: 'long', timeStyle: 'medium' } }
-                )
+                key: locale.t('account.expirationDate'),
+                value: locale.t('common.dateTime', { date: token.expireAt })
             },
             {
-                key: $t('account.location'),
+                key: locale.t('account.location'),
                 value: location
             }
         ]}
@@ -82,14 +75,14 @@
             disabled={dirty || disabled}
             color="danger"
             confirmation={{
-                title: $t('account.revokeTokenConfirmation.title'),
-                question: $t('account.revokeTokenConfirmation.question'),
-                confirm: $t('account.revokeTokenConfirmation.confirmText'),
-                cancel: $t('account.revokeTokenConfirmation.cancelText')
+                title: locale.t('account.revokeTokenConfirmationTitle'),
+                question: locale.t('account.revokeTokenConfirmationQuestion'),
+                confirm: locale.t('account.revokeTokenConfirmationConfirmText'),
+                cancel: locale.t('account.revokeTokenConfirmationCancelText')
             }}
             onConfirm={handleRevoke}
         >
-            {$t('account.revoke')}
+            {locale.t('account.revoke')}
         </ConfirmationButton>
     {/snippet}
 </Card>

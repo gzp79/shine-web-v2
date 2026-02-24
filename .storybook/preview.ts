@@ -1,10 +1,11 @@
 import type { Preview } from '@storybook/sveltekit';
 import '../src/app.css';
-import { i18n } from '../src/lib/i18n/i18n';
-import { type Theme, themeList } from '../src/lib/theme/theme.svelte';
-import lang from '../src/translations/lang.json';
+import { createTranslator, getLocaleWithFallback, loadTranslation, localeList } from '../src/lib/i18n';
+import { getThemeWithFallback, themeList } from '../src/lib/theme';
+import StorybookLayoutProvider from '../src/storybook/StorybookLayoutProvider.svelte';
 
-i18n.loadTranslations('en', '/');
+// Load English translator for toolbar labels
+const enTranslator = createTranslator(await loadTranslation('en'));
 
 // Override app.css styles that break Storybook scrolling
 if (typeof document !== 'undefined') {
@@ -51,9 +52,9 @@ const preview: Preview = {
             defaultValue: 'en',
             toolbar: {
                 icon: 'globe',
-                items: Object.entries(lang).map(([code, name]) => ({
-                    value: code,
-                    title: name
+                items: localeList.map((name) => ({
+                    value: name,
+                    title: enTranslator(`language.${name}`)
                 })),
                 showName: true,
                 dynamicTitle: true
@@ -75,32 +76,24 @@ const preview: Preview = {
     },
     decorators: [
         (story, context) => {
-            // Handle locale changes
-            const locale = context.globals.locale || 'en';
-            i18n.setLocale(locale);
-            i18n.loadTranslations(locale, '/');
-
-            // Handle theme changes
-            const selectedTheme = (context.globals.theme || 'system') as Theme;
+            const selectedTheme = getThemeWithFallback(context.globals.theme);
             if (typeof document !== 'undefined') {
-                document.documentElement.setAttribute('data-theme', selectedTheme);
                 document.documentElement.classList.add('bg-surface', 'text-on-surface');
             }
 
-            return story();
-        },
-        (story) => {
-            // popup are added to a separate root element with id "popover".
-            // In application this is handled by the app shell, but in Storybook we need to create it ourselves.
-            if (typeof document !== 'undefined') {
-                let popupRoot = document.getElementById('popover');
-                if (!popupRoot) {
-                    popupRoot = document.createElement('div');
-                    popupRoot.id = 'popover';
-                    document.body.appendChild(popupRoot);
+            const selectedLocale = getLocaleWithFallback(context.globals.locale);
+
+            // Call story() here to get the rendered story
+            const storyResult = story();
+
+            return {
+                Component: StorybookLayoutProvider,
+                props: {
+                    initialLocale: selectedLocale,
+                    initialTheme: selectedTheme,
+                    storyResult
                 }
-            }
-            return story();
+            };
         }
     ]
 };

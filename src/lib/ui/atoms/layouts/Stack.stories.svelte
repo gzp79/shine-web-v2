@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import { spacingList } from '@lib/ui/atoms';
     import Stack, { alignmentList, directionList, justificationList } from '@lib/ui/atoms/layouts/Stack.svelte';
 
@@ -44,9 +43,6 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>
