@@ -13,7 +13,10 @@
         "dateTime": "{date}",
         "welcome": "Welcome",
         "greeting": "Hello, {name}!",
-        "themeName": "Theme"
+        "themeName": "Theme",
+        "today": "Today is {date|shortDate}",
+        "welcomeBack": "Welcome back on {date|longDate} at {time|shortTime}",
+        "lastLogin": "Last login: {timestamp|dateTime}"
     },
     "account": {
         "logout": "Logout",

@@ -8,7 +8,11 @@
             "WebFetch(domain:github.com)",
             "mcp__svelte__svelte-autofixer",
             "mcp__svelte__get-documentation",
-            "Bash(pnpm test:unit:*)"
+            "Bash(pnpm test:unit:*)",
+            "Bash(pnpm build:*)",
+            "Bash(pnpm test:*)",
+            "Bash(pnpm vitest:*)",
+            "Bash(grep:*)"
         ]
     },
     "enableAllProjectMcpServers": true,

@@ -48,7 +48,7 @@ export function createTranslator(translation: Translation): Translator {
         // @ts-expect-error - we already typecheck the key argument and types don't know how to properly distinguish the allowed items for a chosen section if we do type the line above properly so we ignore here
         const localeResult = translation[section]?.[item];
         if (localeResult) {
-            return interpolate(localeResult, params);
+            return interpolate(translation.locale, localeResult, params);
         }
         logI18n.warn(`Missing ${translation.locale} translation for ${key}`);
 
@@ -56,7 +56,7 @@ export function createTranslator(translation: Translation): Translator {
             // @ts-expect-error - same issue as above
             const fallbackResult = loadedTranslations[defaultLocale][section]?.[item];
             if (fallbackResult) {
-                return interpolate(fallbackResult, params);
+                return interpolate(defaultLocale, fallbackResult, params);
             }
             logI18n.warn(`Missing fallback for: ${key}`);
         }
