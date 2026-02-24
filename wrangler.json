@@ -12,10 +12,6 @@
     },
     "routes": [
         {
-            "pattern": "scytta.com",
-            "custom_domain": true
-        },
-        {
             "pattern": "www.scytta.com",
             "custom_domain": true
         }
