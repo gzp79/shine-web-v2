@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, fn, waitFor, within } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import FlagGB from '@lib/ui/atoms/glyphs/flags/gb.svelte';
@@ -50,9 +49,6 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>
@@ -70,28 +66,6 @@
         <ConfirmationButton {...args}><FlagGB />English</ConfirmationButton>
     </Stack>
 {/snippet}
-
-<!-- <Story
-    name="Disabled Action"
-    args={{ onChclick: fn() }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-
-        const btns = await canvas.getAllByRole('button');
-        expect(btns.length).toBe(4);
-        for (const btn of btns) {
-            expect(btn).toBeDisabled();
-            await btn.click();
-        }
-        expect(args.onclick).toHaveBeenCalledTimes(0);
-    }}
->
-    {#snippet template(args)}
-        <Stack>
-            {@render buttonSet({ ...args, disabled: true })}
-        </Stack>
-    {/snippet}
-</Story> -->
 
 <Story name="All Colors">
     {#snippet template(args)}

@@ -1,6 +1,5 @@
 <script module lang="ts">
-    import lang from '@translations/lang.json';
-    import { getLocaleContext, langList } from '@lib/i18n/i18n.svelte';
+    import { getLocaleContext, localeList } from '@lib/i18n';
     import {
         DropdownRadioGroup,
         DropdownRadioItem,
@@ -28,16 +27,16 @@
 {#snippet subTrigger()}
     {@const FlagIcon = currentFlag}
     <FlagIcon />
-    {lang[locale.current as keyof typeof lang]}
+    {locale.t(`language.${locale.current}`)}
 {/snippet}
 
 <DropdownSubMenu {expandIcon} trigger={subTrigger}>
     <DropdownRadioGroup bind:value={locale.current}>
-        {#each langList as langOption (langOption)}
+        {#each localeList as langOption (langOption)}
             {@const FlagIcon = flagIcons[languageFlags[langOption]]}
             <DropdownRadioItem value={langOption} closeOnSelect={false}>
                 <FlagIcon />
-                {lang[langOption as keyof typeof lang]}
+                {locale.t(`language.${langOption}`)}
             </DropdownRadioItem>
         {/each}
     </DropdownRadioGroup>

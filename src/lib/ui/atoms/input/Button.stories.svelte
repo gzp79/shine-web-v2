@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, fn, within } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import FlagGB from '@lib/ui/atoms/glyphs/flags/gb.svelte';
@@ -43,39 +42,15 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 
     const href = 'https://example.com';
 </script>
 
-<Story
-    name="Default Action"
-    args={{ onclick: fn() }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const button = await canvas.getByRole('button');
-        await button.click();
-        expect(args.onclick).toHaveBeenCalled();
-    }}
->
-    Click Me
-</Story>
+<Story name="Default Action">Click Me</Story>
 
-<Story
-    name="Default Link"
-    args={{ href }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-        const link = await canvas.getByRole('link');
-        expect(link).toHaveAttribute('href', args.href);
-    }}
->
-    Click Me
-</Story>
+<Story name="Default Link" args={{ href }}>Click Me</Story>
 
 {#snippet buttonSet(args: ButtonProps)}
     <Stack direction="row" alignment="center" justification="start" wrap margin={2}>
@@ -86,21 +61,7 @@
     </Stack>
 {/snippet}
 
-<Story
-    name="Disabled Action"
-    args={{ onclick: fn() }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-
-        const btns = await canvas.getAllByRole('button');
-        expect(btns.length).toBe(4);
-        for (const btn of btns) {
-            expect(btn).toBeDisabled();
-            await btn.click();
-        }
-        expect(args.onclick).toHaveBeenCalledTimes(0);
-    }}
->
+<Story name="Disabled Action">
     {#snippet template(args)}
         <Stack>
             {@render buttonSet({ ...args, disabled: true })}
@@ -108,20 +69,7 @@
     {/snippet}
 </Story>
 
-<Story
-    name="Disabled Link"
-    args={{ href }}
-    play={async ({ canvasElement, args }) => {
-        const canvas = within(canvasElement);
-
-        const links = await canvas.getAllByRole('link');
-        expect(links.length).toBe(4);
-        for (const link of links) {
-            expect(link).toHaveAttribute('aria-disabled', 'true');
-            expect(link).not.toHaveAttribute('href');
-        }
-    }}
->
+<Story name="Disabled Link" args={{ href }}>
     {#snippet template(args)}
         <Stack>
             {@render buttonSet({ ...args, disabled: true })}

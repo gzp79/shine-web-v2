@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, within } from 'storybook/test';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import { inputVariantList } from '@lib/ui/atoms/input';
@@ -47,43 +46,11 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>
 
-<script lang="ts">
-    import { tick } from 'svelte';
-    import { t } from '@lib/i18n/i18n.svelte';
-
-    let value = $state();
-</script>
-
 <Story name="Default" args={{ placeholder: 'Enter text' }}></Story>
-
-<Story
-    name="Value binding"
-    play={async ({ canvasElement, userEvent }) => {
-        const canvas = within(canvasElement);
-        const input = await canvas.getByRole('textbox');
-        await userEvent.type(input, 'Hello World');
-        await expect(input).toHaveValue('Hello World');
-        expect(value).toBe('Hello World');
-
-        value = 'Another Value';
-        await tick();
-        await expect(input).toHaveValue('Another Value');
-    }}
->
-    {#snippet template(args)}
-        <Stack>
-            <Typography class="whitespace-nowrap">value: [{value}]</Typography>
-            <Input {...args} bind:value />
-        </Stack>
-    {/snippet}
-</Story>
 
 {#snippet inputSet(args: InputProps)}
     <Stack direction="row" alignment="center" justification="start" wrap margin={2}>

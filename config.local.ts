@@ -12,7 +12,6 @@ export const config = {
     builderWSUrl: 'https://cloud.local.scytta.com:8444',
 
     turnstile: {
-        disable: true,
         siteKey: '1x00000000000000000000AA'
     }
 };

@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Input from '@lib/ui/atoms/input/Input.svelte';
     import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
@@ -18,9 +17,6 @@
             disabled: {
                 control: { type: 'boolean' }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>

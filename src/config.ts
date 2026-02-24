@@ -15,7 +15,6 @@ export interface Config {
     gameUrl: string;
 
     turnstile: {
-        disable?: boolean;
         siteKey: string;
     };
 }

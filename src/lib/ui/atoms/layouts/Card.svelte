@@ -30,6 +30,7 @@
         width = 'fit',
         margin = undefined,
         padding = 2,
+        scrollShadow = false,
         icon = undefined,
         iconClass = undefined,
         title = undefined,
@@ -80,7 +81,7 @@
             alignment={{ xs: 'center', sm: 'start' }}
             justification="center"
             spacing={2}
-            class="min-w-0 flex-1 overflow-clip"
+            class="flex-1 min-w-0 overflow-clip"
         >
             {#if title}
                 {#if typeof title === 'string'}
@@ -92,7 +93,7 @@
                 {/if}
             {/if}
 
-            <ContainerContent data-slot="card-content" {padding} overflow="y" class={contentClass}>
+            <ContainerContent data-slot="card-content" {padding} {scrollShadow} overflow="y" class={contentClass}>
                 {@render children()}
             </ContainerContent>
 

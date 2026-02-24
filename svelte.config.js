@@ -26,6 +26,7 @@ const config = {
         alias: {
             '@mocks': './src/mocks',
             '@sb': './src/storybook',
+            '@testing': './src/testing',
             '@config': './src/config',
             '@generated': './src/generated',
             '@translations': './src/translations',

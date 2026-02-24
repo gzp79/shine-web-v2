@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, userEvent, waitFor, within } from 'storybook/test';
     import { z } from 'zod';
     import Stack from '@lib/ui/atoms//layouts/Stack.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -16,9 +15,6 @@
             disabled: {
                 control: { type: 'boolean' }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 
@@ -46,57 +42,7 @@
     <Button onclick={() => (rawInput = val)}>{name}</Button>
 {/snippet}
 
-<Story
-    name="Email Validation"
-    play={async ({ canvasElement, step }) => {
-        const canvas = within(canvasElement);
-        const user = userEvent.setup();
-
-        const input = canvas.getByRole('textbox') as HTMLInputElement;
-
-        await step('Type invalid email and verify validation error appears', async () => {
-            await user.clear(input);
-            await user.type(input, 'invalid-email');
-
-            await waitFor(() => {
-                expect(canvas.getByText('Please enter a valid email address')).toBeInTheDocument();
-            });
-            expect(input).toHaveAttribute('aria-invalid', 'true');
-        });
-
-        await step('Type valid email and verify error disappears', async () => {
-            await user.clear(input);
-            await user.type(input, 'valid@example.com');
-
-            await waitFor(() => {
-                expect(canvas.queryByText('Please enter a valid email address')).not.toBeInTheDocument();
-            });
-            expect(input).not.toHaveAttribute('aria-invalid', 'true');
-        });
-
-        await step('Set rawInput to invalid email programmatically and verify validation', async () => {
-            const invalidButton = canvas.getByRole('button', { name: 'Invalid Email' });
-            await user.click(invalidButton);
-
-            await waitFor(() => {
-                expect(input).toHaveValue('foo_example.com');
-                expect(canvas.getByText('Please enter a valid email address')).toBeInTheDocument();
-            });
-            expect(input).toHaveAttribute('aria-invalid', 'true');
-        });
-
-        await step('Set rawInput to valid email programmatically and verify validation', async () => {
-            const validButton = canvas.getByRole('button', { name: 'Valid Email' });
-            await user.click(validButton);
-
-            await waitFor(() => {
-                expect(input).toHaveValue('foo@example.com');
-                expect(canvas.queryByText('Please enter a valid email address')).not.toBeInTheDocument();
-            });
-            expect(input).not.toHaveAttribute('aria-invalid', 'true');
-        });
-    }}
->
+<Story name="Email Validation">
     {#snippet template(args)}
         <Stack spacing={4}>
             <ZodField

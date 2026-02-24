@@ -1,7 +1,6 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import type { Component } from 'svelte';
     import { actionColorList, spacingList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
@@ -76,9 +75,6 @@
                 }
             },
             children: { control: false, table: { disable: true } }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>

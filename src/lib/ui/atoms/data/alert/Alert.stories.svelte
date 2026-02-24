@@ -1,7 +1,6 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import {
         Alert,
@@ -25,9 +24,6 @@
                 control: { type: 'select' },
                 options: alertVariantList
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>

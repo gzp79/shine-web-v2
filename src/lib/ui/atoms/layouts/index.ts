@@ -16,3 +16,5 @@ export function nextColorIndex(currentIndex: number): number {
 export function prevColorIndex(currentIndex: number): number {
     return (currentIndex - 1 + colorRotation.length) % colorRotation.length;
 }
+
+export { scrollShadow } from './scrollShadow';

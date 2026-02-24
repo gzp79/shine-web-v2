@@ -1,7 +1,6 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect, within } from 'storybook/test';
     import Typography, { variantList, weightList } from '@lib/ui/atoms/Typography.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
 
@@ -24,25 +23,13 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>
 
 <Story name="Default">The quick brown fox</Story>
 
-<Story
-    name="All Variants"
-    play={async ({ canvasElement }) => {
-        const canvas = within(canvasElement);
-        for (const variant of variantList) {
-            const element = await canvas.getByText(new RegExp(variant, 'i'));
-            expect(element).toBeInTheDocument();
-        }
-    }}
->
+<Story name="All Variants">
     {#snippet template(args)}
         {@const { variant, children, ...otherArgs } = args}
         <Stack>

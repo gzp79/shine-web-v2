@@ -23,15 +23,14 @@
         mouseOutside = false;
 
         if (excludedElement) {
+            const maxDistance = 30;
             const rect = excludedElement.getBoundingClientRect();
 
-            // Calculate distance from position to nearest edge of rectangle
-            const dx = Math.max(rect.left - x, 0, x - rect.right);
-            const dy = Math.max(rect.top - y, 0, y - rect.bottom);
-            const distance = Math.sqrt(dx * dx + dy * dy);
+            //const dx = Math.max(rect.left - x, 0, x - rect.right);
+            //const dy = Math.max(rect.top - y, 0, y - rect.bottom);
+            //const distance = Math.sqrt(dx * dx + dy * dy);
+            const distance = Math.max(rect.left - x + maxDistance / 2, 0);
 
-            // Blend factor: 1 when inside/close, 0 when far (300px away)
-            const maxDistance = 30;
             grayscaleBlend = Math.max(0, Math.min(1, 1 - distance / maxDistance));
         }
     }
@@ -83,13 +82,12 @@
 
     let stl = $derived(
         [
-            `--mouse-x: ${mouseX}px`,
-            `--mouse-y: ${mouseY}px`,
+            `--blob-x: ${mouseX}px`,
+            `--blob-y: ${mouseY}px`,
             ...toResponsiveVar(size, (media, size) => `--blob-size${media}: ${size}px`),
-            `--grayscale: ${grayscaleBlend}`,
-            `background-image: ${(typeof src === 'string' ? [src] : src).map((url) => `url(${url})`).join(',')}`,
-            `opacity: ${mouseOutside ? 0 : 1}`,
-            'transition: opacity 0.3s ease-out'
+            `--blob-gray: ${grayscaleBlend}`,
+            `--blob-image: ${(typeof src === 'string' ? [src] : src).map((url) => `url(${url})`).join(',')}`,
+            `--blob-opacity: ${mouseOutside ? 0 : 1}`
         ].join('; ')
     );
 </script>
@@ -98,43 +96,48 @@
 
 <style lang="postcss">
     .blob-container {
-        --current-size: var(--blob-size);
+        --blob-media-size: var(--blob-size);
+        opacity: var(--blob-opacity);
+
+        background-image: var(--blob-image);
 
         mask-image: radial-gradient(
-            circle var(--current-size) at var(--mouse-x) var(--mouse-y),
+            circle var(--blob-media-size) at var(--blob-x) var(--blob-y),
             black 0%,
             transparent 100%
         );
         -webkit-mask-image: radial-gradient(
-            circle var(--current-size) at var(--mouse-x) var(--mouse-y),
+            circle var(--blob-media-size) at var(--blob-x) var(--blob-y),
             black 0%,
             transparent 100%
         );
-        filter: grayscale(var(--grayscale));
+
+        filter: grayscale(var(--blob-gray));
+        transition: opacity 0.3s ease-out;
     }
 
     /* Breakpoints match app.css @theme values */
     @media (width >= 480px) {
         .blob-container {
-            --current-size: var(--blob-size-sm, var(--blob-size));
+            --blob-media-size: var(--blob-size-sm, var(--blob-size));
         }
     }
 
     @media (width >= 640px) {
         .blob-container {
-            --current-size: var(--blob-size-md, var(--blob-size-sm, var(--blob-size)));
+            --blob-media-size: var(--blob-size-md, var(--blob-size-sm, var(--blob-size)));
         }
     }
 
     @media (width >= 768px) {
         .blob-container {
-            --current-size: var(--blob-size-lg, var(--blob-size-md, var(--blob-size-sm, var(--blob-size))));
+            --blob-media-size: var(--blob-size-lg, var(--blob-size-md, var(--blob-size-sm, var(--blob-size))));
         }
     }
 
     @media (width >= 1280px) {
         .blob-container {
-            --current-size: var(
+            --blob-media-size: var(
                 --blob-size-xl,
                 var(--blob-size-lg, var(--blob-size-md, var(--blob-size-sm, var(--blob-size))))
             );

@@ -1,11 +1,10 @@
 <script module lang="ts">
     import { UAParser } from 'ua-parser-js';
-    import { t } from '@lib/i18n/i18n.svelte';
-    import { formatLocation } from '@lib/i18n/utils';
+    import { getLocaleContext } from '@lib/i18n';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import brands from '@lib/ui/atoms/glyphs/brands/all';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
-    import type { ActiveSession } from './account.remote';
+    import type { ActiveSession } from './auth.remote';
 
     export type ActiveSessionItemProps = {
         session: ActiveSession;
@@ -14,6 +13,8 @@
 
 <script lang="ts">
     const { session }: ActiveSessionItemProps = $props();
+
+    const locale = getLocaleContext();
 
     const agent = $derived.by(() => new UAParser(session.agent).getResult());
     const agentImage = $derived.by(() => {
@@ -50,7 +51,7 @@
         return null;
     });
 
-    const location = $derived(formatLocation(session));
+    const location = 'FIXME'; //$derived(formatLocation(session));
 </script>
 
 <Card width="full">
@@ -63,24 +64,20 @@
         size="xs"
         items={[
             {
-                key: $t('account.sessionFingerprint'),
+                key: locale.t('account.sessionFingerprint'),
                 value: session.fingerprint,
                 valueClass: 'break-all'
             },
             {
-                key: $t('account.userAgent'),
+                key: locale.t('account.userAgent'),
                 value: session.agent
             },
             {
-                key: $t('account.loginDate'),
-                value: $t(
-                    'common.dateTime',
-                    { value: session.createdAt },
-                    { date: { dateStyle: 'long', timeStyle: 'medium' } }
-                )
+                key: locale.t('account.loginDate'),
+                value: locale.t('common.dateTime', { value: session.createdAt })
             },
             {
-                key: $t('account.location'),
+                key: locale.t('account.location'),
                 value: location
             }
         ]}

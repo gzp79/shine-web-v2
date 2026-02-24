@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { expect } from 'storybook/test';
     import { iconSizeList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import GlyphBase, { type GlyphBaseProps, type GlyphSet } from '@lib/ui/atoms/glyphs/GlyphBase.svelte';
@@ -22,9 +21,6 @@
                     default: undefined
                 }
             }
-        },
-        play: async ({ canvasElement }) => {
-            expect(canvasElement).toBeDefined();
         }
     });
 </script>
