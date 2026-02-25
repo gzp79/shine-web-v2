@@ -9,12 +9,6 @@
 
     export interface TurnstileProps {
         /**
-         * Represents a rendered Turnstile widget.  Used to identify a specific widget when calling
-         * Turnstile methods.
-         */
-        widgetId?: WidgetId;
-
-        /**
          * Every widget has a sitekey. This sitekey is associated with the corresponding
          * widget configuration and is created upon the widget creation.
          */
@@ -115,32 +109,32 @@
         class?: string;
 
         /**
-         * The captcha token as a bindable value
+         * Callback function invoked upon token change.
          */
-        token?: string;
+        onToken?: (token: string) => void;
 
         /**
          * Callback function invoked upon successful challenge completion.
          * @param { token: string } - The token passed upon successful challenge.
          */
-        callback?: (token: string) => void;
+        onSuccess?: (token: string) => void;
 
         /**
          * Callback invoked when there is an error (e.g., network error, challenge failed).
          * @see [Client-side errors](https://developers.cloudflare.com/turnstile/reference/client-side-errors)
          * @param { code: string } - The error code passed upon an error.
          */
-        error?: (code: string) => void;
+        onError?: (code: string) => void;
 
         /**
          * Callback invoked when the token expires and does not reset the widget.
          */
-        expired?: () => void;
+        onExpired?: () => void;
 
         /**
          * Callback invoked when the challenge expires.
          */
-        timeout?: () => void;
+        onTimeout?: () => void;
 
         /**
          * Callback invoked before the challenge enters interactive mode.
@@ -161,7 +155,6 @@
 
 <script lang="ts">
     let {
-        widgetId = $bindable(),
         siteKey,
         appearance = 'always',
         language = 'auto',
@@ -177,16 +170,17 @@
         cData,
         tabIndex = 0,
         class: className,
-        token = $bindable(),
-        callback,
-        error,
-        expired,
-        timeout,
+        onToken,
+        onSuccess,
+        onError,
+        onExpired,
+        onTimeout,
         beforeInteractive,
         afterInteractive,
         unsupported
     }: TurnstileProps = $props();
 
+    let widgetId = $state<WidgetId | undefined>(undefined);
     let loaded = $state(browser && 'turnstile' in window);
     let mounted = $state(false);
 
@@ -200,7 +194,7 @@
      * Resets the widget and generates a new token.
      */
     export const reset = (): void => {
-        token = '';
+        onToken?.('');
         if (widgetId) {
             window?.turnstile?.reset(widgetId);
         }
@@ -209,23 +203,23 @@
     const turnstileSettings = $derived({
         sitekey: siteKey,
         callback: (t: string) => {
-            token = t;
-            callback?.(t);
+            onToken?.(t);
+            onSuccess?.(t);
         },
         'error-callback': (code: string) => {
             logAPI.error('Turnstile, captcha error: ', code);
-            token = '';
-            error?.(code);
+            onToken?.('');
+            onError?.(code);
         },
         'timeout-callback': () => {
             logAPI.info('Turnstile, captcha timeout');
-            token = '';
-            timeout?.();
+            onToken?.('');
+            onTimeout?.();
         },
         'expired-callback': () => {
             logAPI.info('Turnstile, captcha expired');
-            token = '';
-            expired?.();
+            onToken?.('');
+            onExpired?.();
         },
         'before-interactive-callback': () => {
             beforeInteractive?.();
@@ -250,7 +244,7 @@
     });
 
     const turnstileAction: Action = (node) => {
-        token = '';
+        onToken?.('');
         const id = window.turnstile.render(node, turnstileSettings);
         widgetId = id;
         return {
