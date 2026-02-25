@@ -274,7 +274,12 @@
         <LoadingCard variant="ghost" label="Waiting server" />
         {#if prompt}
             <!-- Show captcha only for interactive login -->
-            <Turnstile siteKey={config.turnstile.siteKey} size="normal" theme={theme.current} bind:token={captcha} />
+            <Turnstile
+                siteKey={config.turnstile.siteKey}
+                size="normal"
+                theme={theme.current}
+                onToken={(t) => (captcha = t)}
+            />
         {/if}
     </Dialog>
 </CenteredLayout>
