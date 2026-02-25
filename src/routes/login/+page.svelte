@@ -76,6 +76,7 @@
         };
     });
 
+    // see issue: https://github.com/sveltejs/kit/issues/15200
     //const currentUser = $derived(queryCurrentUserInfo());
     //const providers = $derived(queryExternalLoginProviders());
     const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
@@ -83,7 +84,6 @@
 
     let isLoginSubmitted = $state(false);
     let isRedirecting = $state(false);
-    let isError = $state(false);
     let captcha = $state('');
     let rememberMe = $state(true);
     let guestAreaRef = $state<HTMLDivElement | undefined>();
@@ -102,8 +102,12 @@
     // - Currently redirecting
     // - Some async effect is pending (like fetching user info or login providers)
     // - Boundary is pending (awaiting content to load)
-    const showLoading = $derived(!isError && (isRedirecting || waitLoading || (prompt && !captcha)));
+    const showLoading = $derived(isRedirecting || waitLoading || (prompt && !captcha));
 
+    // Disable buttons when:
+    // - Login is submitted to prevent multiple submissions
+    // - Currently redirecting
+    // - If captcha is not solved yet or expired
     const disableButtons = $derived(isLoginSubmitted || isRedirecting || !captcha);
 
     $effect(() => {
@@ -130,15 +134,19 @@
 </script>
 
 <CenteredLayout padding={0}>
-    <svelte:boundary
-        onerror={() => {
-            isError = true;
-        }}
-    >
+    <svelte:boundary>
         {#snippet pending()}
             {#if backgroundUrls.ready}
                 <Overlay src={Object.values(backgroundUrls.current)} opacity={0.25} />
+                {#if backgroundBrightUrls.ready}
+                    <MovingBlob
+                        src={Object.values(backgroundBrightUrls.current)}
+                        size={{ xs: 100, lg: 150, xl: 250 }}
+                        excludedElement={guestAreaRef}
+                    />
+                {/if}
             {/if}
+            <LoadingCard label="Loading..." />
         {/snippet}
 
         {#snippet failed(error, reset)}
@@ -148,7 +156,6 @@
                         onclick={async () => {
                             await queryCurrentUserInfo().refresh();
                             await queryExternalLoginProviders().refresh();
-                            isError = false;
                             reset();
                         }}
                     >
@@ -159,13 +166,13 @@
         {/snippet}
 
         <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
-        {#if !showLoading}
-            <MovingBlob
-                src={Object.values(await backgroundBrightUrls)}
-                size={{ xs: 100, lg: 150, xl: 250 }}
-                excludedElement={guestAreaRef}
-            />
-        {/if}
+        <!-- {#if !showLoading} -->
+        <MovingBlob
+            src={Object.values(await backgroundBrightUrls)}
+            size={{ xs: 100, lg: 150, xl: 250 }}
+            excludedElement={guestAreaRef}
+        />
+        <!-- {/if} -->
 
         <Stack spacing={0} class="relative w-full h-full p-2">
             <Logo class="justify-center h-[20%] w-auto flex items-center fill-on-container p-2 pb-0" />
@@ -268,18 +275,18 @@
                 </div>
             </Stack>
         </Stack>
-    </svelte:boundary>
 
-    <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
-        <LoadingCard variant="ghost" label="Waiting server" />
-        {#if prompt}
-            <!-- Show captcha only for interactive login -->
-            <Turnstile
-                siteKey={config.turnstile.siteKey}
-                size="normal"
-                theme={theme.current}
-                onToken={(t) => (captcha = t)}
-            />
-        {/if}
-    </Dialog>
+        <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
+            <LoadingCard variant="ghost" label="Waiting server" />
+            {#if prompt}
+                <!-- Load captcha only for interactive login -->
+                <Turnstile
+                    siteKey={config.turnstile.siteKey}
+                    size="normal"
+                    theme={theme.current}
+                    onToken={(t) => (captcha = t)}
+                />
+            {/if}
+        </Dialog>
+    </svelte:boundary>
 </CenteredLayout>
