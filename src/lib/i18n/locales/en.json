@@ -10,6 +10,9 @@
         "refresh": "Refresh",
         "back": "Back",
         "close": "Close",
+        "ok": "OK",
+        "cancel": "Cancel",
+        "update": "Update",
         "dateTime": "{date}",
         "welcome": "Welcome",
         "greeting": "Hello, {name}!",
@@ -28,6 +31,7 @@
         "userName": "Username",
         "userId": "User ID",
         "email": "Email",
+        "noEmail": "No email",
         "role": "Role",
         "registrationDate": "Registration Date",
         "tokenHash": "Token Hash",
@@ -57,7 +61,15 @@
         "unlinkConfirmationQuestion": "Are you sure you want to unlink this identity?",
         "unlinkConfirmationConfirmText": "Unlink",
         "unlinkConfirmationCancelText": "Cancel",
-        "account": "Account"
+        "account": "Account",
+        "emailConfirmTitle": "Confirm Email",
+        "emailConfirmWaiting": "Sending confirmation email...",
+        "emailConfirmCompleted": "Please check your email and click the confirmation link.",
+        "emailChangeTitle": "Change Email",
+        "emailChangeNewEmail": "New email address",
+        "emailChangeWaiting": "Sending change request...",
+        "emailChangeCompleted": "Please check your email and click the confirmation link to complete the change.",
+        "emailOperationSuccess": "Email operation completed successfully!"
     },
     "login": {
         "infoLoginExpired": "Your session has expired. Please sign in again to continue.",
@@ -67,7 +79,14 @@
         "infoEmailChange": "Your email address has been changed. Please sign in again.",
         "infoEmailChangeShort": "Email Changed",
         "emailModalTitle": "Check Your Email",
-        "emailWaitUser": "We've sent you a login link. Please check your email and click the link to continue."
+        "emailWaitUser": "We've sent you a login link. Please check your email and click the link to continue.",
+        "emailButton": "Email",
+        "emailDialogTitle": "Sign in with Email",
+        "emailInputLabel": "Email Address",
+        "emailInputDescription": "Enter your email to receive a login link",
+        "emailInvalidError": "Please enter a valid email address",
+        "emailSubmitButton": "Send Login Link",
+        "emailCancelButton": "Cancel"
     },
     "errors": {
         "networkError": "Network Error",

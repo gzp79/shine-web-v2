@@ -1,10 +1,11 @@
-import { cleanup, render, screen } from '@testing-library/svelte';
+import { renderWithLayout } from '@testing';
+import { cleanup, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, test } from 'vitest';
 import { z } from 'zod';
 import ZodField from './ZodField.svelte';
 
-const emailSchema = z.string().email({ message: 'Please enter a valid email address' });
+const emailSchema = z.email({ message: 'Please enter a valid email address' });
 const ageSchema = z
     .number()
     .min(18, { message: 'You must be at least 18 years old' })
@@ -19,16 +20,14 @@ describe('ZodField - Email Validation', () => {
         const user = userEvent.setup();
         let validated: string | undefined;
 
-        render(ZodField, {
-            props: {
-                type: 'email',
-                schema: emailSchema,
-                rawInput: '',
-                onValue: (val) => {
-                    validated = val as string | undefined;
-                },
-                label: 'Email Address',
-                required: true
+        renderWithLayout(ZodField, {
+            type: 'email',
+            schema: emailSchema,
+            rawInput: '',
+            label: 'Email Address',
+            required: true,
+            onValue: (val: string | undefined) => {
+                validated = val;
             }
         });
 
@@ -45,16 +44,14 @@ describe('ZodField - Email Validation', () => {
         const user = userEvent.setup();
         let validated: string | undefined;
 
-        render(ZodField, {
-            props: {
-                type: 'email',
-                schema: emailSchema,
-                rawInput: '',
-                onValue: (val) => {
-                    validated = val as string | undefined;
-                },
-                label: 'Email Address',
-                required: true
+        renderWithLayout(ZodField, {
+            type: 'email',
+            schema: emailSchema,
+            rawInput: '',
+            label: 'Email Address',
+            required: true,
+            onValue: (val: string | undefined) => {
+                validated = val;
             }
         });
 
@@ -73,16 +70,14 @@ describe('ZodField - Age Validation', () => {
         const user = userEvent.setup();
         let validated: number | undefined;
 
-        render(ZodField, {
-            props: {
-                type: 'number',
-                schema: ageSchema,
-                rawInput: '',
-                onValue: (val) => {
-                    validated = val as number | undefined;
-                },
-                label: 'Age',
-                required: true
+        renderWithLayout(ZodField, {
+            type: 'number',
+            schema: ageSchema,
+            rawInput: '',
+            label: 'Age',
+            required: true,
+            onValue: (val: number | undefined) => {
+                validated = val;
             }
         });
 
@@ -99,16 +94,14 @@ describe('ZodField - Age Validation', () => {
         const user = userEvent.setup();
         let validated: number | undefined;
 
-        render(ZodField, {
-            props: {
-                type: 'number',
-                schema: ageSchema,
-                rawInput: '',
-                onValue: (val) => {
-                    validated = val as number | undefined;
-                },
-                label: 'Age',
-                required: true
+        renderWithLayout(ZodField, {
+            type: 'number',
+            schema: ageSchema,
+            rawInput: '',
+            label: 'Age',
+            required: true,
+            onValue: (val: number | undefined) => {
+                validated = val;
             }
         });
 
@@ -125,16 +118,14 @@ describe('ZodField - Age Validation', () => {
         const user = userEvent.setup();
         let validated: number | undefined;
 
-        render(ZodField, {
-            props: {
-                type: 'number',
-                schema: ageSchema,
-                rawInput: '',
-                onValue: (val) => {
-                    validated = val as number | undefined;
-                },
-                label: 'Age',
-                required: true
+        renderWithLayout(ZodField, {
+            type: 'number',
+            schema: ageSchema,
+            rawInput: '',
+            label: 'Age',
+            required: true,
+            onValue: (val: number | undefined) => {
+                validated = val;
             }
         });
 

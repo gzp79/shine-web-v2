@@ -150,6 +150,45 @@ test('complex workflow', async () => {
 });
 ```
 
+## Testing Components with Layout Context
+
+Use `renderWithLayout()` for components that require application layout contexts. This wraps your component with the layout provider similar to Storybook's decorator pattern.
+
+```typescript
+import { renderWithLayout } from '@testing';
+import { screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, test } from 'vitest';
+import MyComponent from './MyComponent.svelte';
+
+test('component using i18n context', async () => {
+    const user = userEvent.setup();
+
+    renderWithLayout(MyComponent, {
+        value: 'test'
+    });
+
+    const button = screen.getByRole('button');
+    await user.click(button);
+
+    expect(button).toBeDisabled();
+});
+```
+
+**When to use:**
+
+- Component uses `getLocaleContext()` (i18n)
+- Component uses `getThemeContext()` (theme)
+- Component renders into portals
+- Any component that requires layout context
+
+**What it provides:**
+
+- LocaleContext with en/hu translations
+- ThemeContext (light/dark theme)
+- Portal container (`<div id="popover"></div>`)
+- Similar to StorybookLayoutProvider but for tests
+
 ## Testing Portals
 
 Use `setupPortal()` to handle portal setup/teardown automatically.
@@ -183,6 +222,7 @@ test('dropdown menu', async () => {
 - One focused concept per test
 - Use `step()` helper for complex multi-step tests
 - Use `withinPortal()` helper for testing portal content
+- Use `renderWithLayout()` for components that need layout context (locale, theme, portals)
 
 **DON'T:**
 

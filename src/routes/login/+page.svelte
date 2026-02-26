@@ -22,6 +22,7 @@
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
     import { async, createAppError, pascalCase } from '@lib/utils';
+    import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 </script>
 
@@ -76,14 +77,16 @@
         };
     });
 
-    //const currentUser = $derived(queryCurrentUserInfo());
-    //const providers = $derived(queryExternalLoginProviders());
+    // see issue: https://github.com/sveltejs/kit/issues/15200
+    const providersQuery = queryExternalLoginProviders();
+    const currentUserQuery = queryCurrentUserInfo();
+
+    const redirectUrlQuery = $derived(querySanitizedReturnUrl(returnUrl));
     const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
     const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
 
     let isLoginSubmitted = $state(false);
     let isRedirecting = $state(false);
-    let isError = $state(false);
     let captcha = $state('');
     let rememberMe = $state(true);
     let guestAreaRef = $state<HTMLDivElement | undefined>();
@@ -102,19 +105,23 @@
     // - Currently redirecting
     // - Some async effect is pending (like fetching user info or login providers)
     // - Boundary is pending (awaiting content to load)
-    const showLoading = $derived(!isError && (isRedirecting || waitLoading || (prompt && !captcha)));
+    const showLoading = $derived(isRedirecting || waitLoading || (prompt && !captcha));
 
+    // Disable buttons when:
+    // - Login is submitted to prevent multiple submissions
+    // - Currently redirecting
+    // - If captcha is not solved yet or expired
     const disableButtons = $derived(isLoginSubmitted || isRedirecting || !captcha);
 
     $effect(() => {
-        (async () => {
-            if (!prompt) {
-                isRedirecting = true;
-                logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
-                const user = await queryCurrentUserInfo();
+        if (!prompt) {
+            logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
+            if (currentUserQuery.current && redirectUrlQuery.current) {
+                const user = currentUserQuery.current;
                 if (user.authenticated) {
-                    const url = await querySanitizedReturnUrl(returnUrl);
+                    const url = redirectUrlQuery.current;
                     logUser.log(`Redirecting user with an active session to ${url}`);
+                    isRedirecting = true;
                     window.location.href = url;
                 } else {
                     // if we have no authenticated user, try the token flow that will either
@@ -122,34 +129,38 @@
                     // - or fail and redirect the user to the login page with a prompt
                     logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
                     const queryString = returnUrl ? `?${new URLSearchParams({ returnUrl })}` : '';
+                    isRedirecting = true;
                     window.location.href = `api/auth/token/login${queryString}`;
                 }
             }
-        })();
+        }
     });
 </script>
 
 <CenteredLayout padding={0}>
-    <svelte:boundary
-        onerror={() => {
-            isError = true;
-        }}
-    >
+    <svelte:boundary>
         {#snippet pending()}
             {#if backgroundUrls.ready}
                 <Overlay src={Object.values(backgroundUrls.current)} opacity={0.25} />
+                {#if backgroundBrightUrls.ready}
+                    <MovingBlob
+                        src={Object.values(backgroundBrightUrls.current)}
+                        size={{ xs: 100, lg: 150, xl: 250 }}
+                        excludedElement={guestAreaRef}
+                    />
+                {/if}
             {/if}
+            <LoadingCard label="Loading..." />
         {/snippet}
 
         {#snippet failed(error, reset)}
             <ErrorCard error={createAppError(error)}>
                 {#snippet actions()}
                     <Button
-                        onclick={async () => {
-                            await queryCurrentUserInfo().refresh();
-                            await queryExternalLoginProviders().refresh();
-                            isError = false;
+                        onclick={() => {
                             reset();
+                            providersQuery.refresh();
+                            currentUserQuery.refresh();
                         }}
                     >
                         {locale.t('common.retry')}
@@ -159,13 +170,13 @@
         {/snippet}
 
         <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
-        {#if !showLoading}
-            <MovingBlob
-                src={Object.values(await backgroundBrightUrls)}
-                size={{ xs: 100, lg: 150, xl: 250 }}
-                excludedElement={guestAreaRef}
-            />
-        {/if}
+        <!-- {#if !showLoading} -->
+        <MovingBlob
+            src={Object.values(await backgroundBrightUrls)}
+            size={{ xs: 100, lg: 150, xl: 250 }}
+            excludedElement={guestAreaRef}
+        />
+        <!-- {/if} -->
 
         <Stack spacing={0} class="relative w-full h-full p-2">
             <Logo class="justify-center h-[20%] w-auto flex items-center fill-on-container p-2 pb-0" />
@@ -186,7 +197,7 @@
                         {extraInfo.shortHint}
                     </Typography>
                     <Stack spacing={0} class="w-full min-h-0 p-2 grow max-h-fit">
-                        {@const user = await queryCurrentUserInfo()}
+                        {@const user = await currentUserQuery}
                         {#if user.authenticated}
                             <Stack class="shrink" spacing={4}>
                                 <Button
@@ -195,7 +206,7 @@
                                     size="lg"
                                     disabled={disableButtons}
                                     class="drop-shadow-on-secondary drop-shadow-md"
-                                    href={await querySanitizedReturnUrl(returnUrl)}
+                                    href={await redirectUrlQuery}
                                 >
                                     <allBrands.user size="sm" />
                                     Continue as {user.name}
@@ -215,10 +226,11 @@
                             containerClass="w-full flex-1 px-4"
                             contentClass="flex flex-col gap-2"
                         >
-                            {#each await queryExternalLoginProviders() as provider (provider)}
+                            {#each await providersQuery as provider (provider)}
                                 <form
                                     method="GET"
                                     action="/api/auth/{provider}/login"
+                                    data-sveltekit-reload
                                     onsubmit={() => (isLoginSubmitted = true)}
                                 >
                                     <input type="hidden" name="rememberMe" value={rememberMe} />
@@ -234,13 +246,12 @@
                                     </Button>
                                 </form>
                             {/each}
-                            <Button wide color="primary" type="submit" disabled={disableButtons}>
-                                {@const ProviderIcon = allBrands['email']}
-                                {#if ProviderIcon}
-                                    <ProviderIcon size="sm" />
-                                {/if}
-                                Email
-                            </Button>
+                            <EmailLoginButton
+                                disabled={disableButtons}
+                                {captcha}
+                                {rememberMe}
+                                onSubmit={() => (isLoginSubmitted = true)}
+                            />
                         </Box>
                         <Stack direction="row" alignment="center" justification="start" class="px-8 py-2 shrink">
                             <Switch bind:checked={rememberMe} id="rememberMe" />
@@ -260,7 +271,12 @@
                     bind:this={guestAreaRef}
                     class="flex items-center justify-center p-3 flex-2 lg:max-w-96 min-h-fit lg:px-2 backdrop-saturate-90"
                 >
-                    <form method="GET" action="/api/auth/guest/login" onsubmit={() => (isLoginSubmitted = true)}>
+                    <form
+                        method="GET"
+                        action="/api/auth/guest/login"
+                        data-sveltekit-reload
+                        onsubmit={() => (isLoginSubmitted = true)}
+                    >
                         <input type="hidden" name="captcha" value={captcha} />
                         <input type="hidden" name="redirectUrl" value={returnUrl} />
                         <Button wide color="primary" type="submit" disabled={disableButtons}>Continue as Guest</Button>
@@ -268,18 +284,18 @@
                 </div>
             </Stack>
         </Stack>
-    </svelte:boundary>
 
-    <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
-        <LoadingCard variant="ghost" label="Waiting server" />
-        {#if prompt}
-            <!-- Show captcha only for interactive login -->
-            <Turnstile
-                siteKey={config.turnstile.siteKey}
-                size="normal"
-                theme={theme.current}
-                onToken={(t) => (captcha = t)}
-            />
-        {/if}
-    </Dialog>
+        <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
+            <LoadingCard variant="ghost" label="Waiting server" />
+            {#if prompt}
+                <!-- Load captcha only for interactive login -->
+                <Turnstile
+                    siteKey={config.turnstile.siteKey}
+                    size="normal"
+                    theme={theme.current}
+                    onToken={(t) => (captcha = t)}
+                />
+            {/if}
+        </Dialog>
+    </svelte:boundary>
 </CenteredLayout>

@@ -234,6 +234,82 @@ export const revokeToken = command(z.string(), async (tokenHash: string) => {
         }
 
         logAPI.log('revokeToken completed');
-        return undefined;
+    });
+});
+
+export const startEmailConfirmation = command(async () => {
+    logAPI.log('startEmailConfirmation...');
+    const url = authUrl.startEmailConfirmationUrl();
+    const headers = getPassThroughHeaders();
+
+    return await retryWithBackoff(async (retry) => {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers
+        });
+
+        if (!response.ok) {
+            const err = await createFetchError(response, 'Failed to start email confirmation');
+            logAPI.error(`startEmailConfirmation failed, retry ${retry.current}/${retry.limit}`, err);
+            if (response.status >= 500) {
+                return retry(err);
+            } else {
+                throw err;
+            }
+        }
+
+        logAPI.log('startEmailConfirmation completed');
+    });
+});
+
+export const startEmailChange = command(z.email(), async (newEmail: string) => {
+    logAPI.log('startEmailChange...', newEmail);
+    const url = authUrl.startEmailChange();
+    const headers = getPassThroughHeaders();
+    headers.set('Content-Type', 'application/json');
+
+    return await retryWithBackoff(async (retry) => {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ email: newEmail })
+        });
+
+        if (!response.ok) {
+            const err = await createFetchError(response, 'Failed to start email change');
+            logAPI.error(`startEmailChange failed, retry ${retry.current}/${retry.limit}`, err);
+            if (response.status >= 500) {
+                return retry(err);
+            } else {
+                throw err;
+            }
+        }
+
+        logAPI.log('startEmailChange completed');
+    });
+});
+
+export const completeEmailOperation = command(z.string(), async (token: string) => {
+    logAPI.log('completeEmailOperation...', token);
+    const url = authUrl.completeEmailOperation({ token });
+    const headers = getPassThroughHeaders();
+
+    return await retryWithBackoff(async (retry) => {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers
+        });
+
+        if (!response.ok) {
+            const err = await createFetchError(response, 'Failed to complete email operation');
+            logAPI.error(`completeEmailOperation failed, retry ${retry.current}/${retry.limit}`, err);
+            if (response.status >= 500) {
+                return retry(err);
+            } else {
+                throw err;
+            }
+        }
+
+        logAPI.log('completeEmailOperation completed');
     });
 });
