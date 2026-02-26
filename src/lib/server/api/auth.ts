@@ -5,10 +5,10 @@ import { joinURL, toQueryString } from '@lib/utils';
 
 export const authUrl = {
     providers() {
-        return joinURL(config.identityUrl, '/api/auth/providers');
+        return joinURL(config.identityUrl, 'api/auth/providers');
     },
     myInfo() {
-        return joinURL(config.identityUrl, '/api/auth/user/info');
+        return joinURL(config.identityUrl, 'api/auth/user/info');
     },
 
     startEmailConfirmationUrl(): string {
