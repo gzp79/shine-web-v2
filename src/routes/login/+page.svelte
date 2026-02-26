@@ -22,6 +22,7 @@
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
     import { async, createAppError, pascalCase } from '@lib/utils';
+    import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 </script>
 
@@ -77,8 +78,10 @@
     });
 
     // see issue: https://github.com/sveltejs/kit/issues/15200
-    //const currentUser = $derived(queryCurrentUserInfo());
-    //const providers = $derived(queryExternalLoginProviders());
+    const providersQuery = queryExternalLoginProviders();
+    const currentUserQuery = queryCurrentUserInfo();
+
+    const redirectUrlQuery = $derived(querySanitizedReturnUrl(returnUrl));
     const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
     const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
 
@@ -111,14 +114,14 @@
     const disableButtons = $derived(isLoginSubmitted || isRedirecting || !captcha);
 
     $effect(() => {
-        (async () => {
-            if (!prompt) {
-                isRedirecting = true;
-                logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
-                const user = await queryCurrentUserInfo();
+        if (!prompt) {
+            logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
+            if (currentUserQuery.current && redirectUrlQuery.current) {
+                const user = currentUserQuery.current;
                 if (user.authenticated) {
-                    const url = await querySanitizedReturnUrl(returnUrl);
+                    const url = redirectUrlQuery.current;
                     logUser.log(`Redirecting user with an active session to ${url}`);
+                    isRedirecting = true;
                     window.location.href = url;
                 } else {
                     // if we have no authenticated user, try the token flow that will either
@@ -126,10 +129,11 @@
                     // - or fail and redirect the user to the login page with a prompt
                     logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
                     const queryString = returnUrl ? `?${new URLSearchParams({ returnUrl })}` : '';
+                    isRedirecting = true;
                     window.location.href = `api/auth/token/login${queryString}`;
                 }
             }
-        })();
+        }
     });
 </script>
 
@@ -153,10 +157,10 @@
             <ErrorCard error={createAppError(error)}>
                 {#snippet actions()}
                     <Button
-                        onclick={async () => {
-                            await queryCurrentUserInfo().refresh();
-                            await queryExternalLoginProviders().refresh();
+                        onclick={() => {
                             reset();
+                            providersQuery.refresh();
+                            currentUserQuery.refresh();
                         }}
                     >
                         {locale.t('common.retry')}
@@ -193,7 +197,7 @@
                         {extraInfo.shortHint}
                     </Typography>
                     <Stack spacing={0} class="w-full min-h-0 p-2 grow max-h-fit">
-                        {@const user = await queryCurrentUserInfo()}
+                        {@const user = await currentUserQuery}
                         {#if user.authenticated}
                             <Stack class="shrink" spacing={4}>
                                 <Button
@@ -202,7 +206,7 @@
                                     size="lg"
                                     disabled={disableButtons}
                                     class="drop-shadow-on-secondary drop-shadow-md"
-                                    href={await querySanitizedReturnUrl(returnUrl)}
+                                    href={await redirectUrlQuery}
                                 >
                                     <allBrands.user size="sm" />
                                     Continue as {user.name}
@@ -222,10 +226,11 @@
                             containerClass="w-full flex-1 px-4"
                             contentClass="flex flex-col gap-2"
                         >
-                            {#each await queryExternalLoginProviders() as provider (provider)}
+                            {#each await providersQuery as provider (provider)}
                                 <form
                                     method="GET"
                                     action="/api/auth/{provider}/login"
+                                    data-sveltekit-reload
                                     onsubmit={() => (isLoginSubmitted = true)}
                                 >
                                     <input type="hidden" name="rememberMe" value={rememberMe} />
@@ -241,13 +246,12 @@
                                     </Button>
                                 </form>
                             {/each}
-                            <Button wide color="primary" type="submit" disabled={disableButtons}>
-                                {@const ProviderIcon = allBrands['email']}
-                                {#if ProviderIcon}
-                                    <ProviderIcon size="sm" />
-                                {/if}
-                                Email
-                            </Button>
+                            <EmailLoginButton
+                                disabled={disableButtons}
+                                {captcha}
+                                {rememberMe}
+                                onSubmit={() => (isLoginSubmitted = true)}
+                            />
                         </Box>
                         <Stack direction="row" alignment="center" justification="start" class="px-8 py-2 shrink">
                             <Switch bind:checked={rememberMe} id="rememberMe" />
@@ -267,7 +271,12 @@
                     bind:this={guestAreaRef}
                     class="flex items-center justify-center p-3 flex-2 lg:max-w-96 min-h-fit lg:px-2 backdrop-saturate-90"
                 >
-                    <form method="GET" action="/api/auth/guest/login" onsubmit={() => (isLoginSubmitted = true)}>
+                    <form
+                        method="GET"
+                        action="/api/auth/guest/login"
+                        data-sveltekit-reload
+                        onsubmit={() => (isLoginSubmitted = true)}
+                    >
                         <input type="hidden" name="captcha" value={captcha} />
                         <input type="hidden" name="redirectUrl" value={returnUrl} />
                         <Button wide color="primary" type="submit" disabled={disableButtons}>Continue as Guest</Button>

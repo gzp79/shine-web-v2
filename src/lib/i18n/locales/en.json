@@ -67,7 +67,14 @@
         "infoEmailChange": "Your email address has been changed. Please sign in again.",
         "infoEmailChangeShort": "Email Changed",
         "emailModalTitle": "Check Your Email",
-        "emailWaitUser": "We've sent you a login link. Please check your email and click the link to continue."
+        "emailWaitUser": "We've sent you a login link. Please check your email and click the link to continue.",
+        "emailButton": "Email",
+        "emailDialogTitle": "Sign in with Email",
+        "emailInputLabel": "Email Address",
+        "emailInputDescription": "Enter your email to receive a login link",
+        "emailInvalidError": "Please enter a valid email address",
+        "emailSubmitButton": "Send Login Link",
+        "emailCancelButton": "Cancel"
     },
     "errors": {
         "networkError": "Network Error",

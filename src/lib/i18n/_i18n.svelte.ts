@@ -4,7 +4,14 @@ import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
 import { logI18n } from '@lib/loggers';
 import { getCookie, onTabVisible, setCookie } from '@lib/utils';
-import { type Locale, type Translator, createTranslator, defaultLocale, localeList } from './_translator';
+import {
+    type Locale,
+    type TranslationKey,
+    type Translator,
+    createTranslator,
+    defaultLocale,
+    localeList
+} from './_translator';
 
 export const LOCALE_DATA_KEY = 'data:locale';
 
@@ -107,4 +114,24 @@ export function getLocaleContext(): LocaleContext {
         throw Error('Wtf');
     }
     return ctx;
+}
+
+/// Utility to pack parameters and translation key into a string.
+/// The returned string can be used where translator is not available yet at construction time (e.g. in zod error messages),
+/// but at presentation time the string can be parsed and the translated.
+export function createTr(key: TranslationKey, params?: Record<string, unknown>): string {
+    return `#${JSON.stringify({ key, params })}`;
+}
+
+/// Utility to parse a localized message string and translate it using the provided translator.
+export function localizeTr(message: string, translator: Translator): string {
+    if (message.startsWith('#')) {
+        try {
+            const { key, params } = JSON.parse(message.substring(1));
+            return translator(key, params);
+        } catch {
+            return message; // Return the original message if parsing fails
+        }
+    }
+    return message; // Return the original message if it doesn't start with '#'
 }

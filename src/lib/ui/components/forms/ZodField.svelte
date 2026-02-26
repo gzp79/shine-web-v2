@@ -1,5 +1,6 @@
 <script lang="ts" module>
     import type { z } from 'zod';
+    import { getLocaleContext, localizeTr } from '@lib/i18n';
     import type { FieldProps } from '@lib/ui/atoms/input/Field.svelte';
     import Field from '@lib/ui/atoms/input/Field.svelte';
     import type { InputProps } from '@lib/ui/atoms/input/Input.svelte';
@@ -11,7 +12,7 @@
             type?: InputType;
             rawInput?: string;
             schema: Schema;
-            onValue?: (value: z.infer<Schema>) => void;
+            onValue?: (value: z.infer<Schema> | undefined) => void;
         };
 </script>
 
@@ -38,9 +39,9 @@
         ...fieldProps
     }: ZodFieldProps<Schema> = $props();
 
+    let locale = getLocaleContext();
+
     const validation: Validation = $derived.by(() => {
-        console.log('Validating input:', rawInput);
-        // Call the validation function
         const result = schema.safeParse(
             // Attempt to coerce the raw input to the appropriate type
             type === 'number' ? Number(rawInput) : rawInput
@@ -53,7 +54,7 @@
                 value: result.data
             };
         } else {
-            const error = result.error.issues[0]?.message || 'Invalid input';
+            const error = localizeTr(result.error.issues[0]?.message || 'Invalid input', locale.t);
             return {
                 success: false,
                 error,
@@ -63,10 +64,7 @@
     });
 
     $effect(() => {
-        console.log('Validation result:', validation);
-        if (validation.success && onValue) {
-            onValue(validation.value);
-        }
+        onValue?.(validation.value);
     });
 </script>
 

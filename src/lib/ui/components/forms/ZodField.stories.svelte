@@ -18,7 +18,7 @@
         }
     });
 
-    const emailSchema = z.string().email({ message: 'Please enter a valid email address' });
+    const emailSchema = z.email({ message: 'Please enter a valid email address' });
 
     const ageSchema = z
         .number()

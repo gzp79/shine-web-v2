@@ -6,3 +6,4 @@ export * from './loading';
 export * from './error';
 export * from './debug';
 export * from './step';
+export * from './render';

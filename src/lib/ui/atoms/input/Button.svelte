@@ -30,8 +30,22 @@
         disabled,
         class: className
     }));
+
+    const linkSvelteControls = (href: string) => {
+        if (href.startsWith('/api/') || href.startsWith('http://') || href.startsWith('https://')) {
+            return {
+                // bypass svelte-kit routing and disable preloading
+                'data-sveltekit-reload': true,
+                'data-sveltekit-preload-data': 'off'
+            };
+        }
+
+        return {};
+    };
+
+    const svelteCtrl = $derived(restProps.href ? linkSvelteControls(restProps.href) : {});
 </script>
 
-<Button.Root disabled={buttonStl.disabled} class={buttonStl.class} {...restProps}>
+<Button.Root disabled={buttonStl.disabled} class={buttonStl.class} {...svelteCtrl} {...restProps}>
     {@render children?.()}
 </Button.Root>

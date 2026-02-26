@@ -17,7 +17,7 @@ type StringKeyof<T> = Extract<keyof T, string>;
 type Flatten<T> = T extends infer U ? ({ [K in keyof U]: U[K] } extends Record<keyof U, infer V> ? V : never) : never;
 
 export type Translation = typeof en & { locale: Locale };
-export type TranslationKeys = Flatten<TranslationKeysNested>;
+export type TranslationKey = Flatten<TranslationKeysNested>;
 export type TranslationParams = Record<string, unknown>;
 
 const loadedTranslations: Record<string, Translation> = {
@@ -38,11 +38,11 @@ export async function loadTranslation(locale: Locale): Promise<Translation> {
     return loadedTranslations[locale];
 }
 
-export type Translator = (key: TranslationKeys, params?: TranslationParams) => string;
+export type Translator = (key: TranslationKey, params?: TranslationParams) => string;
 
 /// Create a translator function for the given translation.
 export function createTranslator(translation: Translation): Translator {
-    return (key: TranslationKeys, params?: TranslationParams): string => {
+    return (key: TranslationKey, params?: TranslationParams): string => {
         const [section, item] = key.split('.') as [string, string];
 
         // @ts-expect-error - we already typecheck the key argument and types don't know how to properly distinguish the allowed items for a chosen section if we do type the line above properly so we ignore here

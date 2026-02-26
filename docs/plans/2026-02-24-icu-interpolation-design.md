@@ -115,7 +115,7 @@ Update `_translator.ts` to pass locale to `interpolate()`:
 
 ```typescript
 export function createTranslator(translation: Translation): Translator {
-    return (key: TranslationKeys, params?: TranslationParams): string => {
+    return (key: TranslationKey, params?: TranslationParams): string => {
         const [section, item] = key.split('.') as [string, string];
         const localeResult = translation[section]?.[item];
 

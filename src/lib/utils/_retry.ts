@@ -24,10 +24,12 @@ function createRetryObject(attempt: number, maxRetries: number): RetryObject {
     return retry;
 }
 
+/// Retries the provided async function with exponential backoff.
+/// The default backoff configuration result in an approximate total of 11.5s delay before giving up.
 export async function retryWithBackoff<T>(
     fn: (retry: RetryObject) => Promise<T>,
-    maxRetries = 3,
-    baseDelay = 100
+    maxRetries = 4,
+    baseDelay = 350
 ): Promise<T> {
     let attempt = 0;
 
@@ -44,10 +46,10 @@ export async function retryWithBackoff<T>(
                     throw err;
                 }
 
-                attempt++;
                 const timeout = baseDelay * Math.pow(2, attempt);
                 const jitter = Math.random() * 0.1 * timeout;
                 await async.delay(timeout + jitter);
+                attempt++;
             } else {
                 logAPI.error('Encountered an error that cannot be retried.', error);
                 throw error;
