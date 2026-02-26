@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { render } from '@testing-library/svelte';
 import VitestLayoutProvider from './VitestLayoutProvider.svelte';
 
@@ -14,7 +13,7 @@ import VitestLayoutProvider from './VitestLayoutProvider.svelte';
  * @example
  * renderWithLayout(MyComponent, { value: 'test' });
  */
-export function renderWithLayout(Component: any, props?: any) {
+export function renderWithLayout(Component: unknown, props?: Record<string, unknown>) {
     const testResult = {
         Component,
         props: props || {}

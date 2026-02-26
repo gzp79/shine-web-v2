@@ -176,12 +176,14 @@ test('component using i18n context', async () => {
 ```
 
 **When to use:**
+
 - Component uses `getLocaleContext()` (i18n)
 - Component uses `getThemeContext()` (theme)
 - Component renders into portals
 - Any component that requires layout context
 
 **What it provides:**
+
 - LocaleContext with en/hu translations
 - ThemeContext (light/dark theme)
 - Portal container (`<div id="popover"></div>`)
