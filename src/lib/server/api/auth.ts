@@ -11,6 +11,17 @@ export const authUrl = {
         return joinURL(config.identityUrl, '/api/auth/user/info');
     },
 
+    startEmailConfirmationUrl(): string {
+        return joinURL(config.identityUrl, 'api/auth/user/email/confirm');
+    },
+    startEmailChange(): string {
+        return joinURL(config.identityUrl, 'api/auth/user/email/change');
+    },
+    completeEmailOperation(params?: { token: string }): string {
+        const queryString = toQueryString(params);
+        return joinURL(config.identityUrl, `api/auth/user/email/complete${queryString}`);
+    },
+
     tokenLoginUrl(params?: { redirectUrl: string; errorUrl: string }): string {
         const queryString = toQueryString(
             params && {
@@ -78,19 +89,6 @@ export const authUrl = {
             }
         );
         return joinURL(config.identityUrl, `auth/logout${queryString}`);
-    },
-
-    startEmailConfirmationUrl(): string {
-        return joinURL(config.identityUrl, 'api/auth/user/email/confirm');
-    },
-
-    startEmailChange(): string {
-        return joinURL(config.identityUrl, 'api/auth/user/email/change');
-    },
-
-    completeEmailOperation(params?: { token: string }): string {
-        const queryString = toQueryString(params);
-        return joinURL(config.identityUrl, `api/auth/user/email/complete${queryString}`);
     }
 };
 

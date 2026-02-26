@@ -10,6 +10,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type QueryLike, createAppError } from '@lib/utils';
+    import EmailConfirmButton from './EmailConfirmButton.svelte';
     import type { AuthenticatedCurrentUser, CurrentUser } from './currentUserStore.svelte';
 
     export type UserInfoCardProps = {
@@ -32,8 +33,10 @@
 
 {#snippet emailItem()}
     {@const user = (await userInfo) as AuthenticatedCurrentUser}
-    {user.email}
-    {user.isEmailVerified}
+    <Stack direction="row" spacing={2} alignment="center">
+        <span>{user.email || locale.t('account.noEmail')}</span>
+        <EmailConfirmButton variant={user.isEmailVerified || !user.email ? 'change' : 'confirmOrChange'} />
+    </Stack>
 {/snippet}
 
 {#snippet actions()}
