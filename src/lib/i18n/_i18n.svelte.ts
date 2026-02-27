@@ -45,7 +45,7 @@ export async function getLocaleFromRequest(cookies: Cookies, headers: Headers): 
     return defaultLocale;
 }
 
-const LOCALE_CONTEXT_KEY = Symbol('locale-context');
+export const LOCALE_CONTEXT_KEY = Symbol('locale-context');
 
 export type LocaleContext = {
     current: Locale;

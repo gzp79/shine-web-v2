@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { playwright } from '@vitest/browser-playwright';
 import fs from 'node:fs';
+import type { Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vitest/config';
 import { buildAssets } from './scripts/vite-asset-converter';
@@ -75,8 +76,26 @@ function serverConfigs() {
     };
 }
 
+/// Prevents __mock routes from being bundled in production builds
+function excludeMockRoutes(): Plugin {
+    return {
+        name: 'exclude-mock-routes',
+        resolveId(id) {
+            if (config.environment === 'prod' && id.includes('__mock')) {
+                return '\0empty-mock';
+            }
+        },
+        load(id) {
+            if (id === '\0empty-mock') {
+                return '';
+            }
+        }
+    };
+}
+
 export default defineConfig({
     plugins: [
+        excludeMockRoutes(),
         tailwindcss(),
         sveltekit(),
         viteStaticCopy({
