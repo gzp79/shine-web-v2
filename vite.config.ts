@@ -15,13 +15,10 @@ if (['dev', 'local', 'mock'].includes(config.environment)) {
 
 const isTest = !!process.env.VITEST;
 const isCI = !!process.env.CI;
-if (isCI && config.environment !== 'prod') {
-    throw new Error('CI deployment shall only use prod environment');
-}
 
 const additionalAssets = [];
 
-// If assets are served from the web server, ensure they are built before starting the server and included in the static copy targets
+// Only build assets locally when the asset server is the web server itself
 if (config.assetUrl === config.webUrl) {
     await buildAssets();
     additionalAssets.push({
