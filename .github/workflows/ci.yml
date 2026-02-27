@@ -38,6 +38,7 @@ jobs:
 
             - name: Setup mock environment
               run: |
+                  echo "127.0.0.1 local.scytta.com" | sudo tee -a /etc/hosts
                   pnpm run mkcert
                   pnpm run env:mock
 
