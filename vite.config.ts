@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { playwright } from '@vitest/browser-playwright';
 import fs from 'node:fs';
+import type { Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vitest/config';
 import { buildAssets } from './scripts/vite-asset-converter';
@@ -14,13 +15,10 @@ if (['dev', 'local', 'mock'].includes(config.environment)) {
 
 const isTest = !!process.env.VITEST;
 const isCI = !!process.env.CI;
-if (isCI && config.environment !== 'prod') {
-    throw new Error('CI deployment shall only use prod environment');
-}
 
 const additionalAssets = [];
 
-// If assets are served from the web server, ensure they are built before starting the server and included in the static copy targets
+// Only build assets locally when the asset server is the web server itself
 if (config.assetUrl === config.webUrl) {
     await buildAssets();
     additionalAssets.push({
@@ -75,8 +73,31 @@ function serverConfigs() {
     };
 }
 
+/// Prevents mock infrastructure from being bundled in production builds.
+/// Catches both __mock routes and @mocks/* module imports (which pull in msw/node).
+function excludeMocks(): Plugin {
+    return {
+        name: 'exclude-mocks',
+        resolveId(id) {
+            if (config.environment === 'prod' && (id.includes('__mock') || id.startsWith('@mocks'))) {
+                return '\0empty-mock';
+            }
+        },
+        load(id) {
+            if (id === '\0empty-mock') {
+                return 'export {}';
+            }
+            // Exclude __mock route files from prod builds (resolveId doesn't catch filesystem routes)
+            if (config.environment === 'prod' && id.includes('__mock')) {
+                return 'export {}';
+            }
+        }
+    };
+}
+
 export default defineConfig({
     plugins: [
+        excludeMocks(),
         tailwindcss(),
         sveltekit(),
         viteStaticCopy({

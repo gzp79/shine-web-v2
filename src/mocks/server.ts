@@ -24,5 +24,28 @@ export const mockForGuestUser: Array<RequestHandler> = [
 export const server = setupServer(
     withLog, //
     withDelay(5000),
-    ...mockForLoginPage
+    ...mockForGuestUser
 );
+
+// --- Mock control API state ---
+// Tracks overrides added via the /api/__mock endpoint.
+// MSW's server.use() prepends handlers, server.resetHandlers() removes all runtime handlers.
+const activeOverrides = new Map<string, RequestHandler>();
+
+export function addOverride(name: string, handler: RequestHandler): void {
+    activeOverrides.set(name, handler);
+    server.use(handler);
+}
+
+export function removeOverride(name: string): void {
+    activeOverrides.delete(name);
+    server.resetHandlers();
+    if (activeOverrides.size > 0) {
+        server.use(...activeOverrides.values());
+    }
+}
+
+export function resetOverrides(): void {
+    activeOverrides.clear();
+    server.resetHandlers();
+}

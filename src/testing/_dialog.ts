@@ -1,6 +1,6 @@
 import { waitFor } from '@testing-library/svelte';
 import { expect } from 'vitest';
-import { withinPortal } from './portal';
+import { withinPortal } from './_portal';
 
 export async function getDialogButton(name: string | RegExp): Promise<HTMLElement> {
     const canvas = withinPortal();

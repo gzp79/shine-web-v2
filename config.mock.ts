@@ -4,7 +4,7 @@ export const config = {
     environment: 'mock',
 
     webUrl: 'https://local.scytta.com:4443',
-    assetUrl: 'https://local.scytta.com:4443',
+    assetUrl: 'https://assets.scytta.com',
     gameUrl: 'https://game.scytta.com',
 
     identityUrl: 'https://cloud.scytta.com/identity',

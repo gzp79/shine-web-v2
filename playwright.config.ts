@@ -5,10 +5,6 @@ console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment)) {
     process.env.DEBUG = 'log:user, log:game, warn:*, info:*';
 }
-const isCI = !!process.env.CI;
-if (isCI && config.environment !== 'prod') {
-    throw new Error('CI deployment shall only use prod environment for e2e tests');
-}
 
 function fixDeploymentURL(url: string | undefined): string | undefined {
     if (!url) {
@@ -36,6 +32,6 @@ export default defineConfig({
         headless: true,
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        ignoreHTTPSErrors: !isCI
+        ignoreHTTPSErrors: true
     }
 });

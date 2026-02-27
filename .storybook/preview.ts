@@ -2,7 +2,7 @@ import type { Preview } from '@storybook/sveltekit';
 import '../src/app.css';
 import { createTranslator, getLocaleWithFallback, loadTranslation, localeList } from '../src/lib/i18n';
 import { getThemeWithFallback, themeList } from '../src/lib/theme';
-import StorybookLayoutProvider from '../src/storybook/StorybookLayoutProvider.svelte';
+import AppLayoutMock from '../src/storybook/AppLayoutMock.svelte';
 
 // Load English translator for toolbar labels
 const enTranslator = createTranslator(await loadTranslation('en'));
@@ -87,7 +87,7 @@ const preview: Preview = {
             const storyResult = story();
 
             return {
-                Component: StorybookLayoutProvider,
+                Component: AppLayoutMock,
                 props: {
                     initialLocale: selectedLocale,
                     initialTheme: selectedTheme,

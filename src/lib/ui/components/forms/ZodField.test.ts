@@ -1,8 +1,8 @@
-import { renderWithLayout } from '@testing';
-import { cleanup, screen } from '@testing-library/svelte';
+import { cleanup, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, test } from 'vitest';
 import { z } from 'zod';
+import { LOCALE_CONTEXT_KEY } from '@lib/i18n';
 import ZodField from './ZodField.svelte';
 
 const emailSchema = z.email({ message: 'Please enter a valid email address' });
@@ -15,20 +15,34 @@ afterEach(() => {
     cleanup();
 });
 
+const createContext = () =>
+    new Map([
+        [
+            LOCALE_CONTEXT_KEY,
+            {
+                locale: 'en',
+                t: (key: string) => key
+            }
+        ]
+    ]);
+
 describe('ZodField - Email Validation', () => {
     test('shows validation error for invalid email', async () => {
         const user = userEvent.setup();
-        let validated: string | undefined;
+        let validated: unknown;
 
-        renderWithLayout(ZodField, {
-            type: 'email',
-            schema: emailSchema,
-            rawInput: '',
-            label: 'Email Address',
-            required: true,
-            onValue: (val: string | undefined) => {
-                validated = val;
-            }
+        render(ZodField, {
+            props: {
+                type: 'email',
+                schema: emailSchema,
+                rawInput: '',
+                label: 'Email Address',
+                required: true,
+                onValue: (val) => {
+                    validated = val;
+                }
+            },
+            context: createContext()
         });
 
         const input = screen.getByRole('textbox');
@@ -42,17 +56,20 @@ describe('ZodField - Email Validation', () => {
 
     test('validates correct email and clears error', async () => {
         const user = userEvent.setup();
-        let validated: string | undefined;
+        let validated: unknown;
 
-        renderWithLayout(ZodField, {
-            type: 'email',
-            schema: emailSchema,
-            rawInput: '',
-            label: 'Email Address',
-            required: true,
-            onValue: (val: string | undefined) => {
-                validated = val;
-            }
+        render(ZodField, {
+            props: {
+                type: 'email',
+                schema: emailSchema,
+                rawInput: '',
+                label: 'Email Address',
+                required: true,
+                onValue: (val) => {
+                    validated = val;
+                }
+            },
+            context: createContext()
         });
 
         const input = screen.getByRole('textbox');
@@ -68,17 +85,20 @@ describe('ZodField - Email Validation', () => {
 describe('ZodField - Age Validation', () => {
     test('shows validation error for age below minimum', async () => {
         const user = userEvent.setup();
-        let validated: number | undefined;
+        let validated: unknown;
 
-        renderWithLayout(ZodField, {
-            type: 'number',
-            schema: ageSchema,
-            rawInput: '',
-            label: 'Age',
-            required: true,
-            onValue: (val: number | undefined) => {
-                validated = val;
-            }
+        render(ZodField, {
+            props: {
+                type: 'number',
+                schema: ageSchema,
+                rawInput: '',
+                label: 'Age',
+                required: true,
+                onValue: (val) => {
+                    validated = val;
+                }
+            },
+            context: createContext()
         });
 
         const input = screen.getByRole('spinbutton');
@@ -92,17 +112,20 @@ describe('ZodField - Age Validation', () => {
 
     test('validates correct age', async () => {
         const user = userEvent.setup();
-        let validated: number | undefined;
+        let validated: unknown;
 
-        renderWithLayout(ZodField, {
-            type: 'number',
-            schema: ageSchema,
-            rawInput: '',
-            label: 'Age',
-            required: true,
-            onValue: (val: number | undefined) => {
-                validated = val;
-            }
+        render(ZodField, {
+            props: {
+                type: 'number',
+                schema: ageSchema,
+                rawInput: '',
+                label: 'Age',
+                required: true,
+                onValue: (val) => {
+                    validated = val;
+                }
+            },
+            context: createContext()
         });
 
         const input = screen.getByRole('spinbutton');
@@ -116,17 +139,20 @@ describe('ZodField - Age Validation', () => {
 
     test('shows validation error for age above maximum', async () => {
         const user = userEvent.setup();
-        let validated: number | undefined;
+        let validated: unknown;
 
-        renderWithLayout(ZodField, {
-            type: 'number',
-            schema: ageSchema,
-            rawInput: '',
-            label: 'Age',
-            required: true,
-            onValue: (val: number | undefined) => {
-                validated = val;
-            }
+        render(ZodField, {
+            props: {
+                type: 'number',
+                schema: ageSchema,
+                rawInput: '',
+                label: 'Age',
+                required: true,
+                onValue: (val) => {
+                    validated = val;
+                }
+            },
+            context: createContext()
         });
 
         const input = screen.getByRole('spinbutton');
