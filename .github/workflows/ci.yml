@@ -39,6 +39,9 @@ jobs:
             - name: Setup mock environment
               run: pnpm run env:mock
 
+            - name: Sync SvelteKit
+              run: pnpm exec svelte-kit sync
+
             - name: Run unit tests
               run: pnpm run test:unit --run
 
@@ -79,6 +82,9 @@ jobs:
                   pnpm run env:prod
                   ver=$(pnpm list wrangler --depth=0 --json 2>/dev/null | jq -r '.[] | (.devDependencies.wrangler.version // .dependencies.wrangler.version) | select(.)' 2>/dev/null | head -n1)
                   echo "wrangler_version=$ver" >> $GITHUB_OUTPUT
+
+            - name: Sync SvelteKit
+              run: pnpm exec svelte-kit sync
 
             - name: Lint and check
               run: |
