@@ -87,6 +87,10 @@ function excludeMocks(): Plugin {
             if (id === '\0empty-mock') {
                 return 'export {}';
             }
+            // Exclude __mock route files from prod builds (resolveId doesn't catch filesystem routes)
+            if (config.environment === 'prod' && id.includes('__mock')) {
+                return 'export {}';
+            }
         }
     };
 }
