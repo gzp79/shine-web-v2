@@ -5,7 +5,6 @@ console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment)) {
     process.env.DEBUG = 'log:user, log:game, warn:*, info:*';
 }
-const isCI = !!process.env.CI;
 
 function fixDeploymentURL(url: string | undefined): string | undefined {
     if (!url) {
