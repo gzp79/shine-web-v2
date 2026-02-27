@@ -76,18 +76,19 @@ function serverConfigs() {
     };
 }
 
-/// Prevents __mock routes from being bundled in production builds
-function excludeMockRoutes(): Plugin {
+/// Prevents mock infrastructure from being bundled in production builds.
+/// Catches both __mock routes and @mocks/* module imports (which pull in msw/node).
+function excludeMocks(): Plugin {
     return {
-        name: 'exclude-mock-routes',
+        name: 'exclude-mocks',
         resolveId(id) {
-            if (config.environment === 'prod' && id.includes('__mock')) {
+            if (config.environment === 'prod' && (id.includes('__mock') || id.startsWith('@mocks'))) {
                 return '\0empty-mock';
             }
         },
         load(id) {
             if (id === '\0empty-mock') {
-                return '';
+                return 'export {}';
             }
         }
     };
@@ -95,7 +96,7 @@ function excludeMockRoutes(): Plugin {
 
 export default defineConfig({
     plugins: [
-        excludeMockRoutes(),
+        excludeMocks(),
         tailwindcss(),
         sveltekit(),
         viteStaticCopy({
