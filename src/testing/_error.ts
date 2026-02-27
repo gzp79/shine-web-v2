@@ -1,6 +1,6 @@
 import { waitFor } from '@testing-library/svelte';
 import { expect } from 'vitest';
-import type { Canvas } from './types';
+import type { Canvas } from './_types';
 
 export async function expectErrorState(canvas: Canvas, errorText?: string | RegExp): Promise<HTMLElement> {
     const error = await canvas.getByRole('alert');

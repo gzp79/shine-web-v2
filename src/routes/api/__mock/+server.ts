@@ -1,4 +1,5 @@
 import { config } from '@config';
+import type { RequestHandler as MswRequestHandler } from 'msw';
 import { registry } from '@mocks/registry';
 import { addOverride, removeOverride, resetOverrides } from '@mocks/server';
 import type { RequestHandler } from './$types';
@@ -17,7 +18,10 @@ export const POST: RequestHandler = async ({ request }) => {
         });
     }
 
-    const mswHandler = (factory as Function)(params);
+    const mswHandler: MswRequestHandler =
+        params === undefined
+            ? (factory as () => MswRequestHandler)()
+            : (factory as (handlerParams: unknown) => MswRequestHandler)(params);
     addOverride(handler, mswHandler);
 
     return new Response(JSON.stringify({ ok: true, handler }), {

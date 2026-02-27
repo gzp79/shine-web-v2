@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Component testing with Vitest and @testing-library/svelte. Use when writing or debugging *.test.ts files.
+description: Component testing with Vitest and @testing-library/svelte. Use when writing or debugging src/**/*.test.ts files. For E2E tests (tests/e2e/**), use the e2e-testing skill instead.
 ---
 
 # Component Testing
