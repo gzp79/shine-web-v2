@@ -1,4 +1,4 @@
-name: Build and Test
+name: CI
 
 on:
     push:
@@ -12,13 +12,48 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
+    test:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: recursive
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: latest
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22.x
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm i
+
+            - name: Setup mock environment
+              run: pnpm run env:mock
+
+            - name: Run unit tests
+              run: pnpm run test:unit --run
+
+            - name: Install Playwright browsers
+              run: pnpm exec playwright install
+
+            - name: Run E2E tests
+              run: pnpm run test:e2e
+
     build:
         runs-on: ubuntu-latest
         outputs:
             wrangler_version: ${{ steps.pre_build.outputs.wrangler_version }}
         permissions:
             contents: read
-            packages: write
 
         steps:
             - uses: actions/checkout@v4
@@ -45,19 +80,19 @@ jobs:
                   ver=$(pnpm list wrangler --depth=0 --json 2>/dev/null | jq -r '.[] | (.devDependencies.wrangler.version // .dependencies.wrangler.version) | select(.)' 2>/dev/null | head -n1)
                   echo "wrangler_version=$ver" >> $GITHUB_OUTPUT
 
-            - name: Build
+            - name: Lint and check
               run: |
                   pnpm run lint
                   pnpm run check
-                  pnpm audit --audit-level=high --prod
+
+            - name: Audit
+              run: pnpm audit --audit-level=high --prod
+
+            - name: Build
+              run: |
                   pnpm run build
                   pnpm dlx wrangler deploy --dry-run --outdir ./.svelte-kit/cloudflare-tmp
                   cp ./.svelte-kit/cloudflare-tmp/_worker.js ./.svelte-kit/cloudflare/_worker.js
-
-            - name: Test
-              run: |
-                  pnpm exec playwright install
-                  pnpm run test
 
             - name: Collect artifacts
               run: |
@@ -66,39 +101,44 @@ jobs:
                   jq '.main = "cloudflare/_worker.js" | .assets.directory = "cloudflare"' wrangler.json > ./dist/wrangler.json
                   jq '.main = "cloudflare/_worker.js" | .assets.directory = "cloudflare"' wrangler-dev.json > ./dist/wrangler-dev.json
 
-            # Upload the release artifact
             - name: Upload artifacts
-              if: github.ref == 'refs/heads/master'
               uses: actions/upload-artifact@v4
               with:
                   name: spa
                   include-hidden-files: true
                   path: ./dist
 
-            # Create preview site
-            # TODO: At the moment we have a single preview environment updated by all PRs.
-            # This works for now but in the future we might want to have separate preview deployments per feature
-            - name: Upload preview site
-              id: preview_deploy
-              if: github.event_name == 'pull_request'
+    deploy-dev:
+        needs: [test, build]
+        if: github.event_name == 'pull_request'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - name: Download artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  name: spa
+                  path: ./dist
+
+            - name: Deploy to dev
+              id: deploy
               uses: cloudflare/wrangler-action@v3
               with:
-                  wranglerVersion: ${{ steps.pre_build.outputs.wrangler_version }}
+                  wranglerVersion: ${{ needs.build.outputs.wrangler_version }}
                   apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                   accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
                   workingDirectory: ./dist
                   command: deploy -c wrangler-dev.json
 
-            - name: Test preview site
-              if: github.event_name == 'pull_request'
+            - name: Post deployment URL
               env:
-                  DEPLOYMENT_URL: ${{ steps.preview_deploy.outputs.deployment-url }}
-              run: |
-                  echo "**Deployment url**: <${DEPLOYMENT_URL}>" >> $GITHUB_STEP_SUMMARY
-                  pnpm run test:e2e
+                  DEPLOYMENT_URL: ${{ steps.deploy.outputs.deployment-url }}
+              run: 'echo "**Deployment url**: <${DEPLOYMENT_URL}>" >> $GITHUB_STEP_SUMMARY'
 
-    deploy:
-        needs: build
+    deploy-prod:
+        needs: [test, build]
         if: github.ref == 'refs/heads/master'
         runs-on: ubuntu-latest
         permissions:
