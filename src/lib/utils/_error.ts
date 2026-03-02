@@ -1,4 +1,5 @@
-export type AppErrorKind = 'fetch' | 'other' | 'retryLimit';
+const appErrorKindList = ['fetch', 'other', 'retryLimit'] as const;
+export type AppErrorKind = (typeof appErrorKindList)[number];
 
 export type BaseAppError = {
     type: 'app-error';
@@ -32,7 +33,7 @@ export const isAppError = (value: unknown): value is AppError => {
         return false;
     }
     const v = value as Record<string, unknown>;
-    return v.type === 'app-error' && (v.kind === 'fetch' || v.kind === 'other');
+    return v.type === 'app-error' && appErrorKindList.includes(v.kind as AppErrorKind);
 };
 
 export async function createFetchError(response: Response, message = `HTTP ${response.status}`): Promise<FetchError> {

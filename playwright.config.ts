@@ -25,8 +25,9 @@ export default defineConfig({
     // All projects share one MSW server with mutable mock state — run tests serially
     workers: 1,
     webServer: {
-        command: 'pnpm run build && pnpm run preview',
-        port: parseInt(new URL(webURL).port)
+        command: 'pnpm run dev',
+        port: parseInt(new URL(webURL).port),
+        reuseExistingServer: true
     },
     use: {
         baseURL: webURL,
