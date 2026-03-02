@@ -13,15 +13,18 @@ if (['dev', 'local', 'mock'].includes(config.environment)) {
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
 }
 
-const isTest = !!process.env.VITEST;
-const isCI = !!process.env.CI;
-if (isCI && config.environment !== 'prod') {
-    throw new Error('CI deployment shall only use prod environment');
+const isBuildCommand = process.argv.includes('build');
+if (isBuildCommand && config.environment !== 'prod') {
+    throw new Error(
+        `Build requires production config. Current environment is "${config.environment}". Run "pnpm run env:prod" before building.`
+    );
 }
+
+const isCI = !!process.env.CI;
 
 const additionalAssets = [];
 
-// If assets are served from the web server, ensure they are built before starting the server and included in the static copy targets
+// Only build assets locally when the asset server is the web server itself
 if (config.assetUrl === config.webUrl) {
     await buildAssets();
     additionalAssets.push({
@@ -76,19 +79,29 @@ function serverConfigs() {
     };
 }
 
-/// Prevents test infrastructure routes from being bundled in production builds
-function excludeTestInfraRoutes(): Plugin {
-    const excluded = ['__mock', '__test'];
+/// Prevents mock infrastructure routes from being bundled in production builds
+function excludeMocks(): Plugin {
+    const excluded = ['__mock', '__test', '@mocks'];
+
+    const isMockRoute = (id: string) => {
+        const normalizedId = id.split('?')[0].replaceAll('\\', '/');
+        const pathParts = normalizedId.split('/');
+        return pathParts.some((part) => excluded.includes(part));
+    };
+
     return {
-        name: 'exclude-test-infra-routes',
+        name: 'exclude-mocks',
         resolveId(id) {
-            if (config.environment === 'prod' && excluded.some((p) => id.includes(p))) {
-                return '\0empty-test-infra';
+            if (config.environment === 'prod' && isMockRoute(id)) {
+                return '\0empty-mock';
             }
         },
         load(id) {
-            if (id === '\0empty-test-infra') {
-                return '';
+            if (id === '\0empty-mock') {
+                return 'export {}';
+            }
+            if (config.environment === 'prod' && isMockRoute(id)) {
+                return 'export {}';
             }
         }
     };
@@ -96,7 +109,7 @@ function excludeTestInfraRoutes(): Plugin {
 
 export default defineConfig({
     plugins: [
-        excludeTestInfraRoutes(),
+        excludeMocks(),
         tailwindcss(),
         sveltekit(),
         svelteTesting(),
@@ -104,7 +117,7 @@ export default defineConfig({
             targets: [...additionalAssets]
         })
     ],
-    ...(isTest ? {} : serverConfigs()),
+    ...(config.environment === 'prod' ? {} : serverConfigs()),
     test: {
         expect: {
             requireAssertions: true

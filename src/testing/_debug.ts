@@ -31,7 +31,7 @@ export async function pauseTest() {
  */
 export async function screenshot(name: string) {
     const { page } = await import('vitest/browser');
-    await page.screenshot({ path: `screenshots/${name}.png`, fullPage: true });
+    await page.screenshot({ path: `screenshots/${name}.png` });
 }
 
 /**

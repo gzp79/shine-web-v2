@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "prepare": "husky",
-        "pre-commit": "pnpm run lint && pnpm run check && pnpm run test:unit --run",
+        "pre-commit": "svelte-kit sync && pnpm run lint && pnpm run check && pnpm run test:unit --run",
         "mkcert": "cd certificates && mkcert create-ca && mkcert create-cert --domains local.scytta.com",
         "env:mock": "pnpm dlx msw init && tsx scripts/select-config.ts mock",
         "env:local": "tsx scripts/select-config.ts local",
@@ -18,14 +18,15 @@
         "build:css": "pnpm dlx @tailwindcss/cli -i ./src/app.css -o ./temp/app.css",
         "build:storybook": "storybook build",
         "preview": "vite preview",
-        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check": "svelte-check --tsconfig ./tsconfig.json",
         "audit:check": "pnpm audit --audit-level=moderate",
         "format": "prettier --write .",
         "lint": "prettier --check . && eslint .",
-        "test": "pnpm run test:unit --run && pnpm run test:e2e",
+        "test": "pnpm run test:unit --run && pnpm run test:component && pnpm run test:e2e",
         "test:unit": "vitest",
         "test:unit-ui": "vitest --ui --open",
-        "test:e2e": "playwright test",
+        "test:e2e": "playwright test e2e",
+        "test:component": "playwright test component",
         "storybook": "storybook dev -p 6006"
     },
     "dependencies": {
@@ -59,7 +60,6 @@
         "@trivago/prettier-plugin-sort-imports": "^6.0.2",
         "@types/debug": "^4.1.12",
         "@types/node": "^25.3.0",
-
         "@vitest/coverage-v8": "^4.0.18",
         "@vitest/ui": "4.0.18",
         "eslint": "^10.0.2",
@@ -86,7 +86,6 @@
         "vite": "^7.3.1",
         "vite-plugin-static-copy": "^3.2.0",
         "vitest": "^4.0.18",
-
         "wrangler": "^4.68.1"
     },
     "msw": {

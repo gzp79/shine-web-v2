@@ -10,17 +10,19 @@
 
 Three tiers, each with increasing scope and cost:
 
-| Tier | Runner | Environment | Server | Mock strategy |
-|------|--------|-------------|--------|---------------|
-| **Unit** | Vitest | happy-dom | None | Direct imports / vi.mock |
-| **Component** | Playwright | Chromium | SvelteKit preview (MSW) | Mock fixture via HTTP |
-| **E2E** | Playwright | Chromium | SvelteKit preview (MSW) | Mock fixture via HTTP |
+| Tier          | Runner     | Environment | Server                  | Mock strategy            |
+| ------------- | ---------- | ----------- | ----------------------- | ------------------------ |
+| **Unit**      | Vitest     | happy-dom   | None                    | Direct imports / vi.mock |
+| **Component** | Playwright | Chromium    | SvelteKit preview (MSW) | Mock fixture via HTTP    |
+| **E2E**       | Playwright | Chromium    | SvelteKit preview (MSW) | Mock fixture via HTTP    |
 
 Component and E2E tests share the same Playwright webServer (SvelteKit built with MSW) and the same mock fixture. They differ only in what they exercise:
+
 - **Component tests** navigate to `/__test/` routes that mount a single component in isolation
 - **E2E tests** navigate to real app routes and exercise full user flows
 
 **When to use which:**
+
 - Unit — pure logic, components with props only, no server interaction
 - Component — components that call remote functions, need MSW to shape server responses
 - E2E — multi-page flows, navigation, full user journeys
@@ -53,6 +55,7 @@ src/routes/
 ```
 
 **Key points:**
+
 - `tests/fixtures/` is the shared home — both `tests/component/` and `tests/e2e/` import `../fixtures/mock`
 - `__test` routes are thin wrappers that mount a single component with no layout chrome
 - The `+layout.server.ts` guard at `__test/` root protects the entire subtree
@@ -89,7 +92,7 @@ function excludeTestInfraRoutes(): Plugin {
     return {
         name: 'exclude-test-infra-routes',
         resolveId(id) {
-            if (config.environment === 'prod' && excluded.some(p => id.includes(p))) {
+            if (config.environment === 'prod' && excluded.some((p) => id.includes(p))) {
                 return '\0empty-test-infra';
             }
         },
@@ -113,17 +116,18 @@ projects: [
     {
         name: 'component',
         testDir: 'tests/component',
-        testMatch: '**/*.test.ts',
+        testMatch: '**/*.test.ts'
     },
     {
         name: 'e2e',
         testDir: 'tests/e2e',
-        testMatch: '**/*.test.ts',
+        testMatch: '**/*.test.ts'
     }
-]
+];
 ```
 
 Run targets:
+
 - `pnpm test:e2e` — all Playwright tests (both projects)
 - `pnpm test:e2e --project=component` — component tests only
 - `pnpm test:e2e --project=e2e` — E2E tests only
@@ -198,6 +202,7 @@ UserInfoCard currently receives `userInfo: QueryLike<CurrentUser>` as a prop fro
     // ...imports...
     export type UserInfoCardProps = { userInfo: QueryLike<CurrentUser> };
 </script>
+
 <script lang="ts">
     let { userInfo }: UserInfoCardProps = $props();
 </script>
@@ -210,12 +215,14 @@ UserInfoCard currently receives `userInfo: QueryLike<CurrentUser>` as a prop fro
     // ...imports...
     import { queryCurrentUserInfo } from './auth.remote';
 </script>
+
 <script lang="ts">
     const userInfo = queryCurrentUserInfo();
 </script>
 ```
 
 **What changes:**
+
 - Remove the `UserInfoCardProps` type export and `$props()` destructuring
 - Import and call `queryCurrentUserInfo()` directly in the instance script
 - Remove the `userInfo` prop from any parent component that currently passes it
@@ -227,17 +234,17 @@ UserInfoCard currently receives `userInfo: QueryLike<CurrentUser>` as a prop fro
 
 ## File Summary
 
-| File | Action | Description |
-|------|--------|-------------|
-| `vite.config.ts` | Modify | Switch Vitest to happy-dom, replace `excludeMockRoutes` with `excludeTestInfraRoutes` |
-| `playwright.config.ts` | Modify | Add `component` and `e2e` projects |
-| `src/routes/__test/+layout.server.ts` | Create | Runtime prod guard for test routes |
-| `tests/fixtures/mock.ts` | Move | Relocate from `tests/e2e/fixtures/mock.ts` to shared location |
-| `src/lib/account/UserInfoCard.svelte` | Modify | Replace `userInfo` prop with internal `queryCurrentUserInfo()` call |
+| File                                  | Action | Description                                                                           |
+| ------------------------------------- | ------ | ------------------------------------------------------------------------------------- |
+| `vite.config.ts`                      | Modify | Switch Vitest to happy-dom, replace `excludeMockRoutes` with `excludeTestInfraRoutes` |
+| `playwright.config.ts`                | Modify | Add `component` and `e2e` projects                                                    |
+| `src/routes/__test/+layout.server.ts` | Create | Runtime prod guard for test routes                                                    |
+| `tests/fixtures/mock.ts`              | Move   | Relocate from `tests/e2e/fixtures/mock.ts` to shared location                         |
+| `src/lib/account/UserInfoCard.svelte` | Modify | Replace `userInfo` prop with internal `queryCurrentUserInfo()` call                   |
 
 Test route pages and test files are created per-component as needed. The first example:
 
-| File | Action | Description |
-|------|--------|-------------|
+| File                                              | Action | Description                              |
+| ------------------------------------------------- | ------ | ---------------------------------------- |
 | `src/routes/__test/account/userinfo/+page.svelte` | Create | Thin wrapper mounting `<UserInfoCard />` |
-| `tests/component/account/userinfo.test.ts` | Create | Component test for UserInfoCard |
+| `tests/component/account/userinfo.test.ts`        | Create | Component test for UserInfoCard          |
