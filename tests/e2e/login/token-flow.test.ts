@@ -1,4 +1,4 @@
-import { expect, test } from '../fixtures/mock';
+import { expect, test } from '../../fixtures/mock';
 
 test('non-interactive token flow fails and redirects to prompt login', async ({ page, mock }) => {
     await mock.add('unauthorizedUser');

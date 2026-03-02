@@ -1,31 +1,50 @@
-# Mock Control API - Implementation Plan
-
-> **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+# Mock Control API - Design
 
 **Goal:** Enable Playwright E2E tests to dynamically add/remove MSW mock handlers via an HTTP API, with typed fixtures for ergonomic test authoring.
-
-**Architecture:** Four layers — handler registry (types + factories), HTTP endpoint (POST add / DELETE remove+reset), Playwright fixture (typed `mock.add`/`mock.remove`/`mock.reset` with auto-reset), and default handlers (guest happy path on boot).
 
 **Tech Stack:** MSW 2.x, SvelteKit server routes, Playwright fixtures, TypeScript
 
 ---
 
-### Task 1: Create Handler Registry
+## Architecture
 
-**Files:**
+Four layers, each with a single responsibility:
 
-- Create: `src/mocks/registry.ts`
+```
+┌─────────────────────────────────────────────────────────┐
+│  Playwright Test                                        │
+│  test('...', async ({ mock }) => {                      │
+│      await mock.add('unauthorizedUser');                │
+│      await mock.add('tokenLogin', { success: false });  │
+│  });                                                    │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTP (fetch)
+┌──────────────────────▼──────────────────────────────────┐
+│  SvelteKit Endpoint: /api/__mock                        │
+│  POST = add handler, DELETE = remove/reset              │
+└──────────────────────┬──────────────────────────────────┘
+                       │ imports
+┌──────────────────────▼──────────────────────────────────┐
+│  Override Manager (server.ts)                           │
+│  addOverride / removeOverride / resetOverrides          │
+│  Wraps MSW's server.use() / server.resetHandlers()      │
+└──────────────────────┬──────────────────────────────────┘
+                       │ looks up
+┌──────────────────────▼──────────────────────────────────┐
+│  Handler Registry (registry.ts)                         │
+│  MockHandlers type map → handler factories              │
+└─────────────────────────────────────────────────────────┘
+```
 
-**Step 1: Create the registry file with types and factories**
+---
+
+## Layer 1: Handler Registry
+
+**File:** `src/mocks/registry.ts`
+
+A single source of truth mapping handler names to their MSW factory functions. The `MockHandlers` interface defines every available handler and its parameter type (`void` for no params, or a typed object).
 
 ```typescript
-// src/mocks/registry.ts
-import type { RequestHandler } from 'msw';
-import { defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
-import { defaultProviders } from './data/providers/mocks';
-import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
-import { withDelay, withIdentityDown } from './middleware';
-
 export interface MockHandlers {
     defaultProviders: void;
     unauthorizedUser: void;
@@ -41,376 +60,96 @@ type HandlerFactory<K extends keyof MockHandlers> = MockHandlers[K] extends void
     ? () => RequestHandler
     : (params: MockHandlers[K]) => RequestHandler;
 
-export const registry: { [K in keyof MockHandlers]: HandlerFactory<K> } = {
-    defaultProviders: () => defaultProviders,
-    unauthorizedUser: () => unauthorizedUser,
-    defaultGuestUser: () => defaultGuestUser,
-    defaultGuestLogin: () => defaultGuestLogin,
-    defaultExternalLogin: () => defaultExternalLogin,
-    tokenLogin: (params) => tokenLogin(params.success),
-    withIdentityDown: () => withIdentityDown,
-    withDelay: (params) => withDelay(params.ms)
-};
+export const registry: { [K in keyof MockHandlers]: HandlerFactory<K> } = { ... };
 ```
 
-**Step 2: Verify it compiles**
-
-Run: `pnpm exec tsc --noEmit src/mocks/registry.ts` (or just rely on IDE type-checking)
-
-**Step 3: Commit**
-
-```bash
-git add src/mocks/registry.ts
-git commit -m "feat: add typed MSW handler registry"
-```
+**Design decisions:**
+- The `MockHandlers` interface is the contract shared between the registry, the HTTP endpoint, and the Playwright fixture — it's the only type that crosses layer boundaries.
+- Adding a new mock handler means: create the MSW handler, add a key to `MockHandlers`, add a factory to `registry`. Type errors propagate to all call sites.
 
 ---
 
-### Task 2: Switch Server Defaults to Guest Happy Path
+## Layer 2: Override Manager
 
-**Files:**
+**File:** `src/mocks/server.ts`
 
-- Modify: `src/mocks/server.ts`
+Manages MSW server state. Tracks active overrides by name and bridges to MSW's `server.use()` / `server.resetHandlers()`.
 
-**Step 1: Change default handlers to `mockForGuestUser` and export override state**
+**Default handlers:** The server boots with the **guest happy path** (`mockForGuestUser`) — authenticated guest user with providers loaded. Tests that need different state override via the API.
 
-Replace the full content of `src/mocks/server.ts` with:
+**Interface:**
+- `addOverride(name, handler)` — prepend handler via `server.use()`, track by name
+- `removeOverride(name)` — remove by name, reset MSW, re-apply remaining overrides
+- `resetOverrides()` — clear all overrides, reset MSW to defaults
 
-```typescript
-import type { RequestHandler } from 'msw';
-import { setupServer } from 'msw/node';
-import { defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
-import { defaultProviders } from './data/providers/mocks';
-import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
-import { withDelay, withLog } from './middleware';
+**Why track by name:** MSW has no built-in way to remove a single runtime handler. The name-keyed map lets us surgically remove one override without losing others. On remove, we reset all runtime handlers and re-apply the remaining overrides.
 
-export const mockForLoginPage: Array<RequestHandler> = [
-    defaultProviders,
-    unauthorizedUser,
-    defaultGuestLogin,
-    tokenLogin(false),
-    defaultExternalLogin
-];
-
-export const mockForGuestUser: Array<RequestHandler> = [
-    defaultProviders,
-    defaultGuestUser,
-    defaultGuestLogin,
-    tokenLogin(true),
-    defaultExternalLogin
-];
-
-export const server = setupServer(withLog, withDelay(5000), ...mockForGuestUser);
-
-// --- Mock control API state ---
-// Tracks overrides added via the /api/__mock endpoint.
-// MSW's server.use() prepends handlers, server.resetHandlers() removes all runtime handlers.
-const activeOverrides = new Map<string, RequestHandler>();
-
-export function addOverride(name: string, handler: RequestHandler): void {
-    activeOverrides.set(name, handler);
-    server.use(handler);
-}
-
-export function removeOverride(name: string): void {
-    activeOverrides.delete(name);
-    server.resetHandlers();
-    if (activeOverrides.size > 0) {
-        server.use(...activeOverrides.values());
-    }
-}
-
-export function resetOverrides(): void {
-    activeOverrides.clear();
-    server.resetHandlers();
-}
-```
-
-**Step 2: Verify the dev server still starts with mock config**
-
-Run: `pnpm run env:mock && pnpm run build`
-Expected: Builds without errors. Server would boot with guest user defaults.
-
-**Step 3: Commit**
-
-```bash
-git add src/mocks/server.ts
-git commit -m "feat: switch MSW defaults to guest happy path, add override management"
-```
+**Why guest as default:** Most E2E tests exercise features behind authentication. Starting authenticated reduces boilerplate — tests only need overrides for the specific behavior they're testing.
 
 ---
 
-### Task 3: Create Mock Control API Endpoint
+## Layer 3: HTTP Endpoint
 
-**Files:**
+**File:** `src/routes/api/__mock/+server.ts`
 
-- Create: `src/routes/api/__mock/+server.ts`
+SvelteKit server route exposing two methods:
 
-**Step 1: Create the endpoint**
+| Method   | Body                            | Action                        |
+|----------|---------------------------------|-------------------------------|
+| `POST`   | `{ handler, params? }`         | Look up factory in registry, call `addOverride` |
+| `DELETE`  | `{ handler }`                  | Call `removeOverride(handler)` |
+| `DELETE`  | *(empty body)*                 | Call `resetOverrides()`       |
 
-```typescript
-// src/routes/api/__mock/+server.ts
-import { config } from '@config';
-import { registry } from '@mocks/registry';
-import { addOverride, removeOverride, resetOverrides } from '@mocks/server';
-import type { RequestHandler } from './$types';
+**Safety:**
+- Returns 404 in production (`config.environment === 'prod'`)
+- Returns 400 for unknown handler names
+- The single `(factory as Function)` cast bridges the typed registry to dynamic HTTP dispatch — acceptable for test-only code
 
-export const POST: RequestHandler = async ({ request }) => {
-    if (config.environment === 'prod') {
-        return new Response(null, { status: 404 });
-    }
-
-    const { handler, params } = await request.json();
-    const factory = registry[handler as keyof typeof registry];
-    if (!factory) {
-        return new Response(JSON.stringify({ error: `Unknown handler: ${handler}` }), {
-            status: 400,
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
-
-    const mswHandler = (factory as Function)(params);
-    addOverride(handler, mswHandler);
-
-    return new Response(JSON.stringify({ ok: true, handler }), {
-        headers: { 'Content-Type': 'application/json' }
-    });
-};
-
-export const DELETE: RequestHandler = async ({ request }) => {
-    if (config.environment === 'prod') {
-        return new Response(null, { status: 404 });
-    }
-
-    const text = await request.text();
-    if (text) {
-        const { handler } = JSON.parse(text);
-        removeOverride(handler);
-        return new Response(JSON.stringify({ ok: true, removed: handler }), {
-            headers: { 'Content-Type': 'application/json' }
-        });
-    }
-
-    resetOverrides();
-    return new Response(JSON.stringify({ ok: true, reset: true }), {
-        headers: { 'Content-Type': 'application/json' }
-    });
-};
-```
-
-Note: The single `(factory as Function)` cast is the only cast in the system — it bridges the typed registry (compile-time safe at call sites) to the dynamic HTTP dispatch. This is acceptable for test-only code.
-
-**Step 2: Verify endpoint is reachable**
-
-Run: `pnpm run env:mock && pnpm run build`
-Expected: Builds without errors, route `api/__mock` is included.
-
-**Step 3: Commit**
-
-```bash
-git add src/routes/api/__mock/+server.ts
-git commit -m "feat: add mock control HTTP endpoint (POST add, DELETE remove/reset)"
-```
+**Production exclusion:** A shared Vite plugin (`excludeTestInfraRoutes`) prevents both `__mock` and `__test` routes from production builds. See [component testing infrastructure design](./2026-02-27-component-testing-infrastructure-design.md#production-exclusion) for the unified plugin. The runtime guard is defense-in-depth.
 
 ---
 
-### Task 4: Add Build-Time Route Exclusion for Prod
+## Layer 4: Playwright Fixture
 
-**Files:**
+**File:** `tests/e2e/fixtures/mock.ts`
 
-- Modify: `vite.config.ts`
+A Playwright fixture (`mock`) that provides typed access to the mock control API. Tests import `{ test, expect }` from the fixture instead of from `@playwright/test`.
 
-**Step 1: Add a Vite plugin to exclude `__mock` routes in prod**
-
-In `vite.config.ts`, add a plugin function before the `export default defineConfig(...)` block:
+**Interface:**
 
 ```typescript
-import type { Plugin } from 'vite';
-
-function excludeMockRoutes(): Plugin {
-    return {
-        name: 'exclude-mock-routes',
-        resolveId(id) {
-            if (config.environment === 'prod' && id.includes('__mock')) {
-                return '\0empty-mock';
-            }
-        },
-        load(id) {
-            if (id === '\0empty-mock') {
-                return '';
-            }
-        }
-    };
-}
-```
-
-Then add `excludeMockRoutes()` to the plugins array:
-
-```typescript
-plugins: [
-    excludeMockRoutes(),
-    tailwindcss(),
-    sveltekit(),
-    viteStaticCopy({ ... })
-],
-```
-
-**Step 2: Verify prod build excludes the route**
-
-Run: `pnpm run env:prod && pnpm run build`
-Expected: Builds without errors. The `__mock` route should not appear in the build output.
-
-Run: `pnpm run env:mock && pnpm run build`
-Expected: Builds without errors. The `__mock` route is included.
-
-**Step 3: Commit**
-
-```bash
-git add vite.config.ts
-git commit -m "feat: exclude __mock routes from prod builds via Vite plugin"
-```
-
----
-
-### Task 5: Create Playwright Fixture
-
-**Files:**
-
-- Create: `tests/e2e/fixtures/mock.ts`
-
-**Step 1: Create the fixtures directory and mock fixture**
-
-```typescript
-// tests/e2e/fixtures/mock.ts
-import { test as base } from '@playwright/test';
-import type { MockHandlers } from '../../../src/mocks/registry';
-
 class MockFixture {
-    constructor(private baseURL: string) {}
-
     async add<K extends keyof MockHandlers>(
         name: K,
         ...params: MockHandlers[K] extends void ? [] : [MockHandlers[K]]
-    ): Promise<void> {
-        const response = await fetch(`${this.baseURL}/api/__mock`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ handler: name, params: params[0] })
-        });
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(`Mock add '${name}' failed: ${error}`);
-        }
-    }
+    ): Promise<void>;
 
-    async remove(name: keyof MockHandlers): Promise<void> {
-        const response = await fetch(`${this.baseURL}/api/__mock`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ handler: name })
-        });
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(`Mock remove '${name}' failed: ${error}`);
-        }
-    }
+    async remove(name: keyof MockHandlers): Promise<void>;
 
-    async reset(): Promise<void> {
-        const response = await fetch(`${this.baseURL}/api/__mock`, {
-            method: 'DELETE'
-        });
-        if (!response.ok) {
-            const error = await response.text();
-            throw new Error(`Mock reset failed: ${error}`);
-        }
-    }
+    async reset(): Promise<void>;
 }
-
-export { expect } from '@playwright/test';
-
-export const test = base.extend<{ mock: MockFixture }>({
-    mock: async ({ baseURL }, use) => {
-        const fixture = new MockFixture(baseURL!);
-        await use(fixture);
-        await fixture.reset();
-    }
-});
 ```
 
-**Step 2: Verify types resolve**
+**Key behaviors:**
+- `add()` uses conditional rest params — `mock.add('unauthorizedUser')` has no second arg, `mock.add('tokenLogin', { success: false })` requires one. TypeScript enforces this at compile time.
+- **Auto-reset:** The fixture calls `mock.reset()` in its teardown. Each test starts with a clean slate (the server's default guest handlers).
+- Communication is plain `fetch()` against `baseURL/api/__mock`.
 
-Run: `pnpm exec tsc --noEmit tests/e2e/fixtures/mock.ts` or check IDE for errors.
-Expected: No type errors. `MockHandlers` interface is accessible.
-
-**Step 3: Commit**
-
-```bash
-git add tests/e2e/fixtures/mock.ts
-git commit -m "feat: add Playwright mock fixture with typed add/remove/reset"
-```
-
----
-
-### Task 6: Create Sample Login Token-Flow Test
-
-**Files:**
-
-- Create: `tests/e2e/login/token-flow.test.ts`
-
-**Step 1: Create the login test directory and test file**
+**Usage example:**
 
 ```typescript
-// tests/e2e/login/token-flow.test.ts
 import { expect, test } from '../fixtures/mock';
 
-test('non-interactive token flow fails and redirects to prompt login', async ({ page, mock }) => {
-    // Override defaults: user not authenticated, token login fails
+test('token flow fails → redirects to prompt login', async ({ page, mock }) => {
     await mock.add('unauthorizedUser');
     await mock.add('tokenLogin', { success: false });
 
-    // Visit login without prompt param → triggers non-interactive token flow
     await page.goto('/login?returnUrl=/dashboard');
-
-    // Token flow fails → server redirects back with prompt=true query param
     await page.waitForURL('**/login**');
+
     const url = new URL(page.url());
     expect(url.searchParams.get('prompt')).toBe('true');
 });
-```
-
-**Step 2: Commit**
-
-```bash
-git add tests/e2e/login/token-flow.test.ts
-git commit -m "feat: add sample Playwright test for token login flow"
-```
-
----
-
-### Task 7: End-to-End Verification
-
-**Step 1: Set up mock environment**
-
-Run: `pnpm run env:mock`
-
-**Step 2: Run the sample test**
-
-Run: `pnpm exec playwright test tests/e2e/login/token-flow.test.ts --headed`
-Expected: Test passes. The login page loads, token flow fails (mock returns redirect to errorUrl), page ends up at `/login?prompt=true&returnUrl=/dashboard`.
-
-**Step 3: Verify auto-reset works**
-
-After the test completes, the fixture calls `mock.reset()`. Verify by running a second test that relies on defaults (guest user authenticated) without explicit mock setup.
-
-**Step 4: Verify prod guard**
-
-Run: `pnpm run env:prod && pnpm run build`
-Expected: Builds without errors. The `__mock` endpoint is excluded from the build.
-
-**Step 5: Final commit if any fixes were needed**
-
-```bash
-git commit -m "fix: adjustments from e2e verification"
 ```
 
 ---
@@ -424,4 +163,3 @@ git commit -m "fix: adjustments from e2e verification"
 | `src/routes/api/__mock/+server.ts`   | Create | HTTP endpoint: POST=add, DELETE=remove/reset, prod guard                           |
 | `vite.config.ts`                     | Modify | Vite plugin to exclude `__mock` routes in prod builds                              |
 | `tests/e2e/fixtures/mock.ts`         | Create | `MockFixture` class + extended Playwright `test` with auto-reset                   |
-| `tests/e2e/login/token-flow.test.ts` | Create | Sample test: token flow → `prompt=true`                                            |

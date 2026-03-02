@@ -26,16 +26,29 @@ const webURL = fixDeploymentURL(process.env.DEPLOYMENT_URL) || config.webUrl;
 console.log(`Using web URL: ${webURL}`);
 
 export default defineConfig({
+    // All projects share one MSW server with mutable mock state — run tests serially
+    workers: 1,
     webServer: {
         command: 'pnpm run build && pnpm run preview',
         port: parseInt(new URL(webURL).port)
     },
-    testDir: 'tests/e2e',
     use: {
         baseURL: webURL,
         headless: true,
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
         ignoreHTTPSErrors: !isCI
-    }
+    },
+    projects: [
+        {
+            name: 'component',
+            testDir: 'tests/component',
+            testMatch: '**/*.test.ts'
+        },
+        {
+            name: 'e2e',
+            testDir: 'tests/e2e',
+            testMatch: '**/*.test.ts'
+        }
+    ]
 });

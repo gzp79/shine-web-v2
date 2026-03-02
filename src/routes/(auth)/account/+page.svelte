@@ -9,14 +9,12 @@
         queryLinkedIdentities,
         revokeToken
     } from '@lib/account/auth.remote';
-    import { getCurrentUserStore } from '@lib/account/currentUserStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import StackLayout from '@lib/ui/app/StackLayout.svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import { async } from '@lib/utils';
 
     const locale = getLocaleContext();
-    const currentUser = getCurrentUserStore();
     const linkedIdentities = queryLinkedIdentities();
     const activeSessions = queryActiveSessions();
     const activeTokens = queryActiveTokens();
@@ -29,7 +27,7 @@
 <StackLayout>
     <Typography variant="h1">{locale.t('account.account')}</Typography>
 
-    <UserInfoCard userInfo={currentUser} />
+    <UserInfoCard />
     <LinkedIdentityCard
         identities={linkedIdentities}
         unlink={async () => {

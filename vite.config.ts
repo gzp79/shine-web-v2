@@ -1,6 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
-import { playwright } from '@vitest/browser-playwright';
+import { svelteTesting } from '@testing-library/svelte/vite';
 import fs from 'node:fs';
 import type { Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
@@ -76,17 +76,18 @@ function serverConfigs() {
     };
 }
 
-/// Prevents __mock routes from being bundled in production builds
-function excludeMockRoutes(): Plugin {
+/// Prevents test infrastructure routes from being bundled in production builds
+function excludeTestInfraRoutes(): Plugin {
+    const excluded = ['__mock', '__test'];
     return {
-        name: 'exclude-mock-routes',
+        name: 'exclude-test-infra-routes',
         resolveId(id) {
-            if (config.environment === 'prod' && id.includes('__mock')) {
-                return '\0empty-mock';
+            if (config.environment === 'prod' && excluded.some((p) => id.includes(p))) {
+                return '\0empty-test-infra';
             }
         },
         load(id) {
-            if (id === '\0empty-mock') {
+            if (id === '\0empty-test-infra') {
                 return '';
             }
         }
@@ -95,9 +96,10 @@ function excludeMockRoutes(): Plugin {
 
 export default defineConfig({
     plugins: [
-        excludeMockRoutes(),
+        excludeTestInfraRoutes(),
         tailwindcss(),
         sveltekit(),
+        svelteTesting(),
         viteStaticCopy({
             targets: [...additionalAssets]
         })
@@ -108,17 +110,13 @@ export default defineConfig({
             requireAssertions: true
         },
         reporters: isCI ? ['github-actions'] : ['default'],
-        browser: {
-            enabled: true,
-            provider: playwright(),
-            instances: [
-                {
-                    browser: 'chromium',
-                    headless: true // Set to false to see browser window (for debugging)
-                }
-            ]
-        },
+        environment: 'happy-dom',
+        setupFiles: ['@testing-library/jest-dom/vitest', './src/testing/vitest-setup.ts'],
         include: ['src/**/*.{test,spec}.{js,ts}'],
-        exclude: ['src/lib/server/**']
+        exclude: [
+            'src/lib/server/**',
+            // TODO: Migrate to @testing-library/svelte or delete (uses vitest-browser-svelte browser-mode APIs)
+            'src/routes/page.svelte.spec.ts'
+        ]
     }
 });
