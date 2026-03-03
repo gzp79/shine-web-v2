@@ -1,5 +1,5 @@
 import { type APIRequestContext, test as base } from '@playwright/test';
-import type { MockHandlers } from '../../../src/mocks/registry';
+import type { MockHandlers } from '../../src/mocks/registry';
 
 class MockFixture {
     constructor(private request: APIRequestContext) {}

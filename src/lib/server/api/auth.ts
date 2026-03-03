@@ -22,6 +22,24 @@ export const authUrl = {
         return joinURL(config.identityUrl, `api/auth/user/email/complete${queryString}`);
     },
 
+    linkedIdentities(): string {
+        return joinURL(config.identityUrl, 'api/auth/user/links');
+    },
+    unlinkIdentity(provider: string, providerUserId: string): string {
+        return joinURL(config.identityUrl, `api/auth/user/links/${provider}/${providerUserId}`);
+    },
+
+    activeSessions(): string {
+        return joinURL(config.identityUrl, 'api/auth/user/sessions');
+    },
+
+    activeTokens(): string {
+        return joinURL(config.identityUrl, 'api/auth/user/tokens');
+    },
+    revokeToken(tokenHash: string): string {
+        return joinURL(config.identityUrl, `api/auth/user/tokens/${tokenHash}`);
+    },
+
     tokenLoginUrl(params?: { redirectUrl: string; errorUrl: string }): string {
         const queryString = toQueryString(
             params && {

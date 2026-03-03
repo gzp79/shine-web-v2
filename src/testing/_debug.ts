@@ -1,5 +1,3 @@
-import { page } from 'vitest/browser';
-
 /**
  * Pauses test execution for debugging by waiting for a very long time.
  * Use browser DevTools to inspect the page state while paused.
@@ -15,12 +13,13 @@ import { page } from 'vitest/browser';
  *   });
  */
 export async function pauseTest() {
-    console.log('⏸️  Test paused for debugging. Close the browser tab to continue.');
+    console.log('Test paused for debugging. Close the browser tab to continue.');
     await new Promise((resolve) => setTimeout(resolve, 1000000)); // Wait ~16 minutes
 }
 
 /**
  * Takes a screenshot of the current page for debugging.
+ * Only works in browser-mode Vitest (Playwright).
  *
  * Usage:
  *   import { screenshot } from '@testing';
@@ -31,7 +30,8 @@ export async function pauseTest() {
  *   });
  */
 export async function screenshot(name: string) {
-    await page.screenshot({ path: `screenshots/${name}.png`, fullPage: true });
+    const { page } = await import('vitest/browser');
+    await page.screenshot({ path: `screenshots/${name}.png` });
 }
 
 /**

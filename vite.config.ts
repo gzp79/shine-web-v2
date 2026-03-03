@@ -1,6 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
-import { playwright } from '@vitest/browser-playwright';
+import { svelteTesting } from '@testing-library/svelte/vite';
 import fs from 'node:fs';
 import type { Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
@@ -13,7 +13,13 @@ if (['dev', 'local', 'mock'].includes(config.environment)) {
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
 }
 
-const isTest = !!process.env.VITEST;
+const isBuildCommand = process.argv.includes('build');
+if (isBuildCommand && config.environment !== 'prod') {
+    throw new Error(
+        `Build requires production config. Current environment is "${config.environment}". Run "pnpm run env:prod" before building.`
+    );
+}
+
 const isCI = !!process.env.CI;
 
 const additionalAssets = [];
@@ -73,22 +79,29 @@ function serverConfigs() {
     };
 }
 
-/// Prevents mock infrastructure from being bundled in production builds.
-/// Catches both __mock routes and @mocks/* module imports (which pull in msw/node).
+/// Prevents mock infrastructure routes from being bundled in non-mock environments
 function excludeMocks(): Plugin {
+    const excluded = ['__mock', '__test', '@mocks'];
+
+    const isMockRoute = (id: string) => {
+        const normalizedId = id.split('?')[0].replaceAll('\\', '/');
+        const pathParts = normalizedId.split('/');
+        return pathParts.some((part) => excluded.includes(part));
+    };
+
     return {
         name: 'exclude-mocks',
         resolveId(id) {
-            if (config.environment === 'prod' && (id.includes('__mock') || id.startsWith('@mocks'))) {
-                return '\0empty-mock';
+            if (config.environment !== 'mock' && isMockRoute(id)) {
+                const isSvelte = id.split('?')[0].endsWith('.svelte');
+                return isSvelte ? `\0empty-file:${id}` : `\0empty-export:${id}`;
             }
         },
         load(id) {
-            if (id === '\0empty-mock') {
-                return 'export {}';
+            if (id.startsWith('\0empty-file:')) {
+                return '';
             }
-            // Exclude __mock route files from prod builds (resolveId doesn't catch filesystem routes)
-            if (config.environment === 'prod' && id.includes('__mock')) {
+            if (id.startsWith('\0empty-export:')) {
                 return 'export {}';
             }
         }
@@ -100,27 +113,24 @@ export default defineConfig({
         excludeMocks(),
         tailwindcss(),
         sveltekit(),
+        svelteTesting(),
         viteStaticCopy({
             targets: [...additionalAssets]
         })
     ],
-    ...(isTest ? {} : serverConfigs()),
+    ...(config.environment === 'prod' ? {} : serverConfigs()),
     test: {
         expect: {
             requireAssertions: true
         },
         reporters: isCI ? ['github-actions'] : ['default'],
-        browser: {
-            enabled: true,
-            provider: playwright(),
-            instances: [
-                {
-                    browser: 'chromium',
-                    headless: true // Set to false to see browser window (for debugging)
-                }
-            ]
-        },
+        environment: 'happy-dom',
+        setupFiles: ['@testing-library/jest-dom/vitest', './src/testing/vitest-setup.ts'],
         include: ['src/**/*.{test,spec}.{js,ts}'],
-        exclude: ['src/lib/server/**']
+        exclude: [
+            'src/lib/server/**',
+            // TODO: Migrate to @testing-library/svelte or delete (uses vitest-browser-svelte browser-mode APIs)
+            'src/routes/page.svelte.spec.ts'
+        ]
     }
 });

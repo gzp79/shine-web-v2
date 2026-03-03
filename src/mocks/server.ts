@@ -1,5 +1,12 @@
 import type { RequestHandler } from 'msw';
 import { setupServer } from 'msw/node';
+import {
+    defaultActiveSessions,
+    defaultActiveTokens,
+    defaultLinkedIdentities,
+    revokeTokenHandler,
+    unlinkIdentityHandler
+} from './data/account/mocks';
 import { defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
@@ -18,7 +25,12 @@ export const mockForGuestUser: Array<RequestHandler> = [
     defaultGuestUser,
     defaultGuestLogin,
     tokenLogin(true),
-    defaultExternalLogin
+    defaultExternalLogin,
+    defaultActiveSessions,
+    defaultActiveTokens,
+    defaultLinkedIdentities,
+    revokeTokenHandler,
+    unlinkIdentityHandler
 ];
 
 export const server = setupServer(

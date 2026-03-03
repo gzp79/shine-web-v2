@@ -5,18 +5,13 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { type QueryLike, createAppError } from '@lib/utils';
+    import { createAppError } from '@lib/utils';
     import ActiveSessionItem from './ActiveSessionItem.svelte';
-    import type { ActiveSession } from './auth.remote';
-
-    export type ActiveSessionCardProps = {
-        sessions: QueryLike<ActiveSession[]>;
-    };
+    import { queryActiveSessions } from './auth.remote';
 </script>
 
 <script lang="ts">
-    let { sessions }: ActiveSessionCardProps = $props();
-
+    const sessions = queryActiveSessions();
     const locale = getLocaleContext();
 
     const refreshSessions = async () => {

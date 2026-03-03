@@ -9,17 +9,14 @@
     import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { type QueryLike, createAppError } from '@lib/utils';
+    import { createAppError } from '@lib/utils';
     import EmailConfirmButton from './EmailConfirmButton.svelte';
-    import type { AuthenticatedCurrentUser, CurrentUser } from './currentUserStore.svelte';
-
-    export type UserInfoCardProps = {
-        userInfo: QueryLike<CurrentUser>;
-    };
+    import { queryCurrentUserInfo } from './auth.remote';
+    import type { AuthenticatedCurrentUser } from './currentUserStore.svelte';
 </script>
 
 <script lang="ts">
-    let { userInfo }: UserInfoCardProps = $props();
+    const userInfo = queryCurrentUserInfo();
 
     const locale = getLocaleContext();
 

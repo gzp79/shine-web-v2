@@ -5,19 +5,13 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { type AppError, type QueryLike, createAppError } from '@lib/utils';
+    import { type AppError, createAppError } from '@lib/utils';
     import ActiveTokenItem from './ActiveTokenItem.svelte';
-    import type { ActiveToken } from './auth.remote';
-
-    export type ActiveTokenCardProps = {
-        tokens: QueryLike<ActiveToken[]>;
-        revoke: (tokenHash: string) => Promise<void>;
-    };
+    import { queryActiveTokens, revokeToken as revokeTokenCommand } from './auth.remote';
 </script>
 
 <script lang="ts">
-    let { tokens, revoke }: ActiveTokenCardProps = $props();
-
+    const tokens = queryActiveTokens();
     const locale = getLocaleContext();
 
     let revokeError = $state<AppError | undefined>(undefined);
@@ -34,8 +28,7 @@
     };
 
     const revokeToken = async (tokenHash: string) => {
-        await revoke(tokenHash);
-        await tokens.refresh();
+        await revokeTokenCommand(tokenHash).updates(tokens);
     };
 </script>
 

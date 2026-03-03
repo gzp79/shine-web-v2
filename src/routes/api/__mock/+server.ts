@@ -1,13 +1,14 @@
 import { config } from '@config';
 import type { RequestHandler as MswRequestHandler } from 'msw';
-import { registry } from '@mocks/registry';
-import { addOverride, removeOverride, resetOverrides } from '@mocks/server';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
-    if (config.environment === 'prod') {
+    if (config.environment !== 'mock') {
         return new Response(null, { status: 404 });
     }
+
+    const { registry } = await import('@mocks/registry');
+    const { addOverride } = await import('@mocks/server');
 
     const { handler, params } = await request.json();
     const factory = registry[handler as keyof typeof registry];
@@ -30,9 +31,11 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 export const DELETE: RequestHandler = async ({ request }) => {
-    if (config.environment === 'prod') {
+    if (config.environment !== 'mock') {
         return new Response(null, { status: 404 });
     }
+
+    const { removeOverride, resetOverrides } = await import('@mocks/server');
 
     const text = await request.text();
     if (text) {
