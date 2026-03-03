@@ -92,6 +92,10 @@ export const revokeTokenHandler = http.delete(authApiRoutes.revokeToken(':tokenH
     return HttpResponse.json({}, { status: 200 });
 });
 
+export const revokeTokenFailureHandler = http.delete(authApiRoutes.revokeToken(':tokenHash'), () => {
+    return HttpResponse.json({ message: 'Failed to revoke token' }, { status: 500 });
+});
+
 export const unlinkIdentityHandler = http.delete(authApiRoutes.unlinkIdentity(':provider', ':providerUserId'), () => {
     return HttpResponse.json({}, { status: 200 });
 });

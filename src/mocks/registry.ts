@@ -3,6 +3,7 @@ import {
     defaultActiveSessions,
     defaultActiveTokens,
     defaultLinkedIdentities,
+    revokeTokenFailureHandler,
     revokeTokenHandler,
     unlinkIdentityHandler
 } from './data/account/mocks';
@@ -28,6 +29,7 @@ export const registry = {
     defaultActiveTokens: () => defaultActiveTokens,
     defaultLinkedIdentities: () => defaultLinkedIdentities,
     revokeTokenHandler: () => revokeTokenHandler,
+    revokeTokenFailure: () => revokeTokenFailureHandler,
     unlinkIdentityHandler: () => unlinkIdentityHandler
 };
 
