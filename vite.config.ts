@@ -93,14 +93,15 @@ function excludeMocks(): Plugin {
         name: 'exclude-mocks',
         resolveId(id) {
             if (config.environment === 'prod' && isMockRoute(id)) {
-                return '\0empty-mock';
+                const isSvelte = id.split('?')[0].endsWith('.svelte');
+                return isSvelte ? `\0empty-file:${id}` : `\0empty-export:${id}`;
             }
         },
         load(id) {
-            if (id === '\0empty-mock') {
-                return 'export {}';
+            if (id.startsWith('\0empty-file:')) {
+                return '';
             }
-            if (config.environment === 'prod' && isMockRoute(id)) {
+            if (id.startsWith('\0empty-export:')) {
                 return 'export {}';
             }
         }
