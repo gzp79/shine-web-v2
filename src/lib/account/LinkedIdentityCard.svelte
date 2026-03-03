@@ -5,19 +5,13 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { type AppError, type QueryLike, createAppError } from '@lib/utils';
+    import { type AppError, createAppError } from '@lib/utils';
     import LinkedIdentityItem from './LinkedIdentityItem.svelte';
-    import type { LinkedIdentity } from './auth.remote';
-
-    export type LinkedIdentityCardProps = {
-        identities: QueryLike<LinkedIdentity[]>;
-        unlink: (provider: string, providerUserId: string) => Promise<void>;
-    };
+    import { queryLinkedIdentities, unlinkIdentity as unlinkIdentityCommand } from './auth.remote';
 </script>
 
 <script lang="ts">
-    let { identities, unlink }: LinkedIdentityCardProps = $props();
-
+    const identities = queryLinkedIdentities();
     const locale = getLocaleContext();
 
     let unlinkError = $state<AppError | undefined>(undefined);
@@ -33,8 +27,7 @@
     };
 
     const unlinkIdentity = async (provider: string, providerUserId: string) => {
-        await unlink(provider, providerUserId);
-        await identities.refresh();
+        await unlinkIdentityCommand({ provider, providerUserId }).updates(identities);
     };
 </script>
 

@@ -1,5 +1,4 @@
 import { command, query } from '$app/server';
-import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
 import { CurrentUserSchema, ProviderSchema, authUrl } from '@lib/server/api/auth';
@@ -94,7 +93,7 @@ export type LinkedIdentities = z.infer<typeof LinkedIdentitiesSchema>;
 
 export const queryLinkedIdentities = query(async (): Promise<LinkedIdentity[]> => {
     logAPI.log('getLinkedIdentities...');
-    const url = `${config.identityUrl}/api/auth/user/links`;
+    const url = authUrl.linkedIdentities();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -138,7 +137,7 @@ export type ActiveSessions = z.infer<typeof ActiveSessionsSchema>;
 
 export const queryActiveSessions = query(async (): Promise<ActiveSession[]> => {
     logAPI.log('getActiveSessions...');
-    const url = `${config.identityUrl}/api/auth/user/sessions`;
+    const url = authUrl.activeSessions();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -187,7 +186,7 @@ export type ActiveTokens = z.infer<typeof ActiveTokensSchema>;
 
 export const queryActiveTokens = query(async (): Promise<ActiveToken[]> => {
     logAPI.log('getActiveTokens...');
-    const url = `${config.identityUrl}/api/auth/user/tokens`;
+    const url = authUrl.activeTokens();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -214,7 +213,7 @@ export const queryActiveTokens = query(async (): Promise<ActiveToken[]> => {
 
 export const revokeToken = command(z.string(), async (tokenHash: string) => {
     logAPI.log('revokeToken...', tokenHash);
-    const url = `${config.identityUrl}/api/auth/user/tokens/${tokenHash}`;
+    const url = authUrl.revokeToken(tokenHash);
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -236,6 +235,37 @@ export const revokeToken = command(z.string(), async (tokenHash: string) => {
         logAPI.log('revokeToken completed');
     });
 });
+
+export const unlinkIdentity = command(
+    z.object({
+        provider: z.string(),
+        providerUserId: z.string()
+    }),
+    async (params: { provider: string; providerUserId: string }) => {
+        logAPI.log('unlinkIdentity...', params);
+        const url = authUrl.unlinkIdentity(params.provider, params.providerUserId);
+        const headers = getPassThroughHeaders();
+
+        return await retryWithBackoff(async (retry) => {
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers
+            });
+
+            if (!response.ok) {
+                const err = await createFetchError(response, 'Failed to unlink identity');
+                logAPI.error(`unlinkIdentity failed, retry ${retry.current}/${retry.limit}`, err);
+                if (response.status >= 500) {
+                    return retry(err);
+                } else {
+                    throw err;
+                }
+            }
+
+            logAPI.log('unlinkIdentity completed');
+        });
+    }
+);
 
 export const startEmailConfirmation = command(async () => {
     logAPI.log('startEmailConfirmation...');
