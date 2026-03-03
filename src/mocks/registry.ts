@@ -8,7 +8,7 @@ import {
 } from './data/account/mocks';
 import { defaultExternalLink, defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
-import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
+import { defaultGuestUser, unauthorizedUser, unverifiedUserHandler, verifiedUserHandler } from './data/users/mock';
 import { withDelay, withIdentityDown } from './middleware';
 
 // Registry of all mock handlers for easy reference in tests and mock control API
@@ -16,6 +16,8 @@ export const registry = {
     defaultProviders: () => defaultProviders,
     unauthorizedUser: () => unauthorizedUser,
     defaultGuestUser: () => defaultGuestUser,
+    verifiedUser: () => verifiedUserHandler,
+    unverifiedUser: () => unverifiedUserHandler,
     defaultGuestLogin: () => defaultGuestLogin,
     defaultExternalLogin: () => defaultExternalLogin,
     defaultExternalLink: () => defaultExternalLink,
