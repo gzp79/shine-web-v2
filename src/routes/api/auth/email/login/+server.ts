@@ -1,7 +1,7 @@
 import { resolve } from '$app/paths';
 import { redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
-import { authUrl } from '@lib/server/api/auth';
+import { authPages } from '@lib/server/api/authPages';
 import { getPassThroughHeaders, sanitizedReturnUrl, validateProxyResponse } from '@lib/server/utils';
 import type { RequestHandler } from './$types';
 
@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, fetch, cookies }) => {
     const captcha = formData.get('captcha')?.toString() || '';
     const redirectUrl = sanitizedReturnUrl(formData.get('redirectUrl')?.toString());
 
-    const identityUrl = authUrl.emailLoginUrl({
+    const identityUrl = authPages.emailLoginUrl({
         email,
         rememberMe,
         captcha,

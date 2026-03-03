@@ -69,7 +69,10 @@
         "emailChangeNewEmail": "New email address",
         "emailChangeWaiting": "Sending change request...",
         "emailChangeCompleted": "Please check your email and click the confirmation link to complete the change.",
-        "emailOperationSuccess": "Email operation completed successfully!"
+        "emailOperationSuccess": "Email operation completed successfully!",
+        "linkProvider": "Link Provider",
+        "linkProviderTitle": "Link External Account",
+        "linkProviderError": "Failed to load providers"
     },
     "login": {
         "infoLoginExpired": "Your session has expired. Please sign in again to continue.",

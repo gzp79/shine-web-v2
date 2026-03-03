@@ -1,8 +1,8 @@
 import { HttpResponse, http } from 'msw';
-import { authUrl } from '@lib/server/api/auth';
+import { authPages } from '@lib/server/api/authPages';
 
 export const tokenLogin = (success: boolean) =>
-    http.get(authUrl.tokenLoginUrl(), ({ request }) => {
+    http.get(authPages.tokenLoginUrl(), ({ request }) => {
         const url = new URL(request.url);
         const redirectUrl = url.searchParams.get('redirectUrl') || '/game';
         const errorUrl = url.searchParams.get('errorUrl') || '/error';
@@ -15,7 +15,7 @@ export const tokenLogin = (success: boolean) =>
         });
     });
 
-export const defaultExternalLogin = http.get(authUrl.externalLoginUrl(':provider'), ({ params, request }) => {
+export const defaultExternalLogin = http.get(authPages.externalLoginUrl(':provider'), ({ params, request }) => {
     const provider = params.provider;
     const url = new URL(request.url);
     const redirectUrl = url.searchParams.get('redirectUrl') || '/game';
@@ -31,7 +31,7 @@ export const defaultExternalLogin = http.get(authUrl.externalLoginUrl(':provider
     });
 });
 
-export const defaultGuestLogin = http.get(authUrl.guestLoginUrl(), ({ request }) => {
+export const defaultGuestLogin = http.get(authPages.guestLoginUrl(), ({ request }) => {
     const url = new URL(request.url);
     const redirectUrl = url.searchParams.get('redirectUrl') || '/game';
 
@@ -41,6 +41,18 @@ export const defaultGuestLogin = http.get(authUrl.guestLoginUrl(), ({ request })
             'Set-Cookie': [
                 `sid=mock-token-guest-${Date.now()}; Domain=scytta.com; Path=/; HttpOnly; Secure; SameSite=Lax` //
             ].join(', '),
+            Location: redirectUrl
+        }
+    });
+});
+
+export const defaultExternalLink = http.get(authPages.externalLinkUrl(':provider'), ({ request }) => {
+    const url = new URL(request.url);
+    const redirectUrl = url.searchParams.get('redirectUrl') || '/account';
+
+    return new HttpResponse(null, {
+        status: 302,
+        headers: {
             Location: redirectUrl
         }
     });

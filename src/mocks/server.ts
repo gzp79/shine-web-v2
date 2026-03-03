@@ -7,7 +7,7 @@ import {
     revokeTokenHandler,
     unlinkIdentityHandler
 } from './data/account/mocks';
-import { defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
+import { defaultExternalLink, defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
 import { withDelay, withLog } from './middleware';
@@ -26,6 +26,7 @@ export const mockForGuestUser: Array<RequestHandler> = [
     defaultGuestLogin,
     tokenLogin(true),
     defaultExternalLogin,
+    defaultExternalLink,
     defaultActiveSessions,
     defaultActiveTokens,
     defaultLinkedIdentities,

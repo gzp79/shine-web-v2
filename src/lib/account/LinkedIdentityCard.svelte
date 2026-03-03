@@ -6,6 +6,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type AppError, createAppError } from '@lib/utils';
+    import AddLinkButton from './AddLinkButton.svelte';
     import LinkedIdentityItem from './LinkedIdentityItem.svelte';
     import { queryLinkedIdentities, unlinkIdentity as unlinkIdentityCommand } from './auth.remote';
 </script>
@@ -14,15 +15,15 @@
     const identities = queryLinkedIdentities();
     const locale = getLocaleContext();
 
-    let unlinkError = $state<AppError | undefined>(undefined);
+    let error = $state<AppError | undefined>(undefined);
     const throwIfUnlinkError = () => {
-        if (unlinkError) {
-            throw unlinkError;
+        if (error) {
+            throw error;
         }
     };
 
-    const refreshIdentities = async () => {
-        unlinkError = undefined;
+    const resetError = async () => {
+        error = undefined;
         await identities.refresh();
     };
 
@@ -44,7 +45,7 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await refreshIdentities();
+                            await resetError();
                             reset();
                         }}
                     >
@@ -62,10 +63,16 @@
                     disabled={identities.loading}
                     unlink={unlinkIdentity}
                     onerror={(err) => {
-                        unlinkError = err;
+                        error = err;
                     }}
                 />
             {/each}
+            <AddLinkButton
+                disabled={identities.loading}
+                onerror={(err) => {
+                    error = err;
+                }}
+            />
         </Stack>
     </svelte:boundary>
 </Card>

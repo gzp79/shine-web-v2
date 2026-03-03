@@ -1,12 +1,12 @@
 import { resolve } from '$app/paths';
 import { type RequestHandler, redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
-import { authUrl } from '@lib/server/api/auth';
+import { authPages } from '@lib/server/api/authPages';
 import { getPassThroughHeaders } from '@lib/server/utils';
 
 export const GET: RequestHandler = async ({ url, fetch, cookies }) => {
     const all = url.searchParams.get('all') === 'true';
-    const identityUrl = authUrl.logoutUrl({
+    const identityUrl = authPages.logoutUrl({
         terminateAll: all,
         redirectUrl: '/public/bye'
     });

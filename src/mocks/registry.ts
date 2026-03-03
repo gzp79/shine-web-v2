@@ -6,7 +6,7 @@ import {
     revokeTokenHandler,
     unlinkIdentityHandler
 } from './data/account/mocks';
-import { defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
+import { defaultExternalLink, defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
 import { withDelay, withIdentityDown } from './middleware';
@@ -18,6 +18,7 @@ export const registry = {
     defaultGuestUser: () => defaultGuestUser,
     defaultGuestLogin: () => defaultGuestLogin,
     defaultExternalLogin: () => defaultExternalLogin,
+    defaultExternalLink: () => defaultExternalLink,
     tokenLogin: (params: { success: boolean }) => tokenLogin(params.success),
     withIdentityDown: () => withIdentityDown,
     withDelay: (params: { ms: number }) => withDelay(params.ms),
