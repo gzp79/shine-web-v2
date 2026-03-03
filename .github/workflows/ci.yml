@@ -2,9 +2,9 @@ name: CI
 
 on:
     push:
-        branches: ['master']
+        branches: ['main']
     pull_request:
-        branches: ['master']
+        branches: ['main']
 
 # cancel outdated builds
 concurrency:
@@ -148,7 +148,7 @@ jobs:
 
     deploy-prod:
         needs: [test, build]
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         permissions:
             contents: read
