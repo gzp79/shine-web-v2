@@ -79,7 +79,7 @@ function serverConfigs() {
     };
 }
 
-/// Prevents mock infrastructure routes from being bundled in production builds
+/// Prevents mock infrastructure routes from being bundled in non-mock environments
 function excludeMocks(): Plugin {
     const excluded = ['__mock', '__test', '@mocks'];
 
@@ -92,7 +92,7 @@ function excludeMocks(): Plugin {
     return {
         name: 'exclude-mocks',
         resolveId(id) {
-            if (config.environment === 'prod' && isMockRoute(id)) {
+            if (config.environment !== 'mock' && isMockRoute(id)) {
                 const isSvelte = id.split('?')[0].endsWith('.svelte');
                 return isSvelte ? `\0empty-file:${id}` : `\0empty-export:${id}`;
             }
