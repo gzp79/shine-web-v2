@@ -14,18 +14,18 @@
     const tokens = queryActiveTokens();
     const locale = getLocaleContext();
 
-    let revokeError = $state<AppError | undefined>(undefined);
+    let error = $state<AppError | undefined>(undefined);
     // TODO: workaround for https://github.com/sveltejs/kit/issues/14536
     let isRevoking = $state(false);
 
-    const throwIfRevokeError = () => {
-        if (revokeError) {
-            throw revokeError;
+    const throwIfError = () => {
+        if (error) {
+            throw error;
         }
     };
 
-    const refreshTokens = async () => {
-        revokeError = undefined;
+    const resetError = async () => {
+        error = undefined;
         isRevoking = false;
         await tokens.refresh();
     };
@@ -41,7 +41,6 @@
 </script>
 
 <Card width="md" title={locale.t('account.activeTokensTitle')}>
-    {isRevoking}
     <svelte:boundary>
         {#snippet pending()}
             <Stack class="items-center">
@@ -54,7 +53,7 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await refreshTokens();
+                            await resetError();
                             reset();
                         }}
                     >
@@ -64,7 +63,7 @@
             </ErrorCard>
         {/snippet}
 
-        {throwIfRevokeError()}
+        {throwIfError()}
         <Stack>
             {#each await tokens as token (token.tokenHash)}
                 <ActiveTokenItem
@@ -72,7 +71,7 @@
                     disabled={tokens.loading || isRevoking}
                     revoke={revokeToken}
                     onerror={(err) => {
-                        revokeError = err;
+                        error = err;
                     }}
                 />
             {/each}

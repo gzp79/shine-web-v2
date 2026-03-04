@@ -24,8 +24,8 @@ test('retry button reloads data after initial failure', async ({ page, mock }) =
 
     await page.goto('/__test/account/activesessions');
 
-    // Wait for error to appear in the card (Remote function with retries takes at least 15 seconds to timeout)
-    await expect(page.getByText('Retry').first()).toBeVisible({ timeout: 15000 });
+    // Wait for error to appear in the card
+    await expect(page.getByText('Retry').first()).toBeVisible();
 
     // Remove the failure mock to simulate service recovery
     await mock.remove('withIdentityDown');

@@ -5,9 +5,17 @@ import {
     defaultActiveTokens,
     defaultLinkedIdentities,
     revokeTokenHandler,
+    startEmailChangeHandler,
+    startEmailConfirmationHandler,
     unlinkIdentityHandler
 } from './data/account/mocks';
-import { defaultExternalLink, defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
+import {
+    defaultExternalLink,
+    defaultExternalLogin,
+    defaultGuestLogin,
+    defaultLogout,
+    tokenLogin
+} from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
 
@@ -26,11 +34,14 @@ export const mockForGuestUser: Array<RequestHandler> = [
     tokenLogin(true),
     defaultExternalLogin,
     defaultExternalLink,
+    defaultLogout,
     defaultActiveSessions,
     defaultActiveTokens,
     defaultLinkedIdentities,
     revokeTokenHandler,
-    unlinkIdentityHandler
+    unlinkIdentityHandler,
+    startEmailConfirmationHandler,
+    startEmailChangeHandler
 ];
 
 export const server = setupServer(...mockForGuestUser);
@@ -42,7 +53,7 @@ export type OverrideEntry = { handler: RequestHandler; params: unknown };
 const activeOverrides = new Map<string, OverrideEntry>();
 
 function reapplyHandlers(): void {
-    server.resetHandlers();
+    server.resetHandlers(...mockForGuestUser);
     if (activeOverrides.size > 0) {
         const handlers = Array.from(activeOverrides.values()).map((entry) => entry.handler);
         server.use(...handlers);
@@ -63,8 +74,6 @@ export async function addOverride(name: string, params: unknown): Promise<void> 
             : (registryEntry.factory as (handlerParams: unknown) => RequestHandler)(params);
 
     activeOverrides.set(name, { handler, params });
-
-    // Reset server and re-register all handlers to ensure updates take effect
     reapplyHandlers();
 }
 
@@ -79,5 +88,5 @@ export function getActiveOverrides(): Map<string, OverrideEntry> {
 
 export function resetOverrides(): void {
     activeOverrides.clear();
-    server.resetHandlers();
+    reapplyHandlers();
 }

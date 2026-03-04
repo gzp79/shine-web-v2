@@ -16,7 +16,10 @@
     const locale = getLocaleContext();
 
     let error = $state<AppError | undefined>(undefined);
-    const throwIfUnlinkError = () => {
+    // TODO: workaround for https://github.com/sveltejs/kit/issues/14536
+    let isUnlinking = $state(false);
+
+    const throwIfError = () => {
         if (error) {
             throw error;
         }
@@ -24,11 +27,17 @@
 
     const resetError = async () => {
         error = undefined;
+        isUnlinking = false;
         await identities.refresh();
     };
 
     const unlinkIdentity = async (provider: string, providerUserId: string) => {
-        await unlinkIdentityCommand({ provider, providerUserId }).updates(identities);
+        isUnlinking = true;
+        try {
+            await unlinkIdentityCommand({ provider, providerUserId }).updates(identities);
+        } finally {
+            isUnlinking = false;
+        }
     };
 </script>
 
@@ -55,12 +64,12 @@
             </ErrorCard>
         {/snippet}
 
-        {throwIfUnlinkError()}
+        {throwIfError()}
         <Stack>
             {#each await identities as identity (identity.provider + identity.providerUserId)}
                 <LinkedIdentityItem
                     {identity}
-                    disabled={identities.loading}
+                    disabled={identities.loading || isUnlinking}
                     unlink={unlinkIdentity}
                     onerror={(err) => {
                         error = err;
@@ -68,7 +77,7 @@
                 />
             {/each}
             <AddLinkButton
-                disabled={identities.loading}
+                disabled={identities.loading || isUnlinking}
                 onerror={(err) => {
                     error = err;
                 }}

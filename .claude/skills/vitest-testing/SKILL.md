@@ -1,32 +1,15 @@
 ---
-name: testing
-description: Layer 1 - Vitest unit tests for isolated component logic (src/**/*.test.ts). Mock all external deps. For Playwright tests (tests/**/*.test.ts), use playwright-testing skill.
+name: vitest-testing
+description: Use when testing component props, state, UI logic without API calls. For API integration or full flows, use playwright-testing.
 ---
 
 # Unit Testing (Layer 1)
 
-**Purpose:** Isolated component logic
-**Framework:** Vitest + @testing-library/svelte
-**Scope:** Component behavior without external dependencies
-**Location:** `src/**/*.test.ts`
-**Run:** `pnpm test:unit`
+**Vitest + @testing-library/svelte** for isolated component logic
+**Location:** `src/**/*.test.ts` | **Run:** `pnpm test:unit`
 
-## When to Use
-- Testing component props, state, events
-- UI logic without API calls
-- Isolated business logic
-- Fast feedback loops
-
-## When NOT to Use
-- API integration → use **Layer 2** (playwright-testing skill with mocks)
-- Full user flows → use **Layer 2** (playwright-testing skill with mocks)
-- Data mutations → use **Layer 3** (playwright-testing skill without mocks)
-
-## Testing Strategy Overview
-
-**Layer 1 (This skill):** Unit tests - Isolated component logic (Vitest)
-**Layer 2 (playwright-testing):** Integration tests - API integration + state transitions (Playwright + MSW mocks)
-**Layer 3 (playwright-testing):** E2E tests - Full system with real backend (Playwright, no mocks)
+**Use for:** Component props, state, UI logic, isolated business logic
+**Not for:** API integration, full flows, data mutations → use **playwright-testing**
 
 ## Basic Pattern
 

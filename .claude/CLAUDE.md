@@ -7,44 +7,46 @@
 3. **Tailwind 4 + semantic colors** - `bg-primary` NOT `bg-blue-500`
 4. **Invoke skills** with `/skill-name` for detailed guides
 
-## Tech Stack
+## Stack
 
-- **Framework:** Svelte 5 (runes), SvelteKit
+- **Framework:** Svelte 5 (runes) + SvelteKit
 - **Server:** Remote functions (`query`, `form`, `command`)
-- **CSS:** Tailwind 4 with semantic tokens
-- **Testing:** Storybook 10 (CSF + TypeScript)
+- **CSS:** Tailwind 4 (semantic tokens)
+- **Testing:** Vitest (unit), Playwright (integration/E2E), Storybook 10 (visual)
 
-## Component Priority
+## Component Usage
 
-1. Use component props first
-2. Use utility classes second
-3. Suggest component enhancement for repeated patterns
+**Priority:** Component props → utility classes → suggest enhancement for patterns
 
-**Key quirks:**
+**Quirks:**
 
-- Box: use `containerClass`/`contentClass` (NOT `class`)
-- Stack: use `spacing` prop (NOT `gap` class)
+- Box: `containerClass`/`contentClass` (NOT `class`)
+- Stack: `spacing` prop (NOT `gap` class)
 
-## Skills (invoke with `/skill-name`)
+## Skills
 
-- **`/components`** - UI component APIs, props, patterns
-- **`/css`** - Tailwind 4 config, semantic colors, best practices
-- **`/storybook`** - CSF format, play functions, testing patterns
-- **`/remote-functions`** - Query, form, command patterns
+**Invoke with `/skill-name` for detailed guides:**
 
-## Environment Setup
+- `/components` - UI component APIs, props, patterns
+- `/css` - Tailwind 4 config, semantic colors
+- `/storybook` - CSF format, play functions
+- `/vitest-testing` - Vitest unit tests (Layer 1)
+- `/playwright-testing` - Browser tests with mocks (Layer 2/3)
+- `/remote-functions` - Query, form, command patterns
 
-Use these scripts for environment configuration or long-running automated tasks:
+**Creating/modifying skills:** Use `superpowers:writing-skills` (TDD for documentation)
+
+## Environment
 
 ```bash
-pnpm run env:mock   # Setup MSW + mock environment
-pnpm run env:local  # Local environment config
-pnpm run env:dev    # Dev environment config
-pnpm run env:prod   # Production environment config
+pnpm run env:mock   # MSW mocks (for testing)
+pnpm run env:local  # Local backend
+pnpm run env:dev    # Dev backend
+pnpm run env:prod   # Production
 ```
 
-## MCP Tools
+## MCP (Svelte)
 
-- **`svelte-autofixer`** - Run on ALL Svelte code before sending
-- **`list-sections`** / **`get-documentation`** - Fetch Svelte 5 docs
-- **`playground-link`** - Generate playground (ask user first)
+- `svelte-autofixer` - Run on ALL Svelte code before sending
+- `list-sections` / `get-documentation` - Fetch Svelte 5 docs
+- `playground-link` - Generate playground (ask user first)

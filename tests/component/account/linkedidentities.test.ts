@@ -24,8 +24,8 @@ test('retry button reloads data after initial failure', async ({ page, mock }) =
 
     await page.goto('/__test/account/linkedidentities');
 
-    // Wait for error to appear in the card (Remote function with retries takes at least 15 seconds to timeout)
-    await expect(page.getByText('Retry').first()).toBeVisible({ timeout: 15000 });
+    // Wait for error to appear in the card
+    await expect(page.getByText('Retry').first()).toBeVisible();
 
     // Remove the failure mock to simulate service recovery
     await mock.remove('withIdentityDown');
@@ -57,6 +57,45 @@ test('unlink identity shows confirmation dialog and triggers loading state', asy
 
     // Button should become disabled during the operation (loading state)
     await expect(unlinkButton).toBeDisabled();
+
+    // After API call completes, button should return to enabled state
+    // Note: Mock API returns success but doesn't mutate data (avoiding parallel logic)
+    // Testing state transitions, not data removal
+    await expect(unlinkButton).toBeEnabled();
+});
+
+test('unlink identity handles failure, error boundary, and retry flow', async ({ page, mock }) => {
+    await page.goto('/__test/account/linkedidentities');
+
+    // Wait for identities to load
+    await expect(page.getByText('john@example.com')).toBeVisible();
+
+    // Find and click the first unlink button
+    const unlinkButton = page.getByText('Unlink').first();
+    await unlinkButton.click();
+
+    // Confirmation dialog should appear
+    await expect(page.getByText('Unlink Identity')).toBeVisible();
+
+    // Add mock to make unlink fail (simulate service going down during operation)
+    await mock.add('withIdentityDown');
+
+    // Click confirm button in the dialog
+    const confirmButton = page.getByText('Unlink').last();
+    await confirmButton.click();
+
+    // Wait for error to appear in the card
+    await expect(page.getByText('Retry').first()).toBeVisible();
+
+    // Remove the failure mock to simulate service recovery
+    await mock.remove('withIdentityDown');
+
+    // Click retry button
+    await page.getByText('Retry').first().click();
+
+    // After successful retry, UI should recover and buttons should be enabled
+    // Note: Testing error recovery flow and state transitions, not data mutations
+    await expect(unlinkButton).toBeEnabled();
 });
 
 test('link provider dialog opens and shows available providers', async ({ page }) => {
@@ -72,27 +111,48 @@ test('link provider dialog opens and shows available providers', async ({ page }
     await expect(page.getByText('Link External Account')).toBeVisible();
 
     // Should show available providers (from mock: gitlab, google, github, discord)
-    await expect(page.getByRole('button', { name: /google/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /github/i })).toBeVisible();
+    const dialog = page.getByLabel('Link External Account');
+    await expect(dialog.getByRole('button', { name: /google/i })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: /github/i })).toBeVisible();
 });
 
-test('link provider submits to correct API route', async ({ page }) => {
+test('link provider dialog handles failure when loading providers', async ({ page, mock }) => {
     await page.goto('/__test/account/linkedidentities');
 
     // Wait for page to load
     await expect(page.getByRole('heading', { name: /identities/i })).toBeVisible();
 
-    // Click "Link Provider" button
+    // Add mock to make loading providers fail
+    await mock.add('withIdentityDown');
+
+    // Click "Link Provider" button to open dialog
     await page.getByText('Link Provider').click();
 
-    // Dialog should open
+    // Dialog should open but fail to load providers
     await expect(page.getByText('Link External Account')).toBeVisible();
 
-    // Click a provider button (e.g., Google)
-    const googleButton = page.getByRole('button', { name: /google/i });
-    await googleButton.click();
+    // Error should propagate to parent card, not shown in dialog
+    // Wait for error to appear in the parent card with retry button
+    await expect(page.getByText('Retry').first()).toBeVisible();
 
-    // Should navigate to /api/auth/google/link
-    // Note: In test environment, this will be handled by MSW mock
-    await page.waitForURL('**/__test/account/linkedidentities');
+    // Dialog should close when error propagates
+    await expect(page.getByText('Link External Account')).not.toBeVisible();
+
+    // Remove the failure mock to simulate service recovery
+    await mock.remove('withIdentityDown');
+
+    // Click retry button to recover
+    await page.getByText('Retry').first().click();
+
+    // Should return to success state - identities should be visible again
+    await expect(page.getByText('john@example.com')).toBeVisible();
+
+    // Link Provider button should be enabled and clickable again
+    await page.getByText('Link Provider').click();
+
+    // Dialog should open successfully this time and show providers
+    await expect(page.getByText('Link External Account')).toBeVisible();
+    const dialog = page.getByLabel('Link External Account');
+    await expect(dialog.getByRole('button', { name: /google/i })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: /github/i })).toBeVisible();
 });

@@ -10,9 +10,18 @@ import {
     defaultLinkedIdentities,
     revokeTokenFailureHandler,
     revokeTokenHandler,
+    startEmailChangeHandler,
+    startEmailConfirmationHandler,
     unlinkIdentityHandler
 } from './data/account/mocks';
-import { defaultExternalLink, defaultExternalLogin, defaultGuestLogin, tokenLogin } from './data/auth/mocks';
+import {
+    defaultExternalLink,
+    defaultExternalLogin,
+    defaultGuestLogin,
+    defaultLogout,
+    logoutFailure,
+    tokenLogin
+} from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser, unverifiedUserHandler, verifiedUserHandler } from './data/users/mock';
 import { withDelay, withIdentityDown } from './middleware';
@@ -41,7 +50,11 @@ export const registry = {
     defaultLinkedIdentities: { factory: () => defaultLinkedIdentities },
     revokeTokenHandler: { factory: () => revokeTokenHandler },
     revokeTokenFailure: { factory: () => revokeTokenFailureHandler },
-    unlinkIdentityHandler: { factory: () => unlinkIdentityHandler }
+    unlinkIdentityHandler: { factory: () => unlinkIdentityHandler },
+    startEmailConfirmationHandler: { factory: () => startEmailConfirmationHandler },
+    startEmailChangeHandler: { factory: () => startEmailChangeHandler },
+    defaultLogout: { factory: () => defaultLogout },
+    logoutFailure: { factory: () => logoutFailure }
 };
 
 // Infer the MockHandlers type from the registry

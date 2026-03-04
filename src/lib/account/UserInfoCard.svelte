@@ -9,7 +9,7 @@
     import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { createAppError } from '@lib/utils';
+    import { type AppError, createAppError } from '@lib/utils';
     import EmailConfirmButton from './EmailConfirmButton.svelte';
     import { queryCurrentUserInfo } from './auth.remote';
     import type { AuthenticatedCurrentUser } from './currentUserStore.svelte';
@@ -17,14 +17,21 @@
 
 <script lang="ts">
     const userInfo = queryCurrentUserInfo();
-
     const locale = getLocaleContext();
 
-    let hasError = $state(false);
+    let error = $state<AppError | undefined>(undefined);
+    let hasError = $derived(error !== undefined);
     let hasUserInfo = $derived(!!userInfo?.current);
 
-    const refreshUserInfo = async () => {
+    const throwIfError = () => {
+        if (error) {
+            throw error;
+        }
+    };
+
+    const resetError = async () => {
         await userInfo.refresh();
+        error = undefined;
     };
 </script>
 
@@ -32,7 +39,12 @@
     {@const user = (await userInfo) as AuthenticatedCurrentUser}
     <Stack direction="row" spacing={2} alignment="center">
         <span>{user.email || locale.t('account.noEmail')}</span>
-        <EmailConfirmButton variant={user.isEmailVerified || !user.email ? 'change' : 'confirmOrChange'} />
+        <EmailConfirmButton
+            variant={user.isEmailVerified || !user.email ? 'change' : 'confirmOrChange'}
+            onerror={(err) => {
+                error = err;
+            }}
+        />
     </Stack>
 {/snippet}
 
@@ -47,7 +59,7 @@
 {/snippet}
 
 <Card width="md" title={locale.t('account.userInfoTitle')} actions={hasError ? undefined : actions}>
-    <svelte:boundary onerror={() => (hasError = true)}>
+    <svelte:boundary>
         {#snippet pending()}
             <Stack class="items-center">
                 <LoadingCard variant="ghost" />
@@ -59,8 +71,7 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await refreshUserInfo();
-                            hasError = false;
+                            await resetError();
                             reset();
                         }}
                     >
@@ -71,6 +82,7 @@
         {/snippet}
 
         {@const user = await userInfo}
+        {throwIfError()}
         {#if user.authenticated}
             <Stack class="items-center justify-center">
                 {#if !user.isLinked}

@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { id } from 'zod/locales';
-
     type MockItemProps = {
         name: string;
         isActive: boolean;

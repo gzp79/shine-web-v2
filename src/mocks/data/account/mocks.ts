@@ -99,3 +99,11 @@ export const revokeTokenFailureHandler = http.delete(authApiRoutes.revokeToken('
 export const unlinkIdentityHandler = http.delete(authApiRoutes.unlinkIdentity(':provider', ':providerUserId'), () => {
     return HttpResponse.json({}, { status: 200 });
 });
+
+export const startEmailConfirmationHandler = http.post(authApiRoutes.startEmailConfirmationUrl(), () => {
+    return HttpResponse.json({}, { status: 200 });
+});
+
+export const startEmailChangeHandler = http.post(authApiRoutes.startEmailChange(), () => {
+    return HttpResponse.json({}, { status: 200 });
+});

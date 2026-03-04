@@ -57,3 +57,19 @@ export const defaultExternalLink = http.get(authPages.externalLinkUrl(':provider
         }
     });
 });
+
+export const defaultLogout = http.get(authPages.logoutUrl(), ({ request }) => {
+    const url = new URL(request.url);
+    const redirectUrl = url.searchParams.get('redirectUrl') || '/public/bye';
+
+    return new HttpResponse(null, {
+        status: 302,
+        headers: {
+            Location: redirectUrl
+        }
+    });
+});
+
+export const logoutFailure = http.get(authPages.logoutUrl(), () => {
+    return HttpResponse.json({ message: 'Service unavailable' }, { status: 503 });
+});

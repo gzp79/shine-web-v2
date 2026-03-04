@@ -41,8 +41,8 @@ test('retry button reloads data after initial failure', async ({ page, mock }) =
 
     await page.goto('/__test/account/activetokens');
 
-    // Wait for error to appear in the card (Remote function with retries takes at least 15 seconds to timeout)
-    await expect(page.getByText('Retry').first()).toBeVisible({ timeout: 15000 });
+    // Wait for error to appear in the card
+    await expect(page.getByText('Retry').first()).toBeVisible();
 
     // Remove the failure mock to simulate service recovery
     await mock.remove('withIdentityDown');
@@ -101,8 +101,8 @@ test('revoke token handles failure, error boundary, and retry flow', async ({ pa
     const confirmButton = page.getByLabel('Revoke Token').getByRole('button', { name: 'Revoke' });
     await confirmButton.click();
 
-    // Wait for error to appear in the card (Remote function with retries takes at least 15 seconds to timeout)
-    await expect(page.getByText('Retry').first()).toBeVisible({ timeout: 15000 });
+    // Wait for error to appear in the card
+    await expect(page.getByText('Retry').first()).toBeVisible();
 
     // Remove the failure mock to simulate service recovery
     await mock.remove('revokeTokenFailure');
@@ -110,7 +110,11 @@ test('revoke token handles failure, error boundary, and retry flow', async ({ pa
     // Click retry button
     await page.getByText('Retry').first().click();
 
-    // After successful retry, UI should recover and buttons should be enabled
+    // After successful retry, UI should recover to success state
+    // Verify tokens are visible again
+    await expect(page.getByText('hash-token-1')).toBeVisible();
+
+    // Verify button is enabled
     // Note: Testing error recovery flow and state transitions, not data mutations
     await expect(revokeButton).toBeEnabled();
 });

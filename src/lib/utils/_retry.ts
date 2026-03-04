@@ -1,3 +1,4 @@
+import { config } from '@config';
 import { logAPI } from '@lib/loggers';
 import { type AppError, async, createOtherError, createRetryLimitError, isAppError } from '@lib/utils';
 
@@ -28,7 +29,7 @@ function createRetryObject(attempt: number, maxRetries: number): RetryObject {
 /// The default backoff configuration result in an approximate total of 11.5s delay before giving up.
 export async function retryWithBackoff<T>(
     fn: (retry: RetryObject) => Promise<T>,
-    maxRetries = 4,
+    maxRetries = config.environment === 'mock' ? 1 : 4,
     baseDelay = 350
 ): Promise<T> {
     let attempt = 0;

@@ -31,22 +31,10 @@
 
 <Dialog bind:open={isDialogOpen} width="sm" title={locale.t('account.linkProviderTitle')}>
     <Box scrollShadow containerClass="w-full" contentClass="flex flex-col gap-2">
-        <svelte:boundary>
-            {#snippet pending()}
-                <p>{locale.t('common.loading')}</p>
-            {/snippet}
-
-            {#snippet failed(error, reset)}
-                <p>{locale.t('account.linkProviderError')}</p>
-                <Button
-                    onclick={() => {
-                        onerror?.(createAppError(error));
-                        reset();
-                    }}>{locale.t('common.retry')}</Button
-                >
-            {/snippet}
-
-            {#each await providersQuery as provider (provider)}
+        {#await providersQuery}
+            <p>{locale.t('common.loading')}</p>
+        {:then providers}
+            {#each providers as provider (provider)}
                 <form
                     method="GET"
                     action="/api/auth/{provider}/link"
@@ -63,6 +51,8 @@
                     </Button>
                 </form>
             {/each}
-        </svelte:boundary>
+        {:catch error}
+            {onerror?.(createAppError(error))}
+        {/await}
     </Box>
 </Dialog>

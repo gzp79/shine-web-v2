@@ -1,56 +1,76 @@
 ---
 name: playwright-testing
-description: Layer 2/3 - Playwright tests (tests/**/*.test.ts). Layer 2 uses MSW mocks (state transitions, error flows). Layer 3 uses real services (data mutations).
+description: Use when testing API integration, state transitions, error recovery, or full user journeys with browser. For isolated component logic, use vitest-testing.
 ---
 
 # Playwright Testing (Layer 2 & 3)
 
-## Layer 2: Integration Tests (With Mocks)
+**Playwright + browser** for API integration, state transitions, full user flows
+**Location:** `tests/**/*.test.ts` | **Run:** `pnpm test:e2e`
 
-**Purpose:** API integration, state transitions, error recovery
-**Framework:** Playwright + MSW mock fixture
-**Location:** `tests/component/**/*.test.ts`, `tests/e2e/**/*.test.ts` (with mocks)
-**Run:** `pnpm test:e2e`
+## Layer 2: With MSW Mocks (Common)
+
 **Env:** `pnpm run env:mock`
+**Test:** API integration, state transitions (loading → success/error), error recovery, retry flows
+**Not:** Data mutations (avoid parallel logic - mocks don't mutate)
 
-**Test Scope:**
-- ✅ API endpoints called correctly
-- ✅ State transitions (loading → success/error)
-- ✅ Error boundaries and retry flows
-- ✅ User interactions across full pages
-- ❌ NOT data mutations (avoid parallel logic)
+## Layer 3: Real Backend (Sparingly)
 
-**Why mocks don't mutate data:**
-Avoids reimplementing business logic in test layer. Backend correctness tested by backend.
-
-## Layer 3: True E2E Tests (Real Services)
-
-**Purpose:** Full system integration with real backend
-**Framework:** Playwright without mocks
-**Location:** `tests/e2e/**/*.test.ts` (without mock fixture)
-**Run:** `pnpm test:e2e` (with real backend running)
 **Env:** `pnpm run env:local` or `env:dev`
+**Test:** Actual data mutations, full system integration
+**Use:** Slow, requires real services
 
-**Test Scope:**
-- ✅ Full user journeys end-to-end
-- ✅ Actual data mutations
-- ✅ Real backend behavior
-- Use sparingly (slow, requires real services)
+## Directory: tests/component/ vs tests/e2e/
 
-## Directory Convention
+Same stack, different scope. Choose layer by fixture usage, not directory.
 
-Both directories use same Playwright + mock fixture. Choose layer by fixture usage, not directory.
-
-**`tests/component/`** - Component-focused flows
-- Single component/card behaviors (dialogs, forms, cards)
-- Layer 2 (mocked) - most common
-
-**`tests/e2e/`** - Full user journeys
-- Multi-page flows (login → action → result)
-- Layer 2 (mocked) - common
-- Layer 3 (real backend) - sparingly
+- `component/` - Component-focused (dialogs, forms, cards)
+- `e2e/` - Multi-page flows (login → action → result)
 
 ## Setup
+
+### Dev Server Management
+
+**Common issue:** Vite dev server from previous session still running → tests run against stale code.
+
+**Before running tests:**
+
+1. **Check if port is in use:**
+
+    ```bash
+    # Windows (bash shell in Claude Code)
+    netstat -ano | grep :5173
+    ```
+
+2. **Kill stuck dev server if found:**
+
+    ```bash
+    # Windows: Find PID from netstat output, then:
+    taskkill //PID <pid> //F
+
+    # Alternative: Kill by port (requires admin/elevated prompt usually)
+    # If above fails, kill all node processes:
+    taskkill //IM node.exe //F
+    ```
+
+3. **Verify environment before tests:**
+
+    ```bash
+    # Ensure correct mock environment is set
+    pnpm run env:mock
+
+    # Start dev server fresh
+    pnpm run dev
+    ```
+
+**Red flags that indicate stale server:**
+
+- Tests fail immediately with connection errors
+- Tests pass locally but fail in CI (different ports)
+- UI changes don't reflect in test runs
+- Mock handlers don't take effect
+
+**Best practice:** Always kill existing dev processes before starting a new test session. When debugging test failures, check process list first.
 
 ## Mock Fixture
 
@@ -91,53 +111,35 @@ Tests only need to override what they're testing.
 
 ## Test Patterns
 
-### Layer 2: Integration Test (With Mock Fixture)
+### Layer 2: With Mock Fixture
 
 ```typescript
 import { expect, test } from '../../fixtures/mock';
 
-/**
- * Test Scope:
- * ✅ API integration, state transitions, error recovery
- * ❌ Data mutations (avoiding parallel logic)
- */
-
-test('handles API error with retry flow', async ({ page, mock }) => {
-    // 1. Override mocks for failure scenario
+test('error recovery flow', async ({ page, mock }) => {
     await mock.add('identityServiceDown');
-
-    // 2. Navigate
     await page.goto('/account/tokens');
+    await expect(page.getByText('Retry').first()).toBeVisible();
 
-    // 3. Verify error state
-    await expect(page.getByText('Retry').first()).toBeVisible({ timeout: 15000 });
-
-    // 4. Simulate service recovery
     await mock.remove('identityServiceDown');
-
-    // 5. Verify retry works
     await page.getByText('Retry').first().click();
     await expect(page.getByText('hash-token-1')).toBeVisible();
-
-    // Note: Token list doesn't mutate. Testing state transitions only.
+    // Mock doesn't mutate data - testing state transitions only
 });
 ```
 
-### Layer 3: True E2E Test (No Mocks)
+### Layer 3: Without Mocks
 
 ```typescript
 import { expect, test } from '@playwright/test';
 
-test('revokes token and removes from list', async ({ page }) => {
-    // Real backend - token actually gets deleted
+test('data mutation', async ({ page }) => {
     await page.goto('/account/tokens');
+    const hash = await page.getByText(/hash-/).first().textContent();
 
-    const tokenHash = await page.getByText(/hash-/).first().textContent();
     await page.getByText('Revoke').first().click();
     await page.getByRole('button', { name: 'Revoke' }).click();
-
-    // Real data mutation - token disappears
-    await expect(page.getByText(tokenHash!)).not.toBeVisible();
+    await expect(page.getByText(hash!)).not.toBeVisible(); // Real deletion
 });
 ```
 
@@ -151,29 +153,12 @@ tests/e2e/
     └── <scenario>.test.ts
 ```
 
-## Testing Philosophy
+## Philosophy: Avoid Parallel Logic
 
-### Avoid Parallel Logic Implementation
+**Don't make Layer 2 mocks stateful** (e.g., removing tokens on DELETE) = reimplementing business logic in test layer.
 
-**Problem:** Making mocks stateful (e.g., removing tokens on DELETE) = reimplementing business logic twice.
-
-```typescript
-// ❌ BAD: Parallel logic
-// Mock removes token → Component fetches → UI updates
-// Now testing that mock works, not that app works
-
-// ✅ GOOD: Layer 2 tests state transitions
-await revokeButton.click();
-await expect(revokeButton).toBeDisabled(); // Loading state
-await expect(revokeButton).toBeEnabled();  // Success state
-
-// ✅ GOOD: Layer 3 tests data mutations
-await revokeButton.click();
-await expect(page.getByText(tokenHash)).not.toBeVisible(); // Real deletion
-```
-
-**Layer 2 verifies:** API calls, state management, error handling
-**Layer 3 verifies:** Actual data changes with real backend
+**Layer 2 verifies:** API calls, state transitions (loading → success/error), error handling
+**Layer 3 verifies:** Real data mutations with backend
 
 ## Gotchas
 
