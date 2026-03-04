@@ -6,6 +6,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type AppError, createAppError } from '@lib/utils';
+    import AddLinkButton from './AddLinkButton.svelte';
     import LinkedIdentityItem from './LinkedIdentityItem.svelte';
     import { queryLinkedIdentities, unlinkIdentity as unlinkIdentityCommand } from './auth.remote';
 </script>
@@ -14,20 +15,29 @@
     const identities = queryLinkedIdentities();
     const locale = getLocaleContext();
 
-    let unlinkError = $state<AppError | undefined>(undefined);
-    const throwIfUnlinkError = () => {
-        if (unlinkError) {
-            throw unlinkError;
+    let error = $state<AppError | undefined>(undefined);
+    // TODO: workaround for https://github.com/sveltejs/kit/issues/14536
+    let isUnlinking = $state(false);
+
+    const throwIfError = () => {
+        if (error) {
+            throw error;
         }
     };
 
-    const refreshIdentities = async () => {
-        unlinkError = undefined;
+    const resetError = async () => {
+        error = undefined;
+        isUnlinking = false;
         await identities.refresh();
     };
 
     const unlinkIdentity = async (provider: string, providerUserId: string) => {
-        await unlinkIdentityCommand({ provider, providerUserId }).updates(identities);
+        isUnlinking = true;
+        try {
+            await unlinkIdentityCommand({ provider, providerUserId }).updates(identities);
+        } finally {
+            isUnlinking = false;
+        }
     };
 </script>
 
@@ -44,7 +54,7 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await refreshIdentities();
+                            await resetError();
                             reset();
                         }}
                     >
@@ -54,18 +64,24 @@
             </ErrorCard>
         {/snippet}
 
-        {throwIfUnlinkError()}
+        {throwIfError()}
         <Stack>
             {#each await identities as identity (identity.provider + identity.providerUserId)}
                 <LinkedIdentityItem
                     {identity}
-                    disabled={identities.loading}
+                    disabled={identities.loading || isUnlinking}
                     unlink={unlinkIdentity}
                     onerror={(err) => {
-                        unlinkError = err;
+                        error = err;
                     }}
                 />
             {/each}
+            <AddLinkButton
+                disabled={identities.loading || isUnlinking}
+                onerror={(err) => {
+                    error = err;
+                }}
+            />
         </Stack>
     </svelte:boundary>
 </Card>

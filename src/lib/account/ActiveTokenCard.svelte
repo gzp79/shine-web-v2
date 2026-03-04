@@ -14,21 +14,29 @@
     const tokens = queryActiveTokens();
     const locale = getLocaleContext();
 
-    let revokeError = $state<AppError | undefined>(undefined);
+    let error = $state<AppError | undefined>(undefined);
+    // TODO: workaround for https://github.com/sveltejs/kit/issues/14536
+    let isRevoking = $state(false);
 
-    const throwIfRevokeError = () => {
-        if (revokeError) {
-            throw revokeError;
+    const throwIfError = () => {
+        if (error) {
+            throw error;
         }
     };
 
-    const refreshTokens = async () => {
-        revokeError = undefined;
+    const resetError = async () => {
+        error = undefined;
+        isRevoking = false;
         await tokens.refresh();
     };
 
     const revokeToken = async (tokenHash: string) => {
-        await revokeTokenCommand(tokenHash).updates(tokens);
+        isRevoking = true;
+        try {
+            await revokeTokenCommand(tokenHash).updates(tokens);
+        } finally {
+            isRevoking = false;
+        }
     };
 </script>
 
@@ -45,7 +53,7 @@
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
-                            await refreshTokens();
+                            await resetError();
                             reset();
                         }}
                     >
@@ -55,15 +63,15 @@
             </ErrorCard>
         {/snippet}
 
-        {throwIfRevokeError()}
+        {throwIfError()}
         <Stack>
             {#each await tokens as token (token.tokenHash)}
                 <ActiveTokenItem
                     {token}
-                    disabled={tokens.loading}
+                    disabled={tokens.loading || isRevoking}
                     revoke={revokeToken}
                     onerror={(err) => {
-                        revokeError = err;
+                        error = err;
                     }}
                 />
             {/each}

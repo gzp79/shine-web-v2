@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw';
-import { authUrl } from '@lib/server/api/auth';
+import { authApiRoutes } from '@lib/server/api/authApiRoutes';
 
 const mockSessions = {
     sessions: [
@@ -76,22 +76,34 @@ const mockIdentities = {
     ]
 };
 
-export const defaultActiveSessions = http.get(authUrl.activeSessions(), () => {
+export const defaultActiveSessions = http.get(authApiRoutes.activeSessions(), () => {
     return HttpResponse.json(mockSessions, { status: 200 });
 });
 
-export const defaultActiveTokens = http.get(authUrl.activeTokens(), () => {
+export const defaultActiveTokens = http.get(authApiRoutes.activeTokens(), () => {
     return HttpResponse.json(mockTokens, { status: 200 });
 });
 
-export const defaultLinkedIdentities = http.get(authUrl.linkedIdentities(), () => {
+export const defaultLinkedIdentities = http.get(authApiRoutes.linkedIdentities(), () => {
     return HttpResponse.json(mockIdentities, { status: 200 });
 });
 
-export const revokeTokenHandler = http.delete(authUrl.revokeToken(':tokenHash'), () => {
+export const revokeTokenHandler = http.delete(authApiRoutes.revokeToken(':tokenHash'), () => {
     return HttpResponse.json({}, { status: 200 });
 });
 
-export const unlinkIdentityHandler = http.delete(authUrl.unlinkIdentity(':provider', ':providerUserId'), () => {
+export const revokeTokenFailureHandler = http.delete(authApiRoutes.revokeToken(':tokenHash'), () => {
+    return HttpResponse.json({ message: 'Failed to revoke token' }, { status: 500 });
+});
+
+export const unlinkIdentityHandler = http.delete(authApiRoutes.unlinkIdentity(':provider', ':providerUserId'), () => {
+    return HttpResponse.json({}, { status: 200 });
+});
+
+export const startEmailConfirmationHandler = http.post(authApiRoutes.startEmailConfirmationUrl(), () => {
+    return HttpResponse.json({}, { status: 200 });
+});
+
+export const startEmailChangeHandler = http.post(authApiRoutes.startEmailChange(), () => {
     return HttpResponse.json({}, { status: 200 });
 });

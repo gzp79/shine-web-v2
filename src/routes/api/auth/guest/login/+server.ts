@@ -1,7 +1,7 @@
 import { resolve } from '$app/paths';
 import { redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
-import { authUrl } from '@lib/server/api/auth';
+import { authPages } from '@lib/server/api/authPages';
 import {
     filterIncompatibleHeaders,
     getPassThroughHeaders,
@@ -11,7 +11,7 @@ import {
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ url, fetch }) => {
-    const identityUrl = authUrl.guestLoginUrl({
+    const identityUrl = authPages.guestLoginUrl({
         captcha: url.searchParams.get('captcha') || '',
         redirectUrl: sanitizedReturnUrl(url.searchParams.get('returnUrl'))
     });

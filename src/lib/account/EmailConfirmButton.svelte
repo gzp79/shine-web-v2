@@ -37,7 +37,7 @@
 
     // Derived state
     let isEmailValid = $derived(!!validatedEmail);
-    let isModalOpen = $derived(emailStatus !== null);
+    let isModalOpen = $derived(!disabled && emailStatus !== null);
     let effectiveVariant = $derived(emailSent ? 'change' : variant);
 
     // Type guard for error state

@@ -1,9 +1,15 @@
 ---
-name: testing
-description: Component testing with Vitest and @testing-library/svelte. Use when writing or debugging src/**/*.test.ts files. For E2E tests (tests/e2e/**), use the e2e-testing skill instead.
+name: vitest-testing
+description: Use when testing component props, state, UI logic without API calls. For API integration or full flows, use playwright-testing.
 ---
 
-# Component Testing
+# Unit Testing (Layer 1)
+
+**Vitest + @testing-library/svelte** for isolated component logic
+**Location:** `src/**/*.test.ts` | **Run:** `pnpm test:unit`
+
+**Use for:** Component props, state, UI logic, isolated business logic
+**Not for:** API integration, full flows, data mutations → use **playwright-testing**
 
 ## Basic Pattern
 

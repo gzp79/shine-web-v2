@@ -66,7 +66,10 @@
         "emailChangeNewEmail": "Új e-mail cím",
         "emailChangeWaiting": "Módosítási kérés küldése...",
         "emailChangeCompleted": "Kérjük, ellenőrizze e-mailjét és kattintson a megerősítő linkre a módosítás befejezéséhez.",
-        "emailOperationSuccess": "E-mail művelet sikeresen befejezve!"
+        "emailOperationSuccess": "E-mail művelet sikeresen befejezve!",
+        "linkProvider": "Szolgáltató kapcsolása",
+        "linkProviderTitle": "Külső fiók kapcsolása",
+        "linkProviderError": "A szolgáltatók betöltése sikertelen"
     },
     "login": {
         "infoLoginExpired": "A munkameneted lejárt. Kérjük, jelentkezz be újra a folytatáshoz.",

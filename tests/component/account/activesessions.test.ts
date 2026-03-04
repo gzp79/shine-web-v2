@@ -1,26 +1,38 @@
 import { expect, test } from '../../fixtures/mock';
 
-test('shows active sessions when authenticated', async ({ page }) => {
-    test.setTimeout(60000); // MSW has 5s delay per request
+test('shows loading state then sessions when authenticated', async ({ page, mock }) => {
+    // Add delay to simulate slow loading
+    await mock.add('withDelay', { ms: 2000 });
 
-    // Default MSW state: guest user with mock sessions
     await page.goto('/__test/account/activesessions');
 
-    // Wait for the card to render with session data (MSW has 5s delay)
+    // Should show loading card immediately
+    await expect(page.getByText('Loading...')).toBeVisible();
+
+    // Wait for the card to render with session data
     const card = page.getByRole('heading', { name: /active sessions/i });
-    await expect(card).toBeVisible({ timeout: 15000 });
+    await expect(card).toBeVisible();
 
     // Verify sessions are displayed (check for fingerprints from mock data)
-    await expect(page.getByText('fp-chrome-windows')).toBeVisible({ timeout: 10000 });
-    await expect(page.getByText('fp-safari-mac')).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText('fp-chrome-windows')).toBeVisible();
+    await expect(page.getByText('fp-safari-mac')).toBeVisible();
 });
 
-test('returns 500 when identity service is down', async ({ page, mock }) => {
+test('retry button reloads data after initial failure', async ({ page, mock }) => {
+    // Start with identity service down
     await mock.add('withIdentityDown');
 
-    // Remote function fails on server (SSR) → SvelteKit returns 500 error page
-    const response = await page.goto('/__test/account/activesessions');
-    expect(response?.status()).toBe(500);
+    await page.goto('/__test/account/activesessions');
 
-    await expect(page.getByText('Internal Error')).toBeVisible();
+    // Wait for error to appear in the card
+    await expect(page.getByText('Retry').first()).toBeVisible();
+
+    // Remove the failure mock to simulate service recovery
+    await mock.remove('withIdentityDown');
+
+    // Click retry button
+    await page.getByText('Retry').first().click();
+
+    // Should now load successfully
+    await expect(page.getByText('fp-chrome-windows')).toBeVisible();
 });
