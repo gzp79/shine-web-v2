@@ -1,15 +1,6 @@
 import { expect, test } from '../../fixtures/mock';
 
-test('shows user info when authenticated as guest', async ({ page }) => {
-    // Default MSW state: guest user authenticated
-    await page.goto('/__test/account/userinfo');
-
-    // Wait for the card to render with user data
-    const card = page.locator('[data-testid="user-info-card"]').or(page.getByText('Freshman'));
-    await expect(card.first()).toBeVisible();
-});
-
-test('shows loading card while data is loading', async ({ page, mock }) => {
+test('shows loading state then user info when authenticated', async ({ page, mock }) => {
     // Add delay to simulate slow loading
     await mock.add('withDelay', { ms: 2000 });
 
@@ -18,8 +9,9 @@ test('shows loading card while data is loading', async ({ page, mock }) => {
     // Should show loading card immediately
     await expect(page.getByText('Loading...')).toBeVisible();
 
-    // After delay, should show user data
-    await expect(page.getByText('Freshman')).toBeVisible();
+    // Wait for the card to render with user data
+    const card = page.locator('[data-testid="user-info-card"]').or(page.getByText('Freshman'));
+    await expect(card.first()).toBeVisible();
 });
 
 test('retry button reloads data after initial failure', async ({ page, mock }) => {
@@ -28,8 +20,8 @@ test('retry button reloads data after initial failure', async ({ page, mock }) =
 
     await page.goto('/__test/account/userinfo');
 
-    // Wait for error to appear in the card (not SSR 500)
-    await expect(page.getByText('Retry').first()).toBeVisible();
+    // Wait for error to appear in the card (Remote function with retries takes at least 15 seconds to timeout)
+    await expect(page.getByText('Retry').first()).toBeVisible({ timeout: 15000 });
 
     // Remove the failure mock to simulate service recovery
     await mock.remove('withIdentityDown');
@@ -49,11 +41,11 @@ test('guest user shows only "change" email button', async ({ page }) => {
     await expect(page.getByText('Freshman')).toBeVisible();
 
     // Should show "No Email" text
-    await expect(page.getByText('account.noEmail')).toBeVisible();
+    await expect(page.getByText('No email')).toBeVisible();
 
     // Should have single "Change" button (variant='change')
-    const emailSection = page.locator('text=account.email').locator('..');
-    await expect(emailSection.getByRole('button')).toContainText('account.emailChangeTitle');
+    const emailSection = page.locator('text=Email').locator('..');
+    await expect(emailSection.getByRole('button').first()).toContainText('Change Email');
 });
 
 test('non-guest user without email confirmation shows "confirm or change" button', async ({ page, mock }) => {
@@ -69,15 +61,16 @@ test('non-guest user without email confirmation shows "confirm or change" button
     await expect(page.getByText('unverified@example.com')).toBeVisible();
 
     // Should have combo button with both "Confirm" and "Change" options
-    const emailSection = page.locator('text=account.email').locator('..');
-    const comboButton = emailSection.locator('button').first();
+    const emailSection = page.locator('text=Email').locator('..');
+    const dropdownTrigger = emailSection.locator('button').nth(1); // Second button is the dropdown trigger
 
-    // Click to open menu
-    await comboButton.click();
+    // Click dropdown trigger to open menu
+    await dropdownTrigger.click();
 
-    // Should show both options
-    await expect(page.getByText('account.emailConfirmTitle')).toBeVisible();
-    await expect(page.getByText('account.emailChangeTitle')).toBeVisible();
+    // Should show both options (in dropdown menu portal)
+    const portal = page.locator('#popover');
+    await expect(portal.getByRole('menuitem', { name: 'Confirm Email' })).toBeVisible();
+    await expect(portal.getByRole('menuitem', { name: 'Change Email' })).toBeVisible();
 });
 
 test('non-guest user with verified email shows only "change" button', async ({ page, mock }) => {
@@ -93,8 +86,8 @@ test('non-guest user with verified email shows only "change" button', async ({ p
     await expect(page.getByText('verified@example.com')).toBeVisible();
 
     // Should have single "Change" button (variant='change')
-    const emailSection = page.locator('text=account.email').locator('..');
-    await expect(emailSection.getByRole('button')).toContainText('account.emailChangeTitle');
+    const emailSection = page.locator('text=Email').locator('..');
+    await expect(emailSection.getByRole('button').first()).toContainText('Change Email');
 });
 
 test('change email dialog flow for guest user', async ({ page }) => {
@@ -104,10 +97,10 @@ test('change email dialog flow for guest user', async ({ page }) => {
     await expect(page.getByText('Freshman')).toBeVisible();
 
     // Click change button
-    await page.getByText('account.emailChangeTitle').click();
+    await page.getByRole('button', { name: 'Change Email' }).click();
 
     // Dialog should open
-    await expect(page.getByText('account.emailChangeTitle')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Change Email' }).first()).toBeVisible();
 
     // Should have email input field
     const emailInput = page.locator('input[type="email"]');
@@ -117,14 +110,14 @@ test('change email dialog flow for guest user', async ({ page }) => {
     await emailInput.fill('newemail@example.com');
 
     // Update button should be enabled
-    const updateButton = page.getByText('common.update');
+    const updateButton = page.getByText('Update');
     await expect(updateButton).toBeEnabled();
 
     // Click update (would trigger email change flow)
     await updateButton.click();
 
     // Should show waiting state
-    await expect(page.getByText('account.emailChangeWaiting')).toBeVisible();
+    await expect(page.getByText('Sending change request...')).toBeVisible();
 });
 
 test('confirm email dialog flow for unverified user', async ({ page, mock }) => {
@@ -134,16 +127,17 @@ test('confirm email dialog flow for unverified user', async ({ page, mock }) => 
     // Wait for user data
     await expect(page.getByText('UnverifiedUser_xyz789')).toBeVisible();
 
-    // Open combo button menu
-    const emailSection = page.locator('text=account.email').locator('..');
-    await emailSection.locator('button').first().click();
+    // Open combo button menu (click the dropdown trigger, not the main button)
+    const emailSection = page.locator('text=Email').locator('..');
+    await emailSection.locator('button').nth(1).click(); // Second button is the dropdown trigger
 
-    // Click confirm option
-    await page.getByText('account.emailConfirmTitle').first().click();
+    // Click confirm option (in dropdown menu portal)
+    const portal = page.locator('#popover');
+    await portal.getByRole('menuitem', { name: 'Confirm Email' }).click();
 
     // Dialog should open
-    await expect(page.getByText('account.emailConfirmTitle')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Confirm Email' }).first()).toBeVisible();
 
     // Should show confirmation message
-    await expect(page.getByText('account.emailConfirmWaiting')).toBeVisible();
+    await expect(page.getByText('Sending confirmation email...')).toBeVisible();
 });

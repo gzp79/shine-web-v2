@@ -1,5 +1,4 @@
 import { config } from '@config';
-import type { RequestHandler as MswRequestHandler } from 'msw';
 import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -7,25 +6,64 @@ export const POST: RequestHandler = async ({ request }) => {
         return new Response(null, { status: 404 });
     }
 
-    const { registry } = await import('@mocks/registry');
     const { addOverride } = await import('@mocks/server');
 
     const { handler, params } = await request.json();
-    const factory = registry[handler as keyof typeof registry];
-    if (!factory) {
-        return new Response(JSON.stringify({ error: `Unknown handler: ${handler}` }), {
+
+    try {
+        await addOverride(handler, params);
+    } catch (error) {
+        return new Response(JSON.stringify({ error: (error as Error).message }), {
             status: 400,
             headers: { 'Content-Type': 'application/json' }
         });
     }
 
-    const mswHandler: MswRequestHandler =
-        params === undefined
-            ? (factory as () => MswRequestHandler)()
-            : (factory as (handlerParams: unknown) => MswRequestHandler)(params);
-    addOverride(handler, mswHandler);
-
     return new Response(JSON.stringify({ ok: true, handler }), {
+        headers: { 'Content-Type': 'application/json' }
+    });
+};
+
+export const GET: RequestHandler = async () => {
+    if (config.environment !== 'mock') {
+        return new Response(null, { status: 404 });
+    }
+
+    const { registry } = await import('@mocks/registry');
+    const { getActiveOverrides } = await import('@mocks/server');
+
+    const activeOverrides = getActiveOverrides();
+    const mocks: Array<{ name: string; isActive: boolean; hasParams: boolean; params?: unknown }> = [];
+
+    // 1. Add active overrides (in application order - Map preserves insertion order)
+    for (const [name, entry] of activeOverrides.entries()) {
+        const registryEntry = registry[name as keyof typeof registry];
+        const hasParams = 'defaultParams' in registryEntry;
+        mocks.push({
+            name,
+            isActive: true,
+            hasParams,
+            params: entry.params
+        });
+    }
+
+    // 2. Add inactive mocks (alphabetically)
+    const registryKeys = Object.keys(registry).sort();
+    for (const name of registryKeys) {
+        if (!activeOverrides.has(name)) {
+            const registryEntry = registry[name as keyof typeof registry];
+            const hasParams = 'defaultParams' in registryEntry;
+            const defaultParams = hasParams ? registryEntry.defaultParams : undefined;
+            mocks.push({
+                name,
+                isActive: false,
+                hasParams,
+                params: defaultParams
+            });
+        }
+    }
+
+    return new Response(JSON.stringify({ mocks }), {
         headers: { 'Content-Type': 'application/json' }
     });
 };
