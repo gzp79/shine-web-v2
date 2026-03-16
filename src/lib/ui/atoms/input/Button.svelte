@@ -1,6 +1,7 @@
 <script module lang="ts">
     import type { ButtonRootProps } from 'bits-ui';
     import { Button } from 'bits-ui';
+    import type { ClassValue } from 'clsx';
     import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
 
@@ -16,11 +17,27 @@
         onclick?: HTMLButtonAttributes['onclick'];
     };
     export type ButtonAction = LinkAction | NativeButtonAction;
-    export type ButtonProps = ButtonRootProps & ButtonAction & ButtonStyleConfig;
+
+    export type ButtonProps = Omit<HTMLButtonAttributes, 'class' | 'href' | 'type' | 'disabled' | 'onclick'> &
+        ButtonAction &
+        ButtonStyleConfig & {
+            ref?: HTMLElement | null;
+            class?: ClassValue;
+        };
 </script>
 
 <script lang="ts">
-    let { color, variant, size, wide, disabled, class: className, children, ...restProps }: ButtonProps = $props();
+    let {
+        color,
+        variant,
+        size,
+        wide,
+        disabled,
+        class: className,
+        children,
+        ref = $bindable(null),
+        ...restProps
+    }: ButtonProps = $props();
 
     const buttonStl = createButtonStyle(() => ({
         color,
@@ -46,6 +63,12 @@
     const svelteCtrl = $derived(restProps.href ? linkSvelteControls(restProps.href) : {});
 </script>
 
-<Button.Root disabled={buttonStl.disabled} class={buttonStl.class} {...svelteCtrl} {...restProps}>
+<Button.Root
+    bind:ref
+    disabled={buttonStl.disabled}
+    class={buttonStl.class}
+    {...svelteCtrl}
+    {...restProps as ButtonRootProps}
+>
     {@render children?.()}
 </Button.Root>

@@ -43,14 +43,14 @@
     {#snippet template(args)}
         <ConfirmationDialog
             {...args}
-            onConfirm={() => console.log('Confirmed')}
-            onCancel={() => console.log('Cancelled')}
+            confirmAction={{ onclick: () => console.log('Confirmed') }}
+            cancelAction={{ onclick: () => console.log('Cancelled') }}
         >
-            {#snippet confirm({ class: cls, onclick, ref })}
-                <button class={cls} {onclick} bind:this={ref.get, ref.set}> Yes, continue </button>
+            {#snippet confirm({ class: cls, action })}
+                <button class={cls} {...action}> Yes, continue </button>
             {/snippet}
-            {#snippet cancel({ class: cls, onclick })}
-                <button class={cls} {onclick}>No, go back</button>
+            {#snippet cancel({ class: cls, action })}
+                <button class={cls} {...action}>No, go back</button>
             {/snippet}
         </ConfirmationDialog>
     {/snippet}

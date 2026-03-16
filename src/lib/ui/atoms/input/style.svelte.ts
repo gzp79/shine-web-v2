@@ -47,10 +47,10 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
 
     const groupInfo = getInputGroupContext();
 
-    const color = $derived(groupInfo?.color ?? style.color ?? 'primary');
-    const size = $derived(groupInfo?.size ?? style.size ?? 'md');
-    const variant = $derived(groupInfo?.variant ?? style.variant ?? 'filled');
-    const disabled = $derived(groupInfo?.disabled ?? style.disabled ?? false);
+    const color = $derived(style.color ?? groupInfo?.color ?? 'primary');
+    const size = $derived(style.size ?? groupInfo?.size ?? 'md');
+    const variant = $derived(style.variant ?? groupInfo?.variant ?? 'filled');
+    const disabled = $derived(style.disabled ?? groupInfo?.disabled ?? false);
 
     const sizeMods: Record<Size, string> = {
         xs: 'text-xs leading-none h-8 px-1.5',

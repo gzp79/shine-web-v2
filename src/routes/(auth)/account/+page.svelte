@@ -1,6 +1,7 @@
 <script lang="ts">
     import ActiveSessionCard from '@lib/account/ActiveSessionCard.svelte';
     import ActiveTokenCard from '@lib/account/ActiveTokenCard.svelte';
+    import DangerZoneCard from '@lib/account/DangerZoneCard.svelte';
     import LinkedIdentityCard from '@lib/account/LinkedIdentityCard.svelte';
     import UserInfoCard from '@lib/account/UserInfoCard.svelte';
     import { getLocaleContext } from '@lib/i18n';
@@ -17,4 +18,5 @@
     <LinkedIdentityCard />
     <ActiveSessionCard />
     <ActiveTokenCard />
+    <DangerZoneCard />
 </StackLayout>

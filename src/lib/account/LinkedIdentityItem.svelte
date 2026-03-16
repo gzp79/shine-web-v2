@@ -86,7 +86,7 @@
                 confirm: locale.t('account.unlinkConfirmationConfirmText'),
                 cancel: locale.t('account.unlinkConfirmationCancelText')
             }}
-            onConfirm={handleUnlink}
+            confirmAction={{ onclick: handleUnlink }}
         >
             {locale.t('account.unlink')}
         </ConfirmationButton>

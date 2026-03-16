@@ -10,13 +10,18 @@
     type RootProps = Omit<ContainerRootProps, 'ghost' | 'border' | 'overflow' | 'class' | 'children' | 'data-slot'>;
     type ContentProps = Omit<ContainerContentProps, 'class' | 'children' | 'data-slot'>;
 
+    export const cardVariantList = ['default', 'solid'] as const;
+    export type CardVariant = (typeof cardVariantList)[number];
+
     export type CardProps = RootProps &
         ContentProps & {
+            variant?: CardVariant;
             icon?: Snippet<[{ class: string }]>;
             iconClass?: ClassValue | null;
             title?: string | Snippet<[{ class: string }]>;
             titleClass?: ClassValue | null;
             children: Snippet;
+            containerClass?: ClassValue | null;
             contentClass?: ClassValue | null;
             actions?: Snippet;
             actionsClass?: ClassValue | null;
@@ -25,6 +30,7 @@
 
 <script lang="ts">
     let {
+        variant = 'default',
         color = undefined,
         shadow = false,
         width = 'fit',
@@ -36,6 +42,7 @@
         title = undefined,
         titleClass = undefined,
         children,
+        containerClass = undefined,
         contentClass = undefined,
         actions = undefined,
         actionsClass = undefined,
@@ -43,11 +50,20 @@
         'aria-live': ariaLive = undefined
     }: CardProps = $props();
 
+    const isSolid = $derived(variant === 'solid' && color !== undefined);
+
+    const containerCls = $derived(
+        cn(
+            !isSolid && `border-on-${color}`, //
+            containerClass
+        )
+    );
     const iconCls = $derived(
         cn(
             'flex shrink-0',
             'h-12 w-12 sm:w-12 my-2 sm:ms-2',
             'self-center sm:self-start items-center justify-center',
+            !isSolid && `text-on-${color}`,
             iconClass
         )
     );
@@ -59,13 +75,22 @@
             'items-center',
             'justify-center sm:justify-start',
             'text-center sm:text-start',
+            !isSolid && `text-on-${color}`,
             titleClass
         )
     );
     const actionsCls = $derived(cn('flex flex-row flex-wrap gap-2 p-2 justify-center sm:ms-auto', actionsClass));
 </script>
 
-<ContainerRoot data-slot="card" border {color} {shadow} {width} {margin}>
+<ContainerRoot
+    data-slot="card"
+    border
+    color={isSolid ? color : undefined}
+    {shadow}
+    {width}
+    {margin}
+    class={containerCls}
+>
     <Stack
         direction={{ xs: 'column', sm: 'row' }}
         spacing={{ xs: 0, sm: 2 }}

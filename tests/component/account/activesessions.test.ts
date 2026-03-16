@@ -1,7 +1,7 @@
 import { expect, test } from '../../fixtures/mock';
 
 test('shows loading state then sessions when authenticated', async ({ page, mock }) => {
-    await mock.add('withDelay', { ms: 5000 });
+    await mock.add('withDelay', { ms: 2000 });
 
     await test.step('shows loading indicator', async () => {
         await page.goto('/__test/account/activesessions');

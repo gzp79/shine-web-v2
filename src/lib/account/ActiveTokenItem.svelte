@@ -80,7 +80,7 @@
                 confirm: locale.t('account.revokeTokenConfirmationConfirmText'),
                 cancel: locale.t('account.revokeTokenConfirmationCancelText')
             }}
-            onConfirm={handleRevoke}
+            confirmAction={{ onclick: handleRevoke }}
         >
             {locale.t('account.revoke')}
         </ConfirmationButton>

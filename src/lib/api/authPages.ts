@@ -69,5 +69,15 @@ export const authPages = {
             }
         );
         return joinURL(config.identityUrl, `auth/logout${queryString}`);
+    },
+
+    deleteUserUrl(params?: { redirectUrl: string }): string {
+        const queryString = toQueryString(
+            params && {
+                redirectUrl: `${config.webUrl}${params.redirectUrl}`,
+                errorUrl: `${config.webUrl}/error`
+            }
+        );
+        return joinURL(config.identityUrl, `auth/delete${queryString}`);
     }
 };

@@ -1,6 +1,7 @@
 <script module lang="ts">
     import { type Snippet } from 'svelte';
     import Typography from '@lib/ui/atoms/Typography.svelte';
+    import Button, { type ButtonAction, type ButtonProps } from '@lib/ui/atoms/input/Button.svelte';
     import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
     import Dialog, { type DialogProps } from '@lib/ui/atoms/layouts/Dialog.svelte';
     import { type RefBinding } from '@lib/ui/utils';
@@ -11,12 +12,12 @@
     > & {
         title: string;
         question: string;
-        confirm: string | Snippet<[{ class: string; onclick: () => void; ref: RefBinding }]>;
+        confirm: string | Snippet<[{ class: string; action: ButtonAction; ref: RefBinding }]>;
+        confirmAction?: ButtonAction;
         confirmStyle?: ButtonStyleConfig;
-        onConfirm?: () => void;
-        cancel?: string | Snippet<[{ class: string; onclick: () => void }]>;
+        cancel?: string | Snippet<[{ class: string; action: ButtonAction }]>;
+        cancelAction?: ButtonAction;
         cancelStyle?: ButtonStyleConfig;
-        onCancel?: () => void;
         preventClose?: boolean;
     };
 </script>
@@ -27,11 +28,11 @@
         title,
         question,
         confirm,
+        confirmAction = undefined,
         confirmStyle,
-        onConfirm = undefined,
         cancel = undefined,
+        cancelAction = undefined,
         cancelStyle,
-        onCancel = undefined,
         preventClose = false,
         ...restProps
     }: ConfirmationDialogProps = $props();
@@ -41,14 +42,23 @@
     const cancelStl = createButtonStyle(() => ({ color: 'primary', showFocus: true, ...cancelStyle }));
     const confirmStl = createButtonStyle(() => ({ color: 'secondary', showFocus: true, ...confirmStyle }));
 
-    const handleCancel = () => {
-        open = false;
-        onCancel?.();
+    const wrapAction = (action: ButtonAction | undefined): ButtonAction => {
+        if (action && 'href' in action && action.href) {
+            return action;
+        }
+
+        const onclick = action && 'onclick' in action ? action.onclick : undefined;
+        return {
+            onclick: (e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) => {
+                open = false;
+                if (typeof onclick === 'function') onclick.call(undefined, e);
+            }
+        };
     };
-    const handleConfirm = () => {
-        open = false;
-        onConfirm?.();
-    };
+
+    const cancelBtnAction = $derived(wrapAction(cancelAction));
+    const confirmBtnAction = $derived(wrapAction(confirmAction));
+
     const onOpenAutoFocus = (e: Event) => {
         e.preventDefault();
         confirmElement?.focus();
@@ -70,17 +80,19 @@
 
     {#snippet actions()}
         {#if typeof cancel === 'string'}
-            <button onclick={handleCancel} class={cancelStl.class}>{cancel}</button>
+            <Button color="primary" {...cancelStyle} {...cancelBtnAction as ButtonProps}>{cancel}</Button>
         {:else}
-            {@render cancel?.({ class: cancelStl.class, onclick: handleCancel })}
+            {@render cancel?.({ class: cancelStl.class, action: cancelBtnAction })}
         {/if}
 
         {#if typeof confirm === 'string'}
-            <button bind:this={confirmElement} onclick={handleConfirm} class={confirmStl.class}>{confirm}</button>
+            <Button bind:ref={confirmElement} color="secondary" {...confirmStyle} {...confirmBtnAction as ButtonProps}
+                >{confirm}</Button
+            >
         {:else}
             {@render confirm({
                 class: confirmStl.class,
-                onclick: handleConfirm,
+                action: confirmBtnAction,
                 ref: { get: () => confirmElement, set: (v) => (confirmElement = v) }
             })}
         {/if}
