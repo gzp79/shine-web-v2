@@ -36,13 +36,13 @@ Same stack, different scope. Choose layer by fixture usage, not directory.
 
 ### Commands
 
-| Command | Scope |
-|---|---|
-| `pnpm test` | All tests (unit → component → e2e, stops on first failure) |
-| `pnpm test:unit --run` | Vitest unit tests (single run) |
-| `pnpm test:unit` | Vitest unit tests (watch mode) |
-| `pnpm test:component` | Playwright — `tests/component/` |
-| `pnpm test:e2e` | Playwright — `tests/e2e/` |
+| Command                | Scope                                                      |
+| ---------------------- | ---------------------------------------------------------- |
+| `pnpm test`            | All tests (unit → component → e2e, stops on first failure) |
+| `pnpm test:unit --run` | Vitest unit tests (single run)                             |
+| `pnpm test:unit`       | Vitest unit tests (watch mode)                             |
+| `pnpm test:component`  | Playwright — `tests/component/`                            |
+| `pnpm test:e2e`        | Playwright — `tests/e2e/`                                  |
 
 ### Filtering
 
@@ -57,6 +57,7 @@ pnpm test:component -- --grep "revoke token"
 ### Troubleshooting
 
 If tests fail unexpectedly, check:
+
 - Environment is `mock` in `src/generated/config.ts`
 - Dev server is running (`pnpm run dev`)
 - No stale dev server from a previous session (UI changes not reflecting, mock handlers not taking effect)
@@ -127,6 +128,7 @@ test('revoke token: confirmation dialog and loading states', async ({ page }) =>
 ```
 
 **When to use steps:**
+
 - Tests with distinct phases (setup → action → verify → recover)
 - Error recovery flows (trigger error → see error → fix → see recovery)
 - Dialog flows (open → interact → close)
@@ -140,8 +142,8 @@ Auth flows (login, logout, link provider) navigate the browser directly to the i
 ```typescript
 import {
     interceptIdentityAuth,
-    interceptIdentityAuthWithRedirect,
-    interceptIdentityAuthWithError
+    interceptIdentityAuthWithError,
+    interceptIdentityAuthWithRedirect
 } from '../../helpers/auth-intercept';
 ```
 

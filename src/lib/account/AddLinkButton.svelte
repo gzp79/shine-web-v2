@@ -23,7 +23,6 @@
     const providersQuery = queryExternalLoginProviders();
 
     let isDialogOpen = $state(false);
-
 </script>
 
 <Button size="sm" {disabled} onclick={() => (isDialogOpen = true)}>
@@ -39,7 +38,7 @@
                 <Button
                     wide
                     color="primary"
-                    disabled={disabled}
+                    {disabled}
                     href={authPages.externalLinkUrl(provider, { redirectUrl: '/account' })}
                 >
                     {@const ProviderIcon = brands[provider]}

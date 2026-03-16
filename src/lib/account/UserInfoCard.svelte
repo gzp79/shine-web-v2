@@ -52,8 +52,14 @@
     <ComboButton
         disabled={!hasUserInfo}
         options={[
-            { caption: locale.t('account.logout'), href: authPages.logoutUrl({ terminateAll: false, redirectUrl: '/public/bye' }) },
-            { caption: locale.t('account.logoutAll'), href: authPages.logoutUrl({ terminateAll: true, redirectUrl: '/public/bye' }) }
+            {
+                caption: locale.t('account.logout'),
+                href: authPages.logoutUrl({ terminateAll: false, redirectUrl: '/public/bye' })
+            },
+            {
+                caption: locale.t('account.logoutAll'),
+                href: authPages.logoutUrl({ terminateAll: true, redirectUrl: '/public/bye' })
+            }
         ]}
     />
 {/snippet}
