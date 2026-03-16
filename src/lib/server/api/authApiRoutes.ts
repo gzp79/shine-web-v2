@@ -1,6 +1,5 @@
 import { config } from '@config';
 import z from 'zod';
-import { IdentityKindSchema } from '@lib/server/api/identity';
 import { joinURL, toQueryString } from '@lib/utils';
 
 export const authApiRoutes = {
@@ -45,6 +44,9 @@ export const ProviderSchema = z.object({
     providers: z.array(z.string())
 });
 export type Provider = z.infer<typeof ProviderSchema>;
+
+export const IdentityKindSchema = z.enum(['user']);
+export type IdentityKind = z.infer<typeof IdentityKindSchema>;
 
 export const CurrentUserDetailsSchema = z.object({
     kind: IdentityKindSchema,

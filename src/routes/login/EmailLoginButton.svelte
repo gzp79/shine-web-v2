@@ -1,5 +1,6 @@
 <script module lang="ts">
     import { z } from 'zod';
+    import { authPages } from '@lib/api/authPages';
     import { createTr, getLocaleContext } from '@lib/i18n';
     import allBrands from '@lib/ui/atoms/glyphs/brands/all';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -11,13 +12,12 @@
         disabled: boolean;
         captcha: string;
         rememberMe: boolean;
-        onSubmit: () => void;
     };
     const emailSchema = z.email({ message: createTr('login.emailInvalidError') });
 </script>
 
 <script lang="ts">
-    let { disabled, captcha, rememberMe, onSubmit }: EmailLoginButtonProps = $props();
+    let { disabled, captcha, rememberMe }: EmailLoginButtonProps = $props();
 
     let locale = getLocaleContext();
 
@@ -43,31 +43,32 @@
 </Button>
 
 <Dialog bind:open={isOpen} width="fit" title={locale.t('login.emailDialogTitle')} closeIcon>
-    <form method="POST" action="/api/auth/email/login" data-sveltekit-reload onsubmit={() => onSubmit()}>
-        <input type="hidden" name="email" value={validatedEmail || ''} />
-        <input type="hidden" name="rememberMe" value={rememberMe} />
-        <input type="hidden" name="captcha" value={captcha} />
-        <!-- Encoding some temp url seems not to be a good idea, so we fall back to the default by not providing any redirectUrl -->
-        <!-- <input type="hidden" name="redirectUrl" value="/game" /> -->
+    <Stack spacing={4}>
+        <ZodField
+            type="email"
+            schema={emailSchema}
+            onValue={(val) => (validatedEmail = val)}
+            placeholder={locale.t('login.emailInputDescription')}
+            required
+            wide
+        />
 
-        <Stack spacing={4}>
-            <ZodField
-                type="email"
-                schema={emailSchema}
-                onValue={(val) => (validatedEmail = val)}
-                placeholder={locale.t('login.emailInputDescription')}
-                required
-                wide
-            />
-
-            <Stack direction="row" spacing={2} justification="end">
-                <Button type="button" onclick={() => (isOpen = false)}>
-                    {locale.t('login.emailCancelButton')}
-                </Button>
-                <Button type="submit" color="secondary" disabled={submitDisabled}>
-                    {locale.t('login.emailSubmitButton')}
-                </Button>
-            </Stack>
+        <Stack direction="row" spacing={2} justification="end">
+            <Button onclick={() => (isOpen = false)}>
+                {locale.t('login.emailCancelButton')}
+            </Button>
+            <Button
+                color="secondary"
+                disabled={submitDisabled}
+                href={authPages.emailLoginUrl({
+                    email: validatedEmail || '',
+                    rememberMe,
+                    captcha,
+                    redirectUrl: '/public/email-login'
+                })}
+            >
+                {locale.t('login.emailSubmitButton')}
+            </Button>
         </Stack>
-    </form>
+    </Stack>
 </Dialog>

@@ -2,6 +2,7 @@
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
     import { setCurrentUserStore } from '@lib/account/currentUserStore.svelte';
+    import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
@@ -32,7 +33,7 @@
             icon: Cross,
             dangerous: true,
             action: () => {
-                window.location.href = '/api/auth/logout';
+                window.location.href = authPages.logoutUrl({ terminateAll: false, redirectUrl: '/public/bye' });
             }
         });
 

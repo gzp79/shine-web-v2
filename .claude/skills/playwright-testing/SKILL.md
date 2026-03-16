@@ -27,50 +27,39 @@ Same stack, different scope. Choose layer by fixture usage, not directory.
 - `component/` - Component-focused (dialogs, forms, cards)
 - `e2e/` - Multi-page flows (login → action → result)
 
-## Setup
+## Running Tests
 
-### Dev Server Management
+### Prerequisites
 
-**Common issue:** Vite dev server from previous session still running → tests run against stale code.
+1. **Check environment is mock** — read `src/generated/config.ts` and verify `environment: 'mock'`. If not, ask the user to run `pnpm run env:mock`.
+2. **Dev server must be running** — component and E2E tests need `pnpm run dev` in the background.
 
-**Before running tests:**
+### Commands
 
-1. **Check if port is in use:**
+| Command | Scope |
+|---|---|
+| `pnpm test` | All tests (unit → component → e2e, stops on first failure) |
+| `pnpm test:unit --run` | Vitest unit tests (single run) |
+| `pnpm test:unit` | Vitest unit tests (watch mode) |
+| `pnpm test:component` | Playwright — `tests/component/` |
+| `pnpm test:e2e` | Playwright — `tests/e2e/` |
 
-    ```bash
-    # Windows (bash shell in Claude Code)
-    netstat -ano | grep :5173
-    ```
+### Filtering
 
-2. **Kill stuck dev server if found:**
+```bash
+# Run specific file
+pnpm test:component -- tests/component/account/activetokens.test.ts
 
-    ```bash
-    # Windows: Find PID from netstat output, then:
-    taskkill //PID <pid> //F
+# Filter by test name
+pnpm test:component -- --grep "revoke token"
+```
 
-    # Alternative: Kill by port (requires admin/elevated prompt usually)
-    # If above fails, kill all node processes:
-    taskkill //IM node.exe //F
-    ```
+### Troubleshooting
 
-3. **Verify environment before tests:**
-
-    ```bash
-    # Ensure correct mock environment is set
-    pnpm run env:mock
-
-    # Start dev server fresh
-    pnpm run dev
-    ```
-
-**Red flags that indicate stale server:**
-
-- Tests fail immediately with connection errors
-- Tests pass locally but fail in CI (different ports)
-- UI changes don't reflect in test runs
-- Mock handlers don't take effect
-
-**Best practice:** Always kill existing dev processes before starting a new test session. When debugging test failures, check process list first.
+If tests fail unexpectedly, check:
+- Environment is `mock` in `src/generated/config.ts`
+- Dev server is running (`pnpm run dev`)
+- No stale dev server from a previous session (UI changes not reflecting, mock handlers not taking effect)
 
 ## Mock Fixture
 
@@ -90,16 +79,18 @@ See `MockHandlers` interface in `src/mocks/registry.ts` for the full list of han
 
 ```typescript
 await mock.add('handlerName'); // void params
-await mock.add('tokenLogin', { success: false }); // typed params
+await mock.add('withDelay', { ms: 2000 }); // typed params
 await mock.remove('handlerName'); // remove specific override
 await mock.reset(); // reset to defaults (automatic in afterEach)
 ```
 
 ### Defaults (pre-loaded on server boot)
 
-Server starts with `mockForGuestUser` — authenticated guest, token login succeeds:
+Server starts with `mockForGuestUser` — authenticated guest with account data:
 
-- `defaultProviders`, `defaultGuestUser`, `defaultGuestLogin`, `tokenLogin(true)`, `defaultExternalLogin`
+- `defaultProviders`, `defaultGuestUser`, `defaultActiveSessions`, `defaultActiveTokens`, `defaultLinkedIdentities`, `revokeTokenHandler`, `unlinkIdentityHandler`, `startEmailConfirmationHandler`, `startEmailChangeHandler`
+
+Auth flows (login, logout, link) navigate directly to the identity server — no MSW mocks needed. Use Playwright route interception instead (see Auth Interceptors below).
 
 Tests only need to override what they're testing.
 
@@ -109,6 +100,93 @@ Tests only need to override what they're testing.
 2. Add entry to `MockHandlers` interface in `src/mocks/registry.ts`
 3. Add factory to `registry` object in same file
 
+## Structuring Tests with `test.step()`
+
+Use `test.step()` to organize multi-phase tests. Each step groups related assertions and actions, making test reports clearer and failures easier to locate.
+
+```typescript
+test('revoke token: confirmation dialog and loading states', async ({ page }) => {
+    await page.goto('/__test/account/activetokens');
+    await expect(page.getByText('hash-token-1')).toBeVisible();
+
+    const revokeButton = page.getByText('Revoke').first();
+
+    await test.step('open confirmation dialog', async () => {
+        await revokeButton.click();
+        await expect(page.getByRole('heading', { name: 'Revoke Token' }).first()).toBeVisible();
+        await expect(page.getByText('Are you sure you want to revoke this token?')).toBeVisible();
+    });
+
+    await test.step('confirm revoke and observe loading', async () => {
+        const confirmButton = page.getByLabel('Revoke Token').getByRole('button', { name: 'Revoke' });
+        await confirmButton.click();
+        await expect(revokeButton).toBeDisabled();
+        await expect(revokeButton).toBeEnabled();
+    });
+});
+```
+
+**When to use steps:**
+- Tests with distinct phases (setup → action → verify → recover)
+- Error recovery flows (trigger error → see error → fix → see recovery)
+- Dialog flows (open → interact → close)
+
+**When NOT needed:** Simple tests with a single phase (load page, check content).
+
+## Auth Interceptors (`tests/helpers/auth-intercept.ts`)
+
+Auth flows (login, logout, link provider) navigate the browser directly to the identity server. MSW can't intercept browser navigations — only fetch/XHR. Use Playwright's `page.route()` via these helpers:
+
+```typescript
+import {
+    interceptIdentityAuth,
+    interceptIdentityAuthWithRedirect,
+    interceptIdentityAuthWithError
+} from '../../helpers/auth-intercept';
+```
+
+### `interceptIdentityAuthWithRedirect(page, paramName?)`
+
+Intercepts identity server navigations and redirects to the URL in the given query param (default: `'redirectUrl'`).
+
+```typescript
+// Simulate successful logout → redirects to /public/bye
+test('logout redirects to bye page', async ({ page }) => {
+    await interceptIdentityAuthWithRedirect(page);
+    await page.goto('/__test/account/userinfo');
+    await page.getByRole('link', { name: 'Logout' }).click();
+    await expect(page).toHaveURL(/\/public\/bye/);
+});
+
+// Use a different param name (e.g., errorUrl for token login failures)
+await interceptIdentityAuthWithRedirect(page, 'errorUrl');
+```
+
+### `interceptIdentityAuthWithError(page, status?)`
+
+Simulates identity server being down (default: 503).
+
+```typescript
+test('logout href points to identity server when down', async ({ page }) => {
+    await interceptIdentityAuthWithError(page);
+    await page.goto('/__test/account/userinfo');
+    const href = await page.getByRole('link', { name: 'Logout' }).getAttribute('href');
+    expect(href).toContain('/identity/auth/logout');
+});
+```
+
+### `interceptIdentityAuth(page, handler)`
+
+Full control — custom handler receives the parsed URL, returns `{ redirect }`, `{ status, body? }`, or `undefined` (aborts).
+
+```typescript
+await interceptIdentityAuth(page, (url) => {
+    if (url.pathname.includes('/auth/logout')) {
+        return { redirect: url.searchParams.get('redirectUrl') || '/public/bye' };
+    }
+});
+```
+
 ## Test Patterns
 
 ### Layer 2: With Mock Fixture
@@ -117,14 +195,36 @@ Tests only need to override what they're testing.
 import { expect, test } from '../../fixtures/mock';
 
 test('error recovery flow', async ({ page, mock }) => {
-    await mock.add('identityServiceDown');
-    await page.goto('/account/tokens');
-    await expect(page.getByText('Retry').first()).toBeVisible();
+    await mock.add('withIdentityDown');
 
-    await mock.remove('identityServiceDown');
-    await page.getByText('Retry').first().click();
-    await expect(page.getByText('hash-token-1')).toBeVisible();
-    // Mock doesn't mutate data - testing state transitions only
+    await test.step('navigate and see error', async () => {
+        await page.goto('/__test/account/activetokens');
+        await expect(page.getByText('Retry').first()).toBeVisible();
+    });
+
+    await test.step('recover after retry', async () => {
+        await mock.remove('withIdentityDown');
+        await page.getByText('Retry').first().click();
+        await expect(page.getByText('hash-token-1')).toBeVisible();
+    });
+});
+```
+
+### Layer 2: With Mock Fixture + Auth Interceptors
+
+Combine MSW mocks (for API data) with route interception (for auth navigations):
+
+```typescript
+import { expect, test } from '../../fixtures/mock';
+import { interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+
+test('logout button click redirects to bye page', async ({ page }) => {
+    await interceptIdentityAuthWithRedirect(page);
+    await page.goto('/__test/account/userinfo');
+    await expect(page.getByText('Freshman')).toBeVisible();
+
+    await page.getByRole('link', { name: 'Logout' }).click();
+    await expect(page).toHaveURL(/\/public\/bye/);
 });
 ```
 
@@ -146,11 +246,18 @@ test('data mutation', async ({ page }) => {
 ## File Structure
 
 ```
-tests/e2e/
+tests/
 ├── fixtures/
-│   └── mock.ts            # MockFixture + extended test
-└── <feature>/
-    └── <scenario>.test.ts
+│   └── mock.ts              # MockFixture + extended test
+├── helpers/
+│   ├── auth-intercept.ts    # Playwright route interception for identity server
+│   └── interactions.ts      # Reusable UI interaction helpers (e.g., clickComboAction)
+├── component/               # Component-focused tests
+│   └── <feature>/
+│       └── *.test.ts
+└── e2e/                     # Multi-page flow tests
+    └── <feature>/
+        └── *.test.ts
 ```
 
 ## Philosophy: Avoid Parallel Logic
@@ -162,6 +269,7 @@ tests/e2e/
 
 ## Gotchas
 
+- **MSW vs `page.route()`:** MSW intercepts fetch/XHR (API calls). `page.route()` intercepts browser navigations. Auth flows (login, logout, link) are navigations → use auth interceptors, not MSW.
 - **Parallel logic:** Don't make Layer 2 mocks stateful. Test state transitions, not data mutations.
 - **Self-signed certs:** Fixture uses Playwright's `request` (not Node `fetch`) — respects `ignoreHTTPSErrors`
 - **MSW delay:** Default `withDelay(5000)` slows every mocked request by 5s. Tests involving multiple API calls can take 15-20s

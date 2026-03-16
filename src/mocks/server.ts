@@ -9,32 +9,14 @@ import {
     startEmailConfirmationHandler,
     unlinkIdentityHandler
 } from './data/account/mocks';
-import {
-    defaultExternalLink,
-    defaultExternalLogin,
-    defaultGuestLogin,
-    defaultLogout,
-    tokenLogin
-} from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser } from './data/users/mock';
 
-export const mockForLoginPage: Array<RequestHandler> = [
-    defaultProviders,
-    unauthorizedUser,
-    defaultGuestLogin,
-    tokenLogin(false),
-    defaultExternalLogin
-];
+export const mockForLoginPage: Array<RequestHandler> = [defaultProviders, unauthorizedUser];
 
 export const mockForGuestUser: Array<RequestHandler> = [
     defaultProviders,
     defaultGuestUser,
-    defaultGuestLogin,
-    tokenLogin(true),
-    defaultExternalLogin,
-    defaultExternalLink,
-    defaultLogout,
     defaultActiveSessions,
     defaultActiveTokens,
     defaultLinkedIdentities,

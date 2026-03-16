@@ -4,6 +4,7 @@
     import type { ErrorType, Hint, HintInfo } from '@lib/account/auth';
     import { queryCurrentUserInfo } from '@lib/account/auth.remote';
     import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/auth.remote';
+    import { authPages } from '@lib/api/authPages';
     import { queryAssetUrls } from '@lib/assets/assets.remote';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
@@ -85,7 +86,6 @@
     const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
     const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
 
-    let isLoginSubmitted = $state(false);
     let isRedirecting = $state(false);
     let captcha = $state('');
     let rememberMe = $state(true);
@@ -111,26 +111,26 @@
     // - Login is submitted to prevent multiple submissions
     // - Currently redirecting
     // - If captcha is not solved yet or expired
-    const disableButtons = $derived(isLoginSubmitted || isRedirecting || !captcha);
+    const disableButtons = $derived(isRedirecting || !captcha);
 
     $effect(() => {
         if (!prompt) {
             logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
             if (currentUserQuery.current && redirectUrlQuery.current) {
                 const user = currentUserQuery.current;
+                const sanitizedUrl = redirectUrlQuery.current;
                 if (user.authenticated) {
-                    const url = redirectUrlQuery.current;
-                    logUser.log(`Redirecting user with an active session to ${url}`);
+                    logUser.log(`Redirecting user with an active session to ${sanitizedUrl}`);
                     isRedirecting = true;
-                    window.location.href = url;
+                    window.location.href = sanitizedUrl;
                 } else {
                     // if we have no authenticated user, try the token flow that will either
                     // - authenticate and redirect the user to the target url
                     // - or fail and redirect the user to the login page with a prompt
                     logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
-                    const queryString = returnUrl ? `?${new URLSearchParams({ returnUrl })}` : '';
+                    const errorUrl = `/login?${new URLSearchParams({ ...(returnUrl ? { returnUrl } : {}), prompt: 'true' })}`;
                     isRedirecting = true;
-                    window.location.href = `api/auth/token/login${queryString}`;
+                    window.location.href = authPages.tokenLoginUrl({ redirectUrl: sanitizedUrl, errorUrl });
                 }
             }
         }
@@ -227,31 +227,24 @@
                             contentClass="flex flex-col gap-2"
                         >
                             {#each await providersQuery as provider (provider)}
-                                <form
-                                    method="GET"
-                                    action="/api/auth/{provider}/login"
-                                    data-sveltekit-reload
-                                    onsubmit={() => (isLoginSubmitted = true)}
+                                <Button
+                                    wide
+                                    color="primary"
+                                    disabled={disableButtons}
+                                    href={authPages.externalLoginUrl(provider, {
+                                        captcha,
+                                        rememberMe,
+                                        redirectUrl: await redirectUrlQuery
+                                    })}
                                 >
-                                    <input type="hidden" name="rememberMe" value={rememberMe} />
-                                    <input type="hidden" name="captcha" value={captcha} />
-                                    <input type="hidden" name="redirectUrl" value={returnUrl} />
-
-                                    <Button wide color="primary" type="submit" disabled={disableButtons}>
-                                        {@const ProviderIcon = allBrands[provider]}
-                                        {#if ProviderIcon}
-                                            <ProviderIcon size="sm" />
-                                        {/if}
-                                        {pascalCase(provider)}
-                                    </Button>
-                                </form>
+                                    {@const ProviderIcon = allBrands[provider]}
+                                    {#if ProviderIcon}
+                                        <ProviderIcon size="sm" />
+                                    {/if}
+                                    {pascalCase(provider)}
+                                </Button>
                             {/each}
-                            <EmailLoginButton
-                                disabled={disableButtons}
-                                {captcha}
-                                {rememberMe}
-                                onSubmit={() => (isLoginSubmitted = true)}
-                            />
+                            <EmailLoginButton disabled={disableButtons} {captcha} {rememberMe} />
                         </Box>
                         <Stack direction="row" alignment="center" justification="start" class="px-8 py-2 shrink">
                             <Switch bind:checked={rememberMe} id="rememberMe" />
@@ -271,16 +264,13 @@
                     bind:this={guestAreaRef}
                     class="flex items-center justify-center p-3 flex-2 lg:max-w-96 min-h-fit lg:px-2 backdrop-saturate-90"
                 >
-                    <form
-                        method="GET"
-                        action="/api/auth/guest/login"
-                        data-sveltekit-reload
-                        onsubmit={() => (isLoginSubmitted = true)}
+                    <Button
+                        wide
+                        color="primary"
+                        disabled={disableButtons}
+                        href={authPages.guestLoginUrl({ captcha, redirectUrl: await redirectUrlQuery })}
+                        >Continue as Guest</Button
                     >
-                        <input type="hidden" name="captcha" value={captcha} />
-                        <input type="hidden" name="redirectUrl" value={returnUrl} />
-                        <Button wide color="primary" type="submit" disabled={disableButtons}>Continue as Guest</Button>
-                    </form>
                 </div>
             </Stack>
         </Stack>
