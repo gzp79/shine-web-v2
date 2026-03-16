@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { resolve } from '$app/paths';
+    import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import { Alert } from '@lib/ui/atoms/data/alert';
@@ -52,8 +52,14 @@
     <ComboButton
         disabled={!hasUserInfo}
         options={[
-            { caption: locale.t('account.logout'), href: resolve('/api/auth/logout') },
-            { caption: locale.t('account.logoutAll'), href: resolve('/api/auth/logout') + '?all=true' }
+            {
+                caption: locale.t('account.logout'),
+                href: authPages.logoutUrl({ terminateAll: false, redirectUrl: '/public/bye' })
+            },
+            {
+                caption: locale.t('account.logoutAll'),
+                href: authPages.logoutUrl({ terminateAll: true, redirectUrl: '/public/bye' })
+            }
         ]}
     />
 {/snippet}

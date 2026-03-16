@@ -8,6 +8,7 @@
 </script>
 
 <script lang="ts">
+    import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
     import brands from '@lib/ui/atoms/glyphs/brands/all';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -22,7 +23,6 @@
     const providersQuery = queryExternalLoginProviders();
 
     let isDialogOpen = $state(false);
-    let isSubmitting = $state(false);
 </script>
 
 <Button size="sm" {disabled} onclick={() => (isDialogOpen = true)}>
@@ -35,21 +35,18 @@
             <p>{locale.t('common.loading')}</p>
         {:then providers}
             {#each providers as provider (provider)}
-                <form
-                    method="GET"
-                    action="/api/auth/{provider}/link"
-                    data-sveltekit-reload
-                    onsubmit={() => (isSubmitting = true)}
+                <Button
+                    wide
+                    color="primary"
+                    {disabled}
+                    href={authPages.externalLinkUrl(provider, { redirectUrl: '/account' })}
                 >
-                    <input type="hidden" name="redirectUrl" value="/account" />
-                    <Button wide color="primary" type="submit" disabled={isSubmitting || disabled}>
-                        {@const ProviderIcon = brands[provider]}
-                        {#if ProviderIcon}
-                            <ProviderIcon size="sm" />
-                        {/if}
-                        {pascalCase(provider)}
-                    </Button>
-                </form>
+                    {@const ProviderIcon = brands[provider]}
+                    {#if ProviderIcon}
+                        <ProviderIcon size="sm" />
+                    {/if}
+                    {pascalCase(provider)}
+                </Button>
             {/each}
         {:catch error}
             {onerror?.(createAppError(error))}

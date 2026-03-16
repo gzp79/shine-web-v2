@@ -14,14 +14,6 @@ import {
     startEmailConfirmationHandler,
     unlinkIdentityHandler
 } from './data/account/mocks';
-import {
-    defaultExternalLink,
-    defaultExternalLogin,
-    defaultGuestLogin,
-    defaultLogout,
-    logoutFailure,
-    tokenLogin
-} from './data/auth/mocks';
 import { defaultProviders } from './data/providers/mocks';
 import { defaultGuestUser, unauthorizedUser, unverifiedUserHandler, verifiedUserHandler } from './data/users/mock';
 import { withDelay, withIdentityDown } from './middleware';
@@ -33,13 +25,6 @@ export const registry = {
     defaultGuestUser: { factory: () => defaultGuestUser },
     verifiedUser: { factory: () => verifiedUserHandler },
     unverifiedUser: { factory: () => unverifiedUserHandler },
-    defaultGuestLogin: { factory: () => defaultGuestLogin },
-    defaultExternalLogin: { factory: () => defaultExternalLogin },
-    defaultExternalLink: { factory: () => defaultExternalLink },
-    tokenLogin: {
-        factory: (params: { success: boolean }) => tokenLogin(params.success),
-        defaultParams: { success: true }
-    },
     withIdentityDown: { factory: () => withIdentityDown },
     withDelay: {
         factory: (params: { ms: number }) => withDelay(params.ms),
@@ -52,9 +37,7 @@ export const registry = {
     revokeTokenFailure: { factory: () => revokeTokenFailureHandler },
     unlinkIdentityHandler: { factory: () => unlinkIdentityHandler },
     startEmailConfirmationHandler: { factory: () => startEmailConfirmationHandler },
-    startEmailChangeHandler: { factory: () => startEmailChangeHandler },
-    defaultLogout: { factory: () => defaultLogout },
-    logoutFailure: { factory: () => logoutFailure }
+    startEmailChangeHandler: { factory: () => startEmailChangeHandler }
 };
 
 // Infer the MockHandlers type from the registry
