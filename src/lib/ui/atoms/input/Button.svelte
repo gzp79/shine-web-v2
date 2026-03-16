@@ -17,9 +17,11 @@
         onclick?: HTMLButtonAttributes['onclick'];
     };
     export type ButtonAction = LinkAction | NativeButtonAction;
-    export type ButtonProps = Omit<ButtonRootProps, 'class'> &
+
+    export type ButtonProps = Omit<HTMLButtonAttributes, 'class' | 'href' | 'type' | 'disabled' | 'onclick'> &
         ButtonAction &
         ButtonStyleConfig & {
+            ref?: HTMLElement | null;
             class?: ClassValue;
         };
 </script>
@@ -61,6 +63,12 @@
     const svelteCtrl = $derived(restProps.href ? linkSvelteControls(restProps.href) : {});
 </script>
 
-<Button.Root bind:ref disabled={buttonStl.disabled} class={buttonStl.class} {...svelteCtrl} {...restProps}>
+<Button.Root
+    bind:ref
+    disabled={buttonStl.disabled}
+    class={buttonStl.class}
+    {...svelteCtrl}
+    {...restProps as ButtonRootProps}
+>
     {@render children?.()}
 </Button.Root>

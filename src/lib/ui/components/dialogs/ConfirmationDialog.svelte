@@ -42,9 +42,6 @@
     const cancelStl = createButtonStyle(() => ({ color: 'primary', showFocus: true, ...cancelStyle }));
     const confirmStl = createButtonStyle(() => ({ color: 'secondary', showFocus: true, ...confirmStyle }));
 
-    // TS can't spread a discriminated union onto a component with a union prop type, this helper collapses the union for safe spreading.
-    const spreadAction = (action: ButtonAction) => action as ButtonProps;
-
     const wrapAction = (action: ButtonAction | undefined): ButtonAction => {
         if (action && 'href' in action && action.href) {
             return action;
@@ -83,13 +80,13 @@
 
     {#snippet actions()}
         {#if typeof cancel === 'string'}
-            <Button color="primary" {...cancelStyle} {...spreadAction(cancelBtnAction)}>{cancel}</Button>
+            <Button color="primary" {...cancelStyle} {...cancelBtnAction as ButtonProps}>{cancel}</Button>
         {:else}
             {@render cancel?.({ class: cancelStl.class, action: cancelBtnAction })}
         {/if}
 
         {#if typeof confirm === 'string'}
-            <Button bind:ref={confirmElement} color="secondary" {...confirmStyle} {...spreadAction(confirmBtnAction)}
+            <Button bind:ref={confirmElement} color="secondary" {...confirmStyle} {...confirmBtnAction as ButtonProps}
                 >{confirm}</Button
             >
         {:else}

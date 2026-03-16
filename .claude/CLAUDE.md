@@ -23,19 +23,6 @@
 - Box: `containerClass`/`contentClass` (NOT `class`)
 - Stack: `spacing` prop (NOT `gap` class)
 
-## Skills
-
-**Invoke with `/skill-name` for detailed guides:**
-
-- `/components` - UI component APIs, props, patterns
-- `/css` - Tailwind 4 config, semantic colors
-- `/storybook` - CSF format, play functions
-- `/vitest-testing` - Vitest unit tests (Layer 1)
-- `/playwright-testing` - Browser tests with mocks (Layer 2/3)
-- `/remote-functions` - Query, form, command patterns
-
-**Creating/modifying skills:** Use `superpowers:writing-skills` (TDD for documentation)
-
 ## Environment
 
 ```bash
