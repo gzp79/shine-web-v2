@@ -1,5 +1,6 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
+    import type { ButtonAction } from '@lib/ui/atoms/input/Button.svelte';
     import { type ButtonStyleConfig } from '@lib/ui/atoms/input/style.svelte';
     import ConfirmationDialog, {
         type ConfirmationDialogProps
@@ -8,9 +9,9 @@
 
     export type ConfirmationButtonProps = ButtonStyleConfig & {
         to?: ConfirmationDialogProps['to'];
-        confirmation: Omit<ConfirmationDialogProps, 'to' | 'onConfirm' | 'onCancel'>;
-        onConfirm?: ConfirmationDialogProps['onConfirm'];
-        onCancel?: ConfirmationDialogProps['onCancel'];
+        confirmation: Omit<ConfirmationDialogProps, 'to' | 'confirmAction' | 'cancelAction'>;
+        confirmAction?: ButtonAction;
+        cancelAction?: ButtonAction;
         children?: Snippet;
     };
 </script>
@@ -24,8 +25,8 @@
         wide,
         disabled,
         confirmation,
-        onConfirm,
-        onCancel,
+        confirmAction,
+        cancelAction,
         children,
         class: className
     }: ConfirmationButtonProps = $props();
@@ -34,8 +35,8 @@
 <ConfirmationDialog
     {...confirmation}
     {to}
-    {onConfirm}
-    {onCancel}
+    {confirmAction}
+    {cancelAction}
     trigger={fromSnippet(children)}
     triggerStyle={{ color, variant, size, wide, disabled, class: className, useGroupFocus: true }}
 />

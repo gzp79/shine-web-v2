@@ -69,7 +69,20 @@
         "emailOperationSuccess": "E-mail művelet sikeresen befejezve!",
         "linkProvider": "Szolgáltató kapcsolása",
         "linkProviderTitle": "Külső fiók kapcsolása",
-        "linkProviderError": "A szolgáltatók betöltése sikertelen"
+        "linkProviderError": "A szolgáltatók betöltése sikertelen",
+        "dangerZoneTitle": "Veszélyzóna",
+        "dangerZoneWarning": "Ez a művelet visszafordíthatatlan. A fiókod törlése véglegesen eltávolítja az összes adatodat, munkamenetedet és kapcsolt identitásodat. A törlés után nincs lehetőség a fiók visszaállítására. Járj el rendkívüli óvatossággal.",
+        "deleteConfirmLabel": "Írd be: \"{name}\" a törlés megerősítéséhez",
+        "deleteButton": "Fiók törlése",
+        "deleteConfirmationTitle": "Fiók végleges törlése?",
+        "deleteConfirmationQuestion": "Ez véglegesen törli a fiókodat és az összes kapcsolódó adatot. Ez a művelet nem vonható vissza.",
+        "deleteConfirmationConfirmText": "Törlés",
+        "deleteConfirmationCancelText": "Mégsem"
+    },
+    "accountDeleted": {
+        "title": "Fiók törölve",
+        "message": "Őszintén sajnáljuk, hogy elmész. A fiókod véglegesen törölve lett és minden adatod eltávolítottuk. Reméljük, egyszer még visszatérsz.",
+        "linkText": "Vissza a főoldalra"
     },
     "login": {
         "infoLoginExpired": "A munkameneted lejárt. Kérjük, jelentkezz be újra a folytatáshoz.",

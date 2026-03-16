@@ -72,7 +72,20 @@
         "emailOperationSuccess": "Email operation completed successfully!",
         "linkProvider": "Link Provider",
         "linkProviderTitle": "Link External Account",
-        "linkProviderError": "Failed to load providers"
+        "linkProviderError": "Failed to load providers",
+        "dangerZoneTitle": "Danger Zone",
+        "dangerZoneWarning": "This action is irreversible. Deleting your account will permanently remove all your data, sessions, and linked identities. There is no way to recover your account after deletion. Proceed with extreme caution.",
+        "deleteConfirmLabel": "Type \"{name}\" to confirm deletion",
+        "deleteButton": "Delete Account",
+        "deleteConfirmationTitle": "Delete Account Permanently?",
+        "deleteConfirmationQuestion": "This will permanently delete your account and all associated data. This action cannot be undone.",
+        "deleteConfirmationConfirmText": "Delete",
+        "deleteConfirmationCancelText": "Cancel"
+    },
+    "accountDeleted": {
+        "title": "Account Deleted",
+        "message": "We're truly sorry to see you go. Your account has been permanently deleted and all your data has been removed. We hope to see you again someday.",
+        "linkText": "Return to home"
     },
     "login": {
         "infoLoginExpired": "Your session has expired. Please sign in again to continue.",

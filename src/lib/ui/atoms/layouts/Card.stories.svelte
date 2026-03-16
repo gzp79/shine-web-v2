@@ -6,9 +6,11 @@
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Firefox from '@lib/ui/atoms/glyphs/brands/Firefox.svelte';
     import Dots from '@lib/ui/atoms/icons/animated/Dots.svelte';
+    import Warning from '@lib/ui/atoms/icons/common/Warning.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import { layoutWidthList } from '@lib/ui/atoms/layouts';
-    import Card, { type CardProps } from '@lib/ui/atoms/layouts/Card.svelte';
+    import Card, { type CardProps, cardVariantList } from '@lib/ui/atoms/layouts/Card.svelte';
+    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
 
     type ExtraProps = {
@@ -22,6 +24,10 @@
             content: 'medium'
         },
         argTypes: {
+            variant: {
+                control: { type: 'select' },
+                options: [...cardVariantList]
+            },
             color: {
                 control: { type: 'select' },
                 options: ['default', ...actionColorList],
@@ -79,8 +85,12 @@
     });
 </script>
 
-{#snippet cardIcon(props: { class: string })}
+{#snippet cardGlyph(props: { class: string })}
     <Firefox class={props.class} />
+{/snippet}
+
+{#snippet cardIcon(props: { class: string })}
+    <Warning class={props.class} />
 {/snippet}
 
 {#snippet cardContent(args: CardProps & ExtraProps)}
@@ -110,7 +120,7 @@
 <Story name="With icon">
     {#snippet template(args)}
         {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} icon={cardIcon} contentClass="max-h-48">
+        <Card {...otherArgs} icon={cardGlyph} contentClass="max-h-48">
             {@render cardContent(args)}
         </Card>
     {/snippet}
@@ -119,7 +129,7 @@
 <Story name="With title and icon">
     {#snippet template(args)}
         {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} title="Card Title" icon={cardIcon} contentClass="max-h-48">
+        <Card {...otherArgs} title="Card Title" icon={cardGlyph} contentClass="max-h-48">
             {@render cardContent(args)}
         </Card>
     {/snippet}
@@ -154,7 +164,7 @@
 <Story name="With icon and actions">
     {#snippet template(args)}
         {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} icon={cardIcon} contentClass="max-h-48">
+        <Card {...otherArgs} icon={cardGlyph} contentClass="max-h-48">
             {@render cardContent(args)}
             {#snippet actions()}
                 <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
@@ -183,6 +193,19 @@
     {/snippet}
 </Story>
 
+<Story name="Variants" args={{ color: 'danger' }}>
+    {#snippet template(args)}
+        {@const { children, ...otherArgs } = args}
+        <Stack spacing={4}>
+            {#each cardVariantList as variant (variant)}
+                <Card {...otherArgs} {variant} title="Variant: {variant}" icon={cardIcon} contentClass="max-h-48">
+                    {@render cardContent(args)}
+                </Card>
+            {/each}
+        </Stack>
+    {/snippet}
+</Story>
+
 <Story name="Nesting">
     {#snippet template(args)}
         {@const { children, ...otherArgs } = args}
@@ -190,13 +213,21 @@
             {#snippet icon({ class: cls })}
                 <Dots class={cls} />
             {/snippet}
-            <Card {...otherArgs} title="Title" icon={cardIcon} contentClass="max-h-48">
-                {@render cardContent(args)}
-                {#snippet actions()}
-                    <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                    <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-                {/snippet}
-            </Card>
+            <Stack>
+                <Card {...otherArgs} title="Title" icon={cardGlyph} contentClass="max-h-48">
+                    {@render cardContent(args)}
+                    {#snippet actions()}
+                        <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
+                        <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+                    {/snippet}
+                </Card>
+                <Card color="warning" title="Warning (default)" icon={cardIcon} contentClass="max-h-48">
+                    {@render cardContent(args)}
+                </Card>
+                <Card color="warning" variant="solid" title="Warning (solid)" icon={cardIcon} contentClass="max-h-48">
+                    {@render cardContent(args)}
+                </Card>
+            </Stack>
         </Card>
     {/snippet}
 </Story>
