@@ -81,6 +81,7 @@
     }
 
     function addButtons() {
+        // Modern markdown editors (PR description, main comment box)
         const editors = document.querySelectorAll('[class*="MarkdownEditor-module__container"]');
 
         editors.forEach((editor) => {
@@ -93,6 +94,25 @@
             const footer = editor.querySelector('[class*="Footer-module__childrenStyling"]');
             if (footer) {
                 footer.prepend(createButton(textarea));
+            }
+        });
+
+        // Inline reply forms (Answer comment boxes)
+        const replyButtons = document.querySelectorAll('.review-simple-reply-button');
+
+        replyButtons.forEach((replyBtn) => {
+            const form = replyBtn.closest('form');
+            if (!form || form.dataset.hpNote) return;
+            form.dataset.hpNote = 'true';
+
+            const textarea = form.querySelector('textarea');
+            if (!textarea) return;
+
+            const formActions = form.querySelector('.form-actions .float-right');
+            if (formActions) {
+                const btn = createButton(textarea);
+                btn.classList.add('float-right', 'ml-1');
+                formActions.appendChild(btn);
             }
         });
     }
