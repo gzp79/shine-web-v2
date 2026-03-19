@@ -3,7 +3,8 @@
 // Usage: node test-variants.mjs [--seed <n>] [--open]
 
 import { createPRNG } from './lib/prng.mjs';
-import { initialSplit, initialSplitMid, initialSplitDiag, subdivide, repulse, repulse2, springSmooth, springSmooth2, areaEqualize, lennardJones, equidistant } from './lib/mesh.mjs';
+import { initialSplit, initialSplitMid, initialSplitDiag, subdivide } from './lib/mesh.mjs';
+import { lloyd, cotangentSmooth } from './lib/smooth.mjs';
 import { meshToSVG } from './lib/svg.mjs';
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -22,10 +23,10 @@ function parseSeed(args) {
   return Date.now() ^ (Math.random() * 0xffffffff);
 }
 
-function buildMesh(seed, initFn, subdivOpts) {
+function buildMesh(seed, initFn, subdivOpts, depth = DEPTH) {
   const rng = createPRNG(seed);
-  const m = initFn(RADIUS, rng);
-  for (let d = 0; d < DEPTH; d++) subdivide(m, rng, RADIUS, d, subdivOpts);
+  const m = initFn(RADIUS, rng, subdivOpts);
+  for (let d = 0; d < depth; d++) subdivide(m, rng, RADIUS, d, subdivOpts);
   return m;
 }
 
@@ -57,28 +58,25 @@ console.log(`Seed: ${seed}`);
 const R = RADIUS;
 
 const rowVariants = [
+  { label: '3-quad init, no jitter', initFn: initialSplit, opts: { noJitter: true } },
   { label: '3-quad init, normal jitter', initFn: initialSplit, opts: {} },
   { label: '3-quad init, edge-only jitter', initFn: initialSplit, opts: { edgeOnly: true } },
-  { label: '3-quad init, mixed jitter', initFn: initialSplit, opts: { edgeOnlyAfter: 0 } },
+  { label: '6-quad init (mid), no jitter', initFn: initialSplitMid, opts: { noJitter: true } },
   { label: '6-quad init (mid), normal jitter', initFn: initialSplitMid, opts: {} },
   { label: '6-quad init (mid), edge-only jitter', initFn: initialSplitMid, opts: { edgeOnly: true } },
-  { label: '6-quad init (mid), mixed jitter', initFn: initialSplitMid, opts: { edgeOnlyAfter: 0 } },
+  { label: '2-quad init (diag), no jitter', initFn: initialSplitDiag, opts: { noJitter: true } },
   { label: '2-quad init (diag), normal jitter', initFn: initialSplitDiag, opts: {} },
   { label: '2-quad init (diag), edge-only jitter', initFn: initialSplitDiag, opts: { edgeOnly: true } },
-  { label: '2-quad init (diag), mixed jitter', initFn: initialSplitDiag, opts: { edgeOnlyAfter: 0 } },
 ];
 
 const smoothVariants = [
   { label: 'Raw', fn: null },
-  { label: 'Repulse2', fn: m => repulse2(m, R) },
-  { label: 'Rep2 + AreaEQ', fn: m => { repulse2(m, R); areaEqualize(m, R); } },
-  { label: 'Spring2', fn: m => springSmooth2(m, R) },
-  { label: 'Equidistant', fn: m => equidistant(m, R) },
-  { label: 'LJ + Spring2', fn: m => { lennardJones(m, R); springSmooth2(m, R); } },
-  { label: 'LJ + Equidist', fn: m => { lennardJones(m, R); equidistant(m, R); } },
+  { label: 'Lloyd (5 iter)', fn: m => lloyd(m, R, 5) },
+  { label: 'Cotangent', fn: m => cotangentSmooth(m, R) },
 ];
 
-const cols = smoothVariants.length;
+const MULTI_SEEDS = 8;
+const cols = Math.max(smoothVariants.length, MULTI_SEEDS);
 
 let panelsHtml = '';
 for (const rv of rowVariants) {
@@ -88,6 +86,63 @@ for (const rv of rowVariants) {
     panelsHtml += `    <div class="panel"><h3>${sv.label} <span class="ratio">${ratio}x</span></h3>${svg}</div>\n`;
   }
 }
+
+// Multi-seed row: 3-quad init, edge-only jitter with different random seeds
+const multiSeedSmooths = [
+  { label: 'Raw', fn: null },
+  { label: 'Lloyd (2 iter)', fn: m => lloyd(m, R, 2) },
+  { label: 'Lloyd (3 iter)', fn: m => lloyd(m, R, 3) },
+  { label: 'Lloyd (5 iter)', fn: m => lloyd(m, R, 5) },
+];
+for (const sv of multiSeedSmooths) {
+  panelsHtml += `    <div class="row-label">Multi-seed: 3-quad, normal jitter — ${sv.label}</div>\n`;
+  for (let i = 0; i < MULTI_SEEDS; i++) {
+    const s = seed + i;
+    const { svg, ratio } = applyPipeline(s, initialSplit, {}, sv.fn);
+    panelsHtml += `    <div class="panel"><h3>seed ${s} <span class="ratio">${ratio}x</span></h3>${svg}</div>\n`;
+  }
+}
+
+// --- Hex tile grid section ---
+const TILE_COLS = 6;
+const TILE_ROWS = 4;
+// Flat-top hex tiling: col spacing = 1.5*R, row spacing = sqrt(3)*R, odd cols offset by sqrt(3)/2*R
+const colStep = 1.5 * R;
+const rowStep = Math.sqrt(3) * R;
+const halfRow = rowStep / 2;
+
+function meshToPolygons(mesh, offsetX, offsetY) {
+  return mesh.quads.map(quad => {
+    const pts = quad.map(i => {
+      const x = (mesh.points[i * 2] + offsetX).toFixed(4);
+      const y = (mesh.points[i * 2 + 1] + offsetY).toFixed(4);
+      return `${x},${y}`;
+    }).join(' ');
+    return `  <polygon points="${pts}"/>`;
+  }).join('\n');
+}
+
+function buildTileGrid(smoothFn, depth = DEPTH) {
+  let polygons = '';
+  for (let row = 0; row < TILE_ROWS; row++) {
+    for (let col = 0; col < TILE_COLS; col++) {
+      const ox = col * colStep;
+      const oy = row * rowStep + (col % 2 ? halfRow : 0);
+      const tileSeed = seed + row * TILE_COLS + col;
+      const m = buildMesh(tileSeed, initialSplit, {}, depth);
+      if (smoothFn) smoothFn(m);
+      polygons += meshToPolygons(m, ox, oy) + '\n';
+    }
+  }
+  const w = (TILE_COLS - 1) * colStep + 2 * R + 4;
+  const h = (TILE_ROWS - 1) * rowStep + halfRow + 2 * R + 4;
+  const minX = -R - 2;
+  const minY = -R - 2;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${w} ${h}">\n${polygons}</svg>`;
+}
+
+const tileRawSvg = buildTileGrid(null);
+const tileSvg = buildTileGrid(m => lloyd(m, R, 5, 0.4), DEPTH + 1);
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -125,6 +180,12 @@ const html = `<!DOCTYPE html>
   .panel svg { width: 100%; height: auto; }
   .panel svg polygon { stroke: #5c7cfa; stroke-width: 0.06; fill: rgba(92,124,250,0.08); }
   .panel svg polygon:hover { fill: rgba(92,124,250,0.25); stroke: #fff; }
+  .tile-section { margin-top: 32px; }
+  .tile-section h2 { font-size: 1.1rem; color: #ffd580; margin-bottom: 12px; }
+  .tile-section { overflow: auto; }
+  .tile-section svg { width: 3600px; height: auto; }
+  .tile-section svg polygon { stroke: #5c7cfa; stroke-width: 0.06; fill: rgba(92,124,250,0.08); }
+  .tile-section svg polygon:hover { fill: rgba(92,124,250,0.25); stroke: #fff; }
 </style>
 </head>
 <body>
@@ -132,6 +193,14 @@ const html = `<!DOCTYPE html>
   <p class="info">Seed: ${seed} | Depth: ${DEPTH} | Area ratio shown per panel (lower = more uniform)</p>
   <div class="scroll-wrapper"><div class="grid">
 ${panelsHtml}  </div></div>
+  <div class="tile-section">
+    <h2>Hex Tile Grid — 3-quad, normal jitter, Raw (no smoothing)</h2>
+    ${tileRawSvg}
+  </div>
+  <div class="tile-section">
+    <h2>Hex Tile Grid — 3-quad, normal jitter, Lloyd (5 iter, 0.4 strength)</h2>
+    ${tileSvg}
+  </div>
 </body>
 </html>
 `;
