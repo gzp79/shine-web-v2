@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HP-Note - GitHub Code Review Softener
 // @namespace    hp-note
-// @version      1.3
+// @version      1.4
 // @description  Adds an HP-Note button to GitHub PR comment boxes to soften harsh review comments
 // @match        https://github.com/*
 // @grant        GM_xmlhttpRequest
@@ -113,6 +113,27 @@
                 const btn = createButton(textarea);
                 btn.classList.add('float-right', 'ml-1');
                 formActions.appendChild(btn);
+            }
+        });
+
+        // Inline comment/reply forms (discussion thread replies)
+        const inlineForms = document.querySelectorAll('form.js-inline-comment-form');
+
+        inlineForms.forEach((form) => {
+            if (form.dataset.hpNote) return;
+            form.dataset.hpNote = 'true';
+
+            const textarea = form.querySelector('textarea.js-comment-field');
+            if (!textarea) return;
+
+            const toolbar = form.querySelector('markdown-toolbar action-bar [data-target="action-bar.itemContainer"]');
+            if (toolbar) {
+                const wrapper = document.createElement('div');
+                wrapper.setAttribute('data-targets', 'action-bar.items');
+                wrapper.className = 'ActionBar-item';
+                wrapper.style.visibility = 'visible';
+                wrapper.appendChild(createButton(textarea));
+                toolbar.appendChild(wrapper);
             }
         });
     }
