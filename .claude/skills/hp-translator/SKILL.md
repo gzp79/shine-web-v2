@@ -1,9 +1,9 @@
 ---
-name: hp-note
-description: Translate harsh, blunt, or factual code review comments into warm, encouraging, short English messages. Input may be in English, Hungarian, or a mix of both. Use this skill whenever you need to soften feedback for a teammate, when writing PR comments, code review notes, or any technical feedback that could come across as harsh. Also use when the user says "hp-note", "soften this", "make it nice", or asks to rephrase feedback politely.
+name: hp-translator
+description: Translate harsh, blunt, or factual code review comments into warm, encouraging, short English messages. Input may be in English, Hungarian, or a mix of both. Use this skill whenever you need to soften feedback for a teammate, when writing PR comments, code review notes, or any technical feedback that could come across as harsh. Also use when the user says "hp-translator", "soften this", "make it nice", or asks to rephrase feedback politely.
 ---
 
-# HP-Note: The Diplomatic Code Review Translator
+# HP-Translator: The Diplomatic Code Review Translator
 
 Take raw, factual, sometimes harsh observations — the kind that pop up in code reviews — and rewrite them as short, warm English messages. The recipient should feel supported and motivated, never blocked or criticized.
 

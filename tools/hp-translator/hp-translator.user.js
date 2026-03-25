@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         HP-Note - GitHub Code Review Softener
-// @namespace    hp-note
+// @name         HP-Translator - GitHub Code Review Softener
+// @namespace    hp-translator
 // @version      1.4
-// @description  Adds an HP-Note button to GitHub PR comment boxes to soften harsh review comments
+// @description  Adds an HP-Translator button to GitHub PR comment boxes to soften harsh review comments
 // @match        https://github.com/*
 // @grant        GM_xmlhttpRequest
 // @connect      localhost
@@ -13,7 +13,7 @@
 (function () {
     'use strict';
 
-    const API_URL = 'http://localhost:3033/hp-note';
+    const API_URL = 'http://localhost:3033/hp-translator';
 
     function callServer(text) {
         return new Promise((resolve, reject) => {
@@ -32,7 +32,9 @@
                     }
                 },
                 onerror(err) {
-                    reject(new Error("Could not reach the local server.\nMake sure it's running: pnpm run hp-note"));
+                    reject(
+                        new Error("Could not reach the local server.\nMake sure it's running: pnpm run hp-translator")
+                    );
                 }
             });
         });
@@ -41,7 +43,7 @@
     function createButton(textarea) {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.dataset.hpNoteBtn = 'true';
+        btn.dataset.hpTranslatorBtn = 'true';
         btn.className = 'prc-Button-ButtonBase-9n-Xk py-1 px-2';
         btn.setAttribute('data-loading', 'false');
         btn.setAttribute('data-no-visuals', 'true');
@@ -50,7 +52,7 @@
 
         btn.innerHTML =
             '<span data-component="buttonContent" data-align="center" class="prc-Button-ButtonContent-Iohp5">' +
-            '<span data-component="text" class="prc-Button-Label-FWkx3">HP-Note</span>' +
+            '<span data-component="text" class="prc-Button-Label-FWkx3">HP-Translator</span>' +
             '</span>';
 
         btn.addEventListener('click', async (e) => {
@@ -70,10 +72,10 @@
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
                 textarea.dispatchEvent(new Event('change', { bubbles: true }));
             } catch (err) {
-                alert('HP-Note: ' + err.message);
+                alert('HP-Translator: ' + err.message);
             }
 
-            label.textContent = 'HP-Note';
+            label.textContent = 'HP-Translator';
             btn.disabled = false;
         });
 
@@ -85,8 +87,8 @@
         const editors = document.querySelectorAll('[class*="MarkdownEditor-module__container"]');
 
         editors.forEach((editor) => {
-            if (editor.dataset.hpNote) return;
-            editor.dataset.hpNote = 'true';
+            if (editor.dataset.hpTranslator) return;
+            editor.dataset.hpTranslator = 'true';
 
             const textarea = editor.querySelector('textarea');
             if (!textarea) return;
@@ -102,8 +104,8 @@
 
         replyButtons.forEach((replyBtn) => {
             const form = replyBtn.closest('form');
-            if (!form || form.dataset.hpNote) return;
-            form.dataset.hpNote = 'true';
+            if (!form || form.dataset.hpTranslator) return;
+            form.dataset.hpTranslator = 'true';
 
             const textarea = form.querySelector('textarea');
             if (!textarea) return;
@@ -120,8 +122,8 @@
         const inlineForms = document.querySelectorAll('form.js-inline-comment-form');
 
         inlineForms.forEach((form) => {
-            if (form.dataset.hpNote) return;
-            form.dataset.hpNote = 'true';
+            if (form.dataset.hpTranslator) return;
+            form.dataset.hpTranslator = 'true';
 
             const textarea = form.querySelector('textarea.js-comment-field');
             if (!textarea) return;

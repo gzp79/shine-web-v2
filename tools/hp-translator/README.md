@@ -1,4 +1,4 @@
-# HP-Note Server & Browser Extension
+# HP-Translator Server & Browser Extension
 
 Translates harsh code review comments into warm, encouraging messages — right inside GitHub PR reviews.
 
@@ -7,10 +7,10 @@ Translates harsh code review comments into warm, encouraging messages — right 
 ### 1. Start the local server
 
 ```bash
-pnpm run hp-note
+pnpm run hp-translator
 ```
 
-This starts a local proxy on `http://localhost:3033` that calls `claude -p` with the hp-note skill.
+This starts a local proxy on `http://localhost:3033` that calls `claude -p` with the hp-translator skill.
 
 ### 2. Install Tampermonkey
 
@@ -29,23 +29,23 @@ This starts a local proxy on `http://localhost:3033` that calls `claude -p` with
 1. Open Tampermonkey dashboard (click icon → Dashboard)
 2. Click the **+** tab to create a new script
 3. Delete the template content
-4. Paste the contents of `hp-note.user.js`
+4. Paste the contents of `hp-translator.user.js`
 5. Press **Ctrl+S** to save
 6. Tampermonkey may ask to allow connections to `localhost` — click **Allow**
 
 ### 4. Use it
 
-1. Make sure the server is running (`pnpm run hp-note`)
+1. Make sure the server is running (`pnpm run hp-translator`)
 2. Open a GitHub PR and start a review comment
 3. Write your comment (English, Hungarian, or mixed)
-4. Click the **HP-Note** button next to Cancel/Comment
+4. Click the **HP-Translator** button next to Cancel/Comment
 5. The comment gets replaced with a softened version
 
 ## Debugging
 
 ### Script not loading
 
-- Check Tampermonkey icon on a GitHub PR page — it should show "HP-Note" in the dropdown
+- Check Tampermonkey icon on a GitHub PR page — it should show "HP-Translator" in the dropdown
 - If not listed, the `@match` pattern isn't matching. Verify Tampermonkey is enabled
 - Open DevTools console (F12) and look for errors
 
@@ -61,7 +61,7 @@ If it returns `0`, GitHub may have changed their class names. Inspect the commen
 
 ### Cannot reach server
 
-- Verify the server is running: `curl -X POST http://localhost:3033/hp-note -H "Content-Type: application/json" -d "{\"text\":\"Ez szar\"}"`
+- Verify the server is running: `curl -X POST http://localhost:3033/hp-translator -H "Content-Type: application/json" -d "{\"text\":\"Ez szar\"}"`
 - Check that Tampermonkey has `@grant GM_xmlhttpRequest` and `@connect localhost` — these bypass GitHub's CSP
 - If Tampermonkey prompts about cross-origin requests to localhost, click Allow
 
@@ -78,6 +78,6 @@ If it returns `0`, GitHub may have changed their class names. Inspect the commen
 GitHub PR page (Tampermonkey userscript)
   → GM_xmlhttpRequest to localhost:3033 (bypasses CSP)
     → Node.js server
-      → claude -p with hp-note skill (uses existing AWS Bedrock auth)
+      → claude -p with hp-translator skill (uses existing AWS Bedrock auth)
         → translated comment back to browser
 ```
