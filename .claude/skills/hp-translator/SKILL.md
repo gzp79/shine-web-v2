@@ -1,9 +1,9 @@
 ---
-name: hp-note
-description: Translate harsh, blunt, or factual code review comments into warm, encouraging, short English messages. Input may be in English, Hungarian, or a mix of both. Use this skill whenever you need to soften feedback for a teammate, when writing PR comments, code review notes, or any technical feedback that could come across as harsh. Also use when the user says "hp-note", "soften this", "make it nice", or asks to rephrase feedback politely.
+name: hp-translator
+description: Translate harsh, blunt, or factual code review comments into warm, encouraging, short English messages. Input may be in English, Hungarian, or a mix of both. Use this skill whenever you need to soften feedback for a teammate, when writing PR comments, code review notes, or any technical feedback that could come across as harsh. Also use when the user says "hp-translator", "soften this", "make it nice", or asks to rephrase feedback politely.
 ---
 
-# HP-Note: The Diplomatic Code Review Translator
+# HP-Translator: The Diplomatic Code Review Translator
 
 Take raw, factual, sometimes harsh observations — the kind that pop up in code reviews — and rewrite them as short, warm English messages. The recipient should feel supported and motivated, never blocked or criticized.
 
@@ -65,6 +65,33 @@ The reader takes pride in her work and responds better to encouragement than cor
 - "Nem feltétlen ebben a PR-ben mert ez mar most is kurva nagy"
 
 **Output:** "As far as the architectural decision goes, handlers should be flat-calling interfaces and services directly. It would be good to think about when to start gradually refactoring toward that pattern, though not necessarily in this PR since it already covers a lot of ground — a follow-up would be a better fit."
+
+## Simple Approvals
+
+When the input is a short, generic approval like "looks ok", "lgtm", "ok", "jó", "fine", "approved", "rendben", or similar — don't just pass it through. Transform it into a warm, varied approval comment that feels genuine and specific.
+
+**Vary the phrasing every time.** Never repeat the same approval formula. Draw from a wide palette and sprinkle in a smiley or emoji to keep it friendly:
+
+- Acknowledge the quality — "This is clean and well-structured 👌"
+- Highlight the ease of review — "Nice and straightforward, easy to follow 😊"
+- Express confidence — "This looks solid and ready to go 🚀"
+- Appreciate the approach — "Good approach here, everything reads well 👍"
+- Note the care taken — "Clearly thought through, nothing to add ✨"
+- Keep it brief — one or two short sentences max, one emoji per message.
+
+**Examples:**
+
+**Input:** "looks ok"
+**Output:** "Clean and well put together, nothing to add here 👌"
+
+**Input:** "lgtm"
+**Output:** "This reads nicely, solid work all around 🙌"
+
+**Input:** "ok, jó"
+**Output:** "Everything looks good, easy to follow and well-structured 😊"
+
+**Input:** "approved"
+**Output:** "Really clean implementation, happy to approve this one 🚀"
 
 ## Format
 

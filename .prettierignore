@@ -10,3 +10,5 @@ bun.lockb
 /src/generated/
 /static-generated/
 /storybook-static/
+
+.claude/settings.local.json
