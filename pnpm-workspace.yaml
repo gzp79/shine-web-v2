@@ -7,3 +7,10 @@ onlyBuiltDependencies:
 ignoredBuiltDependencies:
     - esbuild
     - sharp
+overrides:
+    chokidar@4.0.3: ^5.0.0
+allowBuilds:
+    esbuild: false
+    msw: true
+    sharp: false
+    workerd: true
