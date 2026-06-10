@@ -59,6 +59,7 @@
         "unlinkConfirmationConfirmText": "Leválaszt",
         "unlinkConfirmationCancelText": "Mégsem",
         "account": "Fiók",
+        "accountInfo": "Saját fiók",
         "emailConfirmTitle": "E-mail megerősítése",
         "emailConfirmWaiting": "Megerősítő e-mail küldése...",
         "emailConfirmCompleted": "Kérjük, ellenőrizze e-mailjét és kattintson a megerősítő linkre.",

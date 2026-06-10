@@ -8,6 +8,7 @@
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
+    import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
@@ -25,7 +26,14 @@
             return;
         }
 
-        logUser.log('Registering logout menu item');
+        logUser.log('Registering account menu items');
+        const unregisterAccount = appMenu.register({
+            id: 'account-info',
+            section: 'user',
+            label: locale.t('account.accountInfo'),
+            icon: Settings,
+            action: () => goto(resolve('/account'))
+        });
         const unregister = appMenu.register({
             id: 'logout',
             section: 'user',
@@ -37,7 +45,10 @@
             }
         });
 
-        return unregister;
+        return () => {
+            unregisterAccount();
+            unregister();
+        };
     });
 
     $effect(() => {
@@ -56,7 +67,7 @@
 <svelte:boundary>
     {#snippet failed(error, reset)}
         <CenteredLayout>
-            <ErrorCard error={createAppError(error)} width="full">
+            <ErrorCard error={createAppError(error)}>
                 <Button
                     onclick={async () => {
                         await currentUser.refresh();
@@ -67,19 +78,21 @@
         </CenteredLayout>
     {/snippet}
 
-    {#snippet pending()}
+    {#if currentUser.loading}
         <CenteredLayout>
             <LoadingCard />
         </CenteredLayout>
-    {/snippet}
-
-    {#await currentUser then user}
-        {#if user.authenticated}
-            {@render children()}
-        {:else}
-            <CenteredLayout>
-                <LoadingCard />
-            </CenteredLayout>
-        {/if}
-    {/await}
+    {:else if currentUser.error}
+        <CenteredLayout>
+            <ErrorCard error={createAppError(currentUser.error)}>
+                <Button onclick={() => currentUser.refresh()}>{locale.t('common.refresh')}</Button>
+            </ErrorCard>
+        </CenteredLayout>
+    {:else if currentUser.current?.authenticated}
+        {@render children()}
+    {:else}
+        <CenteredLayout>
+            <LoadingCard />
+        </CenteredLayout>
+    {/if}
 </svelte:boundary>
