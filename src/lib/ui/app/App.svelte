@@ -25,5 +25,5 @@
 >
     <AppMenu />
     {@render children()}
-    <div id="popover"></div>
+    <div id="popover" class="z-[10000]"></div>
 </div>
