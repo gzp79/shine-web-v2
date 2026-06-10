@@ -34,9 +34,7 @@
                 id: `scene-${s}`,
                 section: 'context',
                 label: s,
-                get icon() {
-                    return scene === s ? Check : undefined;
-                },
+                icon: scene === s ? Check : undefined,
                 action: () => {
                     scene = s;
                 }
