@@ -18,23 +18,6 @@ export async function pauseTest() {
 }
 
 /**
- * Takes a screenshot of the current page for debugging.
- * Only works in browser-mode Vitest (Playwright).
- *
- * Usage:
- *   import { screenshot } from '@testing';
- *
- *   test('my test', async () => {
- *     render(MyComponent);
- *     await screenshot('my-component'); // Saves to screenshots/
- *   });
- */
-export async function screenshot(name: string) {
-    const { page } = await import('vitest/browser');
-    await page.screenshot({ path: `screenshots/${name}.png` });
-}
-
-/**
  * Logs the current HTML content to console.
  */
 export function logHTML() {
