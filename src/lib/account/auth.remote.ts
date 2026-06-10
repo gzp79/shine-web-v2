@@ -11,8 +11,6 @@ export const queryExternalLoginProviders = query(async (): Promise<string[]> => 
     const url = authApiRoutes.providers();
     const headers = getPassThroughHeaders();
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
     return await retryWithBackoff(async (retry) => {
         const response = await fetch(url, {
             method: 'GET',
@@ -55,7 +53,7 @@ export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
         });
         if (response.ok) {
             const user = await parseResponse(CurrentUserSchema, response);
-            logAPI.info('getCurrentUser completed,', user);
+            logAPI.info('getCurrentUser completed');
             return {
                 authenticated: true,
                 id: user.userId,
@@ -212,7 +210,7 @@ export const queryActiveTokens = query(async (): Promise<ActiveToken[]> => {
 });
 
 export const revokeToken = command(z.string(), async (tokenHash: string) => {
-    logAPI.log('revokeToken...', tokenHash);
+    logAPI.log('revokeToken...');
     const url = authApiRoutes.revokeToken(tokenHash);
     const headers = getPassThroughHeaders();
 
@@ -293,7 +291,7 @@ export const startEmailConfirmation = command(async () => {
 });
 
 export const startEmailChange = command(z.email(), async (newEmail: string) => {
-    logAPI.log('startEmailChange...', newEmail);
+    logAPI.log('startEmailChange...');
     const url = authApiRoutes.startEmailChange();
     const headers = getPassThroughHeaders();
     headers.set('Content-Type', 'application/json');
@@ -320,7 +318,7 @@ export const startEmailChange = command(z.email(), async (newEmail: string) => {
 });
 
 export const completeEmailOperation = command(z.string(), async (token: string) => {
-    logAPI.log('completeEmailOperation...', token);
+    logAPI.log('completeEmailOperation...');
     const url = authApiRoutes.completeEmailOperation({ token });
     const headers = getPassThroughHeaders();
 

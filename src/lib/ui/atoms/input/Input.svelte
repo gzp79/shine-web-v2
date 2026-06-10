@@ -6,6 +6,13 @@
     import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
     import { cn } from '@lib/ui/utils';
 
+    const sizeMods: Record<Size, string> = {
+        xs: 'text-xs leading-none h-8 px-2',
+        sm: 'text-sm leading-none h-10 px-3',
+        md: 'text-md leading-none h-12 px-4',
+        lg: 'text-lg leading-none h-14 px-5'
+    };
+
     export const inputTypeList = [
         'text',
         'number',
@@ -63,13 +70,6 @@
     const variant = $derived(baseVariant ?? ctx?.variant ?? 'filled');
     const disabled = $derived(baseDisabled || ctx?.disabled || false);
 
-    const sizeMods: Record<Size, string> = {
-        xs: 'text-xs leading-none h-8 px-2',
-        sm: 'text-sm leading-none h-10 px-3',
-        md: 'text-md leading-none h-12 px-4',
-        lg: 'text-lg leading-none h-14 px-5'
-    };
-
     const cls = $derived(
         cn(
             'rounded-lg border-2',
@@ -103,10 +103,13 @@
 
 <input
     data-slot={dataSlot}
+    id={ctx?.fieldId}
     class={cls}
     {type}
     {disabled}
     aria-invalid={invalid || undefined}
+    aria-required={ctx?.required || undefined}
+    aria-describedby={ctx?.statusId}
     bind:value
     {...restProps}
 />

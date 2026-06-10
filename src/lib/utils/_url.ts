@@ -1,11 +1,15 @@
-export type QueryParam = string | number | boolean;
+export type QueryParam = string | number | boolean | null | undefined;
 
 export function toQueryString(params?: Record<string, QueryParam>): string {
     if (!params) return '';
+    const entries = Object.entries(params).filter(
+        (entry): entry is [string, string | number | boolean] => entry[1] != null
+    );
+    if (entries.length === 0) return '';
     return (
         '?' +
         new URLSearchParams(
-            Object.entries(params).reduce(
+            entries.reduce(
                 (acc, [key, value]) => {
                     acc[key] = value.toString();
                     return acc;

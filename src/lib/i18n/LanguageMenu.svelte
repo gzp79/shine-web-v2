@@ -21,7 +21,7 @@
         en: 'GB',
         hu: 'HU'
     };
-    const currentFlag = $derived(flagIcons[languageFlags[locale.current]]);
+    const currentFlag = $derived(flagIcons[languageFlags[locale.current]!]);
 </script>
 
 {#snippet subTrigger()}
@@ -33,7 +33,7 @@
 <DropdownSubMenu {expandIcon} trigger={subTrigger}>
     <DropdownRadioGroup bind:value={locale.current}>
         {#each localeList as langOption (langOption)}
-            {@const FlagIcon = flagIcons[languageFlags[langOption]]}
+            {@const FlagIcon = flagIcons[languageFlags[langOption]!]}
             <DropdownRadioItem value={langOption} closeOnSelect={false}>
                 <FlagIcon />
                 {locale.t(`language.${langOption}`)}

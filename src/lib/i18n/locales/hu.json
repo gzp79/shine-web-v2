@@ -13,7 +13,7 @@
         "ok": "OK",
         "cancel": "Mégsem",
         "update": "Frissít",
-        "dateTime": "{date}",
+        "dateTime": "{date|dateTime}",
         "welcome": "Üdvözöljük",
         "greeting": "Helló, {name}!",
         "themeName": "Téma"
@@ -93,7 +93,21 @@
         "infoEmailChange": "Az e-mail címed megváltozott. Kérjük, jelentkezz be újra.",
         "infoEmailChangeShort": "E-mail módosítva",
         "emailModalTitle": "Nézd meg az e-mailedet",
-        "emailWaitUser": "Elküldtünk neked egy bejelentkezési linket. Kérjük, nézd meg az e-mailedet és kattints a linkre a folytatáshoz."
+        "emailWaitUser": "Elküldtünk neked egy bejelentkezési linket. Kérjük, nézd meg az e-mailedet és kattints a linkre a folytatáshoz.",
+        "emailButton": "E-mail",
+        "emailDialogTitle": "Bejelentkezés e-mail-lel",
+        "emailInputLabel": "E-mail cím",
+        "emailInputDescription": "Adja meg az e-mail címét a bejelentkezési link fogadásához",
+        "emailInvalidError": "Érvénytelen e-mail cím",
+        "emailSubmitButton": "Link küldése",
+        "emailCancelButton": "Mégsem",
+        "rememberMe": "Emlékezz rám",
+        "continueAsGuest": "Folytatás vendégként",
+        "continueAs": "Folytatás mint {name}",
+        "switchAccount": "Nem te vagy? Fiókváltás",
+        "signInTitle": "Jelentkezz be a fiókodba",
+        "signInShort": "Bejelentkezés",
+        "waitingServer": "Szerver válaszára várakozás"
     },
     "errors": {
         "networkError": "Hálózati hiba",

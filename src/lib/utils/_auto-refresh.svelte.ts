@@ -36,6 +36,7 @@ export function autoRefresh(refresh: () => Promise<void>, canRefresh?: boolean, 
     let interval: NodeJS.Timeout | null = null;
     let lastUpdate = $state(Date.now());
     let currentTime = $state(Date.now());
+    let isRefreshing = false;
     const lastUpdateDate = $derived(new SvelteDate(lastUpdate));
     const timeToRefresh = $derived(Math.clamp(maxTTL - (currentTime - lastUpdate), 0, maxTTL));
 
@@ -88,12 +89,20 @@ export function autoRefresh(refresh: () => Promise<void>, canRefresh?: boolean, 
 
     // Reactive TTL-based refresh: watch age and trigger refresh when TTL expires
     $effect(() => {
-        if (timeToRefresh <= 0 && canRefresh) {
+        if (timeToRefresh <= 0 && canRefresh && !isRefreshing) {
             logAPI.trace(`[${uniqueId}] TTL expired, refreshing query`);
-            refresh().then(() => {
-                logAPI.trace(`[${uniqueId}] Query refreshed successfully`);
-                lastUpdate = Date.now();
-            });
+            isRefreshing = true;
+            refresh()
+                .then(() => {
+                    logAPI.trace(`[${uniqueId}] Query refreshed successfully`);
+                    lastUpdate = Date.now();
+                })
+                .catch((err) => {
+                    logAPI.error(`[${uniqueId}] Query refresh failed`, err);
+                })
+                .finally(() => {
+                    isRefreshing = false;
+                });
         }
     });
 

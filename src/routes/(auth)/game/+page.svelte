@@ -60,6 +60,9 @@
         try {
             logGame.info(`importing ${data.jsUrl}`);
             const mod = (await import(/* @vite-ignore */ data.jsUrl)) as GameModule;
+            if (typeof mod.createScene !== 'function') {
+                throw new Error('Invalid game module: createScene is not a function');
+            }
             logGame.info(`creating scene="${s}"`);
             viewer = await mod.createScene(container, s);
             running = true;

@@ -40,8 +40,9 @@
     }
 
     function handleTouchMove(event: TouchEvent) {
-        if (event.touches.length > 0) {
-            updatePosition(event.touches[0].clientX, event.touches[0].clientY);
+        const touch = event.touches[0];
+        if (touch) {
+            updatePosition(touch.clientX, touch.clientY);
         }
     }
 

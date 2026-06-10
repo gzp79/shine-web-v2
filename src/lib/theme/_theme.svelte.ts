@@ -90,5 +90,7 @@ export function setThemeContext(context: ThemeContext) {
 }
 
 export function getThemeContext(): ThemeContext {
-    return getContext<ThemeContext>(THEME_CONTEXT_KEY);
+    const context = getContext<ThemeContext | undefined>(THEME_CONTEXT_KEY);
+    if (!context) throw new Error('getThemeContext: called outside ThemeContext provider');
+    return context;
 }

@@ -74,7 +74,7 @@
             },
             {
                 key: locale.t('account.loginDate'),
-                value: locale.t('common.dateTime', { value: session.createdAt })
+                value: locale.t('common.dateTime', { date: session.createdAt })
             },
             {
                 key: locale.t('account.location'),

@@ -47,6 +47,8 @@ function serverConfigs() {
             certutil -addstore -user "ROOT" ".\\certificates\\ca.crt"
             Import-Certificate -FilePath ".\\certificates\\ca.crt" -CertStoreLocation Cert:\\CurrentUser\\Root
         `);
+        // Disabled only for dev/preview — the build guard above ensures this never runs in prod.
+        // Do NOT move this outside the dev/preview conditional.
         process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
         https = {
             key: fs.readFileSync('certificates/cert.key'),
@@ -84,7 +86,7 @@ function excludeMocks(): Plugin {
     const excluded = ['__mock', '__test', '@mocks'];
 
     const isMockRoute = (id: string) => {
-        const normalizedId = id.split('?')[0].replaceAll('\\', '/');
+        const normalizedId = id.split('?')[0]!.replaceAll('\\', '/');
         const pathParts = normalizedId.split('/');
         return pathParts.some((part) => excluded.includes(part));
     };
@@ -93,7 +95,7 @@ function excludeMocks(): Plugin {
         name: 'exclude-mocks',
         resolveId(id) {
             if (config.environment !== 'mock' && isMockRoute(id)) {
-                const isSvelte = id.split('?')[0].endsWith('.svelte');
+                const isSvelte = id.split('?')[0]!.endsWith('.svelte');
                 return isSvelte ? `\0empty-file:${id}` : `\0empty-export:${id}`;
             }
         },
