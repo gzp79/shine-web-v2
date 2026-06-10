@@ -88,6 +88,7 @@ function createLogger(namespace: string) {
 
 export const logAPI = createLogger('api');
 export const logUser = createLogger('user');
+export const logGame = createLogger('game');
 export const logI18n = createLogger('i18n');
 export const logTheme = createLogger('theme');
 
