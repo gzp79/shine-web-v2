@@ -95,8 +95,12 @@
     </DropdownItem>
 {/snippet}
 
+{#snippet hamburgerTrigger({ class: cls }: { class: string })}
+    <Hamburger class={cls} aria-label="Open menu" />
+{/snippet}
+
 <DropdownMenu
-    trigger={fromComponent(Hamburger)}
+    trigger={hamburgerTrigger}
     triggerStyle={{ class: 'absolute right-0 top-0 z-[10000] gap-0 h-8 w-8 p-0 m-4 rounded-sm' }}
     to="#popover"
     side="left"

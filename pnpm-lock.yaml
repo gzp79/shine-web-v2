@@ -20,18 +20,12 @@ importers:
       loglevel:
         specifier: ^1.9.2
         version: 1.9.2
-      prune:
-        specifier: ^0.0.2
-        version: 0.0.2
       sveltekit-i18n:
         specifier: ^2.4.2
         version: 2.4.2(svelte@5.56.1(@typescript-eslint/types@8.60.1))
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
-      turnstile-types:
-        specifier: ^1.2.3
-        version: 1.2.3
       ua-parser-js:
         specifier: ^2.0.10
         version: 2.0.10
@@ -159,6 +153,9 @@ importers:
       tsx:
         specifier: ^4.22.4
         version: 4.22.4
+      turnstile-types:
+        specifier: ^1.2.3
+        version: 1.2.3
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -2922,9 +2919,6 @@ packages:
   lodash-es@4.18.1:
     resolution: {integrity: sha512-J8xewKD/Gk22OZbhpOVSwcs60zhd95ESDwezOFuA3/099925PdHJ7OFHNTGtajL3AlZkykD32HykiMo+BIBI8A==}
 
-  lodash@4.18.1:
-    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
-
   loglevel@1.9.2:
     resolution: {integrity: sha512-HgMmCqIJSAKqo68l0rS2AanEWfkxaZ5wNiEFb5ggm08lDs9Xl2KxBlX3PTcaD2chBM1gXAYf491/M2Rv8Jwayg==}
     engines: {node: '>= 0.6.0'}
@@ -3201,9 +3195,6 @@ packages:
     resolution: {integrity: sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
 
-  prune@0.0.2:
-    resolution: {integrity: sha512-5ZDNTaYgyOElBdXH5kRWFvyrAj2yHkuR32g9lBftm0SjC3xaq9tU30Ft6TOMHDrQJKGeTtMzPt+KKF85qOOJbg==}
-
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -3313,9 +3304,6 @@ packages:
   source-map@0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
-
-  sproutid@0.0.5:
-    resolution: {integrity: sha512-b4ToovLPYmdRzfvFhNS8DoHmv+TTW0AebcipzsrTcrHE8WMG3eGlDIJn584bXK95CbCktGQazNSA39Y9qgTDyA==}
 
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
@@ -6351,8 +6339,6 @@ snapshots:
 
   lodash-es@4.18.1: {}
 
-  lodash@4.18.1: {}
-
   loglevel@1.9.2: {}
 
   loupe@3.2.1: {}
@@ -6603,11 +6589,6 @@ snapshots:
       ansi-styles: 5.2.0
       react-is: 17.0.2
 
-  prune@0.0.2:
-    dependencies:
-      lodash: 4.18.1
-      sproutid: 0.0.5
-
   punycode@2.3.1: {}
 
   react-dom@19.2.7(react@19.2.7):
@@ -6748,10 +6729,6 @@ snapshots:
   source-map-js@1.2.1: {}
 
   source-map@0.6.1: {}
-
-  sproutid@0.0.5:
-    dependencies:
-      lodash: 4.18.1
 
   stackback@0.0.2: {}
 

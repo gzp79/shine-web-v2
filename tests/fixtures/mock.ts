@@ -41,7 +41,8 @@ export { expect } from '@playwright/test';
 export const test = base.extend<{ mock: MockFixture }>({
     mock: async ({ request }, use) => {
         const fixture = new MockFixture(request);
+        await fixture.reset(); // clear state left by a previous test that may have crashed mid-run
         await use(fixture);
-        await fixture.reset();
+        await fixture.reset(); // teardown: remove mocks registered during this test
     }
 });

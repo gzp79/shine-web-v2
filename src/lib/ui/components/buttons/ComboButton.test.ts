@@ -152,7 +152,7 @@ describe('ComboButton', () => {
         });
 
         await step('open dropdown and select link option', async () => {
-            const dropdownTrigger = screen.getAllByRole('button')[1];
+            const dropdownTrigger = screen.getAllByRole('button')[1]!;
             await user.click(dropdownTrigger);
 
             const portal = withinPortal('popover');

@@ -22,10 +22,12 @@
     );
     const stl = $derived(
         [
-            `background-image: ${(typeof src === 'string' ? [src] : src).map((url) => `url(${url})`).join(',')}`,
+            `background-image: ${(typeof src === 'string' ? [src] : src).map((url) => `url("${url.replace(/"/g, '%22')}")`).join(',')}`,
             opacity ? `opacity: ${opacity}` : '',
-            style && style
-        ].join('; ')
+            style ?? ''
+        ]
+            .filter(Boolean)
+            .join('; ')
     );
 </script>
 

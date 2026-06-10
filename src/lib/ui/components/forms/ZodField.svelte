@@ -48,12 +48,14 @@
         );
 
         if (result.success) {
+            onValue?.(result.data);
             return {
                 success: true,
                 error: undefined,
                 value: result.data
             };
         } else {
+            onValue?.(undefined);
             const error = localizeTr(result.error.issues[0]?.message || 'Invalid input', locale.t);
             return {
                 success: false,
@@ -61,10 +63,6 @@
                 value: undefined
             };
         }
-    });
-
-    $effect(() => {
-        onValue?.(validation.value);
     });
 </script>
 
