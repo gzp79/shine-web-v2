@@ -35,6 +35,13 @@ export function hoverClass(variant: InputVariant): string {
     }
 }
 
+const sizeMods: Record<Size, string> = {
+    xs: 'text-xs leading-none h-8 px-1.5',
+    sm: 'text-sm leading-none h-10 px-2.25',
+    md: 'text-md leading-none h-12 px-3',
+    lg: 'text-lg leading-none h-14 px-4'
+};
+
 export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle => {
     const style = $derived<ButtonStyleConfig>({
         variant: 'filled',
@@ -51,13 +58,6 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
     const size = $derived(style.size ?? groupInfo?.size ?? 'md');
     const variant = $derived(style.variant ?? groupInfo?.variant ?? 'filled');
     const disabled = $derived(style.disabled ?? groupInfo?.disabled ?? false);
-
-    const sizeMods: Record<Size, string> = {
-        xs: 'text-xs leading-none h-8 px-1.5',
-        sm: 'text-sm leading-none h-10 px-2.25',
-        md: 'text-md leading-none h-12 px-3',
-        lg: 'text-lg leading-none h-14 px-4'
-    };
 
     const focusRing = $derived(
         [

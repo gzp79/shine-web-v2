@@ -1,13 +1,10 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import type { HTMLAttributes } from 'svelte/elements';
     import { type AriaLive, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
     import { type Overflow, scrollShadow } from '@lib/ui/atoms/layouts';
     import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import { cn } from '@lib/ui/utils';
-
-    export type T = HTMLAttributes<HTMLDivElement> & { aaa: string };
 
     export type ContainerContentProps = {
         padding?: ResponsiveSpacing;

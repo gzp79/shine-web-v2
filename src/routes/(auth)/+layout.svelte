@@ -20,6 +20,8 @@
     const locale = getLocaleContext();
     const appMenu = getMenuContext();
 
+    let isRedirecting = $state(false);
+
     $effect(() => {
         if (!currentUser.current || !currentUser.current.authenticated) {
             logUser.log('User not authenticated, skipping menu registration');
@@ -52,6 +54,8 @@
     });
 
     $effect(() => {
+        if (isRedirecting) return;
+
         if (currentUser.loading) {
             logUser.log('Current user is loading, waiting...');
             return;
@@ -59,6 +63,7 @@
 
         if (!currentUser.error && currentUser.current && !currentUser.current.authenticated) {
             logUser.log('User not authenticated, redirecting to login page', currentUser.current);
+            isRedirecting = true;
             goto(resolve('/login'));
         }
     });
