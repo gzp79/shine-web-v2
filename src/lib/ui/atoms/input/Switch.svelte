@@ -2,8 +2,8 @@
     import { Switch as SwitchPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
     import type { ClassValue } from 'clsx';
     import type { ActionColor, Size } from '@lib/ui/atoms';
-    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { getFieldContext } from '@lib/ui/atoms/input/Field.svelte';
+    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { cn } from '@lib/ui/utils';
 
     export type SwitchProps = WithoutChildrenOrChild<SwitchPrimitive.RootProps> & {

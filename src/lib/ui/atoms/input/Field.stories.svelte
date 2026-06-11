@@ -253,13 +253,21 @@
             <Field {...args} label="Dark mode" required>
                 <Switch fieldControl />
             </Field>
-            <Field {...args} label="Notify me after (days)" description="Switch controls the label; the input below is a plain sibling.">
+            <Field
+                {...args}
+                label="Notify me after (days)"
+                description="Switch controls the label; the input below is a plain sibling."
+            >
                 <Stack direction="row" alignment="center">
                     <Switch fieldControl />
                     <Input type="number" value={7} />
                 </Stack>
             </Field>
-            <Field {...args} label="Delay (days)" description="Input controls the label; the switch below is a plain sibling.">
+            <Field
+                {...args}
+                label="Delay (days)"
+                description="Input controls the label; the switch below is a plain sibling."
+            >
                 <Stack direction="row" alignment="center">
                     <Input type="number" fieldControl value={7} />
                     <Switch />

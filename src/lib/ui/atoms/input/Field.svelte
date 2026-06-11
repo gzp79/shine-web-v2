@@ -54,8 +54,8 @@
 </script>
 
 <script lang="ts">
-    import { cn } from '@lib/ui/utils';
     import { setInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { cn } from '@lib/ui/utils';
 
     let {
         disabled = false,
@@ -81,21 +81,35 @@
     let labelFor = $state<string | undefined>(undefined);
 
     setInputGroupContext({
-        get color() { return color ?? 'primary'; },
-        get size() { return size; },
-        get variant() { return variant; },
-        get disabled() { return disabled; }
+        get color() {
+            return color ?? 'primary';
+        },
+        get size() {
+            return size;
+        },
+        get variant() {
+            return variant;
+        },
+        get disabled() {
+            return disabled;
+        }
     });
 
     setFieldContext({
         setFieldFor(id: string) {
             if (labelFor !== undefined) {
-                console.warn(`[Field] labelFor already set to "${labelFor}", overwriting with "${id}". Only one fieldcontrol per Field is supported.`);
+                console.warn(
+                    `[Field] labelFor already set to "${labelFor}", overwriting with "${id}". Only one fieldcontrol per Field is supported.`
+                );
             }
             labelFor = id;
         },
-        get statusId() { return statusId; },
-        get required() { return required; }
+        get statusId() {
+            return statusId;
+        },
+        get required() {
+            return required;
+        }
     });
 
     const cls = $derived(cn('grid space-y-2', className));

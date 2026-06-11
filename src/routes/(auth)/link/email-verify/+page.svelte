@@ -9,7 +9,9 @@
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
 
     const locale = getLocaleContext();
-    const task = $derived(completeEmailOperation(page.url.searchParams.get('token') || ''));
+
+    const token = page.url.searchParams.get('token');
+    const task = token ? completeEmailOperation(token) : Promise.reject(new Error('Missing verification token'));
 </script>
 
 <CenteredLayout>

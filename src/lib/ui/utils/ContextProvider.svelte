@@ -7,7 +7,9 @@
     }
     let { children, use: useContext }: Props<T> = $props();
 
-    useContext();
+    $effect(() => {
+        useContext();
+    });
 </script>
 
 {@render children()}

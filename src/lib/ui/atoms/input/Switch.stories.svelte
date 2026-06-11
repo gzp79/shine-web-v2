@@ -1,8 +1,8 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
-    import Switch from '@lib/ui/atoms/input/Switch.svelte';
     import Field from '@lib/ui/atoms/input/Field.svelte';
+    import Switch from '@lib/ui/atoms/input/Switch.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import Typography from '../Typography.svelte';
     import Box from '../layouts/Box.svelte';
