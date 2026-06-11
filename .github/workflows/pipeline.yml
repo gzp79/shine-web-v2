@@ -25,14 +25,12 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: '24'
-                  cache: 'pnpm'
 
             - uses: pnpm/action-setup@v4
               with:
-                  version: latest
-
-            - name: Install dependencies
-              run: pnpm install
+                  version: 11
+                  run_install: true
+                  cache: true
 
             - name: Sync SvelteKit
               run: pnpm exec svelte-kit sync
@@ -67,14 +65,12 @@ jobs:
             - uses: actions/setup-node@v4
               with:
                   node-version: '24'
-                  cache: 'pnpm'
 
             - uses: pnpm/action-setup@v4
               with:
-                  version: latest
-
-            - name: Install dependencies
-              run: pnpm install
+                  version: 11
+                  run_install: true
+                  cache: true
 
             - name: Sync SvelteKit
               run: pnpm exec svelte-kit sync
