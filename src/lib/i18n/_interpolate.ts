@@ -1,5 +1,5 @@
 import { logI18n } from '@lib/loggers';
-import { formatters } from './_formatters';
+import { formatters, type Formatter } from './_formatters';
 import type { Locale } from './_translator';
 
 const VARIABLE_PLACEHOLDER = /{(?<key>\w+)(?:\|(?<formatter>\w+))?}/g;
@@ -18,7 +18,7 @@ export function interpolate(locale: Locale, template: string, values?: Record<st
             return String(value);
         }
 
-        const formatterFn = formatters[formatter];
+        const formatterFn = (formatters as Record<string, Formatter>)[formatter];
         if (formatterFn) {
             try {
                 return formatterFn(locale, value);

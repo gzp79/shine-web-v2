@@ -36,7 +36,7 @@ export const queryExternalLoginProviders = query(async (): Promise<string[]> => 
 export const querySanitizedReturnUrl = query(
     z.string().optional().nullable(),
     async (rawUrl: string | null | undefined): Promise<string> => {
-        return sanitizedReturnUrl(rawUrl);
+        return sanitizedReturnUrl(rawUrl) ?? '/game';
     }
 );
 

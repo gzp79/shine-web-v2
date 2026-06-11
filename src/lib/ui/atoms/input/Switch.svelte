@@ -3,6 +3,7 @@
     import type { ClassValue } from 'clsx';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { getFieldContext } from '@lib/ui/atoms/input/Field.svelte';
     import { cn } from '@lib/ui/utils';
 
     export type SwitchProps = WithoutChildrenOrChild<SwitchPrimitive.RootProps> & {
@@ -10,6 +11,7 @@
         size?: Size;
         //variant?: InputVariant;
         disabled?: boolean;
+        fieldControl?: boolean;
         class?: ClassValue;
     };
 
@@ -61,12 +63,24 @@
         size: baseSize = 'md',
         //variant: baseVariant = 'filled',
         disabled: baseDisabled = false,
+        fieldControl = false,
         class: className,
         checked = $bindable(false),
+        id,
         ...restProps
     }: SwitchProps = $props();
 
     const ctx = getInputGroupContext();
+    const fieldCtx = getFieldContext();
+
+    const generatedId = $props.id();
+    const resolvedId = $derived(id ?? (fieldControl ? generatedId : undefined));
+
+    $effect(() => {
+        if (fieldControl && fieldCtx && resolvedId) {
+            fieldCtx.setFieldFor(resolvedId);
+        }
+    });
 
     const color = $derived(baseColor ?? ctx?.color ?? 'primary');
     const size = $derived(baseSize ?? ctx?.size ?? 'md');
@@ -94,6 +108,6 @@
     );
 </script>
 
-<SwitchPrimitive.Root bind:checked data-slot="switch" class={btnCls} {disabled} {...restProps}>
+<SwitchPrimitive.Root bind:checked data-slot="switch" id={resolvedId} class={btnCls} {disabled} {...restProps}>
     <SwitchPrimitive.Thumb data-slot="switch-thumb" class={thumbClass} />
 </SwitchPrimitive.Root>
