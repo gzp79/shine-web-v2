@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { formatters, type Formatter } from './_formatters';
+import { type Formatter, formatters } from './_formatters';
 import { interpolate } from './_interpolate';
 import type { Locale } from './_translator';
 

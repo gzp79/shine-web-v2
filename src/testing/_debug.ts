@@ -16,7 +16,9 @@ import { config } from '@config';
  */
 export async function pauseTest(label?: string): Promise<void> {
     if (config.environment !== 'mock') {
-        throw new Error(`pauseTest called outside mock environment${label ? ` (${label})` : ''} — remove before merging`);
+        throw new Error(
+            `pauseTest called outside mock environment${label ? ` (${label})` : ''} — remove before merging`
+        );
     }
     console.log('Test paused for debugging. Close the browser tab to continue.');
     await new Promise((resolve) => setTimeout(resolve, 1000000)); // Wait ~16 minutes

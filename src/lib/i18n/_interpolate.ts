@@ -1,5 +1,5 @@
 import { logI18n } from '@lib/loggers';
-import { formatters, type Formatter } from './_formatters';
+import { type Formatter, formatters } from './_formatters';
 import type { Locale } from './_translator';
 
 const VARIABLE_PLACEHOLDER = /{(?<key>\w+)(?:\|(?<formatter>\w+))?}/g;

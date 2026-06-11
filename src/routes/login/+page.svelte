@@ -249,7 +249,9 @@
                         </Box>
                         <Stack direction="row" alignment="center" justification="start" class="px-8 py-2 shrink">
                             <Switch bind:checked={rememberMe} id="rememberMe" />
-                            <Typography variant="h5" element="label" for="rememberMe">{locale.t('login.rememberMe')}</Typography>
+                            <Typography variant="h5" element="label" for="rememberMe"
+                                >{locale.t('login.rememberMe')}</Typography
+                            >
                         </Stack>
                     </Stack>
                 </Stack>

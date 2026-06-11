@@ -2,8 +2,8 @@
     import type { HTMLInputAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
-    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { getFieldContext } from '@lib/ui/atoms/input/Field.svelte';
+    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
     import { cn } from '@lib/ui/utils';
 
