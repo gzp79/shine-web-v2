@@ -4,7 +4,7 @@
     import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
     import { DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
     import Hamburger from '@lib/ui/atoms/icons/common/Hamburger.svelte';
-    import { createContext } from '@lib/ui/utils';
+    import { createContext, fromComponent } from '@lib/ui/utils';
     import FullscreenMenu from './FullscreenMenu.svelte';
 
     export type MenuSection = 'global' | 'context' | 'user';
@@ -95,12 +95,8 @@
     </DropdownItem>
 {/snippet}
 
-{#snippet hamburgerTrigger({ class: cls }: { class: string })}
-    <Hamburger class={cls} aria-label="Open menu" />
-{/snippet}
-
 <DropdownMenu
-    trigger={hamburgerTrigger}
+    trigger={fromComponent(Hamburger)}
     triggerStyle={{ class: 'absolute right-0 top-0 z-[10000] gap-0 h-8 w-8 p-0 m-4 rounded-sm' }}
     to="#popover"
     side="left"
