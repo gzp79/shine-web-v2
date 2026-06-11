@@ -3,6 +3,7 @@
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
     import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { getFieldContext } from '@lib/ui/atoms/input/Field.svelte';
     import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
     import { cn } from '@lib/ui/utils';
 
@@ -45,6 +46,7 @@
         wide?: boolean;
         disabled?: boolean;
         invalid?: boolean;
+        fieldControl?: boolean;
     };
 </script>
 
@@ -56,14 +58,26 @@
         wide = false,
         disabled: baseDisabled,
         invalid = false,
+        fieldControl = false,
         value = $bindable(),
         type = 'text',
+        id,
         class: className,
         'data-slot': dataSlot = 'input',
         ...restProps
     }: InputProps = $props();
 
     const ctx = getInputGroupContext();
+    const fieldCtx = getFieldContext();
+
+    const generatedId = $props.id();
+    const resolvedId = $derived(id ?? (fieldControl ? generatedId : undefined));
+
+    $effect(() => {
+        if (fieldControl && fieldCtx && resolvedId) {
+            fieldCtx.setFieldFor(resolvedId);
+        }
+    });
 
     const color = $derived(baseColor ?? ctx?.color ?? 'primary');
     const size = $derived(baseSize ?? ctx?.size ?? 'md');
@@ -103,13 +117,13 @@
 
 <input
     data-slot={dataSlot}
-    id={ctx?.fieldId}
+    id={resolvedId}
     class={cls}
     {type}
     {disabled}
     aria-invalid={invalid || undefined}
-    aria-required={ctx?.required || undefined}
-    aria-describedby={ctx?.statusId}
+    aria-required={fieldCtx?.required || undefined}
+    aria-describedby={fieldCtx?.statusId}
     bind:value
     {...restProps}
 />
