@@ -48,14 +48,12 @@
         );
 
         if (result.success) {
-            onValue?.(result.data);
             return {
                 success: true,
                 error: undefined,
                 value: result.data
             };
         } else {
-            onValue?.(undefined);
             const error = localizeTr(result.error.issues[0]?.message || 'Invalid input', locale.t);
             return {
                 success: false,
@@ -63,6 +61,11 @@
                 value: undefined
             };
         }
+    });
+
+    // Notify the parent of the validated value as a side effect, keeping the derivation above pure.
+    $effect(() => {
+        onValue?.(validation.value);
     });
 </script>
 

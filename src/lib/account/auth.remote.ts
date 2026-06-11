@@ -64,7 +64,7 @@ export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
                 createdAt: user.details.createdAt
             };
         } else if (response.status == 401) {
-            logAPI.info('getCurrentUser failed with 401', await response.text());
+            logAPI.info('getCurrentUser failed with 401');
             return { authenticated: false };
         } else {
             const err = await createFetchError(response, 'Failed to get current user');
