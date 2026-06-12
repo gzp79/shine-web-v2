@@ -22,12 +22,13 @@ const webURL = fixDeploymentURL(process.env.DEPLOYMENT_URL) || config.webUrl;
 console.log(`Using web URL: ${webURL}`);
 
 export default defineConfig({
-    // All projects share one MSW server with mutable mock state — run tests serially
-    workers: 1,
+    workers: 4,
     webServer: {
         command: 'pnpm run dev',
         port: parseInt(new URL(webURL).port),
-        reuseExistingServer: true
+        reuseExistingServer: true,
+        stdout: 'ignore',
+        stderr: 'ignore'
     },
     use: {
         baseURL: webURL,

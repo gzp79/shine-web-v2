@@ -1,6 +1,9 @@
 import { config } from '@config';
 import type { RequestHandler } from './$types';
 
+// Identifies the calling Playwright worker; absent for the admin page.
+const WORKER_HEADER = 'x-mock-worker';
+
 export const POST: RequestHandler = async ({ request }) => {
     if (config.environment !== 'mock') {
         return new Response(null, { status: 404 });
@@ -8,10 +11,11 @@ export const POST: RequestHandler = async ({ request }) => {
 
     const { addOverride } = await import('@mocks/server');
 
+    const workerId = request.headers.get(WORKER_HEADER) ?? undefined;
     const { handler, params } = await request.json();
 
     try {
-        await addOverride(handler, params);
+        await addOverride(handler, params, workerId);
     } catch (error) {
         return new Response(JSON.stringify({ error: (error as Error).message }), {
             status: 400,
@@ -24,7 +28,7 @@ export const POST: RequestHandler = async ({ request }) => {
     });
 };
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ request }) => {
     if (config.environment !== 'mock') {
         return new Response(null, { status: 404 });
     }
@@ -32,7 +36,8 @@ export const GET: RequestHandler = async () => {
     const { registry } = await import('@mocks/registry');
     const { getActiveOverrides } = await import('@mocks/server');
 
-    const activeOverrides = getActiveOverrides();
+    const workerId = request.headers.get(WORKER_HEADER) ?? undefined;
+    const activeOverrides = getActiveOverrides(workerId);
     const mocks: Array<{ name: string; isActive: boolean; hasParams: boolean; params?: unknown }> = [];
 
     // 1. Add active overrides (in application order - Map preserves insertion order)
@@ -75,16 +80,17 @@ export const DELETE: RequestHandler = async ({ request }) => {
 
     const { removeOverride, resetOverrides } = await import('@mocks/server');
 
+    const workerId = request.headers.get(WORKER_HEADER) ?? undefined;
     const text = await request.text();
     if (text) {
         const { handler } = JSON.parse(text);
-        removeOverride(handler);
+        removeOverride(handler, workerId);
         return new Response(JSON.stringify({ ok: true, removed: handler }), {
             headers: { 'Content-Type': 'application/json' }
         });
     }
 
-    resetOverrides();
+    resetOverrides(workerId);
     return new Response(JSON.stringify({ ok: true, reset: true }), {
         headers: { 'Content-Type': 'application/json' }
     });
