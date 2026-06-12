@@ -113,28 +113,35 @@
     // - If captcha is not solved yet or expired
     const disableButtons = $derived(isRedirecting || !captcha);
 
-    $effect(() => {
-        if (isRedirecting) return;
-        if (!prompt) {
-            logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
-            if (currentUserQuery.current && redirectUrlQuery.current) {
-                const user = currentUserQuery.current;
-                const sanitizedUrl = redirectUrlQuery.current;
-                if (user.authenticated) {
-                    logUser.log(`Redirecting user with an active session to ${sanitizedUrl}`);
-                    isRedirecting = true;
-                    window.location.href = sanitizedUrl;
-                } else {
-                    // if we have no authenticated user, try the token flow that will either
-                    // - authenticate and redirect the user to the target url
-                    // - or fail and redirect the user to the login page with a prompt
-                    logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
-                    const errorUrl = `/login?${new URLSearchParams({ ...(returnUrl ? { returnUrl } : {}), prompt: 'true' })}`;
-                    isRedirecting = true;
-                    window.location.href = authPages.tokenLoginUrl({ redirectUrl: sanitizedUrl, errorUrl });
-                }
-            }
+    // Resolve the redirect target from a single consistent snapshot of the queries.
+    const nonInteractiveTarget = $derived.by(async () => {
+        if (prompt) return undefined;
+
+        const user = await currentUserQuery;
+        const sanitizedUrl = await redirectUrlQuery;
+
+        if (user.authenticated) {
+            logUser.log(`Redirecting user with an active session to ${sanitizedUrl}`);
+            return sanitizedUrl;
         }
+
+        // if we have no authenticated user, try the token flow that will either
+        // - authenticate and redirect the user to the target url
+        // - or fail and redirect the user to the login page with a prompt
+        logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
+        const errorUrl = `/login?${new URLSearchParams({ ...(returnUrl ? { returnUrl } : {}), prompt: 'true' })}`;
+        return authPages.tokenLoginUrl({ redirectUrl: sanitizedUrl, errorUrl });
+    });
+
+    $effect(() => {
+        if (isRedirecting || prompt) return;
+        logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
+
+        nonInteractiveTarget.then((target) => {
+            if (isRedirecting || !target) return;
+            isRedirecting = true;
+            window.location.href = target;
+        });
     });
 </script>
 
