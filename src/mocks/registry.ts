@@ -5,6 +5,8 @@
  * New: registry = { mockName: { factory: (params) => handler, defaultParams: {...} } }
  */
 import {
+    completeEmailOperationFailureHandler,
+    completeEmailOperationHandler,
     defaultActiveSessions,
     defaultActiveTokens,
     defaultLinkedIdentities,
@@ -37,7 +39,9 @@ export const registry = {
     revokeTokenFailure: { factory: () => revokeTokenFailureHandler },
     unlinkIdentityHandler: { factory: () => unlinkIdentityHandler },
     startEmailConfirmationHandler: { factory: () => startEmailConfirmationHandler },
-    startEmailChangeHandler: { factory: () => startEmailChangeHandler }
+    startEmailChangeHandler: { factory: () => startEmailChangeHandler },
+    completeEmailOperationHandler: { factory: () => completeEmailOperationHandler },
+    completeEmailOperationFailure: { factory: () => completeEmailOperationFailureHandler }
 };
 
 // Infer the MockHandlers type from the registry
