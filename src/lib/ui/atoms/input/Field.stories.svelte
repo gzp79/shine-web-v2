@@ -3,6 +3,7 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Input from '@lib/ui/atoms/input/Input.svelte';
     import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
+    import Switch from '@lib/ui/atoms/input/Switch.svelte';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import Field, { type FieldProps } from './Field.svelte';
@@ -240,6 +241,39 @@
                 </Box>
             </Box>
         </Box>
+    {/snippet}
+</Story>
+
+<Story name="With Switch">
+    {#snippet template(args)}
+        <Stack spacing={6}>
+            <Field {...args} label="Enable notifications" description="Receive email updates about your account.">
+                <Switch fieldControl />
+            </Field>
+            <Field {...args} label="Dark mode" required>
+                <Switch fieldControl />
+            </Field>
+            <Field
+                {...args}
+                label="Notify me after (days)"
+                description="Switch controls the label; the input below is a plain sibling."
+            >
+                <Stack direction="row" alignment="center">
+                    <Switch fieldControl />
+                    <Input type="number" value={7} />
+                </Stack>
+            </Field>
+            <Field
+                {...args}
+                label="Delay (days)"
+                description="Input controls the label; the switch below is a plain sibling."
+            >
+                <Stack direction="row" alignment="center">
+                    <Input type="number" fieldControl value={7} />
+                    <Switch />
+                </Stack>
+            </Field>
+        </Stack>
     {/snippet}
 </Story>
 

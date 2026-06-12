@@ -1,0 +1,18 @@
+{
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+    "entry": [
+        "src/routes/**/+{page,layout,error,server}.{js,ts,svelte}",
+        "src/routes/**/*.remote.ts",
+        "src/hooks.{client,server}.ts",
+        "src/app.d.ts",
+        "src/mocks/**/*.ts",
+        "src/**/*.stories.svelte",
+        "src/**/*.{test,spec}.ts",
+        "tests/**/*.ts",
+        "e2e/**/*.ts",
+        "scripts/**/*.{js,ts,mjs}"
+    ],
+    "project": ["src/**/*.{ts,svelte}"],
+    "ignore": ["src/generated/**", "src/testing/_debug.ts", "src/storybook/mock-remote.svelte.ts"],
+    "ignoreDependencies": ["tailwindcss", "tw-animate-css", "@tailwindcss/typography"]
+}

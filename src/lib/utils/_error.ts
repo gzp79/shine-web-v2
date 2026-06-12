@@ -1,3 +1,5 @@
+import { dev } from '$app/environment';
+
 const appErrorKindList = ['fetch', 'other', 'retryLimit'] as const;
 export type AppErrorKind = (typeof appErrorKindList)[number];
 
@@ -38,10 +40,12 @@ export const isAppError = (value: unknown): value is AppError => {
 
 export async function createFetchError(response: Response, message = `HTTP ${response.status}`): Promise<FetchError> {
     let body: string | undefined;
-    try {
-        body = await response.clone().text();
-    } catch {
-        body = undefined;
+    if (dev) {
+        try {
+            body = await response.clone().text();
+        } catch {
+            body = undefined;
+        }
     }
 
     return {
@@ -80,13 +84,10 @@ export function createAppError(error: unknown): AppError {
     }
 
     if (error instanceof Error) {
-        return createOtherError(error.message, {
-            name: error.name,
-            stack: error.stack
-        });
+        return createOtherError(error.message, dev ? { name: error.name, stack: error.stack } : undefined);
     }
 
-    return createOtherError('Unknown error', error);
+    return createOtherError('Unknown error', dev ? error : undefined);
 }
 
 export function formatError(error: unknown): string {

@@ -2,9 +2,17 @@
     import type { HTMLInputAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
+    import { getFieldContext } from '@lib/ui/atoms/input/Field.svelte';
     import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
     import { cn } from '@lib/ui/utils';
+
+    const sizeMods: Record<Size, string> = {
+        xs: 'text-xs leading-none h-8 px-2',
+        sm: 'text-sm leading-none h-10 px-3',
+        md: 'text-md leading-none h-12 px-4',
+        lg: 'text-lg leading-none h-14 px-5'
+    };
 
     export const inputTypeList = [
         'text',
@@ -38,6 +46,7 @@
         wide?: boolean;
         disabled?: boolean;
         invalid?: boolean;
+        fieldControl?: boolean;
     };
 </script>
 
@@ -49,26 +58,31 @@
         wide = false,
         disabled: baseDisabled,
         invalid = false,
+        fieldControl = false,
         value = $bindable(),
         type = 'text',
+        id,
         class: className,
         'data-slot': dataSlot = 'input',
         ...restProps
     }: InputProps = $props();
 
     const ctx = getInputGroupContext();
+    const fieldCtx = getFieldContext();
+
+    const generatedId = $props.id();
+    const resolvedId = $derived(id ?? (fieldControl ? generatedId : undefined));
+
+    $effect(() => {
+        if (fieldControl && fieldCtx && resolvedId) {
+            fieldCtx.setFieldFor(resolvedId);
+        }
+    });
 
     const color = $derived(baseColor ?? ctx?.color ?? 'primary');
     const size = $derived(baseSize ?? ctx?.size ?? 'md');
     const variant = $derived(baseVariant ?? ctx?.variant ?? 'filled');
     const disabled = $derived(baseDisabled || ctx?.disabled || false);
-
-    const sizeMods: Record<Size, string> = {
-        xs: 'text-xs leading-none h-8 px-2',
-        sm: 'text-sm leading-none h-10 px-3',
-        md: 'text-md leading-none h-12 px-4',
-        lg: 'text-lg leading-none h-14 px-5'
-    };
 
     const cls = $derived(
         cn(
@@ -103,10 +117,13 @@
 
 <input
     data-slot={dataSlot}
+    id={resolvedId}
     class={cls}
     {type}
     {disabled}
     aria-invalid={invalid || undefined}
+    aria-required={fieldCtx?.required || undefined}
+    aria-describedby={fieldCtx?.statusId}
     bind:value
     {...restProps}
 />

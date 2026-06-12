@@ -1,6 +1,7 @@
 import { expect, test } from '../../fixtures/mock';
 import { interceptIdentityAuthWithError, interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
 import { clickComboAction } from '../../helpers/interactions';
+import { RequestGate } from '../../helpers/request-gate';
 
 test('shows loading state then user info when authenticated', async ({ page, mock }) => {
     await mock.add('withDelay', { ms: 2000 });
@@ -41,6 +42,8 @@ test('verified user: change email flow', async ({ page, mock }) => {
         await expect(page.getByRole('heading', { name: 'Change Email' }).first()).toBeVisible();
     });
 
+    const gate = await RequestGate.forRemote(page, 'startEmailChange');
+
     await test.step('fill and submit email change', async () => {
         const emailInput = page.locator('input[type="email"]');
         await expect(emailInput).toBeVisible();
@@ -52,11 +55,16 @@ test('verified user: change email flow', async ({ page, mock }) => {
     });
 
     await test.step('shows progress then confirmation', async () => {
+        await gate.hold();
         await expect(page.getByText('Sending change request...')).toBeVisible();
+
+        gate.release();
         await expect(
             page.getByText('Please check your email and click the confirmation link to complete the change.')
         ).toBeVisible();
     });
+
+    await gate.dispose();
 
     await test.step('dismiss dialog and recover', async () => {
         await page.getByRole('button', { name: 'OK' }).click();
@@ -82,6 +90,8 @@ test('guest user: change email flow', async ({ page }) => {
         await expect(page.getByRole('heading', { name: 'Change Email' }).first()).toBeVisible();
     });
 
+    const gate = await RequestGate.forRemote(page, 'startEmailChange');
+
     await test.step('fill and submit email change', async () => {
         const emailInput = page.locator('input[type="email"]');
         await expect(emailInput).toBeVisible();
@@ -93,11 +103,16 @@ test('guest user: change email flow', async ({ page }) => {
     });
 
     await test.step('shows progress then confirmation', async () => {
+        await gate.hold();
         await expect(page.getByText('Sending change request...')).toBeVisible();
+
+        gate.release();
         await expect(
             page.getByText('Please check your email and click the confirmation link to complete the change.')
         ).toBeVisible();
     });
+
+    await gate.dispose();
 
     await test.step('dismiss dialog and recover', async () => {
         await page.getByRole('button', { name: 'OK' }).click();
@@ -126,6 +141,8 @@ test('unverified user: confirm email flow', async ({ page, mock }) => {
         await expect(portal.getByRole('menuitem', { name: 'Change Email' })).toBeVisible();
     });
 
+    const gate = await RequestGate.forRemote(page, 'startEmailConfirmation');
+
     await test.step('select confirm and trigger action', async () => {
         const portal = page.locator('#popover');
         await portal.getByRole('menuitem', { name: 'Confirm Email' }).click();
@@ -133,9 +150,14 @@ test('unverified user: confirm email flow', async ({ page, mock }) => {
     });
 
     await test.step('shows progress then confirmation', async () => {
+        await gate.hold();
         await expect(page.getByText('Sending confirmation email...')).toBeVisible();
+
+        gate.release();
         await expect(page.getByText('Please check your email and click the confirmation link.')).toBeVisible();
     });
+
+    await gate.dispose();
 
     await test.step('dismiss dialog and recover', async () => {
         await page.getByRole('button', { name: 'OK' }).click();

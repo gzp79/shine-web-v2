@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { formatters } from './_formatters';
+import { type Formatter, formatters } from './_formatters';
 import { interpolate } from './_interpolate';
 import type { Locale } from './_translator';
 
@@ -100,12 +100,12 @@ describe('interpolate', () => {
 
         it('should handle formatter exception', () => {
             const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-            formatters.buggy = () => {
+            (formatters as Record<string, Formatter>).buggy = () => {
                 throw new Error('oops');
             };
             const result = interpolate(locale, 'Value: {x|buggy}', { x: 42 });
             expect(result).toBe('Value: 42');
-            delete formatters.buggy;
+            delete (formatters as Record<string, Formatter>).buggy;
             warnSpy.mockRestore();
         });
 

@@ -4,7 +4,15 @@
     import type { HTMLAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
-    import { cn } from '@lib/ui/utils';
+    import { createContext } from '@lib/ui/utils';
+
+    export interface FieldInfo {
+        setFieldFor: (id: string) => void;
+        statusId?: string;
+        required?: boolean;
+    }
+    const { set: setFieldContext, tryGet: getFieldContext } = createContext<FieldInfo>('Field');
+    export { getFieldContext };
 
     export type FieldLabelProps = {
         class: string;
@@ -47,6 +55,7 @@
 
 <script lang="ts">
     import { setInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { cn } from '@lib/ui/utils';
 
     let {
         disabled = false,
@@ -66,6 +75,11 @@
         ...restProps
     }: FieldProps = $props();
 
+    const fieldId = $props.id();
+    const statusId = $derived(status ? `${fieldId}-status` : undefined);
+
+    let labelFor = $state<string | undefined>(undefined);
+
     setInputGroupContext({
         get color() {
             return color ?? 'primary';
@@ -78,6 +92,23 @@
         },
         get disabled() {
             return disabled;
+        }
+    });
+
+    setFieldContext({
+        setFieldFor(id: string) {
+            if (labelFor !== undefined) {
+                console.warn(
+                    `[Field] labelFor already set to "${labelFor}", overwriting with "${id}". Only one fieldcontrol per Field is supported.`
+                );
+            }
+            labelFor = id;
+        },
+        get statusId() {
+            return statusId;
+        },
+        get required() {
+            return required;
         }
     });
 
@@ -130,7 +161,7 @@
 
 <div data-slot="field" class={cls} {...restProps}>
     {#if typeof label === 'string'}
-        <label {...labelProps}>
+        <label for={labelFor} {...labelProps}>
             {label}
             {#if required}
                 <span class="text-on-danger ml-0.5" aria-label="required">*</span>
@@ -151,7 +182,7 @@
     {@render children?.()}
 
     {#if typeof status === 'string'}
-        <p {...statusProps}>
+        <p id={statusId} {...statusProps}>
             <span class="block">{status}</span>
         </p>
     {:else}

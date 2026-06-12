@@ -7,14 +7,16 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import { createOtherError } from '@lib/utils';
+    import type { PageData } from './$types';
 
     const locale = getLocaleContext();
 
+    let { data }: { data: PageData } = $props();
+
     let errorType = $derived(page.url.searchParams.get('errorType') as ErrorType | null);
     let returnUrl = $derived.by(() => {
-        const redirectUrl = page.url.searchParams.get('returnUrl');
-        if (redirectUrl) {
-            return redirectUrl;
+        if (data.returnUrl) {
+            return data.returnUrl;
         }
 
         if (

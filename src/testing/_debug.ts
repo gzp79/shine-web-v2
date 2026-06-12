@@ -1,3 +1,5 @@
+import { config } from '@config';
+
 /**
  * Pauses test execution for debugging by waiting for a very long time.
  * Use browser DevTools to inspect the page state while paused.
@@ -12,26 +14,14 @@
  *     await pauseTest(); // Execution pauses here, inspect in browser
  *   });
  */
-export async function pauseTest() {
+export async function pauseTest(label?: string): Promise<void> {
+    if (config.environment !== 'mock') {
+        throw new Error(
+            `pauseTest called outside mock environment${label ? ` (${label})` : ''} — remove before merging`
+        );
+    }
     console.log('Test paused for debugging. Close the browser tab to continue.');
     await new Promise((resolve) => setTimeout(resolve, 1000000)); // Wait ~16 minutes
-}
-
-/**
- * Takes a screenshot of the current page for debugging.
- * Only works in browser-mode Vitest (Playwright).
- *
- * Usage:
- *   import { screenshot } from '@testing';
- *
- *   test('my test', async () => {
- *     render(MyComponent);
- *     await screenshot('my-component'); // Saves to screenshots/
- *   });
- */
-export async function screenshot(name: string) {
-    const { page } = await import('vitest/browser');
-    await page.screenshot({ path: `screenshots/${name}.png` });
 }
 
 /**

@@ -33,6 +33,8 @@
         ['text-primary-1', 'text-secondary-1', 'text-info-1', 'text-warning-1', 'text-danger-1', 'text-success-1'],
         ['text-primary-2', 'text-secondary-2', 'text-info-2', 'text-warning-2', 'text-danger-2', 'text-success-2'],
         ['text-on-primary', 'text-on-secondary', 'text-on-info', 'text-on-warning', 'text-on-danger', 'text-on-success'],
+        ['text-on-primary-1', 'text-on-secondary-1', 'text-on-info-1', 'text-on-warning-1', 'text-on-danger-1', 'text-on-success-1'],
+        ['text-on-primary-2', 'text-on-secondary-2', 'text-on-info-2', 'text-on-warning-2', 'text-on-danger-2', 'text-on-success-2'],
 
         ['placeholder:text-surface', 'placeholder:text-container', 'placeholder:text-sub-container'],
         ['placeholder:text-on-surface', 'placeholder:text-on-container', 'placeholder:text-on-sub-container'],

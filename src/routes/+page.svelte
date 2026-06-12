@@ -1,12 +1,18 @@
 <script lang="ts">
+    import { goto } from '$app/navigation';
+    import { resolve } from '$app/paths';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
 </script>
 
 <CenteredLayout>
-    <Stack>
-        <Typography variant="h1">Welcome to SvelteKit</Typography>
-        <p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
-    </Stack>
+    <button
+        class="cursor-pointer rounded-full p-8 hover:brightness-highlight"
+        aria-label="Enter"
+        onclick={() => goto(resolve('/game'))}
+    >
+        <span class="relative flex h-16 w-16">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-on-primary opacity-50"></span>
+            <span class="relative inline-flex h-16 w-16 rounded-full bg-on-primary"></span>
+        </span>
+    </button>
 </CenteredLayout>

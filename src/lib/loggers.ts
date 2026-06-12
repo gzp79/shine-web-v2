@@ -30,7 +30,7 @@ function parseConfig(conf: string | null | undefined): LogConfig {
         .map((p) => p.trim())
         .filter(Boolean);
     for (const p of parts) {
-        const [k, v] = p.split('=').map((s) => s.trim());
+        const [k, v] = p.split('=').map((s) => s.trim()) as [string, string | undefined];
         if (!v) {
             // single token like 'info' sets global
             result.global = k as LevelDesc;
@@ -50,7 +50,7 @@ function applyConfigToLoglevel(confStr: string | null | undefined) {
         log.setLevel(cfg.global, false);
     }
     for (const tag of Object.keys(cfg.perTag)) {
-        const lvl = cfg.perTag[tag];
+        const lvl = cfg.perTag[tag]!;
         const logger = log.getLogger(tag);
         logger.setLevel(lvl, false);
     }
@@ -88,6 +88,7 @@ function createLogger(namespace: string) {
 
 export const logAPI = createLogger('api');
 export const logUser = createLogger('user');
+export const logGame = createLogger('game');
 export const logI18n = createLogger('i18n');
 export const logTheme = createLogger('theme');
 

@@ -3,16 +3,25 @@
 </script>
 
 <script lang="ts">
-    //todo: add listeners and update state according in a reactive way.
     let isFullscreen = $state(!!document.fullscreenElement);
+
+    $effect(() => {
+        const onFullscreenChange = () => {
+            isFullscreen = !!document.fullscreenElement;
+        };
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+    });
 
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-            isFullscreen = true;
+            document.documentElement.requestFullscreen().catch(() => {
+                isFullscreen = false;
+            });
         } else {
-            document.exitFullscreen?.();
-            isFullscreen = false;
+            document.exitFullscreen?.()?.catch(() => {
+                isFullscreen = !!document.fullscreenElement;
+            });
         }
     }
 </script>

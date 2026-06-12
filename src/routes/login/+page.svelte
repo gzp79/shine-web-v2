@@ -64,16 +64,16 @@
             switch (errorType as ErrorType) {
                 case 'auth-login-required':
                     return {
-                        longHint: 'Sign in to your account',
-                        shortHint: 'Sign in',
+                        longHint: locale.t('login.signInTitle'),
+                        shortHint: locale.t('login.signInShort'),
                         allowGuest: true
                     };
             }
         }
 
         return {
-            longHint: 'Sign in to your account',
-            shortHint: 'Sign in',
+            longHint: locale.t('login.signInTitle'),
+            shortHint: locale.t('login.signInShort'),
             allowGuest: true
         };
     });
@@ -113,27 +113,35 @@
     // - If captcha is not solved yet or expired
     const disableButtons = $derived(isRedirecting || !captcha);
 
-    $effect(() => {
-        if (!prompt) {
-            logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
-            if (currentUserQuery.current && redirectUrlQuery.current) {
-                const user = currentUserQuery.current;
-                const sanitizedUrl = redirectUrlQuery.current;
-                if (user.authenticated) {
-                    logUser.log(`Redirecting user with an active session to ${sanitizedUrl}`);
-                    isRedirecting = true;
-                    window.location.href = sanitizedUrl;
-                } else {
-                    // if we have no authenticated user, try the token flow that will either
-                    // - authenticate and redirect the user to the target url
-                    // - or fail and redirect the user to the login page with a prompt
-                    logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
-                    const errorUrl = `/login?${new URLSearchParams({ ...(returnUrl ? { returnUrl } : {}), prompt: 'true' })}`;
-                    isRedirecting = true;
-                    window.location.href = authPages.tokenLoginUrl({ redirectUrl: sanitizedUrl, errorUrl });
-                }
-            }
+    // Resolve the redirect target from a single consistent snapshot of the queries.
+    const nonInteractiveTarget = $derived.by(async () => {
+        if (prompt) return undefined;
+
+        const user = await currentUserQuery;
+        const sanitizedUrl = await redirectUrlQuery;
+
+        if (user.authenticated) {
+            logUser.log(`Redirecting user with an active session to ${sanitizedUrl}`);
+            return sanitizedUrl;
         }
+
+        // if we have no authenticated user, try the token flow that will either
+        // - authenticate and redirect the user to the target url
+        // - or fail and redirect the user to the login page with a prompt
+        logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
+        const errorUrl = `/login?${new URLSearchParams({ ...(returnUrl ? { returnUrl } : {}), prompt: 'true' })}`;
+        return authPages.tokenLoginUrl({ redirectUrl: sanitizedUrl, errorUrl });
+    });
+
+    $effect(() => {
+        if (isRedirecting || prompt) return;
+        logUser.log(`Starting non-interactive login flow with returnUrl [${returnUrl}]`);
+
+        nonInteractiveTarget.then((target) => {
+            if (isRedirecting || !target) return;
+            isRedirecting = true;
+            window.location.href = target;
+        });
     });
 </script>
 
@@ -150,7 +158,7 @@
                     />
                 {/if}
             {/if}
-            <LoadingCard label="Loading..." />
+            <LoadingCard label={locale.t('common.loading')} />
         {/snippet}
 
         {#snippet failed(error, reset)}
@@ -209,13 +217,13 @@
                                     href={await redirectUrlQuery}
                                 >
                                     <allBrands.user size="sm" />
-                                    Continue as {user.name}
+                                    {locale.t('login.continueAs', { name: user.name })}
                                 </Button>
                                 <div
                                     class="relative w-full h-0.5 bg-linear-to-r from-transparent via-on-container to-transparent lg:w-[160%] lg:left-[-10%]"
                                 ></div>
                                 <Typography variant="text" class="text-center shrink-0">
-                                    Not you? Switch account
+                                    {locale.t('login.switchAccount')}
                                 </Typography>
                             </Stack>
                         {/if}
@@ -248,7 +256,9 @@
                         </Box>
                         <Stack direction="row" alignment="center" justification="start" class="px-8 py-2 shrink">
                             <Switch bind:checked={rememberMe} id="rememberMe" />
-                            <Typography variant="h5" element="label" for="rememberMe">Remember me</Typography>
+                            <Typography variant="h5" element="label" for="rememberMe"
+                                >{locale.t('login.rememberMe')}</Typography
+                            >
                         </Stack>
                     </Stack>
                 </Stack>
@@ -269,14 +279,14 @@
                         color="primary"
                         disabled={disableButtons}
                         href={authPages.guestLoginUrl({ captcha, redirectUrl: await redirectUrlQuery })}
-                        >Continue as Guest</Button
+                        >{locale.t('login.continueAsGuest')}</Button
                     >
                 </div>
             </Stack>
         </Stack>
 
         <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
-            <LoadingCard variant="ghost" label="Waiting server" />
+            <LoadingCard variant="ghost" label={locale.t('login.waitingServer')} />
             {#if prompt}
                 <!-- Load captcha only for interactive login -->
                 <Turnstile

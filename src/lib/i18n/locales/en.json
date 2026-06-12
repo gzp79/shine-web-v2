@@ -13,7 +13,7 @@
         "ok": "OK",
         "cancel": "Cancel",
         "update": "Update",
-        "dateTime": "{date}",
+        "dateTime": "{date|dateTime}",
         "welcome": "Welcome",
         "greeting": "Hello, {name}!",
         "themeName": "Theme",
@@ -62,6 +62,7 @@
         "unlinkConfirmationConfirmText": "Unlink",
         "unlinkConfirmationCancelText": "Cancel",
         "account": "Account",
+        "accountInfo": "Account Info",
         "emailConfirmTitle": "Confirm Email",
         "emailConfirmWaiting": "Sending confirmation email...",
         "emailConfirmCompleted": "Please check your email and click the confirmation link.",
@@ -102,7 +103,14 @@
         "emailInputDescription": "Enter your email to receive a login link",
         "emailInvalidError": "Please enter a valid email address",
         "emailSubmitButton": "Send Login Link",
-        "emailCancelButton": "Cancel"
+        "emailCancelButton": "Cancel",
+        "rememberMe": "Remember me",
+        "continueAsGuest": "Continue as Guest",
+        "continueAs": "Continue as {name}",
+        "switchAccount": "Not you? Switch account",
+        "signInTitle": "Sign in to your account",
+        "signInShort": "Sign in",
+        "waitingServer": "Waiting server"
     },
     "errors": {
         "networkError": "Network Error",

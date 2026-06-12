@@ -63,6 +63,7 @@
         }
     });
 
+    // Notify the parent of the validated value as a side effect, keeping the derivation above pure.
     $effect(() => {
         onValue?.(validation.value);
     });

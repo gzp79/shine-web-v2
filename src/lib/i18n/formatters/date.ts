@@ -1,6 +1,19 @@
 import { logI18n } from '@lib/loggers';
 import type { Locale } from '../_translator';
 
+type FormatOptions = Intl.DateTimeFormatOptions;
+const formatCache = new Map<string, Intl.DateTimeFormat>();
+
+function getFormatter(locale: string, options: FormatOptions): Intl.DateTimeFormat {
+    const key = `${locale}:${JSON.stringify(options)}`;
+    let fmt = formatCache.get(key);
+    if (!fmt) {
+        fmt = new Intl.DateTimeFormat(locale, options);
+        formatCache.set(key, fmt);
+    }
+    return fmt;
+}
+
 /**
  * Convert various date representations to Date object.
  * Handles: Date objects, timestamps (numbers), ISO strings.
@@ -27,7 +40,7 @@ export function shortDate(locale: Locale, value: unknown): string {
         logI18n.warn('shortDate: invalid date value:', value);
         return String(value);
     }
-    return new Intl.DateTimeFormat(locale, {
+    return getFormatter(locale, {
         year: 'numeric',
         month: 'numeric',
         day: 'numeric'
@@ -40,7 +53,7 @@ export function longDate(locale: Locale, value: unknown): string {
         logI18n.warn('longDate: invalid date value:', value);
         return String(value);
     }
-    return new Intl.DateTimeFormat(locale, {
+    return getFormatter(locale, {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -53,7 +66,7 @@ export function shortTime(locale: Locale, value: unknown): string {
         logI18n.warn('shortTime: invalid date value:', value);
         return String(value);
     }
-    return new Intl.DateTimeFormat(locale, {
+    return getFormatter(locale, {
         hour: 'numeric',
         minute: '2-digit'
     }).format(date);
@@ -65,7 +78,7 @@ export function longTime(locale: Locale, value: unknown): string {
         logI18n.warn('longTime: invalid date value:', value);
         return String(value);
     }
-    return new Intl.DateTimeFormat(locale, {
+    return getFormatter(locale, {
         hour: 'numeric',
         minute: '2-digit',
         second: '2-digit'
@@ -78,7 +91,7 @@ export function dateTime(locale: Locale, value: unknown): string {
         logI18n.warn('dateTime: invalid date value:', value);
         return String(value);
     }
-    return new Intl.DateTimeFormat(locale, {
+    return getFormatter(locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric',

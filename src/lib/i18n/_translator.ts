@@ -31,11 +31,13 @@ export async function loadTranslation(locale: Locale): Promise<Translation> {
     logI18n.log(`Loading translation for locale: ${locale} ...`);
 
     if (!loadedTranslations[locale]) {
-        const translation = await import(`./locales/${locale}.json`);
+        const mod = await import(`./locales/${locale}.json`);
+        const translation = mod.default ?? mod;
         loadedTranslations[locale] = { ...translation, locale };
     }
 
-    return loadedTranslations[locale];
+    // Non-null: we just assigned it above if it was missing
+    return loadedTranslations[locale]!;
 }
 
 export type Translator = (key: TranslationKey, params?: TranslationParams) => string;

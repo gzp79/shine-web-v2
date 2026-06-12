@@ -91,9 +91,10 @@ export function validateProxyResponse(response: Response): void {
     }
 }
 
-export function sanitizedReturnUrl(rawUrl: string | null | undefined): string {
+export function sanitizedReturnUrl(rawUrl: string | null | undefined): string | null {
     if (rawUrl) {
         try {
+            // Try to parse as a relative URL against a dummy base to ensure it's well-formed
             const parsed = new URL(rawUrl, 'http://localhost');
             if (parsed.origin === 'http://localhost' && rawUrl.startsWith('/')) {
                 const sanitized = parsed.pathname + parsed.search + parsed.hash;
@@ -104,5 +105,5 @@ export function sanitizedReturnUrl(rawUrl: string | null | undefined): string {
             logAPI.error(`Failed to parse return URL (${rawUrl}):`, e);
         }
     }
-    return '/game';
+    return null;
 }

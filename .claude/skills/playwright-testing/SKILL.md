@@ -1,12 +1,40 @@
 ---
 name: playwright-testing
-description: Use when testing API integration, state transitions, error recovery, or full user journeys with browser. For isolated component logic, use vitest-testing.
+description: Use for writing, running, or debugging Playwright browser tests — both component tests (tests/component/) and e2e tests (tests/e2e/) — covering API integration, loading/error state transitions, error recovery and retry flows, and multi-page user journeys. Also use when a browser test is flaky on a transient state (spinner, disabled button, in-flight message) or hangs against the mocked server. For isolated component logic without a browser, use vitest-testing.
 ---
 
 # Playwright Testing (Layer 2 & 3)
 
 **Playwright + browser** for API integration, state transitions, full user flows
-**Location:** `tests/**/*.test.ts` | **Run:** `pnpm test:e2e`
+**Location:** `tests/**/*.test.ts` | **Run:** `pnpm test:component` (component) · `pnpm test:e2e` (e2e)
+
+## Environment: must be `mock` first
+
+Before running or writing tests, the project must be on the mock environment:
+
+```bash
+pnpm run env:mock   # MSW mocks — the environment tests run against
+```
+
+This is essential, not optional: the test fixtures and handlers assume MSW is
+active. Verify by reading `src/generated/config.ts` (`environment: 'mock'`); if
+it's anything else, run `env:mock` before proceeding. The other environments
+(`env:local`, `env:dev`, `env:prod` — see CLAUDE.md) point at real backends and
+are only for Layer 3 tests against live data.
+
+## The server is mocked, deterministic, and single-worker
+
+Mocked responses resolve almost instantly, so transient UI (spinners, disabled
+buttons, "Sending…" text) can come and go before an assertion ever polls the
+DOM. Two consequences run through this whole guide:
+
+- **Control timing with a gate, never with delays or sleeps.** To observe an
+  in-flight state, hold the request open with `RequestGate` (see below). Never
+  reach for `withDelay`, `waitForTimeout`, or an inflated timeout to "give the
+  UI a chance" — that trades a race for a slow, still-flaky test.
+- **Fail fast.** Because responses are immediate, a test that hangs is a test
+  that's actually broken — there is no slow backend to wait on. Keep timeouts
+  short so real failures surface in seconds instead of after a 30s default.
 
 ## Layer 2: With MSW Mocks (Common)
 
@@ -119,13 +147,26 @@ test('revoke token: confirmation dialog and loading states', async ({ page }) =>
     });
 
     await test.step('confirm revoke and observe loading', async () => {
+        const gate = await RequestGate.forRemote(page, 'revokeToken');
+
         const confirmButton = page.getByLabel('Revoke Token').getByRole('button', { name: 'Revoke' });
         await confirmButton.click();
+
+        await gate.hold(); // request is now in flight and held open
         await expect(revokeButton).toBeDisabled();
+
+        gate.release(); // let it complete
         await expect(revokeButton).toBeEnabled();
+
+        await gate.dispose();
     });
 });
 ```
+
+The gate is what makes the loading assertion reliable: without it, the mocked
+`revokeToken` resolves so fast that the button flips back to enabled before
+`toBeDisabled()` can observe it. See **Observing in-flight states** below for
+the full rationale and API.
 
 **When to use steps:**
 
@@ -188,6 +229,37 @@ await interceptIdentityAuth(page, (url) => {
     }
 });
 ```
+
+## Observing in-flight states (`tests/helpers/request-gate.ts`)
+
+When a test needs to assert on a transient state — a spinner, a disabled
+button, a "Sending…" message — it cannot rely on timing. The mock resolves
+immediately, so the state may be gone before Playwright's first poll. Adding a
+`withDelay` or a `waitForTimeout` to "slow things down" only swaps a fast race
+for a slow one; the assertion still depends on winning a timing window.
+
+`RequestGate` removes the race by holding the request open at the browser layer
+until you explicitly release it, so the in-flight state stays put for as long as
+you need:
+
+```typescript
+import { RequestGate } from '../../helpers/request-gate';
+
+const gate = await RequestGate.forRemote(page, 'startEmailChange');
+
+await page.getByText('Update').click();
+
+await gate.hold(); // request is in flight and held open
+await expect(page.getByText('Sending change request...')).toBeVisible();
+
+gate.release(); // let it reach the (mocked) server and complete
+await expect(page.getByText('Please check your email...')).toBeVisible();
+
+await gate.dispose();
+```
+
+See the JSDoc in `tests/helpers/request-gate.ts` for the full API
+(`create`/`forRemote`, `hold`, `release`, `dispose`).
 
 ## Test Patterns
 
@@ -253,6 +325,7 @@ tests/
 │   └── mock.ts              # MockFixture + extended test
 ├── helpers/
 │   ├── auth-intercept.ts    # Playwright route interception for identity server
+│   ├── request-gate.ts      # Hold requests open to observe in-flight states
 │   └── interactions.ts      # Reusable UI interaction helpers (e.g., clickComboAction)
 ├── component/               # Component-focused tests
 │   └── <feature>/
@@ -274,6 +347,6 @@ tests/
 - **MSW vs `page.route()`:** MSW intercepts fetch/XHR (API calls). `page.route()` intercepts browser navigations. Auth flows (login, logout, link) are navigations → use auth interceptors, not MSW.
 - **Parallel logic:** Don't make Layer 2 mocks stateful. Test state transitions, not data mutations.
 - **Self-signed certs:** Fixture uses Playwright's `request` (not Node `fetch`) — respects `ignoreHTTPSErrors`
-- **MSW delay:** Default `withDelay(5000)` slows every mocked request by 5s. Tests involving multiple API calls can take 15-20s
+- **Don't slow mocks to observe loading:** `withDelay` is for testing genuine slow-network UX (e.g. that a loader appears at all), not for catching a transient state — use `RequestGate` for that. A delay just makes the suite slow while leaving the assertion racy.
 - **waitForURL:** Use regex patterns (e.g. `/prompt=true/`) to avoid matching the initial URL before redirects happen
 - **Prod guard:** `/api/__mock` returns 404 in prod and is excluded from prod builds via Vite plugin

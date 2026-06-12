@@ -2,7 +2,9 @@ import { query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { createFetchError, retryWithBackoff } from '@lib/utils';
+import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
+
+const VersionSchema = z.object({ version: z.string() });
 
 async function fetchLatestAssetVersion(): Promise<string> {
     const latestUrl = `${config.assetUrl}/latest.json`;
@@ -12,9 +14,8 @@ async function fetchLatestAssetVersion(): Promise<string> {
         const error = await createFetchError(response, 'Failed to fetch the latest asset version');
         throw error;
     }
-    const { version }: { version: string } = await response.json();
+    const { version } = await parseResponse(VersionSchema, response);
     logAPI.info(`Latest asset version: [${version}]`);
-
     return version;
 }
 
@@ -42,12 +43,16 @@ type AssetManifest = {
 
 /// Assets are global, user independent resources cached on the server.
 let assetManifest: AssetManifest = { version: '', links: {}, fetchedAt: 0 };
+let refreshInFlight: Promise<AssetManifest> | null = null;
 
 async function getOrRefreshManifest(): Promise<AssetManifest> {
     const now = Date.now();
-    if (assetManifest.fetchedAt + ASSET_CACHE_DURATION < now) {
-        logAPI.info('Refreshing assets...');
-        assetManifest = await retryWithBackoff(async () => {
+    if (assetManifest.fetchedAt + ASSET_CACHE_DURATION >= now) {
+        return assetManifest;
+    }
+
+    if (!refreshInFlight) {
+        refreshInFlight = retryWithBackoff(async () => {
             const version = await fetchLatestAssetVersion();
             if (version !== assetManifest.version) {
                 logAPI.info(
@@ -57,18 +62,26 @@ async function getOrRefreshManifest(): Promise<AssetManifest> {
                 return {
                     version,
                     links: manifest,
-                    fetchedAt: now
+                    fetchedAt: Date.now()
                 };
             } else {
                 logAPI.info(`Asset version [${version}] unchanged, using cached manifest.`);
                 return {
                     ...assetManifest,
-                    fetchedAt: now
+                    fetchedAt: Date.now()
                 };
             }
-        });
+        })
+            .then((result) => {
+                assetManifest = result;
+                return result;
+            })
+            .finally(() => {
+                refreshInFlight = null;
+            });
     }
-    return assetManifest;
+
+    return refreshInFlight;
 }
 
 export const queryAssetManifest = query(async (): Promise<AssetManifest> => {

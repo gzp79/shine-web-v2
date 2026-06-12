@@ -168,6 +168,7 @@
         <DialogPrimitive.Overlay class={overlayCls} />
         <DialogPrimitive.Content
             class={dialogCls}
+            {role}
             {onOpenAutoFocus}
             escapeKeydownBehavior={escapeKeydownBehaviorWithRole}
             interactOutsideBehavior={interactOutsideBehaviorWithRole}

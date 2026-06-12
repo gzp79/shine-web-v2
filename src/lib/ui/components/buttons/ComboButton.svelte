@@ -23,7 +23,8 @@
 
     let open = $state(false);
     let action = $derived.by<ButtonAction>(() => {
-        const { caption, ...buttonAction } = options[current];
+        // Non-null: current is always a valid index within options
+        const { caption, ...buttonAction } = options[current]!;
         return buttonAction;
     });
 
@@ -48,11 +49,11 @@
 </script>
 
 {#snippet item(idx: number)}
-    {@const option = options[idx]}
+    {@const option = options[idx]!}
     {#if typeof option.caption === 'string'}
         {option.caption}
     {:else}
-        {@render option?.caption()}
+        {@render option.caption()}
     {/if}
 {/snippet}
 

@@ -50,17 +50,25 @@
     });
 </script>
 
-<div bind:this={divRef} class="relative bg-{color} mx-2 mt-2 h-24 w-24 border-2 border-on-{color}">
+<div bind:this={divRef} class="relative bg-{color} mx-2 mt-2 h-32 w-48 border-2 border-on-{color}">
     {#if shades}
-        <div class="absolute bottom-0 left-0 w-[34%] h-[33%] bg-{color}-1"></div>
-        <div class="absolute bottom-0 left-[33%] w-[34%] h-[33%] bg-{color}-2"></div>
-        <div class="absolute bottom-0 left-[66%] w-[34%] h-[33%] bg-on-{color}"></div>
+        <!-- -1 variant: left half of bottom 40% -->
+        <div class="absolute bottom-0 left-0 w-1/2 h-[40%] bg-{color}-1 flex items-center justify-center">
+            <span class="text-xs font-bold text-on-{color}-1">on-1</span>
+        </div>
+        <!-- -2 variant: right half of bottom 40% -->
+        <div class="absolute bottom-0 left-1/2 w-1/2 h-[40%] bg-{color}-2 flex items-center justify-center">
+            <span class="text-xs font-bold text-on-{color}-2">on-2</span>
+        </div>
     {/if}
+    <!-- base color text + hex in top 60% -->
     <div
-        class="absolute top-0 left-0 h-full w-full flex items-center justify-center text-on-{color} text-center text-xl"
+        class="absolute top-0 left-0 w-full flex flex-col items-center justify-center text-on-{color} text-center"
+        class:h-full={!shades}
+        class:h-[60%]={shades}
     >
-        Content
+        <span class="text-sm font-bold">{color}</span>
+        <span class="text-xs">{colorValue}</span>
+        <span class="text-xs">on: sample</span>
     </div>
 </div>
-<p class="text-center">{color}</p>
-<p class="text-center">{colorValue}</p>

@@ -29,31 +29,43 @@ Color helper:
     --color-primary-1: undefined;
     --color-primary-2: undefined;
     --color-on-primary: undefined;
+    --color-on-primary-1: undefined;
+    --color-on-primary-2: undefined;
 
     --color-secondary: undefined;
     --color-secondary-1: undefined;
     --color-secondary-2: undefined;
     --color-on-secondary: undefined;
+    --color-on-secondary-1: undefined;
+    --color-on-secondary-2: undefined;
 
     --color-info: undefined;
     --color-info-1: undefined;
     --color-info-2: undefined;
     --color-on-info: undefined;
+    --color-on-info-1: undefined;
+    --color-on-info-2: undefined;
 
     --color-warning: undefined;
     --color-warning-1: undefined;
     --color-warning-2: undefined;
     --color-on-warning: undefined;
+    --color-on-warning-1: undefined;
+    --color-on-warning-2: undefined;
 
     --color-danger: undefined;
     --color-danger-1: undefined;
     --color-danger-2: undefined;
     --color-on-danger: undefined;
+    --color-on-danger-1: undefined;
+    --color-on-danger-2: undefined;
 
     --color-success: undefined;
     --color-success-1: undefined;
     --color-success-2: undefined;
     --color-on-success: undefined;
+    --color-on-success-1: undefined;
+    --color-on-success-2: undefined;
 
     --color-data-gray-1: undefined;
     --color-data-gray-2: undefined;
@@ -75,34 +87,46 @@ Color helper:
     --color-on-sub-container: #000000;
 
     --color-primary: #f6f7f9;
-    --color-primary-1: #eceef2;
+    --color-primary-1: #d0d5de;
     --color-primary-2: #b0bcc9;
     --color-on-primary: #516378;
+    --color-on-primary-1: #516378;
+    --color-on-primary-2: #2d3a47;
 
     --color-secondary: #b0bfc9;
     --color-secondary-1: #859bab;
     --color-secondary-2: #516778;
     --color-on-secondary: #333e47;
+    --color-on-secondary-1: #ffffff;
+    --color-on-secondary-2: #ffffff;
 
     --color-info: #dff5ff;
     --color-info-1: #b8edff;
     --color-info-2: #32d1fe;
-    --color-on-info: #0098ce;
+    --color-on-info: #005f80;
+    --color-on-info-1: #006a90;
+    --color-on-info-2: #00607a;
 
     --color-warning: #fff2aa;
     --color-warning-1: #ffe988;
     --color-warning-2: #febe11;
-    --color-on-warning: #cd7d01;
+    --color-on-warning: #8a5100;
+    --color-on-warning-1: #8a5100;
+    --color-on-warning-2: #333333;
 
     --color-danger: #ffdfdf;
     --color-danger-1: #ffc8c8;
     --color-danger-2: #fd6c6c;
-    --color-on-danger: #e32020;
+    --color-on-danger: #c41010;
+    --color-on-danger-1: #e32020;
+    --color-on-danger-2: #8b0000;
 
     --color-success: #e7ffc8;
     --color-success-1: #d0ff97;
     --color-success-2: #90f12a;
-    --color-on-success: #55ac04;
+    --color-on-success: #357800;
+    --color-on-success-1: #2a5c01;
+    --color-on-success-2: #333333;
 
     --color-data-gray-1: #f5f6f6;
     --color-data-gray-2: #e6e7e7;
@@ -127,31 +151,43 @@ Color helper:
     --color-primary-1: #333b47;
     --color-primary-2: #424e62;
     --color-on-primary: #8595ab;
+    --color-on-primary-1: #8595ab;
+    --color-on-primary-2: #c0cad6;
 
     --color-secondary: #425462;
     --color-secondary-1: #516778;
     --color-secondary-2: #859bab;
     --color-on-secondary: #eceff2;
+    --color-on-secondary-1: #eceff2;
+    --color-on-secondary-2: #333e47;
 
     --color-info: #095471;
     --color-info-1: #036689;
     --color-info-2: #0098ce;
     --color-on-info: #32d1fe;
+    --color-on-info-1: #32d1fe;
+    --color-on-info-2: #a8eeff;
 
     --color-warning: #733810;
     --color-warning-1: #87450c;
     --color-warning-2: #cd7d01;
     --color-on-warning: #febe11;
+    --color-on-warning-1: #febe11;
+    --color-on-warning-2: #333333;
 
     --color-danger: #470808;
     --color-danger-1: #831a1a;
     --color-danger-2: #bf1616;
     --color-on-danger: #f53e3e;
+    --color-on-danger-1: #ffaaaa;
+    --color-on-danger-2: #ffb3b3;
 
     --color-success: #153102;
     --color-success-1: #2e5710;
     --color-success-2: #408308;
     --color-on-success: #70d70b;
+    --color-on-success-1: #7db83a;
+    --color-on-success-2: #b8f57a;
 
     --color-data-gray-1: #868990;
     --color-data-gray-2: #6b6e6f;

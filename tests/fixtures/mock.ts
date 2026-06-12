@@ -38,10 +38,19 @@ class MockFixture {
 
 export { expect } from '@playwright/test';
 
-export const test = base.extend<{ mock: MockFixture }>({
+export const test = base.extend<{ mock: MockFixture; autoResetMocks: void }>({
     mock: async ({ request }, use) => {
-        const fixture = new MockFixture(request);
-        await use(fixture);
-        await fixture.reset();
-    }
+        await use(new MockFixture(request));
+    },
+    // Auto-fixture: runs for every test even when `mock` is not destructured,
+    // so leaked overrides can't bleed between tests.
+    autoResetMocks: [
+        async ({ request }, use) => {
+            const fixture = new MockFixture(request);
+            await fixture.reset(); // clear state left by a previous test that may have crashed mid-run
+            await use();
+            await fixture.reset(); // teardown: remove mocks registered during this test
+        },
+        { auto: true }
+    ]
 });

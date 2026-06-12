@@ -1,10 +1,15 @@
 export function getCookie(key: string): string | undefined {
-    const value = document.cookie.split('; ').reduce((r, v) => {
-        const parts = v.split('=');
-        return parts[0] === key ? parts[1] : r;
-    }, '');
-
-    return value ? value : undefined;
+    const prefix = encodeURIComponent(key) + '=';
+    for (const part of document.cookie.split('; ')) {
+        if (part.startsWith(prefix)) {
+            try {
+                return decodeURIComponent(part.slice(prefix.length));
+            } catch {
+                return part.slice(prefix.length);
+            }
+        }
+    }
+    return undefined;
 }
 
 export function updateCookie(key: string, value: string, expires: Date) {

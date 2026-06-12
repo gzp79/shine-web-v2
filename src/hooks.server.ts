@@ -13,5 +13,7 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.theme = await getThemeFromRequest(event.cookies, event.request.headers);
     event.locals.locale = await getLocaleFromRequest(event.cookies, event.request.headers);
 
-    return resolve(event);
+    const response = await resolve(event);
+    response.headers.set('X-Robots-Tag', 'noindex,nofollow,noarchive');
+    return response;
 };

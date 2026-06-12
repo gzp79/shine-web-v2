@@ -8,6 +8,7 @@
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
+    import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
@@ -19,13 +20,22 @@
     const locale = getLocaleContext();
     const appMenu = getMenuContext();
 
+    let isRedirecting = $state(false);
+
     $effect(() => {
         if (!currentUser.current || !currentUser.current.authenticated) {
             logUser.log('User not authenticated, skipping menu registration');
             return;
         }
 
-        logUser.log('Registering logout menu item');
+        logUser.log('Registering account menu items');
+        const unregisterAccount = appMenu.register({
+            id: 'account-info',
+            section: 'user',
+            label: locale.t('account.accountInfo'),
+            icon: Settings,
+            action: () => goto(resolve('/account'))
+        });
         const unregister = appMenu.register({
             id: 'logout',
             section: 'user',
@@ -37,26 +47,40 @@
             }
         });
 
-        return unregister;
+        return () => {
+            unregisterAccount();
+            unregister();
+        };
+    });
+
+    // Resolve the auth state from a single consistent snapshot of the query,
+    // rather than reading `.current` which can transiently revert to undefined.
+    const isUnauthenticated = $derived.by(async () => {
+        const user = await currentUser;
+        return !user.authenticated;
     });
 
     $effect(() => {
-        if (currentUser.loading) {
-            logUser.log('Current user is loading, waiting...');
-            return;
-        }
+        if (isRedirecting) return;
 
-        if (!currentUser.error && currentUser.current && !currentUser.current.authenticated) {
-            logUser.log('User not authenticated, redirecting to login page', currentUser.current);
-            goto(resolve('/login'));
-        }
+        isUnauthenticated.then(
+            (unauthenticated) => {
+                if (isRedirecting || !unauthenticated) return;
+                logUser.log('User not authenticated, redirecting to login page');
+                isRedirecting = true;
+                goto(resolve('/login'));
+            },
+            () => {
+                // error is surfaced by the boundary; do not redirect
+            }
+        );
     });
 </script>
 
 <svelte:boundary>
     {#snippet failed(error, reset)}
         <CenteredLayout>
-            <ErrorCard error={createAppError(error)} width="full">
+            <ErrorCard error={createAppError(error)}>
                 <Button
                     onclick={async () => {
                         await currentUser.refresh();
@@ -67,19 +91,21 @@
         </CenteredLayout>
     {/snippet}
 
-    {#snippet pending()}
+    {#if currentUser.loading}
         <CenteredLayout>
             <LoadingCard />
         </CenteredLayout>
-    {/snippet}
-
-    {#await currentUser then user}
-        {#if user.authenticated}
-            {@render children()}
-        {:else}
-            <CenteredLayout>
-                <LoadingCard />
-            </CenteredLayout>
-        {/if}
-    {/await}
+    {:else if currentUser.error}
+        <CenteredLayout>
+            <ErrorCard error={createAppError(currentUser.error)}>
+                <Button onclick={() => currentUser.refresh()}>{locale.t('common.refresh')}</Button>
+            </ErrorCard>
+        </CenteredLayout>
+    {:else if currentUser.current?.authenticated}
+        {@render children()}
+    {:else}
+        <CenteredLayout>
+            <LoadingCard />
+        </CenteredLayout>
+    {/if}
 </svelte:boundary>

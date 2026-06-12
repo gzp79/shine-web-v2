@@ -108,11 +108,8 @@ export function setLocaleContext(context: LocaleContext) {
 }
 
 export function getLocaleContext(): LocaleContext {
-    const ctx = getContext<LocaleContext>(LOCALE_CONTEXT_KEY);
-    if (!ctx) {
-        console.log('Locale context not found, returning default context with fallback translator');
-        throw Error('Wtf');
-    }
+    const ctx = getContext<LocaleContext | undefined>(LOCALE_CONTEXT_KEY);
+    if (!ctx) throw new Error('getLocaleContext: called outside LocaleContext provider');
     return ctx;
 }
 

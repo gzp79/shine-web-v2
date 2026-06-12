@@ -102,5 +102,7 @@ export function setCurrentUserStore(options?: CurrentUserStoreOptions): CurrentU
 }
 
 export function getCurrentUserStore(): CurrentUserStore {
-    return getContext<CurrentUserStore>(CURRENT_USER_CONTEXT_KEY);
+    const store = getContext<CurrentUserStore | undefined>(CURRENT_USER_CONTEXT_KEY);
+    if (!store) throw new Error('getCurrentUserStore: called outside CurrentUserStore provider');
+    return store;
 }

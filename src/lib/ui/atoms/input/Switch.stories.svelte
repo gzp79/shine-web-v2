@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { actionColorList, sizeList } from '@lib/ui/atoms';
-    //import { inputVariantList } from '@lib/ui/atoms/input';
+    import Field from '@lib/ui/atoms/input/Field.svelte';
     import Switch from '@lib/ui/atoms/input/Switch.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import Typography from '../Typography.svelte';
@@ -101,6 +101,19 @@
         </Stack>
     {/snippet}
 </Story> -->
+
+<Story name="In Field">
+    {#snippet template(args)}
+        <Stack spacing={6}>
+            <Field label="Enable notifications" description="Receive email updates about your account.">
+                <Switch {...args} fieldControl />
+            </Field>
+            <Field label="Dark mode" description="Use dark theme across the application." disabled>
+                <Switch {...args} fieldControl />
+            </Field>
+        </Stack>
+    {/snippet}
+</Story>
 
 <Story name="In Box">
     {#snippet template(args)}
