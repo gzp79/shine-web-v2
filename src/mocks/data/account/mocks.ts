@@ -107,3 +107,11 @@ export const startEmailConfirmationHandler = http.post(authApiRoutes.startEmailC
 export const startEmailChangeHandler = http.post(authApiRoutes.startEmailChange(), () => {
     return HttpResponse.json({}, { status: 200 });
 });
+
+export const completeEmailOperationHandler = http.post(authApiRoutes.completeEmailOperation(), () => {
+    return HttpResponse.json({}, { status: 200 });
+});
+
+export const completeEmailOperationFailureHandler = http.post(authApiRoutes.completeEmailOperation(), () => {
+    return HttpResponse.json({ message: 'Invalid or expired token' }, { status: 400 });
+});
