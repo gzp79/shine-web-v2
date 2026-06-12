@@ -25,10 +25,7 @@ export const authApiRoutes = {
         return joinURL(config.identityUrl, 'api/auth/user/links');
     },
     unlinkIdentity(provider: string, providerUserId: string): string {
-        return joinURL(
-            config.identityUrl,
-            `api/auth/user/links/${encodeURIComponent(provider)}/${encodeURIComponent(providerUserId)}`
-        );
+        return joinURL(config.identityUrl, `api/auth/user/links/${provider}/${providerUserId}`);
     },
 
     activeSessions(): string {
@@ -39,7 +36,7 @@ export const authApiRoutes = {
         return joinURL(config.identityUrl, 'api/auth/user/tokens');
     },
     revokeToken(tokenHash: string): string {
-        return joinURL(config.identityUrl, `api/auth/user/tokens/${encodeURIComponent(tokenHash)}`);
+        return joinURL(config.identityUrl, `api/auth/user/tokens/${tokenHash}`);
     }
 };
 

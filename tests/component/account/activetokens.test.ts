@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/mock';
+import { RequestGate } from '../../helpers/request-gate';
 
 test('shows loading state then tokens when authenticated', async ({ page, mock }) => {
     await mock.add('withDelay', { ms: 2000 });
@@ -43,10 +44,18 @@ test('revoke token: confirmation dialog and loading states', async ({ page }) =>
     });
 
     await test.step('confirm revoke and observe loading', async () => {
+        const gate = await RequestGate.forRemote(page, 'revokeToken');
+
         const confirmButton = page.getByLabel('Revoke Token').getByRole('button', { name: 'Revoke' });
         await confirmButton.click();
+
+        await gate.hold();
         await expect(revokeButton).toBeDisabled();
+
+        gate.release();
         await expect(revokeButton).toBeEnabled();
+
+        await gate.dispose();
     });
 });
 

@@ -1,4 +1,5 @@
 import { expect, test } from '../../fixtures/mock';
+import { RequestGate } from '../../helpers/request-gate';
 
 test('shows loading state then identities when authenticated', async ({ page, mock }) => {
     await mock.add('withDelay', { ms: 2000 });
@@ -43,9 +44,17 @@ test('unlink identity: confirmation dialog and loading states', async ({ page })
     });
 
     await test.step('confirm unlink and observe loading', async () => {
+        const gate = await RequestGate.forRemote(page, 'unlinkIdentity');
+
         await page.getByText('Unlink').last().click();
+
+        await gate.hold();
         await expect(unlinkButton).toBeDisabled();
+
+        gate.release();
         await expect(unlinkButton).toBeEnabled();
+
+        await gate.dispose();
     });
 });
 
