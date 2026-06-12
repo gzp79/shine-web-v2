@@ -53,19 +53,27 @@
         };
     });
 
+    // Resolve the auth state from a single consistent snapshot of the query,
+    // rather than reading `.current` which can transiently revert to undefined.
+    const isUnauthenticated = $derived.by(async () => {
+        const user = await currentUser;
+        return !user.authenticated;
+    });
+
     $effect(() => {
         if (isRedirecting) return;
 
-        if (currentUser.loading) {
-            logUser.log('Current user is loading, waiting...');
-            return;
-        }
-
-        if (!currentUser.error && currentUser.current && !currentUser.current.authenticated) {
-            logUser.log('User not authenticated, redirecting to login page', currentUser.current);
-            isRedirecting = true;
-            goto(resolve('/login'));
-        }
+        isUnauthenticated.then(
+            (unauthenticated) => {
+                if (isRedirecting || !unauthenticated) return;
+                logUser.log('User not authenticated, redirecting to login page');
+                isRedirecting = true;
+                goto(resolve('/login'));
+            },
+            () => {
+                // error is surfaced by the boundary; do not redirect
+            }
+        );
     });
 </script>
 

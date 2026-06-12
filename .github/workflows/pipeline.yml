@@ -47,6 +47,9 @@ jobs:
             - name: Unit tests
               run: pnpm run test:unit --run
 
+            - name: Component tests
+              run: pnpm run test:component
+
             - name: E2E tests
               run: pnpm run test:e2e
 
