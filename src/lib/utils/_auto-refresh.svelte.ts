@@ -79,11 +79,11 @@ export function autoRefresh(refresh: () => Promise<void>, canRefresh?: boolean, 
         };
 
         _startTimer();
-        window.addEventListener('visibilitychange', onVisibilityChange);
+        document.addEventListener('visibilitychange', onVisibilityChange);
 
         return () => {
             _stopTimer();
-            window.removeEventListener('visibilitychange', onVisibilityChange);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
         };
     });
 
