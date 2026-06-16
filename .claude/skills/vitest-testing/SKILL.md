@@ -216,6 +216,52 @@ test('dropdown menu', async () => {
 });
 ```
 
+## Testing Runes Modules (`.svelte.ts`)
+
+For plain logic modules that use `$state`/`$derived`/`$effect` but are not components, use `testInEffectRoot` from `@testing`. Runes only run inside an effect root — without it, `$derived`/`$effect` are inert.
+
+```typescript
+import { testInEffectRoot } from '@testing';
+import { flushSync } from 'svelte';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+describe('myRunesModule', () => {
+    beforeEach(() => vi.useFakeTimers());
+    afterEach(() => {
+        vi.runOnlyPendingTimers();
+        vi.useRealTimers();
+    });
+
+    test('reacts to state change', () => {
+        testInEffectRoot(() => {
+            // call the module function here — its effects are live for this test
+            myRunesFunction();
+        });
+
+        vi.advanceTimersByTime(1000);
+        flushSync(); // settle reactive updates after timer advance
+
+        expect(something).toBe(true);
+    });
+
+    test('early teardown', () => {
+        const cleanup = testInEffectRoot(() => {
+            myRunesFunction();
+        });
+        cleanup(); // disposes before timers fire — use to test cleanup behavior
+        vi.advanceTimersByTime(5000);
+        flushSync();
+        expect(sideEffect).not.toHaveBeenCalled();
+    });
+});
+```
+
+**Notes:**
+
+- `testInEffectRoot` calls `flushSync()` after setup and registers `afterEach(cleanup)` automatically — no manual teardown needed except for early-dispose tests.
+- Always call `flushSync()` after `vi.advanceTimersByTime()` to flush reactive updates triggered by state changes inside the timer callback.
+- `Math.clamp` / `Math.round_q` are available — `@lib/prelude-math` is loaded in `vitest-setup.ts`.
+
 ## Rules
 
 **DO:**
@@ -229,6 +275,7 @@ test('dropdown menu', async () => {
 - Use `step()` helper for complex multi-step tests
 - Use `withinPortal()` helper for testing portal content
 - Use `renderWithLayout()` for components that need layout context (locale, theme, portals)
+- Use `testInEffectRoot()` from `@testing` for `.svelte.ts` runes modules (not components)
 
 **DON'T:**
 

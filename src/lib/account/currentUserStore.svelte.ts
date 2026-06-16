@@ -1,6 +1,8 @@
 import { browser } from '$app/environment';
+import { refreshAll } from '$app/navigation';
 import type { RemoteQuery } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
+import { logUser } from '@lib/loggers';
 import { type AutoRefresh, type AutoRefreshOptions, type QueryLike, WrappedPromise, autoRefresh } from '@lib/utils';
 import { queryCurrentUserInfo } from './auth.remote';
 
@@ -59,14 +61,34 @@ class ServerCurrentUserStore extends WrappedPromise<CurrentUser> implements Curr
 class BrowserCurrentUserStore extends WrappedPromise<CurrentUser> implements CurrentUserStore {
     protected readonly _promise: RemoteQuery<CurrentUser>;
     private readonly _autoRefresh: AutoRefresh;
+    private _lastIdentity: string | null = null;
 
     constructor(options?: CurrentUserStoreOptions) {
         super();
 
         this._promise = queryCurrentUserInfo();
-        this._autoRefresh = autoRefresh(this._promise.refresh, this._promise.loading, {
-            maxTTL: options?.maxTTL ?? UPDATE_INTERVAL_MS,
-            ...options
+        this._autoRefresh = autoRefresh(
+            () => this._promise.refresh(),
+            () => !this._promise.loading,
+            {
+                maxTTL: options?.maxTTL ?? UPDATE_INTERVAL_MS,
+                ...options
+            }
+        );
+
+        // When a background refresh reveals a different identity - the user
+        // switched accounts, logged in, or the session expired - re-run every
+        // active remote function so the page drops the previous user's data.
+        $effect(() => {
+            const user = this._promise.current;
+            if (!user) return;
+
+            const identity = user.authenticated ? `user:${user.id}` : 'anonymous';
+            if (this._lastIdentity !== null && this._lastIdentity !== identity) {
+                logUser.log('Identity changed, refreshing all queries');
+                void refreshAll();
+            }
+            this._lastIdentity = identity;
         });
     }
 
