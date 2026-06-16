@@ -117,14 +117,14 @@ class BrowserCurrentUserStore extends WrappedPromise<CurrentUser> implements Cur
     }
 }
 
-export function setCurrentUserStore(options?: CurrentUserStoreOptions): CurrentUserStore {
+export function setCurrentUserContext(options?: CurrentUserStoreOptions): CurrentUserStore {
     const store = browser ? new BrowserCurrentUserStore(options) : new ServerCurrentUserStore();
     setContext(CURRENT_USER_CONTEXT_KEY, store);
     return store;
 }
 
-export function getCurrentUserStore(): CurrentUserStore {
+export function getCurrentUserContext(): CurrentUserStore {
     const store = getContext<CurrentUserStore | undefined>(CURRENT_USER_CONTEXT_KEY);
-    if (!store) throw new Error('getCurrentUserStore: called outside CurrentUserStore provider');
+    if (!store) throw new Error('getCurrentUserContext: called outside CurrentUserStore provider');
     return store;
 }

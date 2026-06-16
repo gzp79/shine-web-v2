@@ -5,7 +5,7 @@
 1. **`pnpm` only** - Never use npm/yarn
 2. **Svelte 5 runes only** - `$state`, `$derived`, `$effect`, `$props`
 3. **Tailwind 4 + semantic colors** - `bg-primary` NOT `bg-blue-500`
-4. **Invoke skills** with `/skill-name` for detailed guides
+4. **Async Svelte on** - `await` allowed in `<script>` and markup; pass `async: true` to `svelte-autofixer`
 
 ## Stack
 
