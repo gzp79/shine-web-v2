@@ -1,7 +1,8 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import { setCurrentUserStore } from '@lib/account/currentUserStore.svelte';
+    import { page } from '$app/state';
+    import { setCurrentUserContext } from '@lib/account/currentUserStore.svelte';
     import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
@@ -16,17 +17,24 @@
 
     let { children } = $props();
 
-    const currentUser = setCurrentUserStore();
+    const currentUser = setCurrentUserContext();
     const locale = getLocaleContext();
     const appMenu = getMenuContext();
 
     let isRedirecting = $state(false);
 
+    // Resolved `current` wins over `error`/`loading`, so a failed/in-flight
+    // background refresh keeps the last known user instead of flickering.
+    type AuthStatus = 'loading' | 'error' | 'unauthenticated' | 'authenticated';
+    const status: AuthStatus = $derived.by(() => {
+        const user = currentUser.current;
+        if (user) return user.authenticated ? 'authenticated' : 'unauthenticated';
+        if (currentUser.error) return 'error';
+        return 'loading';
+    });
+
     $effect(() => {
-        if (!currentUser.current || !currentUser.current.authenticated) {
-            logUser.log('User not authenticated, skipping menu registration');
-            return;
-        }
+        if (status !== 'authenticated') return;
 
         logUser.log('Registering account menu items');
         const unregisterAccount = appMenu.register({
@@ -53,27 +61,24 @@
         };
     });
 
-    // Resolve the auth state from a single consistent snapshot of the query,
-    // rather than reading `.current` which can transiently revert to undefined.
-    const isUnauthenticated = $derived.by(async () => {
-        const user = await currentUser;
-        return !user.authenticated;
-    });
-
+    // `isRedirecting` latches to fire the navigation once; it self-heals on
+    // failure so a transient error can't trap the user on a spinner.
+    // It also resets when status leaves 'unauthenticated' (e.g. user presses Back
+    // and the component is reused) so the next unauthenticated state re-triggers.
     $effect(() => {
+        if (status !== 'unauthenticated') {
+            isRedirecting = false;
+            return;
+        }
         if (isRedirecting) return;
 
-        isUnauthenticated.then(
-            (unauthenticated) => {
-                if (isRedirecting || !unauthenticated) return;
-                logUser.log('User not authenticated, redirecting to login page');
-                isRedirecting = true;
-                goto(resolve('/login'));
-            },
-            () => {
-                // error is surfaced by the boundary; do not redirect
-            }
-        );
+        isRedirecting = true;
+        const returnUrl = page.url.pathname + page.url.search + page.url.hash;
+        logUser.log(`User not authenticated, redirecting to login with returnUrl [${returnUrl}]`);
+        goto(resolve('/login') + `?returnUrl=${encodeURIComponent(returnUrl)}`).catch((err) => {
+            logUser.error('Redirect to login failed, will retry', err);
+            isRedirecting = false;
+        });
     });
 </script>
 
@@ -91,18 +96,14 @@
         </CenteredLayout>
     {/snippet}
 
-    {#if currentUser.loading}
-        <CenteredLayout>
-            <LoadingCard />
-        </CenteredLayout>
-    {:else if currentUser.error}
+    {#if status === 'authenticated'}
+        {@render children()}
+    {:else if status === 'error'}
         <CenteredLayout>
             <ErrorCard error={createAppError(currentUser.error)}>
                 <Button onclick={() => currentUser.refresh()}>{locale.t('common.refresh')}</Button>
             </ErrorCard>
         </CenteredLayout>
-    {:else if currentUser.current?.authenticated}
-        {@render children()}
     {:else}
         <CenteredLayout>
             <LoadingCard />

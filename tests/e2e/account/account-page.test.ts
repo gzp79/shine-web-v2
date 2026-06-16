@@ -21,12 +21,29 @@ test('renders the full account page for an authenticated guest', async ({ page }
     });
 });
 
-test('unauthenticated user is redirected to login', async ({ page, mock }) => {
+test('unauthenticated user is redirected to login with returnUrl', async ({ page, mock }) => {
     await mock.add('unauthorizedUser');
 
     await page.goto('/account');
 
     await page.waitForURL((url) => url.pathname === '/login');
+    expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
+});
+
+test('unauthenticated user is redirected again after pressing Back', async ({ page, mock }) => {
+    await interceptIdentityAuthWithRedirect(page);
+
+    // First visit as authenticated, then session expires
+    await page.goto('/account');
+    await expect(page.getByRole('heading', { level: 1, name: 'Account', exact: true })).toBeVisible();
+
+    await mock.add('unauthorizedUser');
+    await page.goBack();
+    // Now on a previous page; navigate back to the guarded route
+    await page.goto('/account');
+
+    await page.waitForURL((url) => url.pathname === '/login');
+    expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
 });
 
 test('logout redirects to bye page', async ({ page }) => {

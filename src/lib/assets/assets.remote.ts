@@ -3,12 +3,13 @@ import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
 import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
+import { getMockWorkerHeader } from '@lib/server/utils';
 
 const VersionSchema = z.object({ version: z.string() });
 
 async function fetchLatestAssetVersion(): Promise<string> {
     const latestUrl = `${config.assetUrl}/latest.json`;
-    const response = await fetch(latestUrl, { method: 'GET' });
+    const response = await fetch(latestUrl, { method: 'GET', headers: getMockWorkerHeader() });
 
     if (!response.ok) {
         const error = await createFetchError(response, 'Failed to fetch the latest asset version');
@@ -22,7 +23,7 @@ async function fetchLatestAssetVersion(): Promise<string> {
 async function fetchAssetManifest(version: string): Promise<Record<string, string>> {
     const assetManifestUrl = `${config.assetUrl}/${version}/web/ui/assets.json`;
     logAPI.info(`Loading asset manifest from ${assetManifestUrl}`);
-    const response = await fetch(assetManifestUrl);
+    const response = await fetch(assetManifestUrl, { headers: getMockWorkerHeader() });
     if (!response.ok) {
         const error = await createFetchError(response, 'Failed to fetch asset manifest');
         throw error;

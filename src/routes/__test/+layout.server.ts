@@ -1,8 +1,7 @@
-import { config } from '@config';
 import { error } from '@sveltejs/kit';
 
 export const load = () => {
-    if (config.environment !== 'mock') {
+    if (!import.meta.env.VITE_MOCK) {
         throw error(404, 'Not found');
     }
     return {};

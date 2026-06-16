@@ -1,8 +1,19 @@
 import { resolve } from '$app/paths';
 import { getRequestEvent } from '$app/server';
-import { config } from '@config';
 import { redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
+
+export function getMockWorkerHeader(): Headers {
+    const headers = new Headers();
+    if (import.meta.env.VITE_MOCK) {
+        const { request } = getRequestEvent();
+        const worker = request.headers.get('x-mock-worker');
+        if (worker) {
+            headers.set('x-mock-worker', worker);
+        }
+    }
+    return headers;
+}
 
 export function getPassThroughHeaders(): Headers {
     const { cookies, request } = getRequestEvent();
@@ -10,7 +21,7 @@ export function getPassThroughHeaders(): Headers {
 
     // Mock env only: forward the Playwright worker id so MSW can route the
     // outbound fetch to that worker's overrides. Never sent to real backends.
-    if (config.environment === 'mock') {
+    if (import.meta.env.VITE_MOCK) {
         const worker = request.headers.get('x-mock-worker');
         if (worker) {
             headers.set('x-mock-worker', worker);

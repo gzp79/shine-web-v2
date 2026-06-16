@@ -111,6 +111,9 @@ function excludeMocks(): Plugin {
 }
 
 export default defineConfig({
+    define: {
+        'import.meta.env.VITE_MOCK': config.environment === 'mock'
+    },
     plugins: [
         excludeMocks(),
         tailwindcss(),

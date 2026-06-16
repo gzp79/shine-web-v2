@@ -84,7 +84,9 @@ class BrowserCurrentUserStore extends WrappedPromise<CurrentUser> implements Cur
             if (!user) return;
 
             const identity = user.authenticated ? `user:${user.id}` : 'anonymous';
-            if (this._lastIdentity !== null && this._lastIdentity !== identity) {
+            if (this._lastIdentity !== null && this._lastIdentity !== identity && identity !== 'anonymous') {
+                // Only refresh when switching between authenticated identities — going anonymous
+                // means the auth layout will redirect away, so invalidating here would race with goto.
                 logUser.log('Identity changed, refreshing all queries');
                 void refreshAll();
             }

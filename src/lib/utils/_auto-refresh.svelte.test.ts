@@ -120,11 +120,11 @@ describe('autoRefresh', () => {
         expect(refresh).not.toHaveBeenCalled();
     });
 
-    test('retries after refresh() rejects', async () => {
+    test('retries after refresh() rejects, after the retry delay', async () => {
         const refresh = vi.fn().mockRejectedValueOnce(new Error('network error')).mockResolvedValue(undefined);
 
         testInEffectRoot(() => {
-            autoRefresh(refresh, () => true, { maxTTL: 1000, ageCheckInterval: 100 });
+            autoRefresh(refresh, () => true, { maxTTL: 1000, ageCheckInterval: 100, retryDelay: 500 });
         });
 
         vi.advanceTimersByTime(1100);
@@ -134,6 +134,12 @@ describe('autoRefresh', () => {
         // Drain the .catch() → .finally() microtask chain (3 ticks: reject, catch, finally).
         const PROMISE_CHAIN_DEPTH = 3;
         for (let i = 0; i < PROMISE_CHAIN_DEPTH; i++) await Promise.resolve();
+        flushSync();
+
+        // retryDelay has not elapsed yet — no second call.
+        expect(refresh).toHaveBeenCalledTimes(1);
+
+        vi.advanceTimersByTime(600);
         flushSync();
 
         expect(refresh).toHaveBeenCalledTimes(2);
