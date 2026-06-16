@@ -10,8 +10,10 @@
 
     const locale = getLocaleContext();
 
-    const token = page.url.searchParams.get('token');
-    const task = token ? completeEmailOperation(token) : Promise.reject(new Error('Missing verification token'));
+    const token = $derived(page.url.searchParams.get('token'));
+    const task = $derived(
+        token ? completeEmailOperation(token) : Promise.reject(new Error('Missing verification token'))
+    );
 </script>
 
 <CenteredLayout>

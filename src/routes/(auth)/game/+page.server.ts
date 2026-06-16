@@ -8,13 +8,15 @@ type GameUrls = { jsUrl: string; wasmUrl: string };
 const VersionSchema = z.object({ version: z.string() });
 
 async function fetchGameUrls(): Promise<GameUrls> {
-    const res = await fetch(`${config.gameUrl}/latest.json`);
-    if (!res.ok) throw new Error(`Failed to fetch game version: ${res.status}`);
-    const data = VersionSchema.parse(await res.json());
-    return {
-        jsUrl: `${config.gameUrl}/${data.version}/shine-web.js`,
-        wasmUrl: `${config.gameUrl}/${data.version}/shine_game_bg.wasm`
-    };
+    return retryWithBackoff(async (retry) => {
+        const res = await fetch(`${config.gameUrl}/latest.json`);
+        if (!res.ok) retry(new Error(`Failed to fetch game version: ${res.status}`));
+        const data = VersionSchema.parse(await res.json());
+        return {
+            jsUrl: `${config.gameUrl}/${data.version}/shine-web.js`,
+            wasmUrl: `${config.gameUrl}/${data.version}/shine_game_bg.wasm`
+        };
+    });
 }
 
 const CACHE_DURATION = 60 * 60 * 1000;
@@ -29,7 +31,7 @@ export const load = async () => {
     }
 
     if (!refreshInFlight) {
-        refreshInFlight = retryWithBackoff(fetchGameUrls)
+        refreshInFlight = fetchGameUrls()
             .then((urls) => {
                 cache = { ...urls, fetchedAt: Date.now() };
                 logAPI.info(`Game URLs refreshed: ${JSON.stringify(urls)}`);
