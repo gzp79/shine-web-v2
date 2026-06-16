@@ -31,7 +31,10 @@ test('unauthenticated user: successful token login redirects to the returnUrl', 
     await expect(page.getByRole('heading', { name: 'Logged Out' })).toBeVisible();
 });
 
-test('unauthenticated user: failed token login redirects to the interactive prompt', async ({ page, mock }) => {
+test('unauthenticated user: failed token login redirects to the interactive prompt preserving returnUrl', async ({
+    page,
+    mock
+}) => {
     await mock.add('unauthorizedUser');
     await interceptIdentityAuthWithRedirect(page, 'errorUrl');
 
@@ -40,6 +43,7 @@ test('unauthenticated user: failed token login redirects to the interactive prom
     await page.waitForURL(/prompt=true/);
     const url = new URL(page.url());
     expect(url.searchParams.get('prompt')).toBe('true');
+    expect(url.searchParams.get('returnUrl')).toBe('/game');
 });
 
 test('server down during initial load shows retry and recovers', async ({ page, mock }) => {

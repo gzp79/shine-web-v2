@@ -19,7 +19,6 @@ function fixDeploymentURL(url: string | undefined): string | undefined {
 }
 
 const webURL = fixDeploymentURL(process.env.DEPLOYMENT_URL) || config.webUrl;
-console.log(`Using web URL: ${webURL}`);
 
 export default defineConfig({
     workers: 4,

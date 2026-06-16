@@ -71,8 +71,8 @@ class BrowserCurrentUserStore extends WrappedPromise<CurrentUser> implements Cur
             () => this._promise.refresh(),
             () => !this._promise.loading,
             {
-                maxTTL: options?.maxTTL ?? UPDATE_INTERVAL_MS,
-                ...options
+                ...options,
+                maxTTL: options?.maxTTL ?? UPDATE_INTERVAL_MS
             }
         );
 

@@ -21,7 +21,7 @@
     const locale = getLocaleContext();
     const appMenu = getMenuContext();
 
-    let isRedirecting = $state(false);
+    let isRedirecting = false;
 
     // Resolved `current` wins over `error`/`loading`, so a failed/in-flight
     // background refresh keeps the last known user instead of flickering.
@@ -75,7 +75,7 @@
         isRedirecting = true;
         const returnUrl = page.url.pathname + page.url.search + page.url.hash;
         logUser.log(`User not authenticated, redirecting to login with returnUrl [${returnUrl}]`);
-        goto(resolve('/login') + `?returnUrl=${encodeURIComponent(returnUrl)}`).catch((err) => {
+        goto(resolve(`/login?returnUrl=${encodeURIComponent(returnUrl)}`)).catch((err) => {
             logUser.error('Redirect to login failed, will retry', err);
             isRedirecting = false;
         });

@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 import { SvelteDate } from 'svelte/reactivity';
 import { logAPI } from '@lib/loggers';
 
@@ -33,7 +32,7 @@ export type AutoRefresh = {
  */
 export function autoRefresh(refresh: () => Promise<void>, canRefresh?: () => boolean, options?: AutoRefreshOptions) {
     const { maxTTL = 60000, ageCheckInterval = 500, retryDelay = 30000 } = options ?? {};
-    const effectiveRetryDelay = Math.min(retryDelay, maxTTL);
+    const effectiveRetryDelay = Math.clamp(retryDelay, 0, maxTTL);
 
     const uniqueId = crypto.randomUUID();
     let interval: NodeJS.Timeout | null = null;
@@ -61,7 +60,6 @@ export function autoRefresh(refresh: () => Promise<void>, canRefresh?: () => boo
 
     // Update current time periodically for reactive age
     $effect(() => {
-        if (!browser) return;
         const onVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
                 // When tab becomes visible, make age reflect an expired TTL to trigger immediate refresh

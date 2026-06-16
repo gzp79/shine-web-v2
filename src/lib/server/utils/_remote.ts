@@ -17,16 +17,7 @@ export function getMockWorkerHeader(): Headers {
 
 export function getPassThroughHeaders(): Headers {
     const { cookies, request } = getRequestEvent();
-    const headers = new Headers();
-
-    // Mock env only: forward the Playwright worker id so MSW can route the
-    // outbound fetch to that worker's overrides. Never sent to real backends.
-    if (import.meta.env.VITE_MOCK) {
-        const worker = request.headers.get('x-mock-worker');
-        if (worker) {
-            headers.set('x-mock-worker', worker);
-        }
-    }
+    const headers = getMockWorkerHeader();
 
     const cookie = cookies
         .getAll()

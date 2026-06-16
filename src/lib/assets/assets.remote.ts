@@ -2,8 +2,8 @@ import { query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 import { getMockWorkerHeader } from '@lib/server/utils';
+import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 
 const VersionSchema = z.object({ version: z.string() });
 
