@@ -50,6 +50,23 @@ test('unauthenticated user is redirected again after pressing Back', async ({ pa
     expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
 });
 
+test('identity error: shows the guard error card and recovers on refresh', async ({ page, mock }) => {
+    await mock.add('withIdentityDown');
+
+    await test.step('failed user query renders the error card, not the account page', async () => {
+        await page.goto('/account');
+        await expect(page.getByRole('button', { name: 'Refresh' })).toBeVisible();
+        await expect(page.getByText(GUEST_NAME, { exact: true })).not.toBeVisible();
+    });
+
+    await test.step('refresh re-runs the query and renders the account page', async () => {
+        await mock.remove('withIdentityDown');
+        await page.getByRole('button', { name: 'Refresh' }).click();
+        await expect(page.getByRole('heading', { level: 1, name: 'Account', exact: true })).toBeVisible();
+        await expect(page.getByText(GUEST_NAME, { exact: true })).toBeVisible();
+    });
+});
+
 test('linked user: logout redirects to bye page', async ({ page, mock }) => {
     await mock.add('verifiedUser');
 
