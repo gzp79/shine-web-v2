@@ -39,6 +39,8 @@
         switch (errorType) {
             case 'auth-register-external-id-conflict':
                 return locale.t('error.authRegisterExternalIdConflict');
+            case 'auth-not-confirmed':
+                return locale.t('error.authNotConfirmed');
             default:
                 return page.error?.message ?? '';
         }

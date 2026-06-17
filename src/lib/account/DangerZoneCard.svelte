@@ -19,7 +19,9 @@
     const locale = getLocaleContext();
 
     let confirmationInput = $state('');
-    const deleteUrl = authPages.deleteUserUrl({ redirectUrl: '/public/account-deleted' });
+    const deleteUrl = $derived(
+        authPages.deleteUserUrl({ redirectUrl: '/public/account-deleted', confirmation: confirmationInput })
+    );
 </script>
 
 <Card color="danger" width="md" title={locale.t('account.dangerZoneTitle')}>

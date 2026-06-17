@@ -71,11 +71,12 @@ export const authPages = {
         return joinURL(config.identityUrl, `auth/logout${queryString}`);
     },
 
-    deleteUserUrl(params?: { redirectUrl: string }): string {
+    deleteUserUrl(params?: { redirectUrl: string; confirmation: string }): string {
         const queryString = toQueryString(
             params && {
                 redirectUrl: `${config.webUrl}${params.redirectUrl}`,
-                errorUrl: `${config.webUrl}/error`
+                errorUrl: `${config.webUrl}/error`,
+                confirmation: params.confirmation
             }
         );
         return joinURL(config.identityUrl, `auth/delete${queryString}`);

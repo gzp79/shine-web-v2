@@ -119,7 +119,8 @@
         "error": "Error"
     },
     "error": {
-        "authRegisterExternalIdConflict": "This account is already linked to another identity provider"
+        "authRegisterExternalIdConflict": "This account is already linked to another identity provider",
+        "authNotConfirmed": "The confirmation text was missing or did not match. Please try again and enter the requested confirmation exactly as shown."
     },
     "language": {
         "en": "English",

@@ -116,7 +116,8 @@
         "error": "Hiba"
     },
     "error": {
-        "authRegisterExternalIdConflict": "Ez a fiók már kapcsolva van egy másik identitás szolgáltatóhoz"
+        "authRegisterExternalIdConflict": "Ez a fiók már kapcsolva van egy másik identitás szolgáltatóhoz",
+        "authNotConfirmed": "A megerősítő szöveg hiányzott vagy nem egyezett. Kérjük, próbálja újra, és pontosan úgy írja be a kért megerősítést, ahogy megjelenik."
     },
     "language": {
         "en": "English",
