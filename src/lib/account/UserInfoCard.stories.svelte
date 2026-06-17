@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { setCurrentUserContext } from '@lib/account/currentUserStore.svelte';
     import LogoutGuard from '@lib/account/LogoutGuard.svelte';
+    import { setCurrentUserContext } from '@lib/account/currentUserStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import { getThemeContext } from '@lib/theme/_theme.svelte';
     import App from '@lib/ui/app/App.svelte';
