@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { getCurrentUserContext } from '@lib/account/currentUserStore.svelte';
+    import { getAuthenticatedUserContext } from '@lib/account/currentUserStore.svelte';
     import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
@@ -24,17 +24,14 @@
 
     let { children }: { children?: Snippet } = $props();
 
-    const currentUser = getCurrentUserContext();
+    const currentUser = getAuthenticatedUserContext();
     const locale = getLocaleContext();
     const appMenu = getMenuContext();
 
     let warnOpen = $state(false);
     let pendingLogoutUrl = $state<string | undefined>(undefined);
 
-    const isGuest = $derived.by(() => {
-        const user = currentUser.current;
-        return user?.authenticated ? !user.isLinked : false;
-    });
+    const isGuest = $derived(!currentUser.user.isLinked);
 
     const requestLogout = ({ terminateAll }: LogoutRequest) => {
         const logoutUrl = authPages.logoutUrl({ terminateAll, redirectUrl: '/public/bye' });
@@ -49,14 +46,6 @@
     setLogoutContext({ requestLogout });
 
     $effect(() => {
-        if (!currentUser.current?.authenticated && warnOpen) {
-            warnOpen = false;
-        }
-    });
-
-    $effect(() => {
-        if (!currentUser.current?.authenticated) return;
-
         return appMenu.register({
             id: 'logout',
             section: 'user',

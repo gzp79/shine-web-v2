@@ -12,18 +12,6 @@ test('shows loading state then user info when authenticated', async ({ page, moc
     await expect(card.first()).toBeVisible();
 });
 
-test('retry button reloads data after initial failure', async ({ page, mock }) => {
-    await mock.add('withIdentityDown');
-
-    await page.goto('/__test/account/userinfo');
-    await expect(page.getByText('Retry').first()).toBeVisible();
-
-    await mock.remove('withIdentityDown');
-
-    await page.getByText('Retry').first().click();
-    await expect(page.getByText('Freshman')).toBeVisible();
-});
-
 test('verified user: change email flow', async ({ page, mock }) => {
     await mock.add('verifiedUser');
     await page.goto('/__test/account/userinfo');

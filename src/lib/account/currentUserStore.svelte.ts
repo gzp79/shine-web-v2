@@ -7,7 +7,7 @@ import { type AutoRefresh, type AutoRefreshOptions, type QueryLike, WrappedPromi
 import { queryCurrentUserInfo } from './auth.remote';
 
 const UPDATE_INTERVAL_MS = 15 * 60 * 1000;
-const CURRENT_USER_CONTEXT_KEY = Symbol('current-user-context');
+const AUTHENTICATED_USER_CONTEXT_KEY = Symbol('authenticated-user-context');
 
 export type AuthenticatedCurrentUser = {
     authenticated: true;
@@ -25,6 +25,21 @@ export type CurrentUser = AuthenticatedCurrentUser | UnauthenticatedCurrentUser;
 
 export type CurrentUserStoreOptions = AutoRefreshOptions;
 export type CurrentUserStore = QueryLike<CurrentUser> & AutoRefresh;
+
+export type AuthenticatedUserContext = {
+    readonly user: AuthenticatedCurrentUser;
+    refresh: () => Promise<void>;
+};
+
+export function setAuthenticatedUserContext(ctx: AuthenticatedUserContext): void {
+    setContext(AUTHENTICATED_USER_CONTEXT_KEY, ctx);
+}
+
+export function getAuthenticatedUserContext(): AuthenticatedUserContext {
+    const ctx = getContext<AuthenticatedUserContext | undefined>(AUTHENTICATED_USER_CONTEXT_KEY);
+    if (!ctx) throw new Error('getAuthenticatedUserContext: called outside AuthGuard');
+    return ctx;
+}
 
 /// The user store for server side, that disables any use query and always returns unauthenticated user.
 /// This is to prevent any accidental use of user store in server side code, which may cause leaking of user information to other users.
@@ -119,14 +134,6 @@ class BrowserCurrentUserStore extends WrappedPromise<CurrentUser> implements Cur
     }
 }
 
-export function setCurrentUserContext(options?: CurrentUserStoreOptions): CurrentUserStore {
-    const store = browser ? new BrowserCurrentUserStore(options) : new ServerCurrentUserStore();
-    setContext(CURRENT_USER_CONTEXT_KEY, store);
-    return store;
-}
-
-export function getCurrentUserContext(): CurrentUserStore {
-    const store = getContext<CurrentUserStore | undefined>(CURRENT_USER_CONTEXT_KEY);
-    if (!store) throw new Error('getCurrentUserContext: called outside CurrentUserStore provider');
-    return store;
+export function createCurrentUserStore(options?: CurrentUserStoreOptions): CurrentUserStore {
+    return browser ? new BrowserCurrentUserStore(options) : new ServerCurrentUserStore();
 }

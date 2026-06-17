@@ -1,11 +1,11 @@
 <script lang="ts">
+    import AuthGuard from '$lib/account/AuthGuard.svelte';
     import LogoutGuard from '$lib/account/LogoutGuard.svelte';
     import UserInfoCard from '$lib/account/UserInfoCard.svelte';
-    import { setCurrentUserContext } from '$lib/account/currentUserStore.svelte';
-
-    setCurrentUserContext();
 </script>
 
-<LogoutGuard>
-    <UserInfoCard />
-</LogoutGuard>
+<AuthGuard>
+    <LogoutGuard>
+        <UserInfoCard />
+    </LogoutGuard>
+</AuthGuard>

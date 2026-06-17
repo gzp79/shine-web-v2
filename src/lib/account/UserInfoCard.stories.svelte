@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
+    import AuthGuard from '@lib/account/AuthGuard.svelte';
     import LogoutGuard from '@lib/account/LogoutGuard.svelte';
-    import { setCurrentUserContext } from '@lib/account/currentUserStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import { getThemeContext } from '@lib/theme/_theme.svelte';
     import App from '@lib/ui/app/App.svelte';
@@ -16,16 +16,16 @@
 <script lang="ts">
     const theme = getThemeContext();
     const locale = getLocaleContext();
-
-    setCurrentUserContext();
 </script>
 
 <Story name="Default">
     {#snippet template()}
         <App theme={theme.current} locale={locale.current}>
-            <LogoutGuard>
-                <UserInfoCard />
-            </LogoutGuard>
+            <AuthGuard>
+                <LogoutGuard>
+                    <UserInfoCard />
+                </LogoutGuard>
+            </AuthGuard>
         </App>
     {/snippet}
 </Story>
