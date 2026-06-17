@@ -24,6 +24,9 @@
     "account": {
         "logout": "Logout",
         "logoutAll": "Logout from all devices",
+        "logoutAnyway": "Logout anyway",
+        "guestLogoutWarningTitle": "Logout without a saved account?",
+        "guestLogoutWarningQuestion": "Your account is not linked to any external identity provider. If you log out now, you will permanently lose access to this account and all its data. This cannot be undone.",
         "byeTitle": "Logged Out",
         "byeMessage": "You have been successfully logged out. Thank you for using our service!",
         "userInfoTitle": "User Information",

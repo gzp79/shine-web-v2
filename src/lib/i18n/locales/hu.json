@@ -21,6 +21,9 @@
     "account": {
         "logout": "Kijelentkezés",
         "logoutAll": "Kijelentkezés minden eszközről",
+        "logoutAnyway": "Kijelentkezés mindenképp",
+        "guestLogoutWarningTitle": "Kijelentkezés mentett fiók nélkül?",
+        "guestLogoutWarningQuestion": "A fiókod nincs külső szolgáltatóhoz kapcsolva. Ha most kijelentkezel, véglegesen elveszíted a hozzáférést ehhez a fiókhoz és minden adatához. Ez nem vonható vissza.",
         "byeTitle": "Kijelentkeztél",
         "byeMessage": "Sikeresen kijelentkeztél. Köszönjük, hogy használod a szolgáltatásunkat!",
         "userInfoTitle": "Felhasználói információk",

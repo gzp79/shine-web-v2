@@ -1,16 +1,15 @@
 <script module lang="ts">
-    import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import { Alert } from '@lib/ui/atoms/data/alert';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type AppError, createAppError } from '@lib/utils';
     import EmailConfirmButton from './EmailConfirmButton.svelte';
+    import LogoutButton from './LogoutButton.svelte';
     import { queryCurrentUserInfo } from './auth.remote';
     import type { AuthenticatedCurrentUser } from './currentUserStore.svelte';
 </script>
@@ -22,6 +21,7 @@
     let error = $state<AppError | undefined>(undefined);
     let hasError = $derived(error !== undefined);
     let hasUserInfo = $derived(!!userInfo?.current);
+    let isLinked = $derived(userInfo.current?.authenticated ? userInfo.current.isLinked : false);
 
     const throwIfError = () => {
         if (error) {
@@ -49,19 +49,7 @@
 {/snippet}
 
 {#snippet actions()}
-    <ComboButton
-        disabled={!hasUserInfo}
-        options={[
-            {
-                caption: locale.t('account.logout'),
-                href: authPages.logoutUrl({ terminateAll: false, redirectUrl: '/public/bye' })
-            },
-            {
-                caption: locale.t('account.logoutAll'),
-                href: authPages.logoutUrl({ terminateAll: true, redirectUrl: '/public/bye' })
-            }
-        ]}
-    />
+    <LogoutButton disabled={!hasUserInfo} {isLinked} />
 {/snippet}
 
 <Card width="md" title={locale.t('account.userInfoTitle')} actions={hasError ? undefined : actions}>
@@ -91,7 +79,7 @@
         {throwIfError()}
         {#if user.authenticated}
             <Stack class="items-center justify-center">
-                {#if !user.isLinked}
+                {#if !isLinked}
                     <Alert variant="warning" title={locale.t('account.linkWarning')} />
                 {/if}
 

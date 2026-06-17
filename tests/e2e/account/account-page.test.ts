@@ -1,5 +1,5 @@
 import { expect, test } from '../../fixtures/mock';
-import { interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+import { interceptIdentityAuthWithError, interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
 
 const GUEST_NAME = 'Freshman_k7wxkl';
 
@@ -46,11 +46,12 @@ test('unauthenticated user is redirected again after pressing Back', async ({ pa
     expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
 });
 
-test('logout redirects to bye page', async ({ page }) => {
+test('linked user: logout redirects to bye page', async ({ page, mock }) => {
+    await mock.add('verifiedUser');
     await interceptIdentityAuthWithRedirect(page);
 
     await page.goto('/account');
-    await expect(page.getByText(GUEST_NAME, { exact: true })).toBeVisible();
+    await expect(page.getByText('VerifiedUser_abc123', { exact: true })).toBeVisible();
 
     const logoutLink = page.getByRole('link', { name: 'Logout' });
 
@@ -64,6 +65,39 @@ test('logout redirects to bye page', async ({ page }) => {
         await logoutLink.click();
         await expect(page).toHaveURL(/\/public\/bye/);
     });
+});
+
+test('linked user: logout surfaces the identity server error when it is down', async ({ page, mock }) => {
+    await mock.add('verifiedUser');
+    await interceptIdentityAuthWithError(page);
+
+    await page.goto('/account');
+    await expect(page.getByText('VerifiedUser_abc123', { exact: true })).toBeVisible();
+
+    await page.getByRole('link', { name: 'Logout' }).click();
+
+    // The logout link navigates straight to the identity server, so a downed
+    // server leaves the user on its error response rather than the bye page.
+    await expect(page).toHaveURL(/\/identity\/auth\/logout/);
+    await expect(page.getByText('Service unavailable')).toBeVisible();
+    await expect(page).not.toHaveURL(/\/public\/bye/);
+});
+
+test('guest user: logout shows data-loss warning before redirecting', async ({ page }) => {
+    await interceptIdentityAuthWithRedirect(page);
+
+    await page.goto('/account');
+    await expect(page.getByText(GUEST_NAME, { exact: true })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Logout', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Logout without a saved account?' }).first()).toBeVisible();
+    await expect(page.getByText('you will permanently lose access')).toBeVisible();
+
+    const confirmLink = page.getByRole('link', { name: 'Logout anyway' });
+    expect(await confirmLink.getAttribute('href')).toContain('/identity/auth/logout');
+
+    await confirmLink.click();
+    await expect(page).toHaveURL(/\/public\/bye/);
 });
 
 test('delete account flow redirects to account-deleted', async ({ page }) => {
