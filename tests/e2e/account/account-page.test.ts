@@ -1,5 +1,9 @@
 import { expect, test } from '../../fixtures/mock';
-import { interceptIdentityAuthWithError, interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+import {
+    interceptIdentityAuth,
+    interceptIdentityAuthWithError,
+    interceptIdentityAuthWithRedirect
+} from '../../helpers/auth-intercept';
 
 const GUEST_NAME = 'Freshman_k7wxkl';
 
@@ -48,22 +52,25 @@ test('unauthenticated user is redirected again after pressing Back', async ({ pa
 
 test('linked user: logout redirects to bye page', async ({ page, mock }) => {
     await mock.add('verifiedUser');
-    await interceptIdentityAuthWithRedirect(page);
+
+    let logoutUrl: URL | undefined;
+    await interceptIdentityAuth(page, (url) => {
+        logoutUrl = url;
+        const redirectUrl = url.searchParams.get('redirectUrl');
+        if (redirectUrl) return { redirect: redirectUrl };
+    });
 
     await page.goto('/account');
     await expect(page.getByText('VerifiedUser_abc123', { exact: true })).toBeVisible();
 
-    const logoutLink = page.getByRole('link', { name: 'Logout' });
-
-    await test.step('logout link points to the identity server', async () => {
-        const href = await logoutLink.getAttribute('href');
-        expect(href).toContain('/identity/auth/logout');
-        expect(href).toContain('terminateAll=false');
+    await test.step('clicking logout redirects to the bye page', async () => {
+        await page.getByRole('button', { name: 'Logout', exact: true }).click();
+        await expect(page).toHaveURL(/\/public\/bye/);
     });
 
-    await test.step('clicking logout redirects to the bye page', async () => {
-        await logoutLink.click();
-        await expect(page).toHaveURL(/\/public\/bye/);
+    await test.step('logout targets the identity server', async () => {
+        expect(logoutUrl?.pathname).toContain('/identity/auth/logout');
+        expect(logoutUrl?.searchParams.get('terminateAll')).toBe('false');
     });
 });
 
@@ -74,7 +81,7 @@ test('linked user: logout surfaces the identity server error when it is down', a
     await page.goto('/account');
     await expect(page.getByText('VerifiedUser_abc123', { exact: true })).toBeVisible();
 
-    await page.getByRole('link', { name: 'Logout' }).click();
+    await page.getByRole('button', { name: 'Logout', exact: true }).click();
 
     // The logout link navigates straight to the identity server, so a downed
     // server leaves the user on its error response rather than the bye page.

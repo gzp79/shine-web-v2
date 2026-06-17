@@ -1,15 +1,16 @@
 <script module lang="ts">
+    import { getLogoutContext } from '@lib/account/LogoutGuard.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import { Alert } from '@lib/ui/atoms/data/alert';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import Card from '@lib/ui/atoms/layouts/Card.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type AppError, createAppError } from '@lib/utils';
     import EmailConfirmButton from './EmailConfirmButton.svelte';
-    import LogoutButton from './LogoutButton.svelte';
     import { queryCurrentUserInfo } from './auth.remote';
     import type { AuthenticatedCurrentUser } from './currentUserStore.svelte';
 </script>
@@ -17,6 +18,12 @@
 <script lang="ts">
     const userInfo = queryCurrentUserInfo();
     const locale = getLocaleContext();
+    const { requestLogout } = getLogoutContext();
+
+    const logoutOptions = $derived([
+        { caption: locale.t('account.logout'), onclick: () => requestLogout({ terminateAll: false }) },
+        { caption: locale.t('account.logoutAll'), onclick: () => requestLogout({ terminateAll: true }) }
+    ]);
 
     let error = $state<AppError | undefined>(undefined);
     let hasError = $derived(error !== undefined);
@@ -49,7 +56,7 @@
 {/snippet}
 
 {#snippet actions()}
-    <LogoutButton disabled={!hasUserInfo} {isLinked} />
+    <ComboButton disabled={!hasUserInfo} options={logoutOptions} />
 {/snippet}
 
 <Card width="md" title={locale.t('account.userInfoTitle')} actions={hasError ? undefined : actions}>

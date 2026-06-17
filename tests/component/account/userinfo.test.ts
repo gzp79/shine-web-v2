@@ -1,5 +1,5 @@
 import { expect, test } from '../../fixtures/mock';
-import { interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+import { interceptIdentityAuth, interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
 import { clickComboAction } from '../../helpers/interactions';
 import { RequestGate } from '../../helpers/request-gate';
 
@@ -216,21 +216,25 @@ test('change email handles failure and recovers after retry', async ({ page, moc
 
 test('linked user: logout button click redirects to bye page', async ({ page, mock }) => {
     await mock.add('verifiedUser');
-    await interceptIdentityAuthWithRedirect(page);
+
+    let logoutUrl: URL | undefined;
+    await interceptIdentityAuth(page, (url) => {
+        logoutUrl = url;
+        const redirectUrl = url.searchParams.get('redirectUrl');
+        if (redirectUrl) return { redirect: redirectUrl };
+    });
+
     await page.goto('/__test/account/userinfo');
     await expect(page.getByText('VerifiedUser_abc123')).toBeVisible();
 
-    const logoutButton = page.getByRole('link', { name: 'Logout' });
+    const logoutButton = page.getByRole('button', { name: 'Logout', exact: true });
     await expect(logoutButton).toBeVisible();
-
-    await test.step('href points to identity server', async () => {
-        const href = await logoutButton.getAttribute('href');
-        expect(href).toContain('/identity/auth/logout');
-        expect(href).toContain('terminateAll=false');
-    });
 
     await logoutButton.click();
     await expect(page).toHaveURL(/\/public\/bye/);
+
+    expect(logoutUrl?.pathname).toContain('/identity/auth/logout');
+    expect(logoutUrl?.searchParams.get('terminateAll')).toBe('false');
 });
 
 test('linked user: logout all button click redirects to bye page', async ({ page, mock }) => {
