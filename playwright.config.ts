@@ -21,7 +21,7 @@ function fixDeploymentURL(url: string | undefined): string | undefined {
 const webURL = fixDeploymentURL(process.env.DEPLOYMENT_URL) || config.webUrl;
 
 export default defineConfig({
-    workers: 4,
+    workers: process.env.CI ? 1 : 4,
     webServer: {
         command: 'pnpm run dev',
         port: parseInt(new URL(webURL).port),
