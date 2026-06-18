@@ -59,9 +59,9 @@
 
 <script lang="ts">
     let {
-        color: baseColor = 'primary',
-        size: baseSize = 'md',
-        //variant: baseVariant = 'filled',
+        color: baseColor,
+        size: baseSize,
+        //variant: baseVariant,
         disabled: baseDisabled = false,
         fieldControl = false,
         class: className,
@@ -82,8 +82,8 @@
         }
     });
 
-    const color = $derived(baseColor ?? ctx?.color ?? 'primary');
-    const size = $derived(baseSize ?? ctx?.size ?? 'md');
+    const color = $derived((baseColor ?? ctx?.color ?? 'primary') as ActionColor);
+    const size = $derived((baseSize ?? ctx?.size ?? 'md') as Size);
     //const variant = $derived(baseVariant ?? ctx?.variant ?? 'filled');
     const disabled = $derived(baseDisabled || ctx?.disabled || false);
 

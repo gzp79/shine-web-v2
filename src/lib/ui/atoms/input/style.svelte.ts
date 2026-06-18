@@ -44,8 +44,6 @@ const sizeMods: Record<Size, string> = {
 
 export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle => {
     const style = $derived<ButtonStyleConfig>({
-        variant: 'filled',
-        size: 'md',
         wide: false,
         showFocus: false,
         useGroupFocus: false,

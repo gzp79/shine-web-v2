@@ -3,9 +3,21 @@ import { getRequestEvent } from '$app/server';
 import { redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
 
+export function getMockWorkerHeader(): Headers {
+    const headers = new Headers();
+    if (import.meta.env.VITE_MOCK) {
+        const { request } = getRequestEvent();
+        const worker = request.headers.get('x-mock-worker');
+        if (worker) {
+            headers.set('x-mock-worker', worker);
+        }
+    }
+    return headers;
+}
+
 export function getPassThroughHeaders(): Headers {
     const { cookies, request } = getRequestEvent();
-    const headers = new Headers();
+    const headers = getMockWorkerHeader();
 
     const cookie = cookies
         .getAll()

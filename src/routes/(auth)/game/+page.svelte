@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { onDestroy } from 'svelte';
     import { logGame } from '@lib/loggers';
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
@@ -46,37 +45,41 @@
     // Load/reload scene whenever it changes
     $effect(() => {
         const s = scene;
-        void run(s);
+        let cancelled = false;
+        void run(s, () => cancelled);
         return () => {
+            cancelled = true;
             viewer?.dispose();
             viewer = null;
             running = false;
         };
     });
 
-    async function run(s: Scene) {
+    async function run(s: Scene, isCancelled: () => boolean) {
         error = null;
         running = false;
         try {
             logGame.info(`importing ${data.jsUrl}`);
             const mod = (await import(/* @vite-ignore */ data.jsUrl)) as GameModule;
+            if (isCancelled()) return;
             if (typeof mod.createScene !== 'function') {
                 throw new Error('Invalid game module: createScene is not a function');
             }
             logGame.info(`creating scene="${s}"`);
-            viewer = await mod.createScene(container, s);
+            const v = await mod.createScene(container, s);
+            if (isCancelled()) {
+                v.dispose();
+                return;
+            }
+            viewer = v;
             running = true;
             logGame.info('scene running');
         } catch (err) {
+            if (isCancelled()) return;
             logGame.error('scene failed', err);
             error = err;
         }
     }
-
-    onDestroy(() => {
-        viewer?.dispose();
-        viewer = null;
-    });
 </script>
 
 <CenteredLayout padding={0}>

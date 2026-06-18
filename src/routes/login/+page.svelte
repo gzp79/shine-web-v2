@@ -140,7 +140,7 @@
         nonInteractiveTarget.then((target) => {
             if (isRedirecting || !target) return;
             isRedirecting = true;
-            window.location.href = target;
+            window.location.replace(target);
         });
     });
 </script>

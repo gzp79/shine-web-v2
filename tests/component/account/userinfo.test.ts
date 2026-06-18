@@ -1,5 +1,5 @@
 import { expect, test } from '../../fixtures/mock';
-import { interceptIdentityAuthWithError, interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+import { interceptIdentityAuth, interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
 import { clickComboAction } from '../../helpers/interactions';
 import { RequestGate } from '../../helpers/request-gate';
 
@@ -10,18 +10,6 @@ test('shows loading state then user info when authenticated', async ({ page, moc
     await expect(page.getByText('Loading...')).toBeVisible();
     const card = page.locator('[data-testid="user-info-card"]').or(page.getByText('Freshman'));
     await expect(card.first()).toBeVisible();
-});
-
-test('retry button reloads data after initial failure', async ({ page, mock }) => {
-    await mock.add('withIdentityDown');
-
-    await page.goto('/__test/account/userinfo');
-    await expect(page.getByText('Retry').first()).toBeVisible();
-
-    await mock.remove('withIdentityDown');
-
-    await page.getByText('Retry').first().click();
-    await expect(page.getByText('Freshman')).toBeVisible();
 });
 
 test('verified user: change email flow', async ({ page, mock }) => {
@@ -214,39 +202,79 @@ test('change email handles failure and recovers after retry', async ({ page, moc
     });
 });
 
-test('logout button click redirects to bye page', async ({ page }) => {
-    await interceptIdentityAuthWithRedirect(page);
-    await page.goto('/__test/account/userinfo');
-    await expect(page.getByText('Freshman')).toBeVisible();
+test('linked user: logout button click redirects to bye page', async ({ page, mock }) => {
+    await mock.add('verifiedUser');
 
-    const logoutButton = page.getByRole('link', { name: 'Logout' });
-    await expect(logoutButton).toBeVisible();
-
-    await test.step('href points to identity server', async () => {
-        const href = await logoutButton.getAttribute('href');
-        expect(href).toContain('/identity/auth/logout');
-        expect(href).toContain('terminateAll=false');
+    let logoutUrl: URL | undefined;
+    await interceptIdentityAuth(page, (url) => {
+        logoutUrl = url;
+        const redirectUrl = url.searchParams.get('redirectUrl');
+        if (redirectUrl) return { redirect: redirectUrl };
     });
+
+    await page.goto('/__test/account/userinfo');
+    await expect(page.getByText('VerifiedUser_abc123')).toBeVisible();
+
+    const logoutButton = page.getByRole('button', { name: 'Logout', exact: true });
+    await expect(logoutButton).toBeVisible();
 
     await logoutButton.click();
     await expect(page).toHaveURL(/\/public\/bye/);
+
+    expect(logoutUrl?.pathname).toContain('/identity/auth/logout');
+    expect(logoutUrl?.searchParams.get('terminateAll')).toBe('false');
 });
 
-test('logout all button click redirects to bye page', async ({ page }) => {
+test('linked user: logout all button click redirects to bye page', async ({ page, mock }) => {
+    await mock.add('verifiedUser');
     await interceptIdentityAuthWithRedirect(page);
     await page.goto('/__test/account/userinfo');
-    await expect(page.getByText('Freshman')).toBeVisible();
+    await expect(page.getByText('VerifiedUser_abc123')).toBeVisible();
 
     await clickComboAction(page.locator('body'), 'Logout from all devices');
     await expect(page).toHaveURL(/\/public\/bye/);
 });
 
-test('logout button points to identity server when server is down', async ({ page }) => {
-    await interceptIdentityAuthWithError(page);
+test('guest user: logout shows data-loss warning, cancel stays on page', async ({ page }) => {
     await page.goto('/__test/account/userinfo');
     await expect(page.getByText('Freshman')).toBeVisible();
 
-    const href = await page.getByRole('link', { name: 'Logout' }).getAttribute('href');
+    await test.step('clicking logout opens the warning dialog', async () => {
+        await page.getByRole('button', { name: 'Logout', exact: true }).click();
+        await expect(page.getByRole('heading', { name: 'Logout without a saved account?' }).first()).toBeVisible();
+        await expect(page.getByText('you will permanently lose access')).toBeVisible();
+    });
+
+    await test.step('cancel closes dialog without navigating', async () => {
+        await page.getByRole('button', { name: 'Cancel' }).click();
+        await expect(page.getByRole('heading', { name: 'Logout without a saved account?' }).first()).not.toBeVisible();
+        await expect(page).toHaveURL(/\/__test\/account\/userinfo/);
+    });
+});
+
+test('guest user: confirming the warning redirects to bye page', async ({ page }) => {
+    await interceptIdentityAuthWithRedirect(page);
+    await page.goto('/__test/account/userinfo');
+    await expect(page.getByText('Freshman')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Logout', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Logout without a saved account?' }).first()).toBeVisible();
+
+    const confirmLink = page.getByRole('link', { name: 'Logout anyway' });
+    expect(await confirmLink.getAttribute('href')).toContain('terminateAll=false');
+
+    await confirmLink.click();
+    await expect(page).toHaveURL(/\/public\/bye/);
+});
+
+test('guest user: logout from all devices also shows the warning', async ({ page }) => {
+    await page.goto('/__test/account/userinfo');
+    await expect(page.getByText('Freshman')).toBeVisible();
+
+    await clickComboAction(page.locator('body'), 'Logout from all devices');
+    await expect(page.getByRole('heading', { name: 'Logout without a saved account?' }).first()).toBeVisible();
+
+    const href = await page.getByRole('link', { name: 'Logout anyway' }).getAttribute('href');
     expect(href).toContain('/identity/auth/logout');
-    expect(href).toContain('redirectUrl=');
+    expect(href).toContain('terminateAll=true');
 });

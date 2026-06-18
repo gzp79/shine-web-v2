@@ -3,6 +3,10 @@ import { type Locale, type Translation } from '@lib/i18n';
 import { type Theme } from '@lib/theme';
 
 declare global {
+    interface ImportMeta {
+        readonly env: ImportMetaEnv & { readonly VITE_MOCK: boolean };
+    }
+
     interface Math {
         clamp(value: number, min: number, max: number): number;
         round_q(value: number, precision: number): number;

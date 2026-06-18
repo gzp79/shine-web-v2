@@ -1,11 +1,10 @@
-import { config } from '@config';
 import type { Handle } from '@sveltejs/kit';
 import { getLocaleFromRequest } from '@lib/i18n';
 import '@lib/prelude-math';
 import { getThemeFromRequest } from '@lib/theme';
 
 // Initialize MSW for mock environment
-if (config.environment === 'mock') {
+if (import.meta.env.VITE_MOCK) {
     await import('@mocks/setup-server');
 }
 

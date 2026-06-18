@@ -1,5 +1,9 @@
 import { expect, test } from '../../fixtures/mock';
-import { interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+import {
+    interceptIdentityAuth,
+    interceptIdentityAuthWithError,
+    interceptIdentityAuthWithRedirect
+} from '../../helpers/auth-intercept';
 
 const GUEST_NAME = 'Freshman_k7wxkl';
 
@@ -21,32 +25,103 @@ test('renders the full account page for an authenticated guest', async ({ page }
     });
 });
 
-test('unauthenticated user is redirected to login', async ({ page, mock }) => {
+test('unauthenticated user is redirected to login with returnUrl', async ({ page, mock }) => {
     await mock.add('unauthorizedUser');
 
     await page.goto('/account');
 
     await page.waitForURL((url) => url.pathname === '/login');
+    expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
 });
 
-test('logout redirects to bye page', async ({ page }) => {
+test('unauthenticated user is redirected again after pressing Back', async ({ page, mock }) => {
+    await interceptIdentityAuthWithRedirect(page);
+
+    // First visit as authenticated, then session expires
+    await page.goto('/account');
+    await expect(page.getByRole('heading', { level: 1, name: 'Account', exact: true })).toBeVisible();
+
+    await mock.add('unauthorizedUser');
+    await page.goBack();
+    // Now on a previous page; navigate back to the guarded route
+    await page.goto('/account');
+
+    await page.waitForURL((url) => url.pathname === '/login');
+    expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
+});
+
+test('identity error: shows the guard error card and recovers on refresh', async ({ page, mock }) => {
+    await mock.add('withIdentityDown');
+
+    await test.step('failed user query renders the error card, not the account page', async () => {
+        await page.goto('/account');
+        await expect(page.getByRole('button', { name: 'Refresh' })).toBeVisible();
+        await expect(page.getByText(GUEST_NAME, { exact: true })).not.toBeVisible();
+    });
+
+    await test.step('refresh re-runs the query and renders the account page', async () => {
+        await mock.remove('withIdentityDown');
+        await page.getByRole('button', { name: 'Refresh' }).click();
+        await expect(page.getByRole('heading', { level: 1, name: 'Account', exact: true })).toBeVisible();
+        await expect(page.getByText(GUEST_NAME, { exact: true })).toBeVisible();
+    });
+});
+
+test('linked user: logout redirects to bye page', async ({ page, mock }) => {
+    await mock.add('verifiedUser');
+
+    let logoutUrl: URL | undefined;
+    await interceptIdentityAuth(page, (url) => {
+        logoutUrl = url;
+        const redirectUrl = url.searchParams.get('redirectUrl');
+        if (redirectUrl) return { redirect: redirectUrl };
+    });
+
+    await page.goto('/account');
+    await expect(page.getByText('VerifiedUser_abc123', { exact: true })).toBeVisible();
+
+    await test.step('clicking logout redirects to the bye page', async () => {
+        await page.getByRole('button', { name: 'Logout', exact: true }).click();
+        await expect(page).toHaveURL(/\/public\/bye/);
+    });
+
+    await test.step('logout targets the identity server', async () => {
+        expect(logoutUrl?.pathname).toContain('/identity/auth/logout');
+        expect(logoutUrl?.searchParams.get('terminateAll')).toBe('false');
+    });
+});
+
+test('linked user: logout surfaces the identity server error when it is down', async ({ page, mock }) => {
+    await mock.add('verifiedUser');
+    await interceptIdentityAuthWithError(page);
+
+    await page.goto('/account');
+    await expect(page.getByText('VerifiedUser_abc123', { exact: true })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Logout', exact: true }).click();
+
+    // The logout link navigates straight to the identity server, so a downed
+    // server leaves the user on its error response rather than the bye page.
+    await expect(page).toHaveURL(/\/identity\/auth\/logout/);
+    await expect(page.getByText('Service unavailable')).toBeVisible();
+    await expect(page).not.toHaveURL(/\/public\/bye/);
+});
+
+test('guest user: logout shows data-loss warning before redirecting', async ({ page }) => {
     await interceptIdentityAuthWithRedirect(page);
 
     await page.goto('/account');
     await expect(page.getByText(GUEST_NAME, { exact: true })).toBeVisible();
 
-    const logoutLink = page.getByRole('link', { name: 'Logout' });
+    await page.getByRole('button', { name: 'Logout', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Logout without a saved account?' }).first()).toBeVisible();
+    await expect(page.getByText('you will permanently lose access')).toBeVisible();
 
-    await test.step('logout link points to the identity server', async () => {
-        const href = await logoutLink.getAttribute('href');
-        expect(href).toContain('/identity/auth/logout');
-        expect(href).toContain('terminateAll=false');
-    });
+    const confirmLink = page.getByRole('link', { name: 'Logout anyway' });
+    expect(await confirmLink.getAttribute('href')).toContain('/identity/auth/logout');
 
-    await test.step('clicking logout redirects to the bye page', async () => {
-        await logoutLink.click();
-        await expect(page).toHaveURL(/\/public\/bye/);
-    });
+    await confirmLink.click();
+    await expect(page).toHaveURL(/\/public\/bye/);
 });
 
 test('delete account flow redirects to account-deleted', async ({ page }) => {

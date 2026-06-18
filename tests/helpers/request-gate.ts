@@ -28,6 +28,7 @@ export class RequestGate {
     private heldResolve?: () => void;
     private heldPromise: Promise<void>;
     private held = 0;
+    private activeHandlers: Set<Promise<void>> = new Set();
 
     private constructor(
         private readonly page: Page,
@@ -43,8 +44,16 @@ export class RequestGate {
         await page.route(pattern, async (route) => {
             gate.held++;
             gate.heldResolve?.();
-            await gate.released;
-            await route.continue();
+            const handler = (async () => {
+                await gate.released;
+                await route.continue();
+            })();
+            gate.activeHandlers.add(handler);
+            try {
+                await handler;
+            } finally {
+                gate.activeHandlers.delete(handler);
+            }
         });
         return gate;
     }
@@ -72,6 +81,7 @@ export class RequestGate {
     /** Stop intercepting. Call in test teardown; also releases any held requests. */
     async dispose(): Promise<void> {
         this.release_();
+        await Promise.all([...this.activeHandlers]);
         await this.page.unroute(this.pattern);
     }
 }

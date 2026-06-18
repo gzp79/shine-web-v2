@@ -1,8 +1,7 @@
-import { config } from '@config';
 import '@lib/prelude-math';
 
 // Initialize MSW for mock environment
-if (config.environment === 'mock') {
+if (import.meta.env.VITE_MOCK) {
     await import('@mocks/setup-client');
 }
 

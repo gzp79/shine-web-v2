@@ -9,7 +9,7 @@ import { buildAssets } from './scripts/vite-asset-converter';
 import { config } from './src/generated/config';
 
 console.log(`Environment: (${config.environment})`);
-if (['dev', 'local', 'mock'].includes(config.environment)) {
+if (['dev', 'local', 'mock'].includes(config.environment) && !process.env.LOG_LEVEL) {
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
 }
 
@@ -111,6 +111,9 @@ function excludeMocks(): Plugin {
 }
 
 export default defineConfig({
+    define: {
+        'import.meta.env.VITE_MOCK': config.environment === 'mock'
+    },
     plugins: [
         excludeMocks(),
         tailwindcss(),

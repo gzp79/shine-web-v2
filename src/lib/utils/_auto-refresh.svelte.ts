@@ -1,5 +1,4 @@
 import { SvelteDate } from 'svelte/reactivity';
-import { v4 as uuid } from 'uuid';
 import { logAPI } from '@lib/loggers';
 
 export type AutoRefreshOptions = {
@@ -7,6 +6,8 @@ export type AutoRefreshOptions = {
     maxTTL?: number;
     /** Interval in milliseconds for updating reactive age property (default: 500) */
     ageCheckInterval?: number;
+    /** How long to wait before retrying after a failed refresh, in ms (default: 30000) */
+    retryDelay?: number;
 };
 
 export type AutoRefresh = {
@@ -25,20 +26,22 @@ export type AutoRefresh = {
  * and forces a refresh when the document becomes visible again.
  *
  * @param refresh - Function to call to refresh the query.
- * @param canRefresh - Optional reactive boolean to determine if a refresh is allowed.
+ * @param canRefresh - Optional reactive getter that gates refreshes; treated as `true` when omitted.
  * @param options - Configuration options for TTL and age check interval.
  * @returns An object with properties for last update time, TTL, and methods to suspend/resume tracking.
  */
-export function autoRefresh(refresh: () => Promise<void>, canRefresh?: boolean, options?: AutoRefreshOptions) {
-    const { maxTTL = 60000, ageCheckInterval = 500 } = options ?? {};
+export function autoRefresh(refresh: () => Promise<void>, canRefresh?: () => boolean, options?: AutoRefreshOptions) {
+    const { maxTTL = 60000, ageCheckInterval = 500, retryDelay = 30000 } = options ?? {};
+    const effectiveRetryDelay = Math.clamp(retryDelay, 0, maxTTL);
 
-    const uniqueId = uuid();
+    const uniqueId = crypto.randomUUID();
     let interval: NodeJS.Timeout | null = null;
     let lastUpdate = $state(Date.now());
     let currentTime = $state(Date.now());
-    let isRefreshing = false;
+    let isRefreshing = $state(false);
     const lastUpdateDate = $derived(new SvelteDate(lastUpdate));
     const timeToRefresh = $derived(Math.clamp(maxTTL - (currentTime - lastUpdate), 0, maxTTL));
+    const refreshAllowed = $derived(canRefresh?.() ?? true);
 
     const _startTimer = () => {
         if (!interval) {
@@ -55,15 +58,7 @@ export function autoRefresh(refresh: () => Promise<void>, canRefresh?: boolean, 
         }
     };
 
-    // Reset lastUpdate when canRefresh becomes true
-    $effect(() => {
-        if (canRefresh) {
-            logAPI.log(`[${uniqueId}] canRefresh enabled, resetting lastUpdate`);
-            lastUpdate = Date.now();
-        }
-    });
-
-    // Update current time periodically for reactive age)
+    // Update current time periodically for reactive age
     $effect(() => {
         const onVisibilityChange = () => {
             if (document.visibilityState === 'visible') {
@@ -78,18 +73,20 @@ export function autoRefresh(refresh: () => Promise<void>, canRefresh?: boolean, 
             }
         };
 
-        _startTimer();
-        window.addEventListener('visibilitychange', onVisibilityChange);
+        if (document.visibilityState !== 'hidden') {
+            _startTimer();
+        }
+        document.addEventListener('visibilitychange', onVisibilityChange);
 
         return () => {
             _stopTimer();
-            window.removeEventListener('visibilitychange', onVisibilityChange);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
         };
     });
 
     // Reactive TTL-based refresh: watch age and trigger refresh when TTL expires
     $effect(() => {
-        if (timeToRefresh <= 0 && canRefresh && !isRefreshing) {
+        if (timeToRefresh <= 0 && refreshAllowed && !isRefreshing) {
             logAPI.trace(`[${uniqueId}] TTL expired, refreshing query`);
             isRefreshing = true;
             refresh()
@@ -98,7 +95,8 @@ export function autoRefresh(refresh: () => Promise<void>, canRefresh?: boolean, 
                     lastUpdate = Date.now();
                 })
                 .catch((err) => {
-                    logAPI.error(`[${uniqueId}] Query refresh failed`, err);
+                    logAPI.error(`[${uniqueId}] Query refresh failed, retrying in ${effectiveRetryDelay}ms`, err);
+                    lastUpdate = Date.now() - maxTTL + effectiveRetryDelay;
                 })
                 .finally(() => {
                     isRefreshing = false;

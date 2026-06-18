@@ -1,5 +1,3 @@
-import { config } from '@config';
-
 /**
  * Pauses test execution for debugging by waiting for a very long time.
  * Use browser DevTools to inspect the page state while paused.
@@ -15,7 +13,7 @@ import { config } from '@config';
  *   });
  */
 export async function pauseTest(label?: string): Promise<void> {
-    if (config.environment !== 'mock') {
+    if (!import.meta.env.VITE_MOCK) {
         throw new Error(
             `pauseTest called outside mock environment${label ? ` (${label})` : ''} — remove before merging`
         );

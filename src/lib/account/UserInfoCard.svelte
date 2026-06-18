@@ -1,5 +1,6 @@
 <script module lang="ts">
-    import { authPages } from '@lib/api/authPages';
+    import { getLogoutContext } from '@lib/account/LogoutGuard.svelte';
+    import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import { Alert } from '@lib/ui/atoms/data/alert';
@@ -8,35 +9,32 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import { type AppError, createAppError } from '@lib/utils';
     import EmailConfirmButton from './EmailConfirmButton.svelte';
-    import { queryCurrentUserInfo } from './auth.remote';
-    import type { AuthenticatedCurrentUser } from './currentUserStore.svelte';
 </script>
 
 <script lang="ts">
-    const userInfo = queryCurrentUserInfo();
+    const currentUser = getAuthenticatedUserContext();
+    const user = $derived(currentUser.user);
     const locale = getLocaleContext();
+    const { requestLogout } = getLogoutContext();
+
+    const logoutOptions = $derived([
+        { caption: locale.t('account.logout'), onclick: () => requestLogout({ terminateAll: false }) },
+        { caption: locale.t('account.logoutAll'), onclick: () => requestLogout({ terminateAll: true }) }
+    ]);
 
     let error = $state<AppError | undefined>(undefined);
     let hasError = $derived(error !== undefined);
-    let hasUserInfo = $derived(!!userInfo?.current);
 
     const throwIfError = () => {
         if (error) {
             throw error;
         }
     };
-
-    const resetError = async () => {
-        await userInfo.refresh();
-        error = undefined;
-    };
 </script>
 
 {#snippet emailItem()}
-    {@const user = (await userInfo) as AuthenticatedCurrentUser}
     <Stack direction="row" spacing={2} alignment="center">
         <span>{user.email || locale.t('account.noEmail')}</span>
         <EmailConfirmButton
@@ -49,35 +47,17 @@
 {/snippet}
 
 {#snippet actions()}
-    <ComboButton
-        disabled={!hasUserInfo}
-        options={[
-            {
-                caption: locale.t('account.logout'),
-                href: authPages.logoutUrl({ terminateAll: false, redirectUrl: '/public/bye' })
-            },
-            {
-                caption: locale.t('account.logoutAll'),
-                href: authPages.logoutUrl({ terminateAll: true, redirectUrl: '/public/bye' })
-            }
-        ]}
-    />
+    <ComboButton options={logoutOptions} />
 {/snippet}
 
 <Card width="md" title={locale.t('account.userInfoTitle')} actions={hasError ? undefined : actions}>
     <svelte:boundary>
-        {#snippet pending()}
-            <Stack class="items-center">
-                <LoadingCard variant="ghost" />
-            </Stack>
-        {/snippet}
-
-        {#snippet failed(error, reset)}
-            <ErrorCard error={createAppError(error)} width="full">
+        {#snippet failed(boundaryError, reset)}
+            <ErrorCard error={createAppError(boundaryError)} width="full">
                 {#snippet actions()}
                     <Button
-                        onclick={async () => {
-                            await resetError();
+                        onclick={() => {
+                            error = undefined;
                             reset();
                         }}
                     >
@@ -87,30 +67,27 @@
             </ErrorCard>
         {/snippet}
 
-        {@const user = await userInfo}
         {throwIfError()}
-        {#if user.authenticated}
-            <Stack class="items-center justify-center">
-                {#if !user.isLinked}
-                    <Alert variant="warning" title={locale.t('account.linkWarning')} />
-                {/if}
+        <Stack class="items-center justify-center">
+            {#if !user.isLinked}
+                <Alert variant="warning" title={locale.t('account.linkWarning')} />
+            {/if}
 
-                <PropertyList
-                    size="xs"
-                    wide
-                    items={[
-                        { key: locale.t('account.userName'), value: user.name, valueClass: 'break-all' },
-                        { key: locale.t('account.userId'), value: user.id, valueClass: 'break-all' },
-                        { key: locale.t('account.email'), value: emailItem },
-                        // { key: locale.t('account.role'), value: user.roles.join(', ') },
-                        {
-                            key: locale.t('account.registrationDate'),
-                            // value: locale.t('common.dateTime ', { value: user.createdAt }, { date: { dateStyle: 'long' } })
-                            value: user.createdAt.toString()
-                        }
-                    ]}
-                />
-            </Stack>
-        {/if}
+            <PropertyList
+                size="xs"
+                wide
+                items={[
+                    { key: locale.t('account.userName'), value: user.name, valueClass: 'break-all' },
+                    { key: locale.t('account.userId'), value: user.id, valueClass: 'break-all' },
+                    { key: locale.t('account.email'), value: emailItem },
+                    // { key: locale.t('account.role'), value: user.roles.join(', ') },
+                    {
+                        key: locale.t('account.registrationDate'),
+                        // value: locale.t('common.dateTime ', { value: user.createdAt }, { date: { dateStyle: 'long' } })
+                        value: user.createdAt.toString()
+                    }
+                ]}
+            />
+        </Stack>
     </svelte:boundary>
 </Card>

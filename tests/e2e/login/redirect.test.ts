@@ -1,5 +1,6 @@
 import { expect, test } from '../../fixtures/mock';
 import { interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+import { simulateTabRefocus } from '../../helpers/page-lifecycle';
 
 test('authenticated user is redirected to the returnUrl', async ({ page }) => {
     await page.goto('/login?returnUrl=/account');
@@ -30,7 +31,10 @@ test('unauthenticated user: successful token login redirects to the returnUrl', 
     await expect(page.getByRole('heading', { name: 'Logged Out' })).toBeVisible();
 });
 
-test('unauthenticated user: failed token login redirects to the interactive prompt', async ({ page, mock }) => {
+test('unauthenticated user: failed token login redirects to the interactive prompt preserving returnUrl', async ({
+    page,
+    mock
+}) => {
     await mock.add('unauthorizedUser');
     await interceptIdentityAuthWithRedirect(page, 'errorUrl');
 
@@ -39,6 +43,7 @@ test('unauthenticated user: failed token login redirects to the interactive prom
     await page.waitForURL(/prompt=true/);
     const url = new URL(page.url());
     expect(url.searchParams.get('prompt')).toBe('true');
+    expect(url.searchParams.get('returnUrl')).toBe('/game');
 });
 
 test('server down during initial load shows retry and recovers', async ({ page, mock }) => {
@@ -55,4 +60,56 @@ test('server down during initial load shows retry and recovers', async ({ page, 
     const url = new URL(page.url());
     expect(url.pathname).toBe('/login');
     expect(url.searchParams.get('returnUrl')).toBe('/game');
+});
+
+test('auth layout: failed load that recovers as unauthenticated redirects to login', async ({ page, mock }) => {
+    // First load of a guarded page fails (identity server down).
+    await mock.add('withIdentityDown');
+
+    await page.goto('/account');
+    const refreshButton = page.getByRole('button', { name: /refresh/i });
+    await expect(refreshButton).toBeVisible();
+
+    // The server recovers, but the user turns out to be unauthenticated.
+    await mock.remove('withIdentityDown');
+    await mock.add('unauthorizedUser');
+
+    await refreshButton.click();
+
+    // The guarded layout must send an unauthenticated user to the login page,
+    // not leave them stuck on the loading card.
+    await page.waitForURL((url) => url.pathname === '/login');
+});
+
+test('auth layout: failed load that recovers as authenticated renders the page', async ({ page, mock }) => {
+    // First load of a guarded page fails (identity server down).
+    await mock.add('withIdentityDown');
+
+    await page.goto('/account');
+    const refreshButton = page.getByRole('button', { name: /refresh/i });
+    await expect(refreshButton).toBeVisible();
+
+    // The server recovers and the user is authenticated.
+    await mock.remove('withIdentityDown');
+
+    await refreshButton.click();
+
+    // The guarded layout must render the page, staying on /account.
+    await expect(page.getByRole('heading', { level: 1, name: 'Account', exact: true })).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe('/account');
+});
+
+test('auth layout: session expiring on a background refresh redirects to login', async ({ page, mock }) => {
+    // Authenticated user lands on a guarded page.
+    await page.goto('/account');
+    await expect(page.getByRole('heading', { level: 1, name: 'Account', exact: true })).toBeVisible();
+
+    // The session expires server-side.
+    await mock.add('unauthorizedUser');
+
+    // The store forces a background refresh when the tab becomes visible.
+    await simulateTabRefocus(page);
+
+    // The now-unauthenticated user must be redirected away from the guarded page.
+    await page.waitForURL((url) => url.pathname === '/login');
 });

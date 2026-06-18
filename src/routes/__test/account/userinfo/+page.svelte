@@ -1,5 +1,11 @@
-<script>
+<script lang="ts">
+    import AuthGuard from '$lib/account/AuthGuard.svelte';
+    import LogoutGuard from '$lib/account/LogoutGuard.svelte';
     import UserInfoCard from '$lib/account/UserInfoCard.svelte';
 </script>
 
-<UserInfoCard />
+<AuthGuard>
+    <LogoutGuard>
+        <UserInfoCard />
+    </LogoutGuard>
+</AuthGuard>

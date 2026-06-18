@@ -1,4 +1,6 @@
 import { expect, test } from '../../fixtures/mock';
+import { interceptIdentityAuthWithRedirect } from '../../helpers/auth-intercept';
+import { simulateTabRefocus } from '../../helpers/page-lifecycle';
 
 test('valid token shows success', async ({ page, mock }) => {
     await mock.add('completeEmailOperationHandler');
@@ -44,4 +46,25 @@ test('missing token shows error immediately', async ({ page }) => {
 
     await expect(page.getByText('Something went wrong')).toBeVisible();
     await expect(page.getByText('Email operation completed successfully!')).not.toBeVisible();
+});
+
+test('OK after success redirects to login when session has expired', async ({ page, mock }) => {
+    await mock.add('completeEmailOperationHandler');
+    await interceptIdentityAuthWithRedirect(page);
+
+    await page.goto('/link/email-verify?token=valid-token-123');
+    await expect(page.getByText('Email operation completed successfully!')).toBeVisible();
+
+    // Session expires after the operation completes
+    await mock.add('unauthorizedUser');
+
+    await page.getByRole('link', { name: 'OK' }).click();
+    await page.waitForURL(/\/account/);
+
+    // Background refresh discovers the expired session
+    await simulateTabRefocus(page);
+
+    // Auth layout redirects to login
+    await page.waitForURL((url) => url.pathname === '/login');
+    expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
 });
