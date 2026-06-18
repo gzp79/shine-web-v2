@@ -76,7 +76,7 @@ For complex layouts or component compositions, use the `template` snippet:
     {/snippet}
 </Story>
 
-<Story name="With Context">
+<Story name="With Surrounding Content">
     {#snippet template(args)}
         <Stack spacing={4}>
             <Typography variant="h2">Component Showcase</Typography>
@@ -86,6 +86,34 @@ For complex layouts or component compositions, use the `template` snippet:
     {/snippet}
 </Story>
 ```
+
+A per-`Story` `template` adds surrounding content but still renders the meta
+`component` itself. To wrap the component in a **provider/context**, that's not
+enough — see "Wrapping a Component" below.
+
+## Wrapping a Component (providers, contexts, required parents)
+
+A per-`Story` `template` is **forwarded into the meta `component` as children** — it does not replace it. So you can't use it to wrap the component in a provider: the addon still renders a bare, provider-less copy (the autodocs render always does), which crashes any component that reads a context it isn't given (`getXContext: called outside ...`).
+
+App components usually hit this — they read auth/menu/theme/locale context. Wrap with `render: template`: set the wrapper as the meta-level default render so it also covers the autodocs render. The snippet is **module-scoped**, so it can only use module imports + `args` (no instance `<script>` state); supply theme/locale via the global decorator in `.storybook/preview.ts`. Type the `args` param to avoid an implicit-`any`.
+
+```svelte
+<script module lang="ts">
+    import LanguageMenu, { type LanguageMenuProps } from '@lib/i18n/LanguageMenu.svelte';
+    import { DropdownMenu } from '@lib/ui/atoms/dropdown-menu';
+
+    const { Story } = defineMeta({ component: LanguageMenu, render: template });
+</script>
+
+{#snippet template(args: LanguageMenuProps)}
+    <DropdownMenu open trigger="Settings"><LanguageMenu {...args} /></DropdownMenu>
+{/snippet}
+
+<Story name="Default" />
+<Story name="LeftExpand" args={{ expandIcon: 'left' }} />
+```
+
+A mock provider is a tiny component that takes the value as a prop and sets the context with a **getter** (not a destructured const, which would snapshot it) so Control edits stay reactive — see `src/storybook/MockAuthContext.svelte`.
 
 ## Showcasing Component States
 

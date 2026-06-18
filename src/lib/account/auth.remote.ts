@@ -4,7 +4,7 @@ import { logAPI } from '@lib/loggers';
 import { CurrentUserSchema, ProviderSchema, authApiRoutes } from '@lib/server/api/authApiRoutes';
 import { getPassThroughHeaders, sanitizedReturnUrl } from '@lib/server/utils';
 import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
-import type { CurrentUser } from './currentUserStore.svelte';
+import type { CurrentUser } from './authContext.svelte';
 
 export const queryExternalLoginProviders = query(async (): Promise<string[]> => {
     logAPI.log('getExternalLoginProviders...');

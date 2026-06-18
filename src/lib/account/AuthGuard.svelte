@@ -3,11 +3,8 @@
     import { resolve } from '$app/paths';
     import { page } from '$app/state';
     import type { Snippet } from 'svelte';
-    import {
-        type AuthenticatedCurrentUser,
-        createCurrentUserStore,
-        setAuthenticatedUserContext
-    } from '@lib/account/currentUserStore.svelte';
+    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
+    import { createCurrentUserStore } from '@lib/account/currentUserStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';

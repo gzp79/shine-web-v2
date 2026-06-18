@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { getAuthenticatedUserContext } from '@lib/account/currentUserStore.svelte';
+    import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';

@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { getLogoutContext } from '@lib/account/LogoutGuard.svelte';
-    import { getAuthenticatedUserContext } from '@lib/account/currentUserStore.svelte';
+    import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
     import { Alert } from '@lib/ui/atoms/data/alert';

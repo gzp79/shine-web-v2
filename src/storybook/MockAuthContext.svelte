@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/currentUserStore.svelte';
+    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
 
     let { user, children }: { user: AuthenticatedCurrentUser; children: Snippet } = $props();
 

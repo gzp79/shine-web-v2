@@ -1,45 +1,15 @@
 import { browser } from '$app/environment';
 import { refreshAll } from '$app/navigation';
 import type { RemoteQuery } from '@sveltejs/kit';
-import { getContext, setContext } from 'svelte';
 import { logUser } from '@lib/loggers';
 import { type AutoRefresh, type AutoRefreshOptions, type QueryLike, WrappedPromise, autoRefresh } from '@lib/utils';
 import { queryCurrentUserInfo } from './auth.remote';
+import type { CurrentUser } from './authContext.svelte';
 
 const UPDATE_INTERVAL_MS = 15 * 60 * 1000;
-const AUTHENTICATED_USER_CONTEXT_KEY = Symbol('authenticated-user-context');
-
-export type AuthenticatedCurrentUser = {
-    authenticated: true;
-    id: string;
-    isLinked: boolean;
-    name: string;
-    email: string;
-    isEmailVerified: boolean;
-    createdAt: Date;
-};
-export type UnauthenticatedCurrentUser = {
-    authenticated: false;
-};
-export type CurrentUser = AuthenticatedCurrentUser | UnauthenticatedCurrentUser;
 
 export type CurrentUserStoreOptions = AutoRefreshOptions;
 export type CurrentUserStore = QueryLike<CurrentUser> & AutoRefresh;
-
-export type AuthenticatedUserContext = {
-    readonly user: AuthenticatedCurrentUser;
-    refresh: () => Promise<void>;
-};
-
-export function setAuthenticatedUserContext(ctx: AuthenticatedUserContext): void {
-    setContext(AUTHENTICATED_USER_CONTEXT_KEY, ctx);
-}
-
-export function getAuthenticatedUserContext(): AuthenticatedUserContext {
-    const ctx = getContext<AuthenticatedUserContext | undefined>(AUTHENTICATED_USER_CONTEXT_KEY);
-    if (!ctx) throw new Error('getAuthenticatedUserContext: called outside AuthGuard');
-    return ctx;
-}
 
 /// The user store for server side, that disables any use query and always returns unauthenticated user.
 /// This is to prevent any accidental use of user store in server side code, which may cause leaking of user information to other users.
