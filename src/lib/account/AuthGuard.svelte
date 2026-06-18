@@ -61,7 +61,9 @@
 {:else if status === 'error'}
     <CenteredLayout>
         <ErrorCard error={createAppError(currentUser.error)}>
-            <Button onclick={() => currentUser.refresh()}>{locale.t('common.refresh')}</Button>
+            <Button disabled={currentUser.loading} onclick={() => currentUser.refresh()}>
+                {locale.t('common.refresh')}
+            </Button>
         </ErrorCard>
     </CenteredLayout>
 {:else}
