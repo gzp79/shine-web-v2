@@ -162,19 +162,25 @@
         {/snippet}
 
         {#snippet failed(error, reset)}
-            <ErrorCard error={createAppError(error)}>
-                {#snippet actions()}
-                    <Button
-                        onclick={() => {
-                            reset();
-                            providersQuery.refresh();
-                            currentUserQuery.refresh();
-                        }}
-                    >
-                        {locale.t('common.retry')}
-                    </Button>
-                {/snippet}
-            </ErrorCard>
+            {#if isRedirecting}
+                <!-- A redirect (e.g. non-interactive token login) aborts in-flight fetches; Firefox surfaces
+                     these as a NetworkError that would otherwise flash an error card while navigating away. -->
+                <LoadingCard label={locale.t('common.loading')} />
+            {:else}
+                <ErrorCard error={createAppError(error)}>
+                    {#snippet actions()}
+                        <Button
+                            onclick={() => {
+                                reset();
+                                providersQuery.refresh();
+                                currentUserQuery.refresh();
+                            }}
+                        >
+                            {locale.t('common.retry')}
+                        </Button>
+                    {/snippet}
+                </ErrorCard>
+            {/if}
         {/snippet}
 
         <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
