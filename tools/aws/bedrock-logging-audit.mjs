@@ -191,7 +191,7 @@ if (!anyLogging) {
     console.log(RED('\nLogging or filtering is active:'));
     if (findings.logging.length) console.log(`  Model invocation logging: ${findings.logging.join(', ')}`);
     if (findings.guardrails.length) console.log(`  Guardrails:               ${findings.guardrails.join(', ')}`);
-    if (anyBedrockTrailEvents) console.log(`  CloudTrail data events:   yes`);
+    if (anyBedrockTrailEvents) console.log('  CloudTrail data events:   yes');
 }
 
 if (findings.vpcEndpoints.length) {

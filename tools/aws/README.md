@@ -7,6 +7,13 @@ Utility scripts for monitoring AWS resource usage.
 - [AWS CLI](https://aws.amazon.com/cli/) installed and configured (`aws configure`)
 - Node.js 18+
 
+### useful aws commands
+
+- See available profiles: `aws configure list-profiles`
+- AWS SSO, login: `aws sso login --profile my-profile`
+- Confirm which account you are currently using: `aws sts get-caller-identity`
+- Run with dedicated profile: `$env:AWS_PROFILE = "my-profile"; aws sts get-caller-identity`
+
 ## bedrock-usage.mjs
 
 Fetches AWS Bedrock API invocation history from CloudTrail and prints a usage summary broken down by user, model, and day. Fetches per-day chunks in parallel for speed.
