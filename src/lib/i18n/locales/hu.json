@@ -134,5 +134,8 @@
     "app": {
         "title": "Alkalmazás cím",
         "description": "Alkalmazás leírás"
+    },
+    "chat": {
+        "chat": "Csevegés"
     }
 }

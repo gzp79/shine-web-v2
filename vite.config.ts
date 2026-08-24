@@ -6,6 +6,7 @@ import type { Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vitest/config';
 import { buildAssets } from './scripts/vite-asset-converter';
+import { CAPTCHA_TEST_SITE_KEY } from './src/constants';
 import { config } from './src/generated/config';
 
 console.log(`Environment: (${config.environment})`);
@@ -24,8 +25,12 @@ const isCI = !!process.env.CI;
 
 const additionalAssets = [];
 
-// Only build assets locally when the asset server is the web server itself
-if (config.assetUrl === config.webUrl) {
+// Build assets locally when the asset server is co-located with the web dev server.
+const webServerUrl = new URL(config.webUrl);
+const assetServerUrl = new URL(config.assetUrl);
+const assetsServedByWebServer =
+    assetServerUrl.hostname.endsWith('local.scytta.com') && assetServerUrl.port === webServerUrl.port;
+if (assetsServedByWebServer) {
     await buildAssets();
     additionalAssets.push({
         src: 'static-generated/assets/*',
@@ -112,7 +117,8 @@ function excludeMocks(): Plugin {
 
 export default defineConfig({
     define: {
-        'import.meta.env.VITE_MOCK': config.environment === 'mock'
+        'import.meta.env.VITE_MOCK': config.environment === 'mock',
+        'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY
     },
     plugins: [
         excludeMocks(),

@@ -137,5 +137,8 @@
     "app": {
         "title": "Application Title",
         "description": "Application Description"
+    },
+    "chat": {
+        "chat": "Chat"
     }
 }

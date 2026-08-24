@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { page } from '$app/state';
-    import { config } from '@config';
+    import { CAPTCHA_SKIP_TOKEN, config } from '@config';
     import type { ErrorType, Hint, HintInfo } from '@lib/account/auth';
     import { queryCurrentUserInfo } from '@lib/account/auth.remote';
     import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/auth.remote';
@@ -86,8 +86,10 @@
     const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
     const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
 
+    const skipCaptcha = import.meta.env.VITE_SKIP_CAPTCHA;
+
     let isRedirecting = $state(false);
-    let captcha = $state('');
+    let captcha = $state(skipCaptcha ? CAPTCHA_SKIP_TOKEN : '');
     let rememberMe = $state(true);
     let guestAreaRef = $state<HTMLDivElement | undefined>();
 
@@ -293,7 +295,7 @@
 
         <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
             <LoadingCard variant="ghost" label={locale.t('login.waitingServer')} />
-            {#if prompt}
+            {#if prompt && !skipCaptcha}
                 <!-- Load captcha only for interactive login -->
                 <Turnstile
                     siteKey={config.turnstile.siteKey}

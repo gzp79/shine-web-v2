@@ -43,6 +43,15 @@ export default defineConfig({
             testMatch: '**/*.test.ts'
         },
         {
+            // Full-app tests driven through the real UI but against MSW-mocked backends.
+            // Deterministic and hermetic, so they run in CI (needs `env:mock`).
+            name: 'integration',
+            testDir: 'tests/integration',
+            testMatch: '**/*.test.ts'
+        },
+        {
+            // True end-to-end tests against real, running services (identity + builder + web).
+            // Requires `env:local` (or another real environment) with those services up; NOT run in CI.
             name: 'e2e',
             testDir: 'tests/e2e',
             testMatch: '**/*.test.ts'

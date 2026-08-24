@@ -1,6 +1,6 @@
 import { config as baseConfig } from '@generated/config';
 
-export const GAME_BASE_NAME = 'shine-client';
+export * from './constants';
 
 export type EnvironmentType = 'mock' | 'local' | 'dev' | 'prod';
 

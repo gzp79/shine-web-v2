@@ -50,8 +50,8 @@ jobs:
             - name: Component tests
               run: pnpm run test:component
 
-            - name: E2E tests
-              run: pnpm run test:e2e
+            - name: Integration tests
+              run: pnpm run test:integration
 
     build:
         runs-on: ubuntu-latest

@@ -4,7 +4,10 @@ import { type Theme } from '@lib/theme';
 
 declare global {
     interface ImportMeta {
-        readonly env: ImportMetaEnv & { readonly VITE_MOCK: boolean };
+        readonly env: ImportMetaEnv & {
+            readonly VITE_MOCK: boolean;
+            readonly VITE_SKIP_CAPTCHA: boolean;
+        };
     }
 
     interface Math {

@@ -1,26 +1,43 @@
 ---
 name: playwright-testing
-description: Use for writing, running, or debugging Playwright browser tests — both component tests (tests/component/) and e2e tests (tests/e2e/) — covering API integration, loading/error state transitions, error recovery and retry flows, and multi-page user journeys. Also use when a browser test is flaky on a transient state (spinner, disabled button, in-flight message) or hangs against the mocked server. For isolated component logic without a browser, use vitest-testing.
+description: Use for writing, running, or debugging Playwright browser tests — component tests (tests/component/), integration tests against mocked backends (tests/integration/), and real-services e2e tests (tests/e2e/) — covering API integration, loading/error state transitions, error recovery and retry flows, and multi-page user journeys. Also use when a browser test is flaky on a transient state (spinner, disabled button, in-flight message) or hangs against the mocked server. For isolated component logic without a browser, use vitest-testing.
 ---
 
 # Playwright Testing (Layer 2 & 3)
 
 **Playwright + browser** for API integration, state transitions, full user flows
-**Location:** `tests/**/*.test.ts` | **Run:** `pnpm test:component` (component) · `pnpm test:e2e` (e2e)
+**Location:** `tests/**/*.test.ts` | **Run:** `pnpm test:component` (component) · `pnpm test:integration` (mocked) · `pnpm test:e2e` (real services)
 
-## Environment: must be `mock` first
+## Three projects, two backends
 
-Before running or writing tests, the project must be on the mock environment:
+Playwright defines three projects (see `playwright.config.ts`); pick by what the test talks to:
+
+| Project       | Dir                  | Backend           | CI     | Run                     |
+| ------------- | -------------------- | ----------------- | ------ | ----------------------- |
+| `component`   | `tests/component/`   | MSW mocks         | ✅ yes | `pnpm test:component`   |
+| `integration` | `tests/integration/` | MSW mocks         | ✅ yes | `pnpm test:integration` |
+| `e2e`         | `tests/e2e/`         | **real services** | ❌ no  | `pnpm test:e2e`         |
+
+`component` + `integration` are the mocked Layer 2 suites and are the default for
+almost all work. `e2e` is the real-services Layer 3 suite — it authenticates for
+real and hits live endpoints, so it is **excluded from CI** and only runs against
+a real environment (`env:local`, etc.).
+
+## Environment: mock for component/integration, real for e2e
+
+For `component` and `integration`, the project must be on the mock environment:
 
 ```bash
-pnpm run env:mock   # MSW mocks — the environment tests run against
+pnpm run env:mock   # MSW mocks — the environment those tests run against
 ```
 
-This is essential, not optional: the test fixtures and handlers assume MSW is
+This is essential, not optional: the mock fixture and handlers assume MSW is
 active. Verify by reading `src/generated/config.ts` (`environment: 'mock'`); if
-it's anything else, run `env:mock` before proceeding. The other environments
-(`env:local`, `env:dev`, `env:prod` — see CLAUDE.md) point at real backends and
-are only for Layer 3 tests against live data.
+it's anything else, run `env:mock` before proceeding.
+
+The `e2e` project is the opposite — it needs a real environment (`env:local`, or
+`env:dev`/`env:prod` — see CLAUDE.md) with the identity, builder, and web servers
+actually running. Never run `e2e` against `mock`.
 
 ## The server is mocked, deterministic, and single-worker
 
@@ -42,44 +59,59 @@ DOM. Two consequences run through this whole guide:
 **Test:** API integration, state transitions (loading → success/error), error recovery, retry flows
 **Not:** Data mutations (avoid parallel logic - mocks don't mutate)
 
-## Layer 3: Real Backend (Sparingly)
+## Layer 3: Real Backend (Sparingly) — the `e2e` project
 
-**Env:** `pnpm run env:local` or `env:dev`
-**Test:** Actual data mutations, full system integration
-**Use:** Slow, requires real services
+**Env:** `pnpm run env:local` (or `env:dev`) with identity + builder + web running
+**Test:** Actual data mutations, full system integration, real auth, WebSocket flows
+**Use:** Slow, requires real services, not in CI
 
-## Directory: tests/component/ vs tests/e2e/
+## Directory: component/ vs integration/ vs e2e/
 
-Same stack, different scope. Choose layer by fixture usage, not directory.
+Same stack, different scope and backend. Choose by what the test talks to.
 
-- `component/` - Component-focused (dialogs, forms, cards)
-- `e2e/` - Multi-page flows (login → action → result)
+- `component/` - Mocked backend. Component-focused (dialogs, forms, cards)
+- `integration/` - Mocked backend. Multi-page flows through the real UI (login → action → result)
+- `e2e/` - **Real** backend. Full end-to-end journeys against live services
+
+`component` and `integration` share the `mock` fixture and MSW; the split is
+scope, not backend. `e2e` is the one that differs: real services, real auth, no
+MSW.
 
 ## Running Tests
 
 ### Prerequisites
 
+For `component` / `integration` (the common case):
+
 1. **Check environment is mock** — read `src/generated/config.ts` and verify `environment: 'mock'`. If not, ask the user to run `pnpm run env:mock`.
-2. **Dev server must be running** — component and E2E tests need `pnpm run dev` in the background.
+2. **Dev server must be running** — these tests need `pnpm run dev` in the background.
+
+For `e2e` (real services):
+
+1. **Real environment** — `pnpm run env:local` (or another real env), NOT `mock`.
+2. **Live services running** — identity, builder, and the web dev server must all be up.
 
 ### Commands
 
-| Command                | Scope                                                      |
-| ---------------------- | ---------------------------------------------------------- |
-| `pnpm test`            | All tests (unit → component → e2e, stops on first failure) |
-| `pnpm test:unit --run` | Vitest unit tests (single run)                             |
-| `pnpm test:unit`       | Vitest unit tests (watch mode)                             |
-| `pnpm test:component`  | Playwright — `tests/component/`                            |
-| `pnpm test:e2e`        | Playwright — `tests/e2e/`                                  |
+| Command                 | Scope                                                              |
+| ----------------------- | ------------------------------------------------------------------ |
+| `pnpm test`             | Unit → component → integration (mocked only; stops on 1st failure) |
+| `pnpm test:unit --run`  | Vitest unit tests (single run)                                     |
+| `pnpm test:unit`        | Vitest unit tests (watch mode)                                     |
+| `pnpm test:component`   | Playwright — `tests/component/` (mocked)                           |
+| `pnpm test:integration` | Playwright — `tests/integration/` (mocked)                         |
+| `pnpm test:e2e`         | Playwright — `tests/e2e/` (real services, not in CI)               |
+
+`pnpm test` and CI deliberately exclude `e2e` — it needs live services.
 
 ### Filtering
 
 ```bash
 # Run specific file
-pnpm test:component -- tests/component/account/activetokens.test.ts
+pnpm test:integration -- tests/integration/account/activetokens.test.ts
 
 # Filter by test name
-pnpm test:component -- --grep "revoke token"
+pnpm test:integration -- --grep "revoke token"
 ```
 
 ### Troubleshooting
@@ -302,37 +334,65 @@ test('logout button click redirects to bye page', async ({ page }) => {
 });
 ```
 
-### Layer 3: Without Mocks
+### Layer 3: Real services (`tests/e2e/`)
+
+Import from the `e2e` fixture (no MSW) and use the real-services helpers.
+Authenticate for real with `loginAsGuest`; drive WebSockets directly with
+`ChatWsClient`.
 
 ```typescript
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../../fixtures/e2e';
+import { ChatWsClient } from '../../helpers/chat-ws';
+import { loginAsGuest } from '../../helpers/real-auth';
 
-test('data mutation', async ({ page }) => {
-    await page.goto('/account/tokens');
-    const hash = await page.getByText(/hash-/).first().textContent();
+test('two users exchange chat through real services', async ({ browser }) => {
+    const ctx1 = await browser.newContext();
+    const page1 = await ctx1.newPage();
+    const user1 = await loginAsGuest(page1); // real identity guest login → sets sid cookie
+    const ws1 = new ChatWsClient(page1, 'user1'); // raw builder WS in the authed context
+    await ws1.connect();
 
-    await page.getByText('Revoke').first().click();
-    await page.getByRole('button', { name: 'Revoke' }).click();
-    await expect(page.getByText(hash!)).not.toBeVisible(); // Real deletion
+    const page2 = await browser.newPage();
+    await loginAsGuest(page2);
+    await page2.goto('/chat');
+
+    await ws1.send('hello'); // user 1 sends over the socket
+    await expect(page2.getByText('hello')).toBeVisible(); // user 2 sees it in the UI
+
+    await ctx1.close();
 });
 ```
+
+**Real-services helpers:**
+
+- `tests/helpers/real-auth.ts` — `loginAsGuest(page)` runs the real identity
+  guest-login flow (using the always-pass Turnstile test token) and returns
+  `{ userId, name }`, leaving the context with a valid `sid` session cookie.
+- `tests/helpers/chat-ws.ts` — `ChatWsClient` opens a raw builder chat
+  WebSocket **inside an authenticated page** (so the `sid` cookie attaches on
+  upgrade) and speaks the wire protocol directly: `connect()`, `send(text)`,
+  `waitForMessage(substring)`, `close()`. This is the tool for sending/receiving
+  WS messages without driving the chat UI.
 
 ## File Structure
 
 ```
 tests/
 ├── fixtures/
-│   └── mock.ts              # MockFixture + extended test
+│   ├── mock.ts              # MockFixture + extended test (component + integration)
+│   └── e2e.ts               # Real-services fixture (no MSW) for the e2e project
 ├── helpers/
-│   ├── auth-intercept.ts    # Playwright route interception for identity server
-│   ├── request-gate.ts      # Hold requests open to observe in-flight states
-│   └── interactions.ts      # Reusable UI interaction helpers (e.g., clickComboAction)
-├── component/               # Component-focused tests
-│   └── <feature>/
-│       └── *.test.ts
-└── e2e/                     # Multi-page flow tests
-    └── <feature>/
-        └── *.test.ts
+│   ├── auth-intercept.ts    # Playwright route interception for identity server (mocked)
+│   ├── request-gate.ts      # Hold requests open to observe in-flight states (mocked)
+│   ├── interactions.ts      # Reusable UI interaction helpers (e.g., clickComboAction)
+│   ├── real-auth.ts         # loginAsGuest — real identity guest login (e2e)
+│   └── chat-ws.ts           # ChatWsClient — raw builder WebSocket client (e2e)
+├── component/               # Mocked: component-focused tests
+│   └── <feature>/*.test.ts
+├── integration/             # Mocked: multi-page flow tests through the real UI
+│   └── <feature>/*.test.ts
+└── e2e/                     # Real services: full end-to-end journeys (not in CI)
+    └── <feature>/*.test.ts
 ```
 
 ## Philosophy: Avoid Parallel Logic

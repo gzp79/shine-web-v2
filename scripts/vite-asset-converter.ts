@@ -10,7 +10,7 @@ export function buildAssets(): Promise<void> {
             console.log('Building assets...');
             // Get output directory from vite config or use default
             const outDir = path.join(process.cwd(), 'static-generated/assets');
-            const child = spawn('pnpm', ['run', 'convert:web:ui', `--out=${outDir}`], {
+            const child = spawn('pnpm', ['run', 'convert:web', `--out=${outDir}`], {
                 cwd: '../shine-assets',
                 stdio: 'inherit',
                 shell: true
