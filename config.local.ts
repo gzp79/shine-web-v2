@@ -9,7 +9,7 @@ export const config = {
 
     identityUrl: 'https://cloud.local.scytta.com:8443/identity',
     builderUrl: 'https://cloud.local.scytta.com:8444/builder',
-    builderWSUrl: 'https://cloud.local.scytta.com:8444/builder',
+    builderWSUrl: 'https://ws.local.scytta.com:8444/builder',
 
     turnstile: {
         siteKey: '0000000000000000000000000000000000'

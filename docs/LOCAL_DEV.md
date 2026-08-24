@@ -7,13 +7,14 @@ the optional **game** client, and this **web app**.
 The `local` environment (`config.local.ts`) expects everything on `*.scytta.com`
 loopback hosts:
 
-| Piece    | Local URL                              | Served by                                  |
-| -------- | -------------------------------------- | ------------------------------------------ |
-| web      | `https://local.scytta.com:4443`        | this repo (Vite dev server)                |
-| assets   | `https://assets.local.scytta.com:4443` | this repo (Vite serves converted assets)   |
-| identity | `https://cloud.local.scytta.com:8443`  | `shine-services` (`identity: local` task)  |
-| builder  | `https://cloud.local.scytta.com:8444`  | `shine-services` (`builder: local` task)   |
-| game     | `https://game.local.scytta.com:8092`   | `shine-services` (`start mocked services`) |
+| Piece       | Local URL                              | Served by                                          |
+| ----------- | -------------------------------------- | -------------------------------------------------- |
+| web         | `https://local.scytta.com:4443`        | this repo (Vite dev server)                        |
+| assets      | `https://assets.local.scytta.com:4443` | this repo (Vite serves converted assets)           |
+| identity    | `https://cloud.local.scytta.com:8443`  | `shine-services` (`identity: local` task)          |
+| builder     | `https://cloud.local.scytta.com:8444`  | `shine-services` (`builder: local` task)           |
+| builder(WS) | `https://ws.local.scytta.com:8444`     | `shine-services` websocket (`builder: local` task) |
+| game        | `https://game.local.scytta.com:8092`   | `shine-services` (`start mocked services`)         |
 
 The game is **optional** — only the `/game` route needs it. Everything else (chat,
 account, …) runs without it. See [Game (optional)](#game-optional) below.
@@ -53,7 +54,7 @@ cd ../shine-assets && pnpm i
 cd ../../shine-web-v2 && pnpm i && pnpm run mkcert
 #    then trust both CAs (Windows, from shine-web-v2):
 #      certutil -addstore -user "ROOT" ".\certificates\ca.crt"
-#      certutil -addstore -user "ROOT" "..\shine-services\certs\ca.crt"
+#      certutil -addstore -user "ROOT" "..\shine-services\certificates\ca.crt"
 
 # 5. Web app                                                         → [Start the web app]
 pnpm run env:local
@@ -137,6 +138,23 @@ assets, identity, builder and game hosts, so it needs to trust both roots. On Wi
 certutil -addstore -user "ROOT" ".\certificates\ca.crt"
 certutil -addstore -user "ROOT" "..\shine-services\certs\ca.crt"
 ```
+
+**Replace old CAs.** If you regenerate either CA, remove its older trusted root
+before adding the replacement. List certificates in the current user's trusted-root
+store and identify the old CA by its `Subject`, `Issuer`, or `Cert Hash(sha1)`:
+
+```powershell
+certutil -user -store Root
+```
+
+Delete only the matching certificate, using its `Cert Hash(sha1)` value:
+
+```powershell
+certutil -delstore -user Root <THUMBPRINT>
+```
+
+For example, `certutil -delstore -user Root 12fabf678770d44e8b172d17d3463ac0807965be`.
+Restart the browser after changing trusted roots so it reloads the certificate store.
 
 > If you had older certs trusted, regenerate with the commands above (they now include
 > `assets.local.scytta.com` / `game.local.scytta.com`) and re-run the `certutil` steps —
