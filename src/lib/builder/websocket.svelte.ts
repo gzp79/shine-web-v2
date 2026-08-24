@@ -45,7 +45,7 @@ const NORMAL_CLOSURE = 1000;
  * Resilience:
  * - Reconnects with exponential backoff + jitter on any unexpected close.
  * - Buffers outgoing messages while disconnected and flushes them once reconnected.
- * - Recovers immediately when the browser regains connectivity or the tab becomes visible,
+ * - Recovers immediately when the browser regains connectivity or the tab becomes active,
  *   instead of waiting out the current backoff delay.
  * - Never reconnects after an explicit `close()`/`destroy()`.
  * - SSR-safe: does nothing until connected in the browser.
@@ -110,6 +110,7 @@ export class ResilientWebSocket {
 
         this.#shouldReconnect = true;
         this.#bindRecoveryListeners();
+        if (!this.#isPageActive()) return;
         this.#open();
     }
 
@@ -209,6 +210,12 @@ export class ResilientWebSocket {
 
     #scheduleReconnect(): void {
         if (!this.#shouldReconnect) return;
+        if (!this.#isPageActive()) {
+            this.#clearReconnectTimer();
+            this.#status = 'reconnecting';
+            logAPI.log('[ws] reconnect paused while page is inactive');
+            return;
+        }
 
         if (this.#attempts >= this.#options.maxReconnectAttempts) {
             logAPI.error('[ws] reconnect limit reached, giving up');
@@ -235,8 +242,14 @@ export class ResilientWebSocket {
     /** Skips the current backoff and retries now (e.g. connectivity restored). */
     #reconnectNow(): void {
         if (!this.#shouldReconnect || this.isConnected) return;
-        if (this.#ws && this.#ws.readyState <= WebSocket.OPEN) return;
+        if (!this.#isPageActive()) {
+            this.#clearReconnectTimer();
+            return;
+        }
 
+        // A backgrounded tab can leave a handshake stuck in CONNECTING forever (some browsers
+        // suspend it rather than failing it outright). `#open()` tears down any existing socket
+        // before creating a new one, so it's always safe to force a fresh attempt here.
         logAPI.log('[ws] connectivity restored, reconnecting now');
         this.#clearReconnectTimer();
         this.#attempts = 0;
@@ -273,22 +286,28 @@ export class ResilientWebSocket {
         }
     }
 
+    #isPageActive(): boolean {
+        if (!browser) return false;
+        // Focus (not just visibility) is unreliable: e.g. focusing the browser's own
+        // url bar blurs the document while the tab is still visible and the socket
+        // should keep reconnecting. Visibility alone tracks whether the tab is backgrounded.
+        return document.visibilityState === 'visible';
+    }
+
     readonly #onOnline = () => this.#reconnectNow();
-    readonly #onVisible = () => {
-        if (document.visibilityState === 'visible') this.#reconnectNow();
-    };
+    readonly #onVisibilityChange = () => this.#reconnectNow();
 
     #bindRecoveryListeners(): void {
         if (this.#listenersBound || !browser) return;
         this.#listenersBound = true;
         window.addEventListener('online', this.#onOnline);
-        document.addEventListener('visibilitychange', this.#onVisible);
+        document.addEventListener('visibilitychange', this.#onVisibilityChange);
     }
 
     #unbindRecoveryListeners(): void {
         if (!this.#listenersBound) return;
         this.#listenersBound = false;
         window.removeEventListener('online', this.#onOnline);
-        document.removeEventListener('visibilitychange', this.#onVisible);
+        document.removeEventListener('visibilitychange', this.#onVisibilityChange);
     }
 }

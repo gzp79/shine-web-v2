@@ -1,7 +1,16 @@
 import { testInEffectRoot } from '@testing';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { ResilientWebSocket } from './websocket.svelte';
+import { ResilientWebSocket, type ResilientWebSocketOptions } from './websocket.svelte';
+
+// Sockets bind listeners to the shared window/document; destroy them after each test so a
+// leftover, still-reconnecting socket from one test doesn't react to events dispatched by another.
+let createdSockets: ResilientWebSocket[] = [];
+function createSocket(options: ResilientWebSocketOptions): ResilientWebSocket {
+    const socket = new ResilientWebSocket(options);
+    createdSockets.push(socket);
+    return socket;
+}
 
 // A controllable fake WebSocket. Instances register themselves so tests can drive
 // open/message/close deterministically.
@@ -69,13 +78,16 @@ describe('ResilientWebSocket', () => {
 
     afterEach(() => {
         vi.runOnlyPendingTimers();
+        createdSockets.forEach((socket) => socket.destroy());
+        createdSockets = [];
+        vi.restoreAllMocks();
         vi.useRealTimers();
         vi.unstubAllGlobals();
     });
 
     test('connects and reports connected status', () => {
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({ url: 'ws://test/connect' });
+            const socket = createSocket({ url: 'ws://test/connect' });
             socket.connect();
             expect(socket.status).toBe('connecting');
 
@@ -89,7 +101,7 @@ describe('ResilientWebSocket', () => {
     test('delivers text frames to onMessage', () => {
         const onMessage = vi.fn();
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({ url: 'ws://test/connect', onMessage });
+            const socket = createSocket({ url: 'ws://test/connect', onMessage });
             socket.connect();
             FakeWebSocket.last().open();
             FakeWebSocket.last().emit('hello');
@@ -100,7 +112,7 @@ describe('ResilientWebSocket', () => {
 
     test('sends immediately when connected', () => {
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({ url: 'ws://test/connect' });
+            const socket = createSocket({ url: 'ws://test/connect' });
             socket.connect();
             FakeWebSocket.last().open();
 
@@ -111,7 +123,7 @@ describe('ResilientWebSocket', () => {
 
     test('queues messages while disconnected and flushes on connect', () => {
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({ url: 'ws://test/connect' });
+            const socket = createSocket({ url: 'ws://test/connect' });
             socket.connect();
 
             // Not open yet — buffered.
@@ -129,7 +141,7 @@ describe('ResilientWebSocket', () => {
 
     test('reconnects with backoff after an unexpected close', () => {
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({ url: 'ws://test/connect', baseReconnectDelay: 100 });
+            const socket = createSocket({ url: 'ws://test/connect', baseReconnectDelay: 100 });
             socket.connect();
             FakeWebSocket.last().open();
             flushSync();
@@ -153,7 +165,7 @@ describe('ResilientWebSocket', () => {
 
     test('does not reconnect after an explicit close', () => {
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({ url: 'ws://test/connect' });
+            const socket = createSocket({ url: 'ws://test/connect' });
             socket.connect();
             FakeWebSocket.last().open();
             flushSync();
@@ -171,7 +183,7 @@ describe('ResilientWebSocket', () => {
     test('gives up after maxReconnectAttempts and calls onGiveUp', () => {
         const onGiveUp = vi.fn();
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({
+            const socket = createSocket({
                 url: 'ws://test/connect',
                 baseReconnectDelay: 10,
                 maxReconnectDelay: 10,
@@ -196,7 +208,7 @@ describe('ResilientWebSocket', () => {
 
     test('recovers immediately when connectivity is restored', () => {
         testInEffectRoot(() => {
-            const socket = new ResilientWebSocket({ url: 'ws://test/connect', baseReconnectDelay: 60_000 });
+            const socket = createSocket({ url: 'ws://test/connect', baseReconnectDelay: 60_000 });
             socket.connect();
             FakeWebSocket.last().open();
             flushSync();
@@ -211,6 +223,76 @@ describe('ResilientWebSocket', () => {
             flushSync();
 
             expect(FakeWebSocket.instances.length).toBe(before + 1);
+        });
+    });
+
+    test('replaces a socket stuck connecting when the tab becomes visible again', () => {
+        testInEffectRoot(() => {
+            let visibilityState: DocumentVisibilityState = 'visible';
+            vi.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibilityState);
+
+            const socket = createSocket({ url: 'ws://test/connect' });
+            socket.connect();
+            // Never opens: simulates a handshake the browser suspends while backgrounded.
+            const stuck = FakeWebSocket.last();
+            expect(stuck.readyState).toBe(FakeWebSocket.CONNECTING);
+
+            visibilityState = 'hidden';
+            document.dispatchEvent(new Event('visibilitychange'));
+
+            visibilityState = 'visible';
+            document.dispatchEvent(new Event('visibilitychange'));
+
+            expect(FakeWebSocket.instances.length).toBe(2);
+            expect(stuck.readyState).toBe(FakeWebSocket.CLOSED);
+        });
+    });
+
+    test('pauses reconnect while the tab is hidden', () => {
+        testInEffectRoot(() => {
+            let visibilityState: DocumentVisibilityState = 'hidden';
+            vi.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibilityState);
+
+            const socket = createSocket({ url: 'ws://test/connect', baseReconnectDelay: 100 });
+            socket.connect();
+            expect(FakeWebSocket.instances).toHaveLength(0);
+
+            visibilityState = 'visible';
+            document.dispatchEvent(new Event('visibilitychange'));
+            FakeWebSocket.last().open();
+            flushSync();
+
+            visibilityState = 'hidden';
+            const before = FakeWebSocket.instances.length;
+            FakeWebSocket.last().serverClose();
+            flushSync();
+            expect(socket.status).toBe('reconnecting');
+
+            vi.advanceTimersByTime(1_000);
+            expect(FakeWebSocket.instances).toHaveLength(before);
+
+            visibilityState = 'visible';
+            document.dispatchEvent(new Event('visibilitychange'));
+            expect(FakeWebSocket.instances).toHaveLength(before + 1);
+        });
+    });
+
+    test('keeps reconnecting while the tab is visible but the window is blurred', () => {
+        testInEffectRoot(() => {
+            // e.g. the user focused the browser's url bar: the document blurs but the tab stays visible.
+            vi.spyOn(document, 'hasFocus').mockReturnValue(false);
+            const socket = createSocket({ url: 'ws://test/connect', baseReconnectDelay: 100 });
+            socket.connect();
+            FakeWebSocket.last().open();
+            flushSync();
+
+            const before = FakeWebSocket.instances.length;
+            FakeWebSocket.last().serverClose();
+            flushSync();
+            expect(socket.status).toBe('reconnecting');
+
+            vi.advanceTimersByTime(1_000);
+            expect(FakeWebSocket.instances).toHaveLength(before + 1);
         });
     });
 });

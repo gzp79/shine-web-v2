@@ -160,4 +160,81 @@ describe('BuilderChatConnection', () => {
             expect(chat.messages.map((m) => m.text)).toEqual(['two', 'three']);
         });
     });
+
+    test('tracks unread messages and clears them on markAllRead', () => {
+        testInEffectRoot(() => {
+            const chat = new BuilderChatConnection({ url: 'ws://test/connect' });
+            chat.connect();
+            FakeWebSocket.last().open();
+
+            expect(chat.hasUnread).toBe(false);
+            expect(chat.unreadCount).toBe(0);
+
+            FakeWebSocket.last().emitBatch([
+                { id: '1-0', from: 'a', text: 'first' },
+                { id: '2-0', from: 'b', text: 'second' }
+            ]);
+            flushSync();
+
+            expect(chat.unreadCount).toBe(2);
+            expect(chat.hasUnread).toBe(true);
+
+            chat.markAllRead();
+            expect(chat.unreadCount).toBe(0);
+            expect(chat.hasUnread).toBe(false);
+
+            FakeWebSocket.last().emitBatch([{ id: '3-0', from: 'a', text: 'third' }]);
+            flushSync();
+
+            expect(chat.unreadCount).toBe(1);
+            expect(chat.hasUnread).toBe(true);
+
+            // Re-marking read after already-read messages arrive again keeps count at zero.
+            chat.markAllRead();
+            FakeWebSocket.last().emitBatch([{ id: '1-0', from: 'a', text: 'first' }]);
+            flushSync();
+
+            expect(chat.unreadCount).toBe(0);
+        });
+    });
+
+    test('shows unread for messages missed while the tab was hidden and reconnecting', () => {
+        testInEffectRoot(() => {
+            let visibilityState: DocumentVisibilityState = 'visible';
+            vi.spyOn(document, 'visibilityState', 'get').mockImplementation(() => visibilityState);
+
+            const chat = new BuilderChatConnection({ url: 'ws://test/connect' });
+            chat.connect();
+            FakeWebSocket.last().open();
+            flushSync();
+
+            FakeWebSocket.last().emitBatch([{ id: '1-0', from: 'a', text: 'first' }]);
+            flushSync();
+            chat.markAllRead();
+            expect(chat.hasUnread).toBe(false);
+
+            // Tab goes to background and the connection drops while hidden.
+            visibilityState = 'hidden';
+            FakeWebSocket.last().close();
+            flushSync();
+            expect(chat.status).toBe('reconnecting');
+
+            // Switching back to the tab triggers an immediate reconnect.
+            visibilityState = 'visible';
+            document.dispatchEvent(new Event('visibilitychange'));
+            flushSync();
+            FakeWebSocket.last().open();
+
+            // The server resends recent history on the fresh connection, including what was missed.
+            FakeWebSocket.last().emitBatch([
+                { id: '1-0', from: 'a', text: 'first' },
+                { id: '2-0', from: 'b', text: 'missed while away' }
+            ]);
+            flushSync();
+
+            expect(chat.messages.map((m) => m.id)).toEqual(['1-0', '2-0']);
+            expect(chat.hasUnread).toBe(true);
+            expect(chat.unreadCount).toBe(1);
+        });
+    });
 });

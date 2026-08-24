@@ -156,10 +156,6 @@ certutil -delstore -user Root <THUMBPRINT>
 For example, `certutil -delstore -user Root 12fabf678770d44e8b172d17d3463ac0807965be`.
 Restart the browser after changing trusted roots so it reloads the certificate store.
 
-> If you had older certs trusted, regenerate with the commands above (they now include
-> `assets.local.scytta.com` / `game.local.scytta.com`) and re-run the `certutil` steps —
-> otherwise those two hosts throw a name-mismatch warning.
-
 ---
 
 ## Start the backend services (`shine-services`)

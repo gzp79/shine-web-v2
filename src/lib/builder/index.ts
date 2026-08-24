@@ -12,3 +12,4 @@ export {
     type ChatMessage
 } from './chatConnection.svelte';
 export { provideChatConnection, useChatConnection, tryGetChatConnection } from './chatContext';
+export { type SocketStatus, socketStatusList } from './websocket.svelte';

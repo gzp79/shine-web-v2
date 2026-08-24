@@ -8,20 +8,40 @@
     import { logUser } from '@lib/loggers';
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Chat from '@lib/ui/atoms/icons/common/Chat.svelte';
+    import { getConnectionStatusContext } from '@lib/ui/app/ConnectionStatus.svelte';
     import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
+    import { ChatPanel } from '@lib/ui/components/chat';
     import { createAppError } from '@lib/utils';
 
     let { children } = $props();
 
     const locale = getLocaleContext();
     const appMenu = getMenuContext();
+    const connectionStatus = getConnectionStatusContext();
 
-    // Make a chat connection available to every page in the auth region. It stays idle
-    // until a page actually uses it (useChatConnection), and is disposed on region teardown.
-    provideChatConnection();
+    // Establish the connection for the whole auth region up front, so the app-shell
+    // status indicator always reflects live state, not just once a page opens the panel.
+    const connection = provideChatConnection();
+    connection.connect();
+
+    let chatOpen = $state(false);
+
+    $effect(() => {
+        connectionStatus.set({
+            get status() {
+                return connection.status;
+            },
+            get hasUnread() {
+                return connection.hasUnread;
+            },
+            onClick: () => {
+                chatOpen = true;
+            }
+        });
+        return () => connectionStatus.set(undefined);
+    });
 
     $effect(() => {
         logUser.log('Registering account menu items');
@@ -32,13 +52,6 @@
                 label: locale.t('account.accountInfo'),
                 icon: Settings,
                 action: () => goto(resolve('/account'))
-            }),
-            appMenu.register({
-                id: 'chat',
-                section: 'global',
-                label: locale.t('chat.chat'),
-                icon: Chat,
-                action: () => goto(resolve('/chat'))
             })
         ];
         return () => unregisters.forEach((fn) => fn());
@@ -57,6 +70,7 @@
             {/snippet}
 
             {@render children()}
+            <ChatPanel {connection} bind:open={chatOpen} />
         </svelte:boundary>
     </LogoutGuard>
 </AuthGuard>

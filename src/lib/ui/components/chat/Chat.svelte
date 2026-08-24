@@ -3,7 +3,6 @@
     import type { ClassValue } from 'svelte/elements';
     import { BuilderChatConnection } from '@lib/builder';
     import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Spinner from '@lib/ui/atoms/icons/animated/Spinner.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { shortenString } from '@lib/ui/utils';
     import ChatInput from './ChatInput.svelte';
@@ -47,28 +46,9 @@
             author: message.from === selfId ? 'You' : shortenString(message.from, 12)
         }))
     );
-
-    const statusLabel = $derived(
-        {
-            idle: 'Not connected',
-            connecting: 'Connecting…',
-            connected: 'Connected',
-            reconnecting: 'Reconnecting…',
-            closed: 'Disconnected'
-        }[chat.status]
-    );
-
-    const busy = $derived(chat.status === 'connecting' || chat.status === 'reconnecting');
 </script>
 
 <Stack direction="column" spacing={2} class={className} data-slot="chat">
-    <Stack direction="row" spacing={2} alignment="center" class="shrink-0">
-        {#if busy}
-            <Spinner class="h-4 w-4" />
-        {/if}
-        <Typography variant="footnote" class="opacity-70">{statusLabel}</Typography>
-    </Stack>
-
     <div class="min-h-0 flex-1">
         <ChatMessageList messages={items}>
             {#snippet empty()}

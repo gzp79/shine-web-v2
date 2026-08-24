@@ -49,6 +49,8 @@ export class BuilderChatConnection {
     readonly #seen = new SvelteSet<string>();
 
     #messages = $state<ChatMessage[]>([]);
+    /** Stream id of the last message the caller has marked as read; `undefined` means none read yet. */
+    #lastReadId = $state<string | undefined>(undefined);
 
     constructor(options: BuilderChatConnectionOptions = {}) {
         this.#maxMessages = options.maxMessages ?? 500;
@@ -71,6 +73,29 @@ export class BuilderChatConnection {
     /** Reactive, ordered, de-duplicated message list. */
     get messages(): readonly ChatMessage[] {
         return this.#messages;
+    }
+
+    /** Number of messages newer than the last {@link markAllRead} call. Reactive. */
+    get unreadCount(): number {
+        const lastReadId = this.#lastReadId;
+        if (!lastReadId) return this.#messages.length;
+        let count = 0;
+        for (let i = this.#messages.length - 1; i >= 0; i--) {
+            const message = this.#messages[i];
+            if (!message || compareStreamIds(message.id, lastReadId) <= 0) break;
+            count++;
+        }
+        return count;
+    }
+
+    /** True while {@link unreadCount} is non-zero. Reactive. */
+    get hasUnread(): boolean {
+        return this.unreadCount > 0;
+    }
+
+    /** Marks all currently known messages as read, clearing {@link unreadCount}. */
+    markAllRead(): void {
+        this.#lastReadId = this.#messages.at(-1)?.id;
     }
 
     /** Opens the connection. No-op on the server. */
