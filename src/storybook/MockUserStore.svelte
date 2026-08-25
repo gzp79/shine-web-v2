@@ -3,9 +3,7 @@
 
     /** Mutually exclusive lookup outcomes: a batch resolves, hangs, or fails. */
     export type MockLookup =
-        | { kind: 'resolved'; users?: Record<string, PublicUserData> }
-        | { kind: 'pending' }
-        | { kind: 'error' };
+        { kind: 'resolved'; users?: Record<string, PublicUserData> } | { kind: 'pending' } | { kind: 'error' };
 </script>
 
 <script lang="ts">
