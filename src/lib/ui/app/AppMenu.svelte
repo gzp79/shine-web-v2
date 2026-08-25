@@ -95,13 +95,7 @@
     </DropdownItem>
 {/snippet}
 
-<DropdownMenu
-    trigger={fromComponent(Hamburger)}
-    triggerStyle={{ class: 'absolute right-0 top-0 z-[10000] gap-0 h-8 w-8 p-0 m-4 rounded-sm' }}
-    to="#popover"
-    side="left"
-    {collisionPadding}
->
+<DropdownMenu trigger={fromComponent(Hamburger)} to="#popover" side="left" {collisionPadding}>
     <!-- Setting section -->
 
     <FullscreenMenu />

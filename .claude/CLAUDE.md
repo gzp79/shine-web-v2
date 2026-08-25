@@ -15,6 +15,12 @@
 - **Testing:** Vitest (unit), Playwright (integration/E2E), Storybook 10 (visual)
 - **Rendering:** CSR by default (`ssr = false` in root layout); individual pages can opt in with `export const ssr = true` in `+page.ts`
 
+## Class Members
+
+- **Private:** native `#field` / `#method()` (real runtime privacy, modern TS default)
+- **Protected / inherited:** TS `protected` (no prefix) — `#` cannot be `protected` or overridden
+- Do not use the legacy `_`-prefixed `private` convention in new code
+
 ## Component Usage
 
 **Priority:** Component props → utility classes → suggest enhancement for patterns

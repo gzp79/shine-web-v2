@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>User Store</title>
+        <link rel="stylesheet" href="doc.css" />
+    </head>
+    <body>
+        <header class="doc-header">
+            <h1 class="doc-title">User Store</h1>
+            <div class="doc-meta">
+                <span>Shared, batched, reference-counted cache of public user data, resolved through a BFF.</span>
+            </div>
+        </header>
+
+        <h2>Problem</h2>
+        <p>
+            Many components need to turn a user <code>id</code> into a display name at the same time. A naive
+            per-component fetch would issue one request per id and let each component drift with its own loading and
+            error state. The user store gives every consumer of an id <strong>the same reactive entry</strong>, collects
+            the ids requested within a short window into <strong>one batched request</strong>, and resolves them through
+            a BFF so the identity service URL and credentials never reach the browser. The current user is reconciled
+            into the same cache, so <code>me.name</code> and a cached lookup of the same id can never disagree.
+        </p>
+
+        <h2>Architecture</h2>
+
+        <p>
+            Resolution pipeline in the browser — a request travels down; the result is written back into the shared
+            entry, which re-renders every consumer:
+        </p>
+
+        <div class="canvas">
+            <div class="layer-row">
+                <div class="layer-label">Consumers</div>
+                <div class="layer-body">
+                    <div class="box box-pink" style="flex: 1">
+                        <div class="bname">UserName</div>
+                        <div class="bdetail">reads name reactively<br />get(id) in a $derived</div>
+                    </div>
+                </div>
+            </div>
+            <div class="arrow-row" style="min-height: 40px">
+                <div class="arrow-spacer"></div>
+                <div class="arrow-body">
+                    <div class="arrow-item arr-blue" style="flex: 1">
+                        <div class="arrow-stem" style="height: 8px"></div>
+                        <div class="arrow-label">get(id) — subscribes; queues when missing or stale</div>
+                        <div class="arrow-stem" style="height: 8px"></div>
+                        <div class="arrow-head"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layer-row">
+                <div class="layer-label">Store · browser</div>
+                <div class="layer-body">
+                    <div class="box box-blue" style="flex: 1">
+                        <div class="bname">BrowserUserStore</div>
+                        <div class="bdetail">dedupes ids · ref-counts · reconciles me · periodic sweep</div>
+                    </div>
+                    <div class="box box-green" style="flex: 1">
+                        <div class="bname">Entry cache</div>
+                        <div class="bdetail">Map&lt;id, $state entry&gt;<br />mutated in place, never replaced</div>
+                    </div>
+                </div>
+            </div>
+            <div class="arrow-row" style="min-height: 40px">
+                <div class="arrow-spacer"></div>
+                <div class="arrow-body">
+                    <div class="arrow-item arr-teal" style="flex: 1">
+                        <div class="arrow-stem" style="height: 8px"></div>
+                        <div class="arrow-label">debounced batch — POST { ids }, chunked by maxBatchSize</div>
+                        <div class="arrow-stem" style="height: 8px"></div>
+                        <div class="arrow-head"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layer-row">
+                <div class="layer-label">BFF · /api/users/names</div>
+                <div class="layer-body">
+                    <div class="box box-teal" style="flex: 1">
+                        <div class="bname">POST +server.ts</div>
+                        <div class="bdetail">validates ids · re-projects to public fields only</div>
+                    </div>
+                </div>
+            </div>
+            <div class="arrow-row" style="min-height: 40px">
+                <div class="arrow-spacer"></div>
+                <div class="arrow-body">
+                    <div class="arrow-item arr-indigo" style="flex: 1">
+                        <div class="arrow-stem" style="height: 8px"></div>
+                        <div class="arrow-label">server fetch { userIds } — retried with backoff</div>
+                        <div class="arrow-stem" style="height: 8px"></div>
+                        <div class="arrow-head"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="layer-row">
+                <div class="layer-label">Identity service</div>
+                <div class="layer-body">
+                    <div class="box box-indigo" style="flex: 1">
+                        <div class="bname">public info endpoint</div>
+                        <div class="bdetail">internal; url + credentials never reach the browser</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p>
+            On the way back, <code>#resolveBatch</code> mutates each cached entry (<code>name</code>,
+            <code>error</code>, <code>loading</code>, <code>fetchedAt</code>) rather than replacing it, so every
+            component holding that <code>$state</code> object re-renders. On the server the store is an inert stub that
+            participates in none of this — see <em>SSR</em> below.
+        </p>
+
+        <h3>Entry lifecycle</h3>
+        <p>Each entry moves through ttl and eviction like this:</p>
+
+        <div class="lifecycle">
+            <div class="hflow">
+                <div class="box box-dim">
+                    <div class="bname">Missing</div>
+                    <div class="bdetail">fetchedAt = 0</div>
+                </div>
+                <div class="hconn"><div class="hconn-label">get → queue</div></div>
+                <div class="box box-blue">
+                    <div class="bname">Loading</div>
+                    <div class="bdetail">loading = true<br />batch in flight</div>
+                </div>
+                <div class="hconn"><div class="hconn-label">batch resolves</div></div>
+                <div class="box box-green">
+                    <div class="bname">Fresh</div>
+                    <div class="bdetail">name set<br />within ttl</div>
+                </div>
+                <div class="hconn"><div class="hconn-label">ttl elapses</div></div>
+                <div class="box box-orange">
+                    <div class="bname">Stale</div>
+                    <div class="bdetail">now − fetchedAt &gt; ttlMs</div>
+                </div>
+            </div>
+            <div class="cycle-return">
+                sweep() (every sweepIntervalMs) evicts a Stale entry with refs = 0 → Missing · a still-read Stale entry
+                re-queues on the next get → Loading · on failure loading clears and error is set, the entry stays cached
+            </div>
+        </div>
+
+        <h2>Key rules</h2>
+
+        <table>
+            <tr>
+                <th>Aspect</th>
+                <th>Rule</th>
+            </tr>
+            <tr>
+                <td><code>loading</code></td>
+                <td>
+                    In the browser: true only while a batch request for that id is in flight (set by
+                    <code>#queue</code>, cleared by <code>#resolveBatch</code>). On the server it is always true — the
+                    name resolves after hydration.
+                </td>
+            </tr>
+            <tr>
+                <td><code>error</code></td>
+                <td>
+                    <code>'not-found'</code> when the id resolved but the backend returned no record; the transport
+                    message when the request failed. Cleared on the next successful resolve.
+                </td>
+            </tr>
+            <tr>
+                <td><code>fetchedAt</code> / ttl</td>
+                <td>
+                    Epoch ms of the last success; <code>0</code> = never resolved. Stale when
+                    <code>fetchedAt === 0</code> or <code>now − fetchedAt &gt; ttlMs</code> (default 5&nbsp;min).
+                </td>
+            </tr>
+            <tr>
+                <td><code>refs</code></td>
+                <td>
+                    Live-reader count. <code>get</code> references an entry while it is read in a reaction and releases
+                    when it is no longer read; <code>use</code> references at init and releases on destroy.
+                    <code>sweep</code> evicts only entries with <code>refs === 0</code>.
+                </td>
+            </tr>
+            <tr>
+                <td>Batching</td>
+                <td>
+                    Queued ids are collected for <code>debounceMs</code> (default 100&nbsp;ms) then flushed in one call,
+                    split into <code>maxBatchSize</code> chunks (default 100).
+                    <span class="tag neutral">browser only</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Sweep</td>
+                <td>
+                    Runs every <code>sweepIntervalMs</code> (default = <code>ttlMs</code>) in the browser; evicts stale,
+                    unreferenced, non-loading entries. Cleared on <code>destroy</code>.
+                    <span class="tag neutral">browser only</span>
+                </td>
+            </tr>
+            <tr>
+                <td><code>me</code></td>
+                <td>
+                    The current user's entry is owned by the <code>getMe</code> effect, upgraded in place, and skipped
+                    by both <code>invalidate</code> and the batch — it is never fetched through the lookup.
+                </td>
+            </tr>
+            <tr>
+                <td>SSR</td>
+                <td>
+                    The server store is stateless: <code>get</code>/<code>use</code> return a fresh
+                    <code>loading</code> entry — the same start state the client begins from — with no fetch, timers or
+                    storage. The browser store created after hydration performs the real load, so hydration is seamless.
+                    <span class="tag good">safe</span>
+                </td>
+            </tr>
+        </table>
+
+        <h2>Reactive usage</h2>
+
+        <p>
+            Read entries reactively; because each entry is a <code>$state</code> proxy, reading one of its fields inside
+            a <code>$derived</code> or effect tracks it.
+        </p>
+
+        <table>
+            <tr>
+                <th>API</th>
+                <th>Use it when</th>
+                <th>Notes</th>
+            </tr>
+            <tr>
+                <td><code>get(id)</code></td>
+                <td>Reading a user in markup or a <code>$derived</code></td>
+                <td>
+                    The primary path. <code>const user = $derived(users.get(id))</code>; the entry is referenced and
+                    loaded while it is read and released automatically when it no longer is. A plain read outside a
+                    tracking context.
+                </td>
+            </tr>
+            <tr>
+                <td><code>use(id)</code></td>
+                <td>A fixed id, read imperatively at init</td>
+                <td>Returns the shared entry and auto-releases on destroy. Throws if called outside init.</td>
+            </tr>
+            <tr>
+                <td><code>useUser(id)</code></td>
+                <td>Shorthand</td>
+                <td>Equivalent to <code>getUserStore().use(id)</code>.</td>
+            </tr>
+            <tr>
+                <td><code>invalidate(id?)</code></td>
+                <td>Force a refresh</td>
+                <td>Marks entries stale; still-read ones re-queue immediately. Omit <code>id</code> for all.</td>
+            </tr>
+        </table>
+
+        <p>Two things keep this safe:</p>
+        <ul>
+            <li>
+                <strong>Read through <code>get</code> and let the reader's lifetime do the rest.</strong> While the
+                entry is read inside markup or a <code>$derived</code> it is referenced (so <code>sweep</code> cannot
+                evict it) and loaded on demand; when the last reader stops, the reference is dropped automatically. No
+                manual acquire/release, and no <code>$state</code> assigned inside an effect.
+            </li>
+            <li>
+                <strong>Mutate, never replace.</strong> The store updates an entry's fields in place, so every reader of
+                that <code>$state</code> object re-renders. Bind to <code>entry.name</code> /
+                <code>entry.loading</code> directly — no need to look the entry back up.
+            </li>
+        </ul>
+
+        <h3>Provisioning</h3>
+        <p>
+            Create one store per request-region in a layout <code>&lt;script&gt;</code> with
+            <code>provideUserStore</code> (see <code>AuthGuard.svelte</code>), never as a module-global singleton —
+            module state is shared across SSR requests. <code>provideUserStore</code> branches on
+            <code>browser</code> to construct the server or browser implementation, mirroring
+            <code>createCurrentUserStore</code>. Descendants read it with <code>getUserStore</code>,
+            <code>tryGetUserStore</code>, or the <code>useUser</code> shorthand.
+        </p>
+
+        <h2>File map</h2>
+
+        <table>
+            <tr>
+                <th>File</th>
+                <th>Role</th>
+            </tr>
+            <tr>
+                <td><code>src/lib/account/userStore.svelte.ts</code></td>
+                <td>
+                    The store: <code>UserStore</code> interface, <code>ServerUserStore</code> /
+                    <code>BrowserUserStore</code>, entry cache, batching, ttl, sweep, and the
+                    <code>provideUserStore</code> / <code>getUserStore</code> / <code>useUser</code> context helpers.
+                </td>
+            </tr>
+            <tr>
+                <td><code>src/lib/ui/components/user/UserName.svelte</code></td>
+                <td>
+                    Consumer: resolves an id to a name reactively via <code>get</code> in a <code>$derived</code>, with
+                    placeholder / self / fallback labels.
+                </td>
+            </tr>
+            <tr>
+                <td><code>src/lib/ui/components/user/index.ts</code></td>
+                <td>Barrel export for the user components.</td>
+            </tr>
+            <tr>
+                <td><code>src/lib/server/api/userApiRoutes.ts</code></td>
+                <td>Identity-service URL, zod schemas, and the max-ids cap for the public-info lookup.</td>
+            </tr>
+            <tr>
+                <td><code>src/routes/api/users/names/+server.ts</code></td>
+                <td>
+                    BFF <code>POST</code> route: validates the id list, calls the identity service with pass-through
+                    headers, re-projects to public fields.
+                </td>
+            </tr>
+            <tr>
+                <td><code>src/lib/account/AuthGuard.svelte</code></td>
+                <td>
+                    Provides the store for the authenticated region and wires <code>getMe</code> to the current user.
+                </td>
+            </tr>
+        </table>
+
+        <details data-agent="implementation">
+            <summary>Why the server store is an inert stub</summary>
+            <div class="details-body">
+                <p>
+                    <code>provideUserStore</code> returns a <code>ServerUserStore</code> on the server and a
+                    <code>BrowserUserStore</code> in the browser, the same split as <code>createCurrentUserStore</code>.
+                    Unlike the current-user store this is <em>not</em> a data-leak boundary — the store only ever holds
+                    public fields (<code>PublicUserData = { name }</code>), and the BFF re-projects to those fields
+                    before anything reaches the client. The split is for <strong>safety by construction</strong>: the
+                    server class is stateless — no fetch path, no entry cache, no timers — so there is no server-side
+                    reactivity to waste and no guard for a future edit to accidentally remove. Its
+                    <code>get</code>/<code>use</code> hand back a fresh <code>loading</code> entry, the same state the
+                    browser store presents on first paint, so the server renders what the client starts from. All
+                    caching, batching, <code>me</code> reconciliation and sweeping live in the browser class. The whole
+                    path is defensive today anyway — the root layout sets <code>ssr = false</code>
+                    (<code>src/routes/+layout.ts</code>), so neither class renders on the server in normal operation.
+                </p>
+            </div>
+        </details>
+
+        <details data-agent="implementation">
+            <summary>get-or-fetch is powered by createSubscriber, not an effect</summary>
+            <div class="details-body">
+                <p>
+                    <code>get(id)</code> is meant to be read straight inside a <code>$derived</code> (<code
+                        >const user = $derived(users.get(id))</code
+                    >) — no <code>$effect</code> assigning <code>$state</code>. Two details make reading a store method
+                    inside a derived safe. First, the entry cache is a plain <code>Map</code>, not a
+                    <code>SvelteMap</code>: membership is read only imperatively (sweep, invalidate), so creating an
+                    entry inside a derived does not mutate tracked state and never trips
+                    <code>state_unsafe_mutation</code>; the reactivity lives on each entry, which is a
+                    <code>$state</code> proxy. Second, each entry owns a
+                    <a href="https://svelte.dev/docs/svelte/svelte-reactivity#createSubscriber"
+                        ><code>createSubscriber</code></a
+                    >
+                    handle; subscribing to it inside the reading reaction runs its <code>start</code> (reference the
+                    entry, queue a load if stale) in an internal effect — where mutation is legal — and its cleanup
+                    (unreference) when the last reader is torn down. That is why <code>get</code> can serve as a
+                    get-or-fetch while a naked <code>acquire()</code> inside a derived could not: the side effects run
+                    in an effect the subscriber owns, and the reference count follows the reader automatically. See
+                    <code>#createEntry</code> in <code>userStore.svelte.ts</code>.
+                </p>
+            </div>
+        </details>
+
+        <details data-agent="implementation">
+            <summary>me reconciliation is owned by an effect, not the batch</summary>
+            <div class="details-body">
+                <p>
+                    When <code>getMe()</code> becomes available, a rooted <code>$effect</code> upgrades the current
+                    user's entry in place (<code>#applyMe</code>) instead of replacing it, so components already
+                    rendering that id see the name without a round-trip. Because that entry is effect-owned,
+                    <code>invalidate</code> and the batch loop both skip <code>meId</code> — re-fetching it through the
+                    public lookup could momentarily disagree with the authoritative <code>me</code> value. The effect is
+                    created with <code>$effect.root</code> so the store can be constructed outside component
+                    initialisation (tests, provisioning) and is torn down in <code>destroy</code>.
+                </p>
+            </div>
+        </details>
+    </body>
+</html>

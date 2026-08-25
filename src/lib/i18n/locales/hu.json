@@ -16,7 +16,8 @@
         "dateTime": "{date|dateTime}",
         "welcome": "Üdvözöljük",
         "greeting": "Helló, {name}!",
-        "themeName": "Téma"
+        "themeName": "Téma",
+        "anonymousUser": "Névtelen"
     },
     "account": {
         "logout": "Kijelentkezés",
@@ -134,5 +135,9 @@
     "app": {
         "title": "Alkalmazás cím",
         "description": "Alkalmazás leírás"
+    },
+    "chat": {
+        "chat": "Csevegés",
+        "you": "Te"
     }
 }

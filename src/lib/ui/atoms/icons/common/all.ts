@@ -1,5 +1,9 @@
 import type { IconSet } from '@lib/ui/atoms/icons/IconBase.svelte';
+import Chat from '@lib/ui/atoms/icons/common/Chat.svelte';
 import Check from '@lib/ui/atoms/icons/common/Check.svelte';
+import ConnectionConnecting from '@lib/ui/atoms/icons/common/ConnectionConnecting.svelte';
+import ConnectionOffline from '@lib/ui/atoms/icons/common/ConnectionOffline.svelte';
+import ConnectionOnline from '@lib/ui/atoms/icons/common/ConnectionOnline.svelte';
 import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
 import Dark from '@lib/ui/atoms/icons/common/Dark.svelte';
 import DarkAndLight from '@lib/ui/atoms/icons/common/DarkLight.svelte';
@@ -13,7 +17,11 @@ import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
 import Warning from '@lib/ui/atoms/icons/common/Warning.svelte';
 
 const all = {
+    chat: Chat,
     check: Check,
+    connectionOnline: ConnectionOnline,
+    connectionConnecting: ConnectionConnecting,
+    connectionOffline: ConnectionOffline,
     cross: Cross,
     hamburger: Hamburger,
     settings: Settings,

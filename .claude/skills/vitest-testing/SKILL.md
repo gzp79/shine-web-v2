@@ -25,9 +25,7 @@ describe('ComponentName', () => {
     test('simple behavior', async () => {
         const user = userEvent.setup();
         render(Component, {
-            props: {
-                /* ... */
-            }
+            props: {/* ... */}
         });
 
         await user.click(screen.getByRole('button'));
@@ -38,9 +36,7 @@ describe('ComponentName', () => {
     test('complex multi-step behavior', async () => {
         const user = userEvent.setup();
         render(Component, {
-            props: {
-                /* ... */
-            }
+            props: {/* ... */}
         });
 
         await step('fill and submit form', async () => {
@@ -137,9 +133,7 @@ import { step } from '@testing';
 
 test('complex workflow', async () => {
     render(Component, {
-        props: {
-            /* ... */
-        }
+        props: {/* ... */}
     });
 
     await step('initial state', () => {

@@ -24,8 +24,7 @@
     let isUpdating = $state(false);
 
     type Validation =
-        | { success: true; error: undefined; value: unknown }
-        | { success: false; error: string; value: undefined };
+        { success: true; error: undefined; value: unknown } | { success: false; error: string; value: undefined };
 
     const validation: Validation = $derived.by(() => {
         if (!hasParams) return { success: true, error: undefined, value: undefined };
