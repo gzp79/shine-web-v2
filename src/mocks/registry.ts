@@ -17,7 +17,14 @@ import {
     unlinkIdentityHandler
 } from './data/account/mocks';
 import { defaultProviders } from './data/providers/mocks';
-import { defaultGuestUser, unauthorizedUser, unverifiedUserHandler, verifiedUserHandler } from './data/users/mock';
+import {
+    defaultGuestUser,
+    defaultPublicUserInfo,
+    publicUserInfoUnauthorized,
+    unauthorizedUser,
+    unverifiedUserHandler,
+    verifiedUserHandler
+} from './data/users/mock';
 import { withDelay, withIdentityDown } from './middleware';
 
 // Registry of all mock handlers for easy reference in tests and mock control API
@@ -27,6 +34,8 @@ export const registry = {
     defaultGuestUser: { factory: () => defaultGuestUser },
     verifiedUser: { factory: () => verifiedUserHandler },
     unverifiedUser: { factory: () => unverifiedUserHandler },
+    defaultPublicUserInfo: { factory: () => defaultPublicUserInfo },
+    publicUserInfoUnauthorized: { factory: () => publicUserInfoUnauthorized },
     withIdentityDown: { factory: () => withIdentityDown },
     withDelay: {
         factory: (params: { ms: number }) => withDelay(params.ms),

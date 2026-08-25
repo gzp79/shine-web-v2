@@ -2,9 +2,11 @@
     import { onMount } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
     import { BuilderChatConnection } from '@lib/builder';
+    import { getLocaleContext } from '@lib/i18n';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { shortenString } from '@lib/ui/utils';
+    import { UserName } from '@lib/ui/components/user';
+    import ChatBubble from './ChatBubble.svelte';
     import ChatInput from './ChatInput.svelte';
     import ChatMessageList, { type ChatListItem } from './ChatMessageList.svelte';
 
@@ -22,6 +24,8 @@
 
 <script lang="ts">
     let { selfId, connection, class: className }: ChatProps = $props();
+
+    const locale = getLocaleContext();
 
     // Own the connection only when the caller did not supply one. The prop is read once
     // by design: a chat instance is bound to a single connection for its lifetime.
@@ -42,8 +46,7 @@
             id: message.id,
             text: message.text,
             own: message.from === selfId,
-            // Placeholder for a future <User /> component; show a shortened id for now.
-            author: message.from === selfId ? 'You' : shortenString(message.from, 12)
+            authorId: message.from
         }))
     );
 </script>
@@ -51,6 +54,16 @@
 <Stack direction="column" spacing={2} class={className} data-slot="chat">
     <div class="min-h-0 flex-1">
         <ChatMessageList messages={items}>
+            {#snippet item(message)}
+                <ChatBubble text={message.text} own={message.own}>
+                    {#snippet author()}
+                        {#if message.authorId}
+                            <UserName id={message.authorId} selfLabel={locale.t('chat.you')} />
+                        {/if}
+                    {/snippet}
+                </ChatBubble>
+            {/snippet}
+
             {#snippet empty()}
                 <Stack alignment="center" justification="center" class="h-full">
                     <Typography variant="footnote" class="opacity-60">No messages yet.</Typography>

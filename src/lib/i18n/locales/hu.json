@@ -136,6 +136,7 @@
         "description": "Alkalmazás leírás"
     },
     "chat": {
-        "chat": "Csevegés"
+        "chat": "Csevegés",
+        "you": "Te"
     }
 }

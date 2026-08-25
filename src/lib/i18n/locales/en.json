@@ -139,6 +139,7 @@
         "description": "Application Description"
     },
     "chat": {
-        "chat": "Chat"
+        "chat": "Chat",
+        "you": "You"
     }
 }

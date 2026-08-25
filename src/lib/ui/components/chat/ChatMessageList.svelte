@@ -10,8 +10,10 @@
         text: string;
         /** Whether this message belongs to the current user (aligned to the end). */
         own: boolean;
-        /** Author label; a placeholder for a future user component. */
+        /** Pre-rendered author label; ignored when the caller supplies a custom `item` snippet. */
         author?: string;
+        /** Author's user id, for callers that resolve the label themselves. */
+        authorId?: string;
     };
 
     /**

@@ -5,6 +5,7 @@
     import type { Snippet } from 'svelte';
     import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { createCurrentUserStore } from '@lib/account/currentUserStore.svelte';
+    import { provideUserStore } from '@lib/account/userStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
@@ -37,6 +38,15 @@
             return user;
         },
         refresh: () => currentUser.refresh()
+    });
+
+    // Public user lookups live next to the current user so the store can reconcile `me`
+    // into its cache as soon as the identity is known.
+    provideUserStore({
+        getMe: () => {
+            const user = currentUser.current;
+            return user?.authenticated ? { id: user.id, name: user.name } : undefined;
+        }
     });
 
     $effect(() => {

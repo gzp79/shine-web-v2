@@ -10,8 +10,8 @@
         text: string;
         /** Align to the end (own messages) or the start (others'). */
         own?: boolean;
-        /** Author label rendered above the text. A placeholder for a future user component. */
-        author?: string;
+        /** Author label rendered above the text; a snippet lets the caller resolve it lazily. */
+        author?: string | Snippet;
         /** Bubble color. Defaults to `primary` for own messages and `container` for others. */
         color?: ActionColor | 'container';
         /** Optional trailing content (e.g. a timestamp), rendered as a snippet. */
@@ -42,7 +42,11 @@
     <div class={bubbleCls}>
         {#if author}
             <Typography variant="footnote" weight="emphasis" class={cn(`text-on-${resolvedColor}`, 'opacity-70')}>
-                {author}
+                {#if typeof author === 'function'}
+                    {@render author()}
+                {:else}
+                    {author}
+                {/if}
             </Typography>
         {/if}
         <Typography variant="text" class="whitespace-pre-wrap text-start">{text}</Typography>
