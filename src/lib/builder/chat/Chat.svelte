@@ -1,14 +1,12 @@
 <script module lang="ts">
     import { onMount } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
-    import { BuilderChatConnection } from '@lib/builder';
+    import UserName from '@lib/account/UserName.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { UserName } from '@lib/ui/components/user';
-    import ChatBubble from './ChatBubble.svelte';
-    import ChatInput from './ChatInput.svelte';
-    import ChatMessageList, { type ChatListItem } from './ChatMessageList.svelte';
+    import { ChatBubble, ChatInput, type ChatListItem, ChatMessageList } from '@lib/ui/components/chat';
+    import { BuilderChatConnection } from './chatConnection.svelte';
 
     export type ChatProps = {
         /** Current user's id; messages from this id are aligned to the end. */

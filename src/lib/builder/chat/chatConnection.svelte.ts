@@ -1,8 +1,8 @@
 import { browser } from '$app/environment';
 import { config } from '@config';
 import { SvelteSet } from 'svelte/reactivity';
-import { type ChatComment, encodeChatRequest, parseServerMessage } from './protocol';
-import { ResilientWebSocket, type SocketStatus } from './websocket.svelte';
+import { type ChatComment, encodeChatRequest, parseServerMessage } from '../protocol';
+import { ResilientWebSocket, type SocketStatus } from '../websocket.svelte';
 
 /** A chat message as surfaced to the UI. */
 export type ChatMessage = {

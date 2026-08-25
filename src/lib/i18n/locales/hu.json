@@ -16,7 +16,8 @@
         "dateTime": "{date|dateTime}",
         "welcome": "Üdvözöljük",
         "greeting": "Helló, {name}!",
-        "themeName": "Téma"
+        "themeName": "Téma",
+        "anonymousUser": "Névtelen"
     },
     "account": {
         "logout": "Kijelentkezés",

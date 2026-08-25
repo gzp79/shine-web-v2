@@ -2,8 +2,8 @@ import { config } from '@config';
 import { testInEffectRoot } from '@testing';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { ChatComment } from '../protocol';
 import { BuilderChatConnection, builderChatUrl } from './chatConnection.svelte';
-import type { ChatComment } from './protocol';
 
 // Minimal controllable fake WebSocket (see _websocket.svelte.test.ts for the full rationale).
 class FakeWebSocket {

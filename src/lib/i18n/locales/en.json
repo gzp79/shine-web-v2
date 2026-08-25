@@ -19,7 +19,8 @@
         "themeName": "Theme",
         "today": "Today is {date|shortDate}",
         "welcomeBack": "Welcome back on {date|longDate} at {time|shortTime}",
-        "lastLogin": "Last login: {timestamp|dateTime}"
+        "lastLogin": "Last login: {timestamp|dateTime}",
+        "anonymousUser": "Anonymous"
     },
     "account": {
         "logout": "Logout",

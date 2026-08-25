@@ -1,6 +1,7 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import { getUserStore } from '@lib/account/userStore.svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import { cn } from '@lib/ui/utils';
 
     export type UserNameProps = {
@@ -10,7 +11,7 @@
         placeholder?: string;
         /** Shown instead of the name when `id` is the current user. */
         selfLabel?: string;
-        /** Shown when the lookup failed (defaults to `placeholder`). */
+        /** Label for a user that cannot be resolved (defaults to the localized "Anonymous"). */
         fallback?: string;
         class?: ClassValue;
     };
@@ -20,6 +21,7 @@
     let { id, placeholder = '…', selfLabel, fallback, class: className }: UserNameProps = $props();
 
     const users = getUserStore();
+    const locale = getLocaleContext();
 
     // Reactive get-or-fetch: the store references and loads the entry while we render this id,
     // and releases it automatically when we stop.
@@ -28,7 +30,10 @@
     const label = $derived.by(() => {
         if (selfLabel !== undefined && users.meId === id) return selfLabel;
         if (user.name !== undefined) return user.name;
-        return user.error ? (fallback ?? placeholder) : placeholder;
+        if (user.isUnknown) return fallback ?? locale.t('common.anonymousUser');
+        // A transient error (e.g. network) keeps the placeholder while the lookup may still retry.
+        if (user.error) return fallback ?? placeholder;
+        return placeholder;
     });
 </script>
 

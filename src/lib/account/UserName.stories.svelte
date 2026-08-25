@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import type { CurrentUserLike } from '@lib/account/userStore.svelte';
-    import MockUserStore, { type MockLookup } from '../../../../storybook/MockUserStore.svelte';
+    import MockUserStore, { type MockLookup } from '../../storybook/MockUserStore.svelte';
     import UserName from './UserName.svelte';
 
     type TemplateArgs = {
@@ -17,7 +17,7 @@
 
     const { Story } = defineMeta({
         component: UserName,
-        title: 'Components/UserName',
+        title: 'Account/UserName',
         args: { id: 'usr_jane', result: jane },
         render: template
     });
@@ -37,4 +37,8 @@
 
 <Story name="Not found" args={{ id: 'usr_ghost', result: { kind: 'resolved' } }} />
 
-<Story name="Error → fallback" args={{ id: 'usr_jane', fallback: 'Unknown user', result: { kind: 'error' } }} />
+<Story
+    name="Error → fallback"
+    exportName="ErrorFallback"
+    args={{ id: 'usr_jane', fallback: 'Unknown user', result: { kind: 'error' } }}
+/>

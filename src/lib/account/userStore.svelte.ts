@@ -17,6 +17,12 @@ export type PublicUserEntry = { readonly id: string } & Partial<PublicUserData> 
         fetchedAt: number;
         /** Number of live consumers holding this entry. */
         refs: number;
+        /**
+         * `true` once the entry resolved to a definite absence: the backend answered but
+         * returned no such user (unknown ids are omitted from the response). Distinct from a
+         * transport `error`, which is transient. `false` while never resolved or still loading.
+         */
+        readonly isUnknown: boolean;
     };
 
 /** Minimal shape the store needs from the current user. */
@@ -102,7 +108,7 @@ export interface UserStore {
  * no state.
  */
 function loadingEntry(id: string): PublicUserEntry {
-    return { id, name: undefined, loading: true, error: undefined, fetchedAt: 0, refs: 0 };
+    return { id, name: undefined, loading: true, error: undefined, fetchedAt: 0, refs: 0, isUnknown: false };
 }
 
 /**
@@ -144,12 +150,15 @@ class ServerUserStore implements UserStore {
  * `me.name` and the cached entry from drifting apart.
  */
 export class BrowserUserStore implements UserStore {
-    // Deliberately a plain (non-reactive) Map: membership is only read imperatively (sweep,
+    // Deliberately plain (non-reactive) collections: membership is only read imperatively (sweep,
     // invalidate), so `get` can create an entry inside a `$derived` without tripping
     // `state_unsafe_mutation`. Reactivity lives on each entry, which is a `$state` proxy.
+    /* eslint-disable svelte/prefer-svelte-reactivity */
     readonly #entries = new Map<string, PublicUserEntry>();
     readonly #subscribers = new Map<string, () => void>();
     readonly #pending = new Set<string>();
+    /* eslint-enable svelte/prefer-svelte-reactivity */
+
     readonly #getMe: (() => CurrentUserLike | undefined) | undefined;
     readonly #lookup: PublicUserLookup;
     readonly #debounceMs: number;
@@ -287,7 +296,10 @@ export class BrowserUserStore implements UserStore {
             loading: false,
             error: undefined,
             fetchedAt: 0,
-            refs: 0
+            refs: 0,
+            get isUnknown() {
+                return !this.loading && this.error === undefined && this.name === undefined && this.fetchedAt > 0;
+            }
         });
         this.#entries.set(id, entry);
 
@@ -383,8 +395,9 @@ export class BrowserUserStore implements UserStore {
                 const entry = this.#entries.get(id);
                 if (!entry) continue;
                 const user = users[id];
+                // A successful lookup is never an error; a missing user is simply nameless.
                 entry.name = user?.name;
-                entry.error = user ? undefined : 'not-found';
+                entry.error = undefined;
                 entry.loading = false;
                 entry.fetchedAt = now;
             }

@@ -167,9 +167,10 @@ describe('BrowserUserStore', () => {
         expect(a.entry.error).toBe('network down');
         expect(a.entry.loading).toBe(false);
         expect(a.entry.name).toBeUndefined();
+        expect(a.entry.isUnknown).toBe(false);
     });
 
-    test('marks an id the backend omits as not-found', async () => {
+    test('marks an id the backend omits as unknown', async () => {
         const lookup = vi.fn(async () => ({}));
         const s = makeStore({ lookup, debounceMs: DEBOUNCE, sweepIntervalMs: 0 });
 
@@ -177,7 +178,9 @@ describe('BrowserUserStore', () => {
         vi.advanceTimersByTime(DEBOUNCE);
         await settle();
 
-        expect(a.entry.error).toBe('not-found');
+        expect(a.entry.isUnknown).toBe(true);
+        expect(a.entry.error).toBeUndefined();
+        expect(a.entry.name).toBeUndefined();
         expect(a.entry.loading).toBe(false);
     });
 

@@ -1,9 +1,9 @@
 <script lang="ts">
     import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
-    import type { BuilderChatConnection } from '@lib/builder';
     import { getLocaleContext } from '@lib/i18n';
     import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
     import Chat from './Chat.svelte';
+    import type { BuilderChatConnection } from './chatConnection.svelte';
 
     export type ChatPanelProps = {
         connection: BuilderChatConnection;

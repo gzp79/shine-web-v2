@@ -1,8 +1,8 @@
 <script lang="ts">
     import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { useChatConnection } from '@lib/builder';
+    import Chat from '@lib/builder/chat/Chat.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Chat from '@lib/ui/components/chat/Chat.svelte';
 
     const auth = getAuthenticatedUserContext();
     // Reuse the region-wide connection from the (auth) layout, opening the socket on first use.
