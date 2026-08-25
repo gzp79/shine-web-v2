@@ -1,12 +1,7 @@
 // Shared transport layer.
-export {
-    type ChatComment as WireChatComment,
-    type WSMessageRequest,
-    type WSMessageResponse,
-    encodeChatRequest,
-    parseServerMessage
-} from './protocol';
-export { type SocketStatus, socketStatusList } from './websocket.svelte';
+export { BuilderHub, builderHubUrl, type BuilderHubOptions, type ServerFrame, type FrameHandler } from './hub';
+export { provideBuilderHub, getBuilderHub, tryGetBuilderHub } from './hubContext';
+export { type SocketStatus, socketStatusList } from './resilientWebSocket.svelte';
 
 // Chat module.
 export * from './chat';

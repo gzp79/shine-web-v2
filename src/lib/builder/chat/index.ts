@@ -1,7 +1,3 @@
-export {
-    BuilderChatConnection,
-    builderChatUrl,
-    type BuilderChatConnectionOptions,
-    type ChatMessage
-} from './chatConnection.svelte';
-export { provideChatConnection, useChatConnection, tryGetChatConnection } from './chatContext';
+export { ChatStream, type ChatStreamOptions, type ChatMessage } from './chatStream.svelte';
+export { type ChatComment, encodeChatRequest } from './chatProtocol';
+export { provideChatStream, getChatStream, tryGetChatStream } from './chatContext';

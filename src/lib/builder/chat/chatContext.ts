@@ -1,44 +1,35 @@
 import { onDestroy } from 'svelte';
 import { createContext } from '@lib/ui/utils';
-import { BuilderChatConnection, type BuilderChatConnectionOptions } from './chatConnection.svelte';
+import { getBuilderHub } from '../hubContext';
+import { ChatStream, type ChatStreamOptions } from './chatStream.svelte';
 
-const context = createContext<BuilderChatConnection>('builder-chat-connection');
+const context = createContext<ChatStream>('builder-chat-stream');
 
 /**
- * Creates a builder chat connection and publishes it to descendants via context.
- * Call once from a layout `<script>` in an authenticated region.
+ * Creates the chat stream for the region and publishes it to descendants via context.
+ * Call once from a layout `<script>` in an authenticated region, after {@link provideBuilderHub}.
  *
- * The connection is created **idle** — no socket is opened here. It is established
- * lazily on the first {@link useChatConnection} call, so regions that never touch
- * chat pay nothing. The connection is disposed automatically when the providing
- * component is destroyed (i.e. when navigating out of the region).
+ * The stream subscribes to the shared hub immediately, so unread state accrues even while no
+ * chat UI is mounted. It is disposed automatically when the providing component is destroyed;
+ * the hub (and its socket) are unaffected.
  */
-export function provideChatConnection(options?: BuilderChatConnectionOptions): BuilderChatConnection {
-    const connection = new BuilderChatConnection(options);
-    context.set(connection);
-    onDestroy(() => connection.destroy());
-    return connection;
+export function provideChatStream(options?: ChatStreamOptions): ChatStream {
+    const stream = new ChatStream(getBuilderHub(), options);
+    context.set(stream);
+    onDestroy(() => stream.dispose());
+    return stream;
 }
 
-/**
- * Reads the shared chat connection and opens its socket on first use (idempotent,
- * SSR-safe). Once opened it stays connected for the provider's lifetime, so it is
- * shared across navigations within the region.
- *
- * Throws if no ancestor called {@link provideChatConnection}.
- */
-export function useChatConnection(): BuilderChatConnection {
-    const connection = context.tryGet();
-    if (!connection) {
-        throw new Error(
-            'useChatConnection: no chat connection in context (call provideChatConnection in the region layout)'
-        );
+/** Reads the shared chat stream. Throws if no ancestor called {@link provideChatStream}. */
+export function getChatStream(): ChatStream {
+    const stream = context.tryGet();
+    if (!stream) {
+        throw new Error('getChatStream: no chat stream in context (call provideChatStream in the region layout)');
     }
-    connection.connect();
-    return connection;
+    return stream;
 }
 
-/** Reads the shared chat connection without opening it, or `undefined` when none is provided. */
-export function tryGetChatConnection(): BuilderChatConnection | undefined {
+/** Reads the shared chat stream, or `undefined` when none is provided. */
+export function tryGetChatStream(): ChatStream | undefined {
     return context.tryGet();
 }

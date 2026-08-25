@@ -3,7 +3,7 @@
     import { resolve } from '$app/paths';
     import AuthGuard from '@lib/account/AuthGuard.svelte';
     import LogoutGuard from '@lib/account/LogoutGuard.svelte';
-    import { provideChatConnection } from '@lib/builder';
+    import { provideBuilderHub, provideChatStream } from '@lib/builder';
     import ChatPanel from '@lib/builder/chat/ChatPanel.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
@@ -21,20 +21,23 @@
     const appMenu = getMenuContext();
     const connectionStatus = getConnectionStatusContext();
 
-    // Establish the connection for the whole auth region up front, so the app-shell
+    // Establish the shared transport for the whole auth region up front, so the app-shell
     // status indicator always reflects live state, not just once a page opens the panel.
-    const connection = provideChatConnection();
-    connection.connect();
+    const hub = provideBuilderHub();
+    hub.connect();
+    // Subscribe the chat channel immediately, so unread state accrues even while the panel
+    // is closed. The socket's lifetime belongs to the hub, not to any channel.
+    const chat = provideChatStream();
 
     let chatOpen = $state(false);
 
     $effect(() => {
         connectionStatus.set({
             get status() {
-                return connection.status;
+                return hub.status;
             },
             get hasUnread() {
-                return connection.hasUnread;
+                return chat.hasUnread;
             },
             onClick: () => {
                 chatOpen = true;
@@ -70,7 +73,7 @@
             {/snippet}
 
             {@render children()}
-            <ChatPanel {connection} bind:open={chatOpen} />
+            <ChatPanel {chat} bind:open={chatOpen} />
         </svelte:boundary>
     </LogoutGuard>
 </AuthGuard>

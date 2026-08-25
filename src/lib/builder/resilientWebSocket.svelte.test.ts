@@ -1,7 +1,7 @@
 import { testInEffectRoot } from '@testing';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { ResilientWebSocket, type ResilientWebSocketOptions } from './websocket.svelte';
+import { ResilientWebSocket, type ResilientWebSocketOptions } from './resilientWebSocket.svelte';
 
 // Sockets bind listeners to the shared window/document; destroy them after each test so a
 // leftover, still-reconnecting socket from one test doesn't react to events dispatched by another.

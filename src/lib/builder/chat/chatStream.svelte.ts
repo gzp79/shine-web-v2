@@ -1,8 +1,6 @@
-import { browser } from '$app/environment';
-import { config } from '@config';
 import { SvelteSet } from 'svelte/reactivity';
-import { type ChatComment, encodeChatRequest, parseServerMessage } from '../protocol';
-import { ResilientWebSocket, type SocketStatus } from '../websocket.svelte';
+import type { BuilderHub, ServerFrame } from '../hub';
+import { CHAT_FRAME_TYPE, type ChatComment, encodeChatRequest, parseChatComments } from './chatProtocol';
 
 /** A chat message as surfaced to the UI. */
 export type ChatMessage = {
@@ -13,18 +11,10 @@ export type ChatMessage = {
     text: string;
 };
 
-export type BuilderChatConnectionOptions = {
-    /** Override the websocket endpoint. Defaults to the configured builder WS url. */
-    url?: string;
+export type ChatStreamOptions = {
     /** Cap the number of retained messages in memory (default: 500). */
     maxMessages?: number;
 };
-
-/** Builds the `wss://.../builder/api/connect` endpoint from the configured builder WS base url. */
-export function builderChatUrl(): string {
-    const base = config.builderWSUrl.replace(/^http/, 'ws').replace(/\/$/, '');
-    return `${base}/api/connect`;
-}
 
 /** Orders two stream ids (`<ms>-<seq>`) chronologically. */
 function compareStreamIds(a: string, b: string): number {
@@ -34,40 +24,30 @@ function compareStreamIds(a: string, b: string): number {
 }
 
 /**
- * Reactive chat connection on top of {@link ResilientWebSocket}.
+ * The chat channel: one consumer of the shared {@link BuilderHub}.
  *
- * Owns the wire protocol: encodes outgoing text as chat requests and folds incoming
- * batches into a reactive, de-duplicated, chronologically ordered message list. Delivery
- * is at-least-once, so dedup by stream id is required.
+ * Subscribes to `chat` frames on construction and folds incoming batches into a reactive,
+ * de-duplicated, chronologically ordered message list. Delivery is at-least-once, so dedup by
+ * stream id is required. Outgoing text is encoded and handed to the hub.
  *
- * Transport concerns (reconnect, buffering, recovery) are delegated to the socket, so this
- * class stays focused on chat semantics and is trivial to unit test with a mocked socket.
+ * It owns no transport: the socket's lifetime and resilience belong to the hub, so the stream
+ * keeps accruing messages (and unread state) for as long as it is subscribed, regardless of
+ * whether any chat UI is currently mounted.
  */
-export class BuilderChatConnection {
-    readonly #socket: ResilientWebSocket;
+export class ChatStream {
+    readonly #hub: BuilderHub;
     readonly #maxMessages: number;
     readonly #seen = new SvelteSet<string>();
+    readonly #unsubscribe: () => void;
 
     #messages = $state<ChatMessage[]>([]);
     /** Stream id of the last message the caller has marked as read; `undefined` means none read yet. */
     #lastReadId = $state<string | undefined>(undefined);
 
-    constructor(options: BuilderChatConnectionOptions = {}) {
+    constructor(hub: BuilderHub, options: ChatStreamOptions = {}) {
+        this.#hub = hub;
         this.#maxMessages = options.maxMessages ?? 500;
-        this.#socket = new ResilientWebSocket({
-            url: options.url ?? builderChatUrl(),
-            onMessage: (data) => this.#handleMessage(data)
-        });
-    }
-
-    /** Reactive connection status. */
-    get status(): SocketStatus {
-        return this.#socket.status;
-    }
-
-    /** True while messages can be sent immediately. Reactive. */
-    get isConnected(): boolean {
-        return this.#socket.isConnected;
+        this.#unsubscribe = hub.on(CHAT_FRAME_TYPE, (frame) => this.#handleFrame(frame));
     }
 
     /** Reactive, ordered, de-duplicated message list. */
@@ -98,34 +78,21 @@ export class BuilderChatConnection {
         this.#lastReadId = this.#messages.at(-1)?.id;
     }
 
-    /** Opens the connection. No-op on the server. */
-    connect(): void {
-        this.#socket.connect();
-    }
-
-    /** Sends a plain-text chat message. Buffered by the socket if currently disconnected. */
+    /** Sends a plain-text chat message. Buffered by the hub's socket if currently disconnected. */
     send(text: string): void {
         const trimmed = text.trim();
         if (!trimmed) return;
-        this.#socket.send(encodeChatRequest(trimmed));
+        this.#hub.send(encodeChatRequest(trimmed));
     }
 
-    /** Closes the connection and disables reconnection. */
-    close(): void {
-        this.#socket.close();
+    /** Unsubscribes from the hub. The hub (and its socket) live on. */
+    dispose(): void {
+        this.#unsubscribe();
     }
 
-    /** Permanently disposes the connection. */
-    destroy(): void {
-        this.#socket.destroy();
-    }
-
-    #handleMessage(raw: string): void {
-        if (!browser) return;
-        const message = parseServerMessage(raw);
-        if (!message) return;
-
-        const fresh = message.messages.filter((comment) => !this.#seen.has(comment.id));
+    #handleFrame(frame: ServerFrame): void {
+        const comments = parseChatComments(frame);
+        const fresh = comments.filter((comment) => !this.#seen.has(comment.id));
         if (fresh.length === 0) return;
 
         for (const comment of fresh) {

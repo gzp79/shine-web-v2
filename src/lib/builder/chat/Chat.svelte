@@ -1,43 +1,25 @@
 <script module lang="ts">
-    import { onMount } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
     import UserName from '@lib/account/UserName.svelte';
+    import type { ChatStream } from '@lib/builder';
     import { getLocaleContext } from '@lib/i18n';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { ChatBubble, ChatInput, type ChatListItem, ChatMessageList } from '@lib/ui/components/chat';
-    import { BuilderChatConnection } from './chatConnection.svelte';
 
     export type ChatProps = {
         /** Current user's id; messages from this id are aligned to the end. */
         selfId: string;
-        /**
-         * Provide a connection to reuse an existing one; otherwise a builder connection is created
-         * and owned by this component (connected on mount, disposed on destroy).
-         */
-        connection?: BuilderChatConnection;
+        /** The shared chat stream to render and send through. */
+        chat: ChatStream;
         class?: ClassValue;
     };
 </script>
 
 <script lang="ts">
-    let { selfId, connection, class: className }: ChatProps = $props();
+    let { selfId, chat, class: className }: ChatProps = $props();
 
     const locale = getLocaleContext();
-
-    // Own the connection only when the caller did not supply one. The prop is read once
-    // by design: a chat instance is bound to a single connection for its lifetime.
-    // svelte-ignore state_referenced_locally
-    const owned = connection === undefined;
-    // svelte-ignore state_referenced_locally
-    const chat = connection ?? new BuilderChatConnection();
-
-    onMount(() => {
-        if (owned) {
-            chat.connect();
-            return () => chat.destroy();
-        }
-    });
 
     const items = $derived<ChatListItem[]>(
         chat.messages.map((message) => ({
