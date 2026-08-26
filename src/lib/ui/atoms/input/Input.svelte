@@ -2,8 +2,8 @@
     import type { HTMLInputAttributes } from 'svelte/elements';
     import type { ActionColor, Size } from '@lib/ui/atoms';
     import type { InputVariant } from '@lib/ui/atoms/input';
-    import { getFieldContext } from '@lib/ui/atoms/input/Field.svelte';
-    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { tryGetFieldContext } from '@lib/ui/atoms/input/Field.svelte';
+    import { tryGetInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
     import { cn } from '@lib/ui/utils';
 
@@ -67,8 +67,8 @@
         ...restProps
     }: InputProps = $props();
 
-    const ctx = getInputGroupContext();
-    const fieldCtx = getFieldContext();
+    const ctx = tryGetInputGroupContext();
+    const fieldCtx = tryGetFieldContext();
 
     const generatedId = $props.id();
     const resolvedId = $derived(id ?? (fieldControl ? generatedId : undefined));

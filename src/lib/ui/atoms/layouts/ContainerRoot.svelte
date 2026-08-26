@@ -24,8 +24,8 @@
         nestingLevel: number;
         colorIndex: number;
     }
-    const { tryGet: getContainerContext, set: setContainerContext } = createContext<ContainerInfo>('Container');
-    export { getContainerContext };
+    const { tryGet: tryGetContainerContext, set: setContainerContext } = createContext<ContainerInfo>('Container');
+    export { tryGetContainerContext };
 </script>
 
 <script lang="ts">
@@ -44,7 +44,7 @@
 
     const colorRotation = ['container', 'sub-container', 'surface'];
 
-    let parentContext = getContainerContext();
+    let parentContext = tryGetContainerContext();
 
     let nestingLevel: number = $derived(baseLevel ?? (parentContext?.nestingLevel ?? -1) + 1);
     let parentColorIndex: number = $derived(clampColorIndex(baseLevel ?? parentContext?.colorIndex ?? 0));

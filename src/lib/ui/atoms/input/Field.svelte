@@ -11,8 +11,8 @@
         statusId?: string;
         required?: boolean;
     }
-    const { set: setFieldContext, tryGet: getFieldContext } = createContext<FieldInfo>('Field');
-    export { getFieldContext };
+    const { set: setFieldContext, tryGet: tryGetFieldContext } = createContext<FieldInfo>('Field');
+    export { tryGetFieldContext };
 
     export type FieldLabelProps = {
         class: string;

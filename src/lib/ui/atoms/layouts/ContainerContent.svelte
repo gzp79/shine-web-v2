@@ -3,7 +3,7 @@
     import type { Snippet } from 'svelte';
     import { type AriaLive, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
     import { type Overflow, scrollShadow } from '@lib/ui/atoms/layouts';
-    import { getContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
+    import { tryGetContainerContext } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
     import { cn } from '@lib/ui/utils';
 
     export type ContainerContentProps = {
@@ -28,7 +28,7 @@
         ...restProps
     }: ContainerContentProps = $props();
 
-    let containerContext = getContainerContext();
+    let containerContext = tryGetContainerContext();
     if (!containerContext) {
         throw new Error('ContainerContent must be used within a ContainerRoot');
     }

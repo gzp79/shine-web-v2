@@ -2,8 +2,8 @@
     import { Switch as SwitchPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
     import type { ClassValue } from 'clsx';
     import type { ActionColor, Size } from '@lib/ui/atoms';
-    import { getFieldContext } from '@lib/ui/atoms/input/Field.svelte';
-    import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { tryGetFieldContext } from '@lib/ui/atoms/input/Field.svelte';
+    import { tryGetInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
     import { cn } from '@lib/ui/utils';
 
     export type SwitchProps = WithoutChildrenOrChild<SwitchPrimitive.RootProps> & {
@@ -70,8 +70,8 @@
         ...restProps
     }: SwitchProps = $props();
 
-    const ctx = getInputGroupContext();
-    const fieldCtx = getFieldContext();
+    const ctx = tryGetInputGroupContext();
+    const fieldCtx = tryGetFieldContext();
 
     const generatedId = $props.id();
     const resolvedId = $derived(id ?? (fieldControl ? generatedId : undefined));
