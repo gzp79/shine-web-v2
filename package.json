@@ -34,8 +34,7 @@
         "test:component": "playwright test component",
         "test:integration": "playwright test integration",
         "test:e2e": "playwright test e2e",
-        "storybook": "storybook dev -p 6006",
-        "hp-translator": "node tools/hp-translator/server.mjs"
+        "storybook": "storybook dev -p 6006"
     },
     "dependencies": {
         "bits-ui": "^2.18.1",
@@ -48,7 +47,6 @@
         "zod": "^4.4.3"
     },
     "devDependencies": {
-        "@anthropic-ai/bedrock-sdk": "^0.32.4",
         "@eslint/compat": "^2.1.0",
         "@eslint/js": "^10.0.1",
         "@playwright/test": "^1.62.1",
