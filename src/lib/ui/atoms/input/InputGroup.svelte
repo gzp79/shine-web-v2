@@ -18,8 +18,8 @@
         variant?: InputVariant;
         disabled?: boolean;
     }
-    const { tryGet: getInputGroupContext, set: setInputGroupContext } = createContext<InputGroupInfo>('InputGroup');
-    export { getInputGroupContext, setInputGroupContext };
+    const { tryGet: tryGetInputGroupContext, set: setInputGroupContext } = createContext<InputGroupInfo>('InputGroup');
+    export { tryGetInputGroupContext, setInputGroupContext };
 
     export type InputGroupProps = WithElementRef<HTMLAttributes<HTMLDivElement>> & {
         color?: ActionColor;
@@ -42,7 +42,7 @@
         ...restProps
     }: InputGroupProps = $props();
 
-    const parentCtx = getInputGroupContext();
+    const parentCtx = tryGetInputGroupContext();
 
     setInputGroupContext({
         get color() {

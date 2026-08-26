@@ -5,9 +5,9 @@ import fs from 'node:fs';
 import type { Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vitest/config';
-import { buildAssets } from './scripts/vite-asset-converter';
-import { CAPTCHA_TEST_SITE_KEY } from './src/constants';
-import { config } from './src/generated/config';
+import { buildAssets } from './scripts/vite-asset-converter.ts';
+import { CAPTCHA_TEST_SITE_KEY } from './src/constants.ts';
+import { config } from './src/generated/config.ts';
 
 console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment) && !process.env.LOG_LEVEL) {

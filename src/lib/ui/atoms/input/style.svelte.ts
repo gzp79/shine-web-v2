@@ -1,7 +1,7 @@
 import type { ClassValue } from 'clsx';
 import type { ActionColor, Size } from '@lib/ui/atoms';
 import type { InputVariant } from '@lib/ui/atoms/input';
-import { getInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
+import { tryGetInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
 import { cn } from '@lib/ui/utils';
 
 export type ButtonStyleConfig = {
@@ -50,7 +50,7 @@ export const createButtonStyle = (config: () => ButtonStyleConfig): ButtonStyle 
         ...config()
     });
 
-    const groupInfo = getInputGroupContext();
+    const groupInfo = tryGetInputGroupContext();
 
     const color = $derived(style.color ?? groupInfo?.color ?? 'primary');
     const size = $derived(style.size ?? groupInfo?.size ?? 'md');
