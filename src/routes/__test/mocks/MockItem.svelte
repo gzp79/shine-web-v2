@@ -88,6 +88,5 @@
         class:border-on-danger={!validation.success}
         class:border-on-container={validation.success}
         class:invisible={!hasParams}
-        rows="3"
-    ></textarea>
+        rows="3"></textarea>
 </div>
