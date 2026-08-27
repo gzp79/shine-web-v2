@@ -1,8 +1,8 @@
 import { testInEffectRoot } from '@testing';
 import { flushSync } from 'svelte';
 import { describe, expect, test } from 'vitest';
-import type { ChatMessage } from '@lib/ui/components/chat';
 import type { BuilderHub, FrameHandler, ServerFrame } from '../hub';
+import type { ChatMessage } from './chatMessages';
 import type { ChatComment } from './chatProtocol';
 import { ChatStream, type ChatStreamOptions } from './chatStream.svelte';
 

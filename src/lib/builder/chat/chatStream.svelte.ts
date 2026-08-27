@@ -1,5 +1,5 @@
-import type { ChatMessage, PingMessage, PongMessage, TextMessage } from '@lib/ui/components/chat';
 import type { BuilderHub, ServerFrame } from '../hub';
+import type { ChatMessage, PingMessage, PongMessage, TextMessage } from './chatMessages';
 import { CHAT_FRAME_TYPE, type ChatComment, encodeChatRequest, parseChatComments } from './chatProtocol';
 
 type StoredMessage = TextMessage | PingMessage | PongMessage;
@@ -220,11 +220,11 @@ export class ChatStream {
             if (command.kind === 'pong') {
                 if (from === self) {
                     // Our own pong echoed back: now - tR is our server round-trip.
-                    return { kind: 'pong', id, from, roundTripMs: now - command.tR };
+                    return { kind: 'pong', id, from, initiator: command.id, roundTripMs: now - command.tR };
                 }
                 if (command.id === self) {
                     // A peer answered our ping (its id is our user id): now - t0 is the full round-trip.
-                    return { kind: 'pong', id, from, roundTripMs: now - command.t0 };
+                    return { kind: 'pong', id, from, initiator: command.id, roundTripMs: now - command.t0 };
                 }
                 return null;
             }

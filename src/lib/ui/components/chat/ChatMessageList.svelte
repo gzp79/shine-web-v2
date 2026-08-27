@@ -5,27 +5,22 @@
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
-    import ChatGap from './ChatGap.svelte';
-    import ChatMessage from './ChatMessage.svelte';
-    import ChatPing from './ChatPing.svelte';
-    import ChatPong from './ChatPong.svelte';
-    import type { ChatMessage as ChatMessageData } from './chatMessages';
 
-    export type ChatMessageListProps = {
-        /** The conversation to render in order; `gap` entries are drawn as centered system notes. */
-        messages: readonly ChatMessageData[];
-        /** Current user's id; messages from this id are aligned to the end. */
-        selfId: string;
-        /** Resolves the author label for a user id. */
-        user: Snippet<[string]>;
+    export type ChatMessageLike = { id: string };
+
+    export type ChatMessageListProps<T extends ChatMessageLike = ChatMessageLike> = {
+        /** The conversation to render in order. */
+        messages: readonly T[];
+        /** Renders a single message; the caller decides how each kind looks. */
+        item: Snippet<[T]>;
         /** Follow new messages by scrolling to the bottom when the user is already near it (default: true). */
         autoScroll?: boolean;
         class?: ClassValue;
     };
 </script>
 
-<script lang="ts">
-    let { messages, selfId, user, autoScroll = true, class: className }: ChatMessageListProps = $props();
+<script lang="ts" generics="T extends ChatMessageLike">
+    let { messages, item, autoScroll = true, class: className }: ChatMessageListProps<T> = $props();
 
     const locale = getLocaleContext();
 
@@ -66,15 +61,7 @@
         </Stack>
     {:else}
         {#each messages as message (message.id)}
-            {#if message.kind === 'gap'}
-                <ChatGap />
-            {:else if message.kind === 'ping'}
-                <ChatPing {message} own={message.from === selfId} {user} />
-            {:else if message.kind === 'pong'}
-                <ChatPong {message} own={message.from === selfId} {user} />
-            {:else if message.kind === 'text'}
-                <ChatMessage {message} own={message.from === selfId} {user} />
-            {/if}
+            {@render item(message)}
         {/each}
     {/if}
 </div>

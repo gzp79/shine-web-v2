@@ -2,7 +2,7 @@ import { query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
 import { logAPI } from '@lib/loggers';
-import { getMockWorkerHeader } from '@lib/server/utils';
+import { getMockWorkerHeader, throwRemoteHttpError } from '@lib/server/utils';
 import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 
 const VersionSchema = z.object({ version: z.string() });
@@ -86,25 +86,37 @@ async function getOrRefreshManifest(): Promise<AssetManifest> {
 }
 
 export const queryAssetManifest = query(async (): Promise<AssetManifest> => {
-    return await getOrRefreshManifest();
+    try {
+        return await getOrRefreshManifest();
+    } catch (e) {
+        throwRemoteHttpError(e, 'Asset service unavailable');
+    }
 });
 
 /// Return the URL for an asset by its key.
 export const queryAssetUrl = query(z.string(), async (key: string): Promise<string> => {
-    const manifest = await getOrRefreshManifest();
-    const relative = manifest.links[key] ?? 'not-found';
-    const url = config.assetUrl + '/' + relative;
-    logAPI.log(`Resolved asset key "${key}" to URL: ${url}`);
-    return url;
+    try {
+        const manifest = await getOrRefreshManifest();
+        const relative = manifest.links[key] ?? 'not-found';
+        const url = config.assetUrl + '/' + relative;
+        logAPI.log(`Resolved asset key "${key}" to URL: ${url}`);
+        return url;
+    } catch (e) {
+        throwRemoteHttpError(e, 'Asset service unavailable');
+    }
 });
 
 export const queryAssetUrls = query(z.array(z.string()), async (keys: string[]): Promise<Record<string, string>> => {
-    const manifest = await getOrRefreshManifest();
-    const result: Record<string, string> = {};
-    for (const key of keys) {
-        const relative = manifest.links[key] ?? 'not-found';
-        result[key] = config.assetUrl + '/' + relative;
+    try {
+        const manifest = await getOrRefreshManifest();
+        const result: Record<string, string> = {};
+        for (const key of keys) {
+            const relative = manifest.links[key] ?? 'not-found';
+            result[key] = config.assetUrl + '/' + relative;
+        }
+        logAPI.log(`Resolved asset keys: ${JSON.stringify(result)}`);
+        return result;
+    } catch (e) {
+        throwRemoteHttpError(e, 'Asset service unavailable');
     }
-    logAPI.log(`Resolved asset keys: ${JSON.stringify(result)}`);
-    return result;
 });

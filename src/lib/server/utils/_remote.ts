@@ -1,7 +1,8 @@
 import { resolve } from '$app/paths';
 import { getRequestEvent } from '$app/server';
-import { redirect } from '@sveltejs/kit';
+import { error, isHttpError, redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
+import { isAppError } from '@lib/utils';
 
 export function getMockWorkerHeader(): Headers {
     const headers = new Headers();
@@ -101,6 +102,20 @@ export function validateProxyResponse(response: Response): void {
         );
         throw redirect(302, resolve('/error') + '?errorType=server-down');
     }
+}
+
+/// Convert an upstream service failure into a meaningful HttpError.
+/// SvelteKit sends HttpError bodies to the client verbatim (unlike generic throws,
+/// which are masked as a 500 "Internal Error"), so the client sees why the call failed.
+export function throwRemoteHttpError(e: unknown, fallbackMessage = 'Remote service unavailable'): never {
+    if (isHttpError(e)) throw e;
+
+    let status: number | undefined;
+    if (isAppError(e) && e.kind === 'fetch' && e.details && typeof e.details === 'object') {
+        status = (e.details as { status?: number }).status;
+    }
+    const detail = isAppError(e) ? e.message : fallbackMessage;
+    throw error(502, status ? `${detail} (upstream ${status})` : detail);
 }
 
 export function sanitizedReturnUrl(rawUrl: string | null | undefined): string | null {

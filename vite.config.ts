@@ -35,14 +35,19 @@ const assetsServedByWebServer =
 if (assetsServedByWebServer) {
     await buildAssets();
     additionalAssets.push({
-        src: 'static-generated/assets/*',
-        dest: ''
+        src: 'static-generated/assets/**/*',
+        dest: '',
+        rename: { stripBase: 2 }
     });
 }
 if (config.environment === 'mock') {
     additionalAssets.push({
+        // MSW registers the worker at `/mockServiceWorker.js`; `stripBase: 1` drops the
+        // `static-generated` prefix so it's served at the root (vite-plugin-static-copy v4
+        // no longer flattens `dest: ''` — it preserves the source dir unless stripped).
         src: 'static-generated/mockServiceWorker.js',
-        dest: ''
+        dest: '',
+        rename: { stripBase: 1 }
     });
 }
 

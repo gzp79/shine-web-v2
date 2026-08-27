@@ -1,19 +1,17 @@
 <script module lang="ts">
-    import type { Snippet } from 'svelte';
+    import UserName from '@lib/account/UserName.svelte';
     import { getLocaleContext } from '@lib/i18n';
-    import ChatBubble from './ChatBubble.svelte';
+    import { ChatBubble } from '@lib/ui/components/chat';
     import type { PingMessage } from './chatMessages';
 
     export type ChatPingProps = {
         message: PingMessage;
         own: boolean;
-        /** Resolves the author label for a user id. */
-        user: Snippet<[string]>;
     };
 </script>
 
 <script lang="ts">
-    let { message, own, user }: ChatPingProps = $props();
+    let { message, own }: ChatPingProps = $props();
 
     const locale = getLocaleContext();
 
@@ -25,5 +23,5 @@
 <ChatBubble {text} align={own ? 'end' : 'start'} author={userLabel} />
 
 {#snippet userLabel()}
-    {@render user(message.from)}
+    <UserName id={message.from} selfLabel={locale.t('chat.you')} />
 {/snippet}

@@ -1,4 +1,5 @@
 import { dev } from '$app/environment';
+import { isHttpError } from '@sveltejs/kit';
 
 const appErrorKindList = ['fetch', 'other', 'retryLimit'] as const;
 export type AppErrorKind = (typeof appErrorKindList)[number];
@@ -81,6 +82,16 @@ export function createRetryLimitError(retryCount: number, lastError?: unknown): 
 export function createAppError(error: unknown): AppError {
     if (isAppError(error)) {
         return error;
+    }
+
+    // HttpError carries a meaningful, server-provided message (e.g. thrown via `error(status, msg)`).
+    if (isHttpError(error)) {
+        return {
+            type: 'app-error',
+            kind: 'fetch',
+            message: error.body?.message ?? `HTTP ${error.status}`,
+            details: { status: error.status }
+        };
     }
 
     if (error instanceof Error) {
