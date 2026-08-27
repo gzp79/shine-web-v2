@@ -9,8 +9,8 @@
     export type ChatBubbleAlign = 'start' | 'end' | 'center';
 
     export type ChatBubbleProps = {
-        /** The message body. */
-        text: string;
+        /** The message body, either plain text or a snippet for rich content. */
+        content: string | Snippet;
         /** Placement and style. */
         align?: ChatBubbleAlign;
         /** Author label rendered above the text. */
@@ -24,7 +24,7 @@
 </script>
 
 <script lang="ts">
-    let { text, align = 'start', author, color, meta, class: className }: ChatBubbleProps = $props();
+    let { content, align = 'start', author, color, meta, class: className }: ChatBubbleProps = $props();
 
     const resolvedColor = $derived(color ?? (align === 'end' ? 'secondary' : 'primary'));
 
@@ -43,7 +43,11 @@
 
 {#if align === 'center'}
     <div class="flex w-full justify-center" data-slot="chat-note">
-        <Typography variant="footnote" class={cn('text-secondary select-none', className)}>{text}</Typography>
+        {#if typeof content === 'function'}
+            {@render content()}
+        {:else}
+            <Typography variant="footnote" class={cn('text-secondary select-none', className)}>{content}</Typography>
+        {/if}
     </div>
 {:else}
     <div class={cn('flex w-full', align === 'end' ? 'justify-end' : 'justify-start')} data-slot="chat-bubble">
@@ -57,7 +61,11 @@
                     {/if}
                 </Typography>
             {/if}
-            <Typography variant="text" class="whitespace-pre-wrap text-start">{text}</Typography>
+            {#if typeof content === 'function'}
+                {@render content()}
+            {:else}
+                <Typography variant="text" class="whitespace-pre-wrap text-start">{content}</Typography>
+            {/if}
             {#if meta}
                 <div class={cn(`text-on-${resolvedColor}`, 'self-end text-xs opacity-60')}>
                     {@render meta()}

@@ -15,12 +15,23 @@
 
     const locale = getLocaleContext();
 
-    const text = $derived(locale.t('chat.pong', { ms: message.roundTripMs }));
+    const you = $derived(locale.t('chat.you'));
+    const duration = $derived(locale.t('chat.pong', { ms: message.roundTripMs }));
 </script>
 
-<ChatBubble {text} align={own ? 'end' : 'start'} author={userLabel} />
+<ChatBubble {content} align={own ? 'end' : 'start'} author={userLabel} />
 
 {#snippet userLabel()}
-    <UserName id={message.initiator} selfLabel={locale.t('chat.you')} /> →
-    <UserName id={message.from} selfLabel={locale.t('chat.you')} />
+    <UserName id={message.from} selfLabel={you} />
+{/snippet}
+
+<!-- `own` is our own pong echo (a server round-trip), otherwise a peer answered our ping (a full round-trip). -->
+{#snippet content()}
+    <span class="whitespace-normal">
+        {#if own}
+            {you} → {locale.t('chat.server')} → {you} · {duration}
+        {:else}
+            {you} → <UserName id={message.from} selfLabel={you} /> → {you} · {duration}
+        {/if}
+    </span>
 {/snippet}

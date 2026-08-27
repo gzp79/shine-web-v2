@@ -145,6 +145,7 @@
         "noMessages": "No messages yet.",
         "pinged": "pinged",
         "pingSelf": "ping ({ms} ms)",
-        "pong": "pong ({ms} ms)"
+        "pong": "{ms} ms",
+        "server": "server"
     }
 }

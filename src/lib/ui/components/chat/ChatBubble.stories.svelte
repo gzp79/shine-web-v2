@@ -6,7 +6,7 @@
         component: ChatBubble,
         title: 'Components/Chat/ChatBubble',
         args: {
-            text: 'Hello there!',
+            content: 'Hello there!',
             align: 'start'
         },
         argTypes: {
@@ -15,8 +15,8 @@
     });
 </script>
 
-<Story name="Other" args={{ text: 'A message from someone else', align: 'start', author: 'user-8f3c1a2b' }} />
+<Story name="Other" args={{ content: 'A message from someone else', align: 'start', author: 'user-8f3c1a2b' }} />
 
-<Story name="Own" args={{ text: 'A message I sent', align: 'end', author: 'You' }} />
+<Story name="Own" args={{ content: 'A message I sent', align: 'end', author: 'You' }} />
 
-<Story name="Note" args={{ text: 'This is a note', align: 'center' }} />
+<Story name="Note" args={{ content: 'This is a note', align: 'center' }} />

@@ -20,7 +20,7 @@
     );
 </script>
 
-<ChatBubble {text} align={own ? 'end' : 'start'} author={userLabel} />
+<ChatBubble content={text} align={own ? 'end' : 'start'} author={userLabel} />
 
 {#snippet userLabel()}
     <UserName id={message.from} selfLabel={locale.t('chat.you')} />

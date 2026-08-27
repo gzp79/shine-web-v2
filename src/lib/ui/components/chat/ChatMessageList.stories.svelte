@@ -27,7 +27,7 @@
         <ChatGap />
     {:else if message.kind === 'text'}
         <ChatBubble
-            text={message.text ?? ''}
+            content={message.text ?? ''}
             align={message.from === SELF ? 'end' : 'start'}
             author={message.from ?? ''}
         />

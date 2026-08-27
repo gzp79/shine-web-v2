@@ -142,6 +142,7 @@
         "noMessages": "Még nincsenek üzenetek.",
         "pinged": "pingelt",
         "pingSelf": "ping ({ms} ms)",
-        "pong": "pong ({ms} ms)"
+        "pong": "{ms} ms",
+        "server": "szerver"
     }
 }

@@ -11,4 +11,4 @@
     let { text = '…' }: ChatGapProps = $props();
 </script>
 
-<ChatBubble {text} align="center" />
+<ChatBubble content={text} align="center" />

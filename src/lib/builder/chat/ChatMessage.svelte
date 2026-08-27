@@ -16,7 +16,7 @@
     const locale = getLocaleContext();
 </script>
 
-<ChatBubble text={message.text} align={own ? 'end' : 'start'} author={userLabel} />
+<ChatBubble content={message.text} align={own ? 'end' : 'start'} author={userLabel} />
 
 {#snippet userLabel()}
     <UserName id={message.from} selfLabel={locale.t('chat.you')} />
