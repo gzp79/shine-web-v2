@@ -9,6 +9,8 @@ import { buildAssets } from './scripts/vite-asset-converter.ts';
 import { CAPTCHA_TEST_SITE_KEY } from './src/constants.ts';
 import { config } from './src/generated/config.ts';
 
+const CHAT_COMMANDS: readonly string[] = ['ping'];
+
 console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment) && !process.env.LOG_LEVEL) {
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
@@ -118,7 +120,8 @@ function excludeMocks(): Plugin {
 export default defineConfig({
     define: {
         'import.meta.env.VITE_MOCK': config.environment === 'mock',
-        'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY
+        'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY,
+        'import.meta.env.VITE_CHAT_CMD_PING': CHAT_COMMANDS.includes('ping')
     },
     plugins: [
         excludeMocks(),

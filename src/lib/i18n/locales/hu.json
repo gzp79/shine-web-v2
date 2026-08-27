@@ -138,6 +138,9 @@
     },
     "chat": {
         "chat": "Csevegés",
-        "you": "Te"
+        "you": "Te",
+        "pinged": "pingelt",
+        "pingSelf": "ping ({ms} ms)",
+        "pong": "pong ({ms} ms)"
     }
 }

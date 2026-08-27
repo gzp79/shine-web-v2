@@ -1,47 +1,30 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
+    import Typography from '@lib/ui/atoms/Typography.svelte';
+    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
-    import ChatBubble from './ChatBubble.svelte';
-
-    /** A message item as consumed by the list. Deliberately decoupled from any transport type. */
-    export type ChatListItem = {
-        id: string;
-        text: string;
-        /** Whether this message belongs to the current user (aligned to the end). */
-        own: boolean;
-        /** Pre-rendered author label; ignored when the caller supplies a custom `item` snippet. */
-        author?: string;
-        /** Author's user id, for callers that resolve the label themselves. */
-        authorId?: string;
-    };
-
-    /**
-     * True when `current` is not the immediate successor of `prev` by the sequence part
-     * of a stream id (`<ms>-<seq>`) — i.e. one or more ids are missing between them.
-     * Always false when there is no predecessor.
-     */
-    function hasGap(prev: ChatListItem | undefined, current: ChatListItem): boolean {
-        if (!prev) return false;
-        const prevSeq = Number(prev.id.split('-')[1]);
-        const currentSeq = Number(current.id.split('-')[1]);
-        return currentSeq - prevSeq > 1;
-    }
+    import ChatGap from './ChatGap.svelte';
+    import ChatMessage from './ChatMessage.svelte';
+    import ChatPing from './ChatPing.svelte';
+    import ChatPong from './ChatPong.svelte';
+    import type { ChatMessage as ChatMessageData } from './chatMessages';
 
     export type ChatMessageListProps = {
-        messages: readonly ChatListItem[];
+        /** The conversation to render in order; `gap` entries are drawn as centered system notes. */
+        messages: readonly ChatMessageData[];
+        /** Current user's id; messages from this id are aligned to the end. */
+        selfId: string;
+        /** Resolves the author label for a user id. */
+        user: Snippet<[string]>;
         /** Follow new messages by scrolling to the bottom when the user is already near it (default: true). */
         autoScroll?: boolean;
-        /** Rendered when there are no messages. */
-        empty?: Snippet;
-        /** Custom renderer for a single item; defaults to {@link ChatBubble}. */
-        item?: Snippet<[ChatListItem]>;
         class?: ClassValue;
     };
 </script>
 
 <script lang="ts">
-    let { messages, autoScroll = true, empty, item, class: className }: ChatMessageListProps = $props();
+    let { messages, selfId, user, autoScroll = true, class: className }: ChatMessageListProps = $props();
 
     let viewport = $state<HTMLDivElement | null>(null);
     // Only auto-follow when the user is already parked near the bottom, so we don't
@@ -75,18 +58,19 @@
     class={cn('flex h-full w-full flex-col gap-2 overflow-y-auto overflow-x-hidden', className)}
 >
     {#if messages.length === 0}
-        {@render empty?.()}
+        <Stack alignment="center" justification="center" class="h-full">
+            <Typography variant="footnote" class="opacity-60">No messages yet.</Typography>
+        </Stack>
     {:else}
-        {#each messages as message, i (message.id)}
-            {#if hasGap(messages[i - 1], message)}
-                <div data-slot="chat-skip" class="text-secondary flex justify-center py-1 text-sm select-none">
-                    [...]
-                </div>
-            {/if}
-            {#if item}
-                {@render item(message)}
-            {:else}
-                <ChatBubble text={message.text} own={message.own} author={message.author} />
+        {#each messages as message (message.id)}
+            {#if message.kind === 'gap'}
+                <ChatGap />
+            {:else if message.kind === 'ping'}
+                <ChatPing {message} own={message.from === selfId} {user} />
+            {:else if message.kind === 'pong'}
+                <ChatPong {message} own={message.from === selfId} {user} />
+            {:else if message.kind === 'text'}
+                <ChatMessage {message} own={message.from === selfId} {user} />
             {/if}
         {/each}
     {/if}

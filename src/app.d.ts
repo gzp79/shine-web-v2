@@ -7,6 +7,7 @@ declare global {
         readonly env: ImportMetaEnv & {
             readonly VITE_MOCK: boolean;
             readonly VITE_SKIP_CAPTCHA: boolean;
+            readonly VITE_CHAT_CMD_PING: boolean;
         };
     }
 

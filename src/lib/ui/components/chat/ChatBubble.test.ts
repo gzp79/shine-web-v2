@@ -13,15 +13,21 @@ describe('ChatBubble', () => {
     });
 
     test('aligns own messages to the end', () => {
-        const { container } = render(ChatBubble, { props: { text: 'mine', own: true } });
+        const { container } = render(ChatBubble, { props: { text: 'mine', align: 'end' } });
         const wrapper = container.querySelector('[data-slot="chat-bubble"]');
         expect(wrapper).toHaveClass('justify-end');
     });
 
     test('aligns other messages to the start', () => {
-        const { container } = render(ChatBubble, { props: { text: 'theirs', own: false } });
+        const { container } = render(ChatBubble, { props: { text: 'theirs', align: 'start' } });
         const wrapper = container.querySelector('[data-slot="chat-bubble"]');
         expect(wrapper).toHaveClass('justify-start');
+    });
+
+    test('renders a centered note without a bubble', () => {
+        const { container } = render(ChatBubble, { props: { text: '…', align: 'center' } });
+        expect(container.querySelector('[data-slot="chat-bubble"]')).toBeNull();
+        expect(container.querySelector('[data-slot="chat-note"]')).toBeInTheDocument();
     });
 
     test('renders the author label when provided', () => {

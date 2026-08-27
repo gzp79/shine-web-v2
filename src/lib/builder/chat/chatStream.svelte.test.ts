@@ -1,9 +1,15 @@
 import { testInEffectRoot } from '@testing';
 import { flushSync } from 'svelte';
 import { describe, expect, test } from 'vitest';
+import type { ChatMessage } from '@lib/ui/components/chat';
 import type { BuilderHub, FrameHandler, ServerFrame } from '../hub';
 import type { ChatComment } from './chatProtocol';
 import { ChatStream, type ChatStreamOptions } from './chatStream.svelte';
+
+/** Body text of a message, or empty for kinds (gap/ping/pong) that carry none. */
+function textOf(message: ChatMessage): string {
+    return 'text' in message ? message.text : '';
+}
 
 /**
  * Minimal controllable fake hub. The stream only depends on `on`/`send`, so a real socket is
@@ -66,8 +72,8 @@ describe('ChatStream', () => {
             flushSync();
 
             expect(chat.messages).toEqual([
-                { id: '1-0', from: 'a', text: 'first' },
-                { id: '2-0', from: 'b', text: 'second' }
+                { kind: 'text', id: '1-0', from: 'a', text: 'first' },
+                { kind: 'text', id: '2-0', from: 'b', text: 'second' }
             ]);
         });
     });
@@ -88,20 +94,17 @@ describe('ChatStream', () => {
         });
     });
 
-    test('orders messages chronologically by stream id', () => {
+    test('drops out-of-order deliveries below the high-water mark', () => {
         testInEffectRoot(() => {
             const hub = new FakeHub();
             const chat = makeStream(hub);
 
-            // Arrive out of order.
-            hub.emitBatch([
-                { id: '10-0', from: 'a', text: 'later' },
-                { id: '2-5', from: 'b', text: 'middle' },
-                { id: '2-1', from: 'c', text: 'early' }
-            ]);
+            // Delivery is in order; a later frame carrying an older id is a stale straggler.
+            hub.emitBatch([{ id: '2-1', from: 'a', text: 'newer' }]);
+            hub.emitBatch([{ id: '1-0', from: 'b', text: 'older' }]);
             flushSync();
 
-            expect(chat.messages.map((m) => m.text)).toEqual(['early', 'middle', 'later']);
+            expect(chat.messages.map(textOf)).toEqual(['newer']);
         });
     });
 
@@ -117,7 +120,7 @@ describe('ChatStream', () => {
             ]);
             flushSync();
 
-            expect(chat.messages.map((m) => m.text)).toEqual(['two', 'three']);
+            expect(chat.messages.map(textOf)).toEqual(['two', 'three']);
         });
     });
 
@@ -154,6 +157,62 @@ describe('ChatStream', () => {
             flushSync();
 
             expect(chat.unreadCount).toBe(0);
+        });
+    });
+
+    test('measures our own ping echo and does not reply to it', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            hub.emitBatch([{ id: '1-0', from: 'me', text: `@ping me ${Date.now()}` }]);
+            flushSync();
+
+            expect(chat.messages).toMatchObject([{ kind: 'ping', from: 'me', selfMs: expect.any(Number) }]);
+            expect(hub.sent).toEqual([]);
+        });
+    });
+
+    test('replies to a peer ping and shows it without a self time', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            hub.emitBatch([{ id: '1-0', from: 'other', text: '@ping other 1000' }]);
+            flushSync();
+
+            expect(chat.messages).toEqual([{ kind: 'ping', id: '1-0', from: 'other' }]);
+            expect(hub.sent).toHaveLength(1);
+            expect(hub.sent[0]).toContain('@pong other 1000 ');
+        });
+    });
+
+    test('measures a peer pong to our ping as the full round-trip', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            // id === our user id => this pong answers a ping we sent.
+            hub.emitBatch([{ id: '1-0', from: 'other', text: `@pong me ${Date.now()} 5000` }]);
+            flushSync();
+
+            expect(chat.messages).toMatchObject([{ kind: 'pong', from: 'other', roundTripMs: expect.any(Number) }]);
+        });
+    });
+
+    test('drops pongs exchanged between other users', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            hub.emitBatch([{ id: '1-0', from: 'a', text: '@pong b 1000 2000' }]);
+            flushSync();
+
+            expect(chat.messages).toEqual([]);
         });
     });
 
