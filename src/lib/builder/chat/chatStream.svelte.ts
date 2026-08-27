@@ -24,6 +24,39 @@ export type ChatStreamOptions = {
 const PING_TOKEN = '@ping';
 const PONG_TOKEN = '@pong';
 
+type ChatCommandContext = {
+    args: string[];
+    selfId: string | undefined;
+    send: (text: string) => void;
+};
+
+// A client-side chat command, identified by its leading whitespace-separated token. `enabled` is the
+// compile-time feature gate; `run` validates its own arguments and ignores (logs) malformed input.
+// To add a command, append an entry here — the dispatch in `#tryHandleCommand` needs no changes.
+type ChatCommand = {
+    token: string;
+    enabled: boolean;
+    run: (context: ChatCommandContext) => void;
+};
+
+const CHAT_COMMANDS: ChatCommand[] = [
+    {
+        token: PING_TOKEN,
+        enabled: !!import.meta.env.VITE_CHAT_CMD_PING,
+        run: ({ args, selfId, send }) => {
+            if (args.length > 0) {
+                console.log('Ignoring invalid @ping command: unexpected parameters');
+                return;
+            }
+            if (!selfId) {
+                console.log('Ignoring @ping command: current user id is not resolved yet');
+                return;
+            }
+            send(`${PING_TOKEN} ${selfId} ${Date.now()}`);
+        }
+    }
+];
+
 type ParsedCommand =
     { kind: 'ping'; id: string; t0: number } | { kind: 'pong'; id: string; t0: number; tR: number } | { kind: 'none' };
 
@@ -57,10 +90,10 @@ function compareStreamIds(a: string, b: string): number {
     return aMs !== bMs ? aMs - bMs : aSeq - bSeq;
 }
 
-/** The id of the first message missing between `prev` and `current`, or `undefined` when contiguous. */
-function gapId(prev: StoredMessage, current: StoredMessage): string | undefined {
-    if (seqOf(current.id) - seqOf(prev.id) <= 1) return undefined;
-    return `${prev.id.split('-')[0]}-${seqOf(prev.id) + 1}`;
+/** The id of the first message missing between `prevId` and `currentId`, or `undefined` when contiguous. */
+function gapId(prevId: string, currentId: string): string | undefined {
+    if (seqOf(currentId) - seqOf(prevId) <= 1) return undefined;
+    return `${prevId.split('-')[0]}-${seqOf(prevId) + 1}`;
 }
 
 export class ChatStream {
@@ -69,7 +102,7 @@ export class ChatStream {
     readonly #unsubscribe: () => void;
 
     #getSelfId: () => string | undefined = () => undefined;
-    #stored = $state<StoredMessage[]>([]);
+    #stored = $state<ChatMessage[]>([]);
     #lastSeenId: string | undefined;
     #lastReadId = $state<string | undefined>(undefined);
 
@@ -91,25 +124,17 @@ export class ChatStream {
 
     /** Reactive, ordered, de-duplicated message list, with synthetic gap markers interleaved. */
     get messages(): readonly ChatMessage[] {
-        const out: ChatMessage[] = [];
-        let prev: StoredMessage | undefined;
-        for (const message of this.#stored) {
-            const gap = prev && gapId(prev, message);
-            if (gap) out.push({ kind: 'gap', id: gap });
-            out.push(message);
-            prev = message;
-        }
-        return out;
+        return this.#stored;
     }
 
     /** Number of messages newer than the last {@link markAllRead} call. Reactive. */
     get unreadCount(): number {
         const lastReadId = this.#lastReadId;
-        if (!lastReadId) return this.#stored.length;
         let count = 0;
         for (let i = this.#stored.length - 1; i >= 0; i--) {
-            if (compareStreamIds(this.#stored[i]!.id, lastReadId) <= 0) break;
-            count++;
+            const message = this.#stored[i]!;
+            if (lastReadId && compareStreamIds(message.id, lastReadId) <= 0) break;
+            if (message.kind !== 'gap') count++;
         }
         return count;
     }
@@ -140,24 +165,29 @@ export class ChatStream {
         this.#unsubscribe();
     }
 
-    // Handles a typed command (currently `@ping`, when compiled in), sending its encoded form itself.
-    // Returns true when the input was a command; false for ordinary text the caller should send as-is.
+    // Dispatches a typed command by its first whitespace-separated token. Returns true when the input
+    // matched an enabled command (which handles its own sending and argument validation), so the caller
+    // must not send it as literal text; false for ordinary text the caller should send as-is.
     #tryHandleCommand(text: string): boolean {
-        if (import.meta.env.VITE_CHAT_CMD_PING && text.toLowerCase() === PING_TOKEN) {
-            const self = this.selfId;
-            if (self) this.#hub.send(encodeChatRequest(`${PING_TOKEN} ${self} ${Date.now()}`));
-            return true;
-        }
-        return false;
+        const [token = '', ...args] = text.split(/\s+/);
+        const command = CHAT_COMMANDS.find((c) => c.enabled && c.token === token.toLowerCase());
+        if (!command) return false;
+
+        command.run({ args, selfId: this.selfId, send: (t) => this.#hub.send(encodeChatRequest(t)) });
+        return true;
     }
 
     #handleFrame(frame: ServerFrame): void {
         const now = Date.now();
-        const additions: StoredMessage[] = [];
+        const additions: ChatMessage[] = [];
         for (const comment of parseChatComments(frame)) {
+            // Skip out-of-order or already seen comments.
             if (this.#lastSeenId && compareStreamIds(comment.id, this.#lastSeenId) <= 0) continue;
-            // Advance the mark even for suppressed comments (e.g. another user's pong): they still
-            // consumed a stream id, so a redelivery must be dropped like any other.
+
+            // Detect if there is a gap between the last seen id and the current comment's id.
+            const gap = this.#lastSeenId && gapId(this.#lastSeenId, comment.id);
+            if (gap) additions.push({ kind: 'gap', id: gap });
+
             this.#lastSeenId = comment.id;
             const message = this.#handleComment(comment, now);
             if (message) additions.push(message);

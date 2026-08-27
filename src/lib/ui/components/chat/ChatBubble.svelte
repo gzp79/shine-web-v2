@@ -11,11 +11,11 @@
     export type ChatBubbleProps = {
         /** The message body. */
         text: string;
-        /** Placement and style; `center` renders a chrome-less system note (e.g. a gap marker). */
+        /** Placement and style. */
         align?: ChatBubbleAlign;
-        /** Author label rendered above the text; a snippet lets the caller resolve it lazily. */
+        /** Author label rendered above the text. */
         author?: string | Snippet;
-        /** Bubble color. Defaults to `secondary` for own messages and `primary` for others. */
+        /** Bubble color. */
         color?: ActionColor | 'container';
         /** Optional trailing content (e.g. a timestamp), rendered as a snippet. */
         meta?: Snippet;

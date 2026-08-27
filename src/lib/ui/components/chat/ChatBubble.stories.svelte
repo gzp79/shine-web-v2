@@ -1,6 +1,5 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ChatBubble from './ChatBubble.svelte';
 
     const { Story } = defineMeta({

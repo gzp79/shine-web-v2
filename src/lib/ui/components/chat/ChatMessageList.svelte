@@ -1,6 +1,7 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
+    import { getLocaleContext } from '@lib/i18n';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
@@ -25,6 +26,8 @@
 
 <script lang="ts">
     let { messages, selfId, user, autoScroll = true, class: className }: ChatMessageListProps = $props();
+
+    const locale = getLocaleContext();
 
     let viewport = $state<HTMLDivElement | null>(null);
     // Only auto-follow when the user is already parked near the bottom, so we don't
@@ -59,7 +62,7 @@
 >
     {#if messages.length === 0}
         <Stack alignment="center" justification="center" class="h-full">
-            <Typography variant="footnote" class="opacity-60">No messages yet.</Typography>
+            <Typography variant="footnote" class="opacity-60">{locale.t('chat.noMessages')}</Typography>
         </Stack>
     {:else}
         {#each messages as message (message.id)}

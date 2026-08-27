@@ -60,6 +60,50 @@ describe('ChatStream', () => {
         });
     });
 
+    test('sends an encoded @ping command with the resolved self id', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            chat.send('@ping');
+            expect(hub.sent).toHaveLength(1);
+            expect(hub.sent[0]).toContain('@ping me ');
+        });
+    });
+
+    test('ignores an @ping command carrying extra parameters', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            chat.send('@ping now');
+            expect(hub.sent).toEqual([]);
+        });
+    });
+
+    test('ignores @ping when the self id is unresolved', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            chat.send('@ping');
+            expect(hub.sent).toEqual([]);
+        });
+    });
+
+    test('sends unrecognized @-prefixed text as an ordinary message', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            chat.send('@hello there');
+            expect(hub.sent).toEqual(['{"type":"chat","text":"@hello there"}']);
+        });
+    });
+
     test('folds incoming batches into the reactive message list', () => {
         testInEffectRoot(() => {
             const hub = new FakeHub();
@@ -91,6 +135,38 @@ describe('ChatStream', () => {
             flushSync();
 
             expect(chat.messages.map((m) => m.id)).toEqual(['1-0', '2-0']);
+        });
+    });
+
+    test('marks a gap between non-contiguous stream ids', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            hub.emitBatch([
+                { id: '5-0', from: 'a', text: 'a' },
+                { id: '5-3', from: 'a', text: 'b' }
+            ]);
+            flushSync();
+
+            expect(chat.messages.map((m) => m.kind)).toEqual(['text', 'gap', 'text']);
+        });
+    });
+
+    test('does not mark a gap for a suppressed peer pong', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+            chat.bindSelfId(() => 'me');
+
+            hub.emitBatch([
+                { id: '5-0', from: 'a', text: 'hi' },
+                { id: '5-1', from: 'a', text: '@pong b 1 2' }, // peer<->peer pong, suppressed but consumes an id
+                { id: '5-2', from: 'a', text: 'bye' }
+            ]);
+            flushSync();
+
+            expect(chat.messages.map((m) => m.kind)).toEqual(['text', 'text']);
         });
     });
 

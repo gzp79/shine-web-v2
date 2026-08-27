@@ -139,6 +139,7 @@
     "chat": {
         "chat": "Csevegés",
         "you": "Te",
+        "noMessages": "Még nincsenek üzenetek.",
         "pinged": "pingelt",
         "pingSelf": "ping ({ms} ms)",
         "pong": "pong ({ms} ms)"

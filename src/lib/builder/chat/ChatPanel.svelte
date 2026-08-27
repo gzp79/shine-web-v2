@@ -16,6 +16,9 @@
     const locale = getLocaleContext();
     const chat = getChatStream();
 
+    // Bound here rather than in provideChatStream: the stream is provided in the (auth) layout, above
+    // AuthGuard, where the authenticated-user context does not yet exist. This panel is always mounted
+    // inside AuthGuard, so it is a stable place to resolve the self id.
     chat.bindSelfId(() => auth.user.id);
 
     // Keep the unread marker cleared while the panel is open, so messages arriving in real
