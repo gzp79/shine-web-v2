@@ -1,9 +1,9 @@
-import { config } from '@config';
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { getLocaleFromRequest } from '@lib/i18n';
 import { logAPI } from '@lib/loggers';
 import '@lib/prelude-math';
 import { getThemeFromRequest } from '@lib/theme';
+import { describeError } from '@lib/utils';
 
 // Initialize MSW for mock environment
 if (import.meta.env.VITE_MOCK) {
@@ -11,24 +11,12 @@ if (import.meta.env.VITE_MOCK) {
 }
 
 /// SvelteKit masks any unexpected (non-HttpError) server-side throw as a generic
-/// 500 "Internal Error", leaking the real cause only to the server console.
-/// This hook is invoked only for those unexpected errors; outside prod we forward
-/// the real message (and stack) to the client so it's visible in the UI.
+/// 500 "Internal Error", leaking the real cause only to the server console. This hook is
+/// invoked only for those unexpected errors; `describeError` surfaces the underlying cause
+/// to the client (withholding sensitive detail in prod on its own).
 export const handleError: HandleServerError = ({ error, status, message }) => {
     logAPI.error(`Unhandled server error [${status}]`, error);
-
-    if (config.environment === 'prod') {
-        return { message };
-    }
-
-    const detail =
-        error instanceof Error
-            ? `${error.message}${error.stack ? `\n${error.stack}` : ''}`
-            : typeof error === 'string'
-              ? error
-              : JSON.stringify(error);
-
-    return { message: `${message}: ${detail}` };
+    return { message: `${message}: ${describeError(error)}` };
 };
 
 export const handle: Handle = async ({ event, resolve }) => {

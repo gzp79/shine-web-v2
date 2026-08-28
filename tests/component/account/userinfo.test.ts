@@ -189,10 +189,11 @@ test('change email handles failure and recovers after retry', async ({ page, moc
 
     await test.step('shows failure and retry recovers', async () => {
         await expect(page.getByText('Sending change request...')).toBeVisible();
-        await expect(page.getByText('Retry').first()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+        await expect(page.getByRole('alert')).toContainText('Failed to start email change');
 
         await mock.remove('withIdentityDown');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
     });
 
     await test.step('UI recovers to normal state', async () => {

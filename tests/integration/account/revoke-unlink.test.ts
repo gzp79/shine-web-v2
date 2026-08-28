@@ -45,11 +45,14 @@ test('revoke token: failure shows error then recovers after retry', async ({ pag
         await page.getByRole('dialog', { name: 'Revoke Token' }).getByRole('button', { name: 'Revoke' }).click();
     });
 
-    await test.step('error shown, recover after retry', async () => {
-        await expect(page.getByText('Retry').first()).toBeVisible();
+    await test.step('error shown with underlying cause, recover after retry', async () => {
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+        await expect(page.getByRole('alert').filter({ hasText: 'Something went wrong' })).toContainText(
+            'Failed to revoke token'
+        );
 
         await mock.remove('revokeTokenFailure');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
 
         await expect(page.getByText('hash-token-1')).toBeVisible();
         await expect(revokeButton).toBeEnabled();

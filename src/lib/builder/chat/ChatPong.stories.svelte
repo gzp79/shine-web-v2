@@ -33,7 +33,7 @@
 <Story
     name="Peer pong"
     args={{
-        message: { kind: 'pong', id: '1-0', from: 'usr_bob', initiator: 'usr_jane', roundTripMs: 128 },
+        message: { kind: 'pong', id: '1-0', from: 'usr_bob', roundTripMs: 128 },
         own: false,
         result: users
     }}
@@ -42,7 +42,7 @@
 <Story
     name="Own pong"
     args={{
-        message: { kind: 'pong', id: '2-0', from: 'usr_me', initiator: 'usr_jane', roundTripMs: 87 },
+        message: { kind: 'pong', id: '2-0', from: 'usr_me', roundTripMs: 87 },
         own: true,
         me: { id: 'usr_me', name: 'Me' },
         result: users

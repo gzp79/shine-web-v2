@@ -21,12 +21,19 @@ test('retry button reloads data after initial failure', async ({ page, mock }) =
 
     await test.step('navigate and see error', async () => {
         await page.goto('/__test/account/activetokens');
-        await expect(page.getByText('Retry').first()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+    });
+
+    await test.step('surfaces the underlying cause (non-prod)', async () => {
+        // The hook unwraps the retry wrapper, so the real upstream failure is shown, not "Retry limit exceeded".
+        const error = page.getByRole('alert');
+        await expect(error).toContainText('Failed to get active tokens');
+        await expect(error).toContainText('Mocked server is down');
     });
 
     await test.step('recover after retry', async () => {
         await mock.remove('withIdentityDown');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
         await expect(page.getByText('hash-token-1')).toBeVisible();
     });
 });
@@ -74,11 +81,12 @@ test('revoke token: failure, error boundary, and retry recovery', async ({ page,
         await confirmButton.click();
     });
 
-    await test.step('error shown, recover after retry', async () => {
-        await expect(page.getByText('Retry').first()).toBeVisible();
+    await test.step('error shown with underlying cause, recover after retry', async () => {
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+        await expect(page.getByRole('alert')).toContainText('Failed to revoke token');
 
         await mock.remove('revokeTokenFailure');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
 
         await expect(page.getByText('hash-token-1')).toBeVisible();
         await expect(revokeButton).toBeEnabled();

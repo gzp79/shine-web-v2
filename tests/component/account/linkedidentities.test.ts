@@ -21,12 +21,18 @@ test('retry button reloads data after initial failure', async ({ page, mock }) =
 
     await test.step('navigate and see error', async () => {
         await page.goto('/__test/account/linkedidentities');
-        await expect(page.getByText('Retry').first()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+    });
+
+    await test.step('surfaces the underlying cause (non-prod)', async () => {
+        const error = page.getByRole('alert');
+        await expect(error).toContainText('Failed to get linked identities');
+        await expect(error).toContainText('Mocked server is down');
     });
 
     await test.step('recover after retry', async () => {
         await mock.remove('withIdentityDown');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
         await expect(page.getByText('john@example.com')).toBeVisible();
     });
 });
@@ -72,11 +78,12 @@ test('unlink identity: failure, error boundary, and retry recovery', async ({ pa
         await page.getByText('Unlink').last().click();
     });
 
-    await test.step('error shown, recover after retry', async () => {
-        await expect(page.getByText('Retry').first()).toBeVisible();
+    await test.step('error shown with underlying cause, recover after retry', async () => {
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+        await expect(page.getByRole('alert')).toContainText('Failed to unlink identity');
 
         await mock.remove('withIdentityDown');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
 
         await expect(unlinkButton).toBeEnabled();
     });
@@ -103,12 +110,13 @@ test('link provider dialog: failure loading providers and retry recovery', async
 
     await test.step('navigate and see error', async () => {
         await page.goto('/__test/account/linkedidentities');
-        await expect(page.getByText('Retry').first()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+        await expect(page.getByRole('alert')).toContainText('Failed to get linked identities');
     });
 
     await test.step('recover and verify dialog works', async () => {
         await mock.remove('withIdentityDown');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
         await expect(page.getByText('john@example.com')).toBeVisible();
 
         await page.getByText('Link Provider').click();

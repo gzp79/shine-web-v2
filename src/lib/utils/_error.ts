@@ -101,6 +101,39 @@ export function createAppError(error: unknown): AppError {
     return createOtherError('Unknown error', dev ? error : undefined);
 }
 
+/**
+ * A human-readable description of an error's underlying cause, safe to surface to the client.
+ * Unwraps retry wrappers (so the real failure shows, not just "Retry limit exceeded") and adds the
+ * upstream HTTP status for fetch failures. Potentially sensitive detail — response bodies, raw
+ * stack traces and arbitrary thrown payloads — is only included outside production.
+ */
+export function describeError(error: unknown): string {
+    if (isAppError(error)) {
+        if (error.kind === 'retryLimit') {
+            const { retryCount, lastError } = (error.details ?? {}) as RetryLimitError['details'] & object;
+            const attempts = retryCount ? `after ${retryCount} ${retryCount === 1 ? 'retry' : 'retries'}: ` : '';
+            return `${attempts}${lastError !== undefined ? describeError(lastError) : error.message}`;
+        }
+        if (error.kind === 'fetch') {
+            const { status, body } = (error.details ?? {}) as { status?: number; body?: string };
+            const suffix = status !== undefined ? ` (HTTP ${status})` : '';
+            return `${error.message}${suffix}${!import.meta.env.VITE_PROD && body ? ` ${body}` : ''}`;
+        }
+        return error.message;
+    }
+
+    // Non-app errors may carry internal detail (stack traces, arbitrary payloads); withhold it in prod.
+    if (import.meta.env.VITE_PROD) return 'Unexpected error';
+
+    if (error instanceof Error) return `${error.message}${error.stack ? `\n${error.stack}` : ''}`;
+    if (typeof error === 'string') return error;
+    try {
+        return JSON.stringify(error);
+    } catch {
+        return String(error);
+    }
+}
+
 export function formatError(error: unknown): string {
     if (isAppError(error)) {
         const details = error.details ? ` - ${JSON.stringify(error.details)}` : '';

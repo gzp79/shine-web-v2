@@ -9,6 +9,6 @@ export type TextMessage = UserMessage<'text'> & { text: string };
 export type GapMessage = BaseMessage<'gap'>;
 
 export type PingMessage = UserMessage<'ping'> & { selfMs?: number };
-export type PongMessage = UserMessage<'pong'> & { initiator: string; roundTripMs: number };
+export type PongMessage = UserMessage<'pong'> & { roundTripMs: number };
 
 export type ChatMessage = TextMessage | PingMessage | PongMessage | GapMessage;

@@ -125,6 +125,7 @@ function excludeMocks(): Plugin {
 export default defineConfig({
     define: {
         'import.meta.env.VITE_MOCK': config.environment === 'mock',
+        'import.meta.env.VITE_PROD': config.environment === 'prod',
         'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY,
         'import.meta.env.VITE_CHAT_CMD_PING': CHAT_COMMANDS.includes('ping')
     },

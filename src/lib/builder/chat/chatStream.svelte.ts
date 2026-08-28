@@ -1,3 +1,4 @@
+import { logChat } from '@lib/loggers';
 import type { BuilderHub, ServerFrame } from '../hub';
 import type { ChatMessage, PingMessage, PongMessage, TextMessage } from './chatMessages';
 import { CHAT_FRAME_TYPE, type ChatComment, encodeChatRequest, parseChatComments } from './chatProtocol';
@@ -30,31 +31,33 @@ type ChatCommandContext = {
     send: (text: string) => void;
 };
 
-// A client-side chat command, identified by its leading whitespace-separated token. `enabled` is the
-// compile-time feature gate; `run` validates its own arguments and ignores (logs) malformed input.
-// To add a command, append an entry here — the dispatch in `#tryHandleCommand` needs no changes.
+// A client-side chat command, identified by its leading whitespace-separated token. `run` validates
+// its own arguments and ignores (logs) malformed input. To add a command, append an entry — the
+// dispatch in `#tryHandleCommand` needs no changes.
 type ChatCommand = {
     token: string;
-    enabled: boolean;
     run: (context: ChatCommandContext) => void;
 };
 
 const CHAT_COMMANDS: ChatCommand[] = [
-    {
-        token: PING_TOKEN,
-        enabled: !!import.meta.env.VITE_CHAT_CMD_PING,
-        run: ({ args, selfId, send }) => {
-            if (args.length > 0) {
-                console.log('Ignoring invalid @ping command: unexpected parameters');
-                return;
-            }
-            if (!selfId) {
-                console.log('Ignoring @ping command: current user id is not resolved yet');
-                return;
-            }
-            send(`${PING_TOKEN} ${selfId} ${Date.now()}`);
-        }
-    }
+    ...(import.meta.env.VITE_CHAT_CMD_PING
+        ? [
+              {
+                  token: PING_TOKEN,
+                  run: ({ args, selfId, send }) => {
+                      if (args.length > 0) {
+                          logChat.warn('Ignoring invalid @ping command: unexpected parameters');
+                          return;
+                      }
+                      if (!selfId) {
+                          logChat.warn('Ignoring @ping command: current user id is not resolved yet');
+                          return;
+                      }
+                      send(`${PING_TOKEN} ${selfId} ${Date.now()}`);
+                  }
+              } satisfies ChatCommand
+          ]
+        : [])
 ];
 
 type ParsedCommand =
@@ -78,22 +81,39 @@ function parseCommand(text: string): ParsedCommand {
     return { kind: 'none' };
 }
 
-/** The sequence part of a stream id (`<ms>-<seq>`). */
-function seqOf(id: string): number {
-    return Number(id.split('-')[1]);
+// A Redis stream id is `<ms>-<seq>`: `ms` is the entry's server millisecond timestamp and `seq`
+// is a within-millisecond counter that resets to 0 whenever `ms` advances. Both parts matter for
+// ordering and for gap detection — `seq` alone is ambiguous across millisecond buckets.
+type StreamId = { ms: number; seq: number };
+
+function parseStreamId(id: string): StreamId {
+    const [ms = 0, seq = 0] = id.split('-').map(Number);
+    return { ms, seq };
 }
 
 /** Orders two stream ids chronologically. */
 function compareStreamIds(a: string, b: string): number {
-    const [aMs = 0, aSeq = 0] = a.split('-').map(Number);
-    const [bMs = 0, bSeq = 0] = b.split('-').map(Number);
-    return aMs !== bMs ? aMs - bMs : aSeq - bSeq;
+    const x = parseStreamId(a);
+    const y = parseStreamId(b);
+    return x.ms !== y.ms ? x.ms - y.ms : x.seq - y.seq;
 }
 
-/** The id of the first message missing between `prevId` and `currentId`, or `undefined` when contiguous. */
+/**
+ * The id of the first message missing between `prevId` and `currentId`, or `undefined` when they
+ * are contiguous.
+ *
+ * Within a single millisecond bucket a gap is a `seq` jump greater than 1. Across buckets we can
+ * only detect the leading part of a gap: since each new `ms` starts at `seq` 0, a current `seq`
+ * greater than 0 means this bucket's earlier entries were missed. Entries dropped at the tail of
+ * the previous bucket are unknowable (we never learn its final `seq`) and are not reported.
+ */
 function gapId(prevId: string, currentId: string): string | undefined {
-    if (seqOf(currentId) - seqOf(prevId) <= 1) return undefined;
-    return `${prevId.split('-')[0]}-${seqOf(prevId) + 1}`;
+    const prev = parseStreamId(prevId);
+    const current = parseStreamId(currentId);
+    if (current.ms === prev.ms) {
+        return current.seq - prev.seq > 1 ? `${current.ms}-${prev.seq + 1}` : undefined;
+    }
+    return current.seq > 0 ? `${current.ms}-0` : undefined;
 }
 
 export class ChatStream {
@@ -104,6 +124,7 @@ export class ChatStream {
     #getSelfId: () => string | undefined = () => undefined;
     #stored = $state<ChatMessage[]>([]);
     #lastSeenId: string | undefined;
+    #pendingGapId: string | undefined;
     #lastReadId = $state<string | undefined>(undefined);
 
     constructor(hub: BuilderHub, options: ChatStreamOptions = {}) {
@@ -170,7 +191,7 @@ export class ChatStream {
     // must not send it as literal text; false for ordinary text the caller should send as-is.
     #tryHandleCommand(text: string): boolean {
         const [token = '', ...args] = text.split(/\s+/);
-        const command = CHAT_COMMANDS.find((c) => c.enabled && c.token === token.toLowerCase());
+        const command = CHAT_COMMANDS.find((c) => c.token === token.toLowerCase());
         if (!command) return false;
 
         command.run({ args, selfId: this.selfId, send: (t) => this.#hub.send(encodeChatRequest(t)) });
@@ -184,13 +205,22 @@ export class ChatStream {
             // Skip out-of-order or already seen comments.
             if (this.#lastSeenId && compareStreamIds(comment.id, this.#lastSeenId) <= 0) continue;
 
-            // Detect if there is a gap between the last seen id and the current comment's id.
-            const gap = this.#lastSeenId && gapId(this.#lastSeenId, comment.id);
-            if (gap) additions.push({ kind: 'gap', id: gap });
-
+            // Detect a gap between the last seen id and this comment. Remember the earliest gap
+            // seen so far rather than emitting it now: a gap must sit *between* two visible
+            // messages, and this comment may be suppressed (e.g. a peer↔peer pong). Advancing
+            // over suppressed comments keeps the pending gap so it precedes the next real message.
+            const gap = this.#lastSeenId ? gapId(this.#lastSeenId, comment.id) : undefined;
+            if (gap && this.#pendingGapId === undefined) this.#pendingGapId = gap;
             this.#lastSeenId = comment.id;
+
             const message = this.#handleComment(comment, now);
-            if (message) additions.push(message);
+            if (!message) continue;
+
+            if (this.#pendingGapId !== undefined) {
+                additions.push({ kind: 'gap', id: this.#pendingGapId });
+                this.#pendingGapId = undefined;
+            }
+            additions.push(message);
         }
         if (additions.length === 0) return;
 
@@ -220,11 +250,11 @@ export class ChatStream {
             if (command.kind === 'pong') {
                 if (from === self) {
                     // Our own pong echoed back: now - tR is our server round-trip.
-                    return { kind: 'pong', id, from, initiator: command.id, roundTripMs: now - command.tR };
+                    return { kind: 'pong', id, from, roundTripMs: now - command.tR };
                 }
                 if (command.id === self) {
                     // A peer answered our ping (its id is our user id): now - t0 is the full round-trip.
-                    return { kind: 'pong', id, from, initiator: command.id, roundTripMs: now - command.t0 };
+                    return { kind: 'pong', id, from, roundTripMs: now - command.t0 };
                 }
                 return null;
             }
