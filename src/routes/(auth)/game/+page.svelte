@@ -9,12 +9,13 @@
     import { createAppError } from '@lib/utils';
     import type { PageData } from './$types';
 
-    type Viewer = {
+    // Local mirror of the game bundle's contract (loaded at runtime, so its types aren't importable).
+    type SceneHandle = {
         dispose(): void;
-        setInputEnabled?: (enabled: boolean) => void;
+        setInputEnabled(enabled: boolean): void;
     };
     type GameModule = {
-        createScene: (container: HTMLElement, scene: string) => Promise<Viewer>;
+        createScene: (container: HTMLElement, scene: string) => Promise<SceneHandle>;
         listScenes: () => { id: string; title: string }[];
     };
 
@@ -23,7 +24,7 @@
     const appMenu = getMenuContext();
 
     let container: HTMLElement;
-    let viewer = $state<Viewer | null>(null);
+    let handle = $state<SceneHandle | null>(null);
     let error = $state<unknown>(null);
     let running = $state(false);
     let scene = $state<string>('');
@@ -52,14 +53,14 @@
         void run(s, () => cancelled);
         return () => {
             cancelled = true;
-            viewer?.dispose();
-            viewer = null;
+            handle?.dispose();
+            handle = null;
             running = false;
         };
     });
 
     $effect(() => {
-        viewer?.setInputEnabled?.(!gameInputGate.suspended);
+        handle?.setInputEnabled(!gameInputGate.suspended);
     });
 
     async function run(s: string, isCancelled: () => boolean) {
@@ -79,12 +80,12 @@
                 sceneList = mod.listScenes();
             }
             logGame.info(`creating scene="${s}"`);
-            const v = await mod.createScene(container, s);
+            const next = await mod.createScene(container, s);
             if (isCancelled()) {
-                v.dispose();
+                next.dispose();
                 return;
             }
-            viewer = v;
+            handle = next;
             running = true;
             logGame.info('scene running');
         } catch (err) {

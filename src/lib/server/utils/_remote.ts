@@ -110,7 +110,7 @@ export function validateProxyResponse(response: Response): void {
 export function throwRemoteHttpError(e: unknown, fallbackMessage = 'Remote service unavailable'): never {
     if (isHttpError(e)) throw e;
 
-    const detail = isAppError(e) ? describeError(e) : fallbackMessage;
+    const detail = isAppError(e) || !import.meta.env.VITE_PROD ? describeError(e) : fallbackMessage;
     throw error(502, detail);
 }
 

@@ -89,6 +89,7 @@ function serverConfigs() {
             https: https,
             port: parseInt(new URL(config.webUrl).port),
             host: '0.0.0.0',
+            allowedHosts: ['.local.scytta.com'],
             proxy: {}
         }
     };

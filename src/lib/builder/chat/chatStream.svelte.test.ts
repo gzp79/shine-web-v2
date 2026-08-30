@@ -200,6 +200,24 @@ describe('ChatStream', () => {
         });
     });
 
+    test('drops a gap left at the front by the retention cap', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub, { maxMessages: 2 });
+
+            // [text 5-0, gap 5-1, text 5-3] before trimming; the cap drops '5-0', which would
+            // otherwise leave the gap as an orphan '…' at the top.
+            hub.emitBatch([
+                { id: '5-0', from: 'a', text: 'a' },
+                { id: '5-3', from: 'a', text: 'b' }
+            ]);
+            flushSync();
+
+            expect(chat.messages.map((m) => m.kind)).toEqual(['text']);
+            expect(chat.messages.map(textOf)).toEqual(['b']);
+        });
+    });
+
     test('tracks unread messages and clears them on markAllRead', () => {
         testInEffectRoot(() => {
             const hub = new FakeHub();

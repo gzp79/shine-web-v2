@@ -164,20 +164,16 @@ const INCOMING_COMMANDS: IncomingCommand[] = [
                       const { id, from } = comment;
                       if (command.kind === 'ping') {
                           if (from === selfId) {
-                              // Our own ping echoed back: now - t0 is our server round-trip.
                               return { kind: 'ping', id, from, selfMs: now - command.t0 };
                           }
-                          // A peer's ping: reply so they can measure the full round-trip, and show it.
                           send(`${PONG_TOKEN} ${command.id} ${command.t0} ${now}`);
                           return { kind: 'ping', id, from };
                       }
                       if (command.kind === 'pong') {
                           if (from === selfId) {
-                              // Our own pong echoed back: now - tR is our server round-trip.
                               return { kind: 'pong', id, from, roundTripMs: now - command.tR };
                           }
                           if (command.id === selfId) {
-                              // A peer answered our ping (its id is our user id): now - t0 is the full round-trip.
                               return { kind: 'pong', id, from, roundTripMs: now - command.t0 };
                           }
                           return null;
@@ -193,8 +189,6 @@ const INCOMING_COMMANDS: IncomingCommand[] = [
                   handle: ({ comment, send }) => {
                       const count = parseStormTrigger(comment.text);
                       if (count === undefined) return undefined;
-                      // Every client answering (initiator included) is what amplifies the load; the
-                      // plain replies never match a command token, so they cannot re-trigger a storm.
                       for (let i = 1; i <= count; i++) send(`storm ${i}/${count}`);
                       return { kind: 'text', id: comment.id, from: comment.from, text: comment.text };
                   }
@@ -327,10 +321,7 @@ export class ChatStream {
             // Skip out-of-order or already seen comments.
             if (this.#lastSeenId && compareStreamIds(comment.id, this.#lastSeenId) <= 0) continue;
 
-            // Detect a gap between the last seen id and this comment. Remember the earliest gap
-            // seen so far rather than emitting it now: a gap must sit *between* two visible
-            // messages, and this comment may be suppressed (e.g. a peer↔peer pong). Advancing
-            // over suppressed comments keeps the pending gap so it precedes the next real message.
+            // Detect a gap between the last seen id and this comment.
             const gap = this.#lastSeenId ? gapId(this.#lastSeenId, comment.id) : undefined;
             if (gap && this.#pendingGapId === undefined) this.#pendingGapId = gap;
             this.#lastSeenId = comment.id;
@@ -349,6 +340,7 @@ export class ChatStream {
         const merged = [...this.#stored, ...additions];
         if (merged.length > this.#maxMessages) {
             merged.splice(0, merged.length - this.#maxMessages);
+            if (merged[0]?.kind === 'gap') merged.shift();
         }
         this.#stored = merged;
     }
