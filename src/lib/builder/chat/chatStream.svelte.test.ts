@@ -309,4 +309,77 @@ describe('ChatStream', () => {
             expect(chat.messages).toHaveLength(1);
         });
     });
+
+    test('floods the requested number of plain messages for an @burst command', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            chat.send('@burst 3');
+            expect(hub.sent).toEqual([
+                '{"type":"chat","text":"burst 1/3"}',
+                '{"type":"chat","text":"burst 2/3"}',
+                '{"type":"chat","text":"burst 3/3"}'
+            ]);
+        });
+    });
+
+    test('ignores an @burst command with a missing, non-numeric, or out-of-range count', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            chat.send('@burst');
+            chat.send('@burst abc');
+            chat.send('@burst 0');
+            chat.send('@burst 201');
+            expect(hub.sent).toEqual([]);
+        });
+    });
+
+    test('sends a single trigger frame for an @storm command', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            chat.send('@storm 2');
+            expect(hub.sent).toEqual(['{"type":"chat","text":"@storm 2"}']);
+        });
+    });
+
+    test('ignores an @storm command with an invalid count', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            chat.send('@storm 201');
+            expect(hub.sent).toEqual([]);
+        });
+    });
+
+    test('answers a received @storm trigger with plain messages and shows the trigger', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            hub.emitBatch([{ id: '1-0', from: 'other', text: '@storm 2' }]);
+            flushSync();
+
+            expect(hub.sent).toEqual(['{"type":"chat","text":"storm 1/2"}', '{"type":"chat","text":"storm 2/2"}']);
+            expect(chat.messages).toEqual([{ kind: 'text', id: '1-0', from: 'other', text: '@storm 2' }]);
+        });
+    });
+
+    test('does not re-trigger a storm from its own plain replies', () => {
+        testInEffectRoot(() => {
+            const hub = new FakeHub();
+            const chat = makeStream(hub);
+
+            hub.emitBatch([{ id: '1-0', from: 'other', text: 'storm 1/2' }]);
+            flushSync();
+
+            expect(hub.sent).toEqual([]);
+            expect(chat.messages).toEqual([{ kind: 'text', id: '1-0', from: 'other', text: 'storm 1/2' }]);
+        });
+    });
 });

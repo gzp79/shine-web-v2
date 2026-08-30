@@ -9,6 +9,8 @@ declare global {
             readonly VITE_PROD: boolean;
             readonly VITE_SKIP_CAPTCHA: boolean;
             readonly VITE_CHAT_CMD_PING: boolean;
+            readonly VITE_CHAT_CMD_BURST: boolean;
+            readonly VITE_CHAT_CMD_STORM: boolean;
         };
     }
 

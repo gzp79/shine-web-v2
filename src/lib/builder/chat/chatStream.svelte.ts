@@ -25,6 +25,32 @@ export type ChatStreamOptions = {
 const PING_TOKEN = '@ping';
 const PONG_TOKEN = '@pong';
 
+// Client-only stress-test commands, also encoded inside plain chat text (the server is a dumb
+// broadcast relay, see above). Both are capped so a typo can't fire off an unbounded flood.
+//
+//   @burst <n>   the initiator sends n plain messages itself — a single-sender load test.
+//   @storm <n>   the initiator broadcasts one trigger; every client that sees it (the initiator
+//                included, via its own echo) answers with n plain messages — an amplification
+//                test that produces clients×n traffic. Responses are plain text, never a command
+//                token, so they cannot re-trigger a storm.
+const BURST_TOKEN = '@burst';
+const STORM_TOKEN = '@storm';
+const MAX_STRESS_MESSAGES = 200;
+
+// Parses the single count argument shared by @burst/@storm; undefined for anything that is not a
+// positive integer within [1, MAX_STRESS_MESSAGES].
+function parseStressCount(args: string[]): number | undefined {
+    if (args.length !== 1 || !/^\d+$/.test(args[0]!)) return undefined;
+    const count = Number(args[0]);
+    return count >= 1 && count <= MAX_STRESS_MESSAGES ? count : undefined;
+}
+
+// Recognises an incoming `@storm <n>` trigger frame, returning its (validated) count or undefined.
+function parseStormTrigger(text: string): number | undefined {
+    const [token, ...args] = text.trim().split(/\s+/);
+    return token === STORM_TOKEN ? parseStressCount(args) : undefined;
+}
+
 type ChatCommandContext = {
     args: string[];
     selfId: string | undefined;
@@ -42,26 +68,60 @@ type ChatCommand = {
 const CHAT_COMMANDS: ChatCommand[] = [
     ...(import.meta.env.VITE_CHAT_CMD_PING
         ? [
-              {
-                  token: PING_TOKEN,
-                  run: ({ args, selfId, send }) => {
-                      if (args.length > 0) {
-                          logChat.warn('Ignoring invalid @ping command: unexpected parameters');
-                          return;
-                      }
-                      if (!selfId) {
-                          logChat.warn('Ignoring @ping command: current user id is not resolved yet');
-                          return;
-                      }
-                      send(`${PING_TOKEN} ${selfId} ${Date.now()}`);
-                  }
-              } satisfies ChatCommand
-          ]
+            {
+                token: PING_TOKEN,
+                run: ({ args, selfId, send }) => {
+                    if (args.length > 0) {
+                        logChat.warn('Ignoring invalid @ping command: unexpected parameters');
+                        return;
+                    }
+                    if (!selfId) {
+                        logChat.warn('Ignoring @ping command: current user id is not resolved yet');
+                        return;
+                    }
+                    send(`${PING_TOKEN} ${selfId} ${Date.now()}`);
+                }
+            } satisfies ChatCommand
+        ]
+        : []),
+    ...(import.meta.env.VITE_CHAT_CMD_BURST
+        ? [
+            {
+                token: BURST_TOKEN,
+                run: ({ args, send }) => {
+                    const count = parseStressCount(args);
+                    if (count === undefined) {
+                        logChat.warn('Ignoring invalid @burst command: expected a count between 1 and 200');
+                        return;
+                    }
+                    // The initiator floods the messages itself; they echo back as ordinary text.
+                    for (let i = 1; i <= count; i++) send(`burst ${i}/${count}`);
+                }
+            } satisfies ChatCommand
+        ]
+        : []),
+    ...(import.meta.env.VITE_CHAT_CMD_STORM
+        ? [
+            {
+                token: STORM_TOKEN,
+                run: ({ args, send }) => {
+                    const count = parseStressCount(args);
+                    if (count === undefined) {
+                        logChat.warn('Ignoring invalid @storm command: expected a count between 1 and 200');
+                        return;
+                    }
+                    // Fire a single trigger; every client answers on receipt (see #handleComment).
+                    send(`${STORM_TOKEN} ${count}`);
+                }
+            } satisfies ChatCommand
+        ]
         : [])
 ];
 
 type ParsedCommand =
-    { kind: 'ping'; id: string; t0: number } | { kind: 'pong'; id: string; t0: number; tR: number } | { kind: 'none' };
+    { kind: 'ping'; id: string; t0: number } |
+    { kind: 'pong'; id: string; t0: number; tR: number } |
+    { kind: 'none' };
 
 function parseTimestamp(value: string | undefined): number | undefined {
     if (value === undefined || !/^\d+$/.test(value)) return undefined;
@@ -80,6 +140,70 @@ function parseCommand(text: string): ParsedCommand {
     }
     return { kind: 'none' };
 }
+
+type IncomingContext = {
+    comment: ChatComment;
+    selfId: string | undefined;
+    /** The receiver's clock (epoch ms) captured once per frame, shared across the batch. */
+    now: number;
+    send: (text: string) => void;
+};
+
+// The receive-side counterpart to CHAT_COMMANDS: a client-side reaction to an incoming comment,
+// matched by inspecting its text. `handle` returns the message to store, `null` to suppress it
+// (recognised but nothing to show, e.g. a pong between other users), or `undefined` when the
+// comment isn't this command's concern so the next entry — and finally plain text — applies.
+type IncomingCommand = {
+    handle: (context: IncomingContext) => StoredMessage | null | undefined;
+};
+
+const INCOMING_COMMANDS: IncomingCommand[] = [
+    ...(import.meta.env.VITE_CHAT_CMD_PING
+        ? [
+            {
+                handle: ({ comment, selfId, now, send }) => {
+                    const command = parseCommand(comment.text);
+                    const { id, from } = comment;
+                    if (command.kind === 'ping') {
+                        if (from === selfId) {
+                            // Our own ping echoed back: now - t0 is our server round-trip.
+                            return { kind: 'ping', id, from, selfMs: now - command.t0 };
+                        }
+                        // A peer's ping: reply so they can measure the full round-trip, and show it.
+                        send(`${PONG_TOKEN} ${command.id} ${command.t0} ${now}`);
+                        return { kind: 'ping', id, from };
+                    }
+                    if (command.kind === 'pong') {
+                        if (from === selfId) {
+                            // Our own pong echoed back: now - tR is our server round-trip.
+                            return { kind: 'pong', id, from, roundTripMs: now - command.tR };
+                        }
+                        if (command.id === selfId) {
+                            // A peer answered our ping (its id is our user id): now - t0 is the full round-trip.
+                            return { kind: 'pong', id, from, roundTripMs: now - command.t0 };
+                        }
+                        return null;
+                    }
+                    return undefined;
+                }
+            } satisfies IncomingCommand
+        ]
+        : []),
+    ...(import.meta.env.VITE_CHAT_CMD_STORM
+        ? [
+            {
+                handle: ({ comment, send }) => {
+                    const count = parseStormTrigger(comment.text);
+                    if (count === undefined) return undefined;
+                    // Every client answering (initiator included) is what amplifies the load; the
+                    // plain replies never match a command token, so they cannot re-trigger a storm.
+                    for (let i = 1; i <= count; i++) send(`storm ${i}/${count}`);
+                    return { kind: 'text', id: comment.id, from: comment.from, text: comment.text };
+                }
+            } satisfies IncomingCommand
+        ]
+        : [])
+];
 
 // A Redis stream id is `<ms>-<seq>`: `ms` is the entry's server millisecond timestamp and `seq`
 // is a within-millisecond counter that resets to 0 whenever `ms` advances. Both parts matter for
@@ -231,35 +355,20 @@ export class ChatStream {
         this.#stored = merged;
     }
 
-    // Processes a received comment: may auto-reply (peer ping), and returns the message to store,
-    // or `null` to suppress it (e.g. a pong not addressed to us).
+    // Processes a received comment through the INCOMING_COMMANDS table: an entry may auto-reply
+    // (peer ping, storm trigger) and returns the message to store or `null` to suppress it (e.g. a
+    // pong not addressed to us). A comment no entry claims is stored as plain text.
     #handleComment(comment: ChatComment, now: number): StoredMessage | null {
-        const { id, from } = comment;
-        if (import.meta.env.VITE_CHAT_CMD_PING) {
-            const command = parseCommand(comment.text);
-            const self = this.selfId;
-            if (command.kind === 'ping') {
-                if (from === self) {
-                    // Our own ping echoed back: now - t0 is our server round-trip.
-                    return { kind: 'ping', id, from, selfMs: now - command.t0 };
-                }
-                // A peer's ping: reply so they can measure the full round-trip, and show it.
-                this.#hub.send(encodeChatRequest(`${PONG_TOKEN} ${command.id} ${command.t0} ${now}`));
-                return { kind: 'ping', id, from };
-            }
-            if (command.kind === 'pong') {
-                if (from === self) {
-                    // Our own pong echoed back: now - tR is our server round-trip.
-                    return { kind: 'pong', id, from, roundTripMs: now - command.tR };
-                }
-                if (command.id === self) {
-                    // A peer answered our ping (its id is our user id): now - t0 is the full round-trip.
-                    return { kind: 'pong', id, from, roundTripMs: now - command.t0 };
-                }
-                return null;
-            }
+        const context: IncomingContext = {
+            comment,
+            selfId: this.selfId,
+            now,
+            send: (text) => this.#hub.send(encodeChatRequest(text))
+        };
+        for (const command of INCOMING_COMMANDS) {
+            const result = command.handle(context);
+            if (result !== undefined) return result;
         }
-
-        return { kind: 'text', id, from, text: comment.text };
+        return { kind: 'text', id: comment.id, from: comment.from, text: comment.text };
     }
 }
