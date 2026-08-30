@@ -9,6 +9,8 @@ import { buildAssets } from './scripts/vite-asset-converter.ts';
 import { CAPTCHA_TEST_SITE_KEY } from './src/constants.ts';
 import { config } from './src/generated/config.ts';
 
+const CHAT_COMMANDS: readonly string[] = ['ping', 'burst', 'storm'];
+
 console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment) && !process.env.LOG_LEVEL) {
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
@@ -33,14 +35,19 @@ const assetsServedByWebServer =
 if (assetsServedByWebServer) {
     await buildAssets();
     additionalAssets.push({
-        src: 'static-generated/assets/*',
-        dest: ''
+        src: 'static-generated/assets/**/*',
+        dest: '',
+        rename: { stripBase: 2 }
     });
 }
 if (config.environment === 'mock') {
     additionalAssets.push({
+        // MSW registers the worker at `/mockServiceWorker.js`; `stripBase: 1` drops the
+        // `static-generated` prefix so it's served at the root (vite-plugin-static-copy v4
+        // no longer flattens `dest: ''` — it preserves the source dir unless stripped).
         src: 'static-generated/mockServiceWorker.js',
-        dest: ''
+        dest: '',
+        rename: { stripBase: 1 }
     });
 }
 
@@ -68,7 +75,8 @@ function serverConfigs() {
         server: {
             https: https,
             port: parseInt(new URL(config.webUrl).port),
-            host: new URL(config.webUrl).hostname,
+            host: '0.0.0.0',
+            allowedHosts: ['.local.scytta.com'],
             strictPort: true,
             hmr: {
                 protocol: 'wss',
@@ -80,7 +88,8 @@ function serverConfigs() {
         preview: {
             https: https,
             port: parseInt(new URL(config.webUrl).port),
-            host: new URL(config.webUrl).hostname,
+            host: '0.0.0.0',
+            allowedHosts: ['.local.scytta.com'],
             proxy: {}
         }
     };
@@ -118,7 +127,11 @@ function excludeMocks(): Plugin {
 export default defineConfig({
     define: {
         'import.meta.env.VITE_MOCK': config.environment === 'mock',
-        'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY
+        'import.meta.env.VITE_PROD': config.environment === 'prod',
+        'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY,
+        'import.meta.env.VITE_CHAT_CMD_PING': CHAT_COMMANDS.includes('ping'),
+        'import.meta.env.VITE_CHAT_CMD_BURST': CHAT_COMMANDS.includes('burst'),
+        'import.meta.env.VITE_CHAT_CMD_STORM': CHAT_COMMANDS.includes('storm')
     },
     plugins: [
         excludeMocks(),

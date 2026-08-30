@@ -20,12 +20,18 @@ test('retry button reloads data after initial failure', async ({ page, mock }) =
 
     await test.step('navigate and see error', async () => {
         await page.goto('/__test/account/activesessions');
-        await expect(page.getByText('Retry').first()).toBeVisible();
+        await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible();
+    });
+
+    await test.step('surfaces the underlying cause (non-prod)', async () => {
+        const error = page.getByRole('alert');
+        await expect(error).toContainText('Failed to get active sessions');
+        await expect(error).toContainText('Mocked server is down');
     });
 
     await test.step('recover after retry', async () => {
         await mock.remove('withIdentityDown');
-        await page.getByText('Retry').first().click();
+        await page.getByRole('button', { name: 'Retry' }).click();
         await expect(page.getByText('fp-chrome-windows')).toBeVisible();
     });
 });

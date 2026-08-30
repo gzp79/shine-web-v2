@@ -5,14 +5,17 @@
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import { cn } from '@lib/ui/utils';
 
+    /** Where a bubble sits: the author's own messages `end`, others' `start`, system notes `center`. */
+    export type ChatBubbleAlign = 'start' | 'end' | 'center';
+
     export type ChatBubbleProps = {
-        /** The message body. */
-        text: string;
-        /** Align to the end (own messages) or the start (others'). */
-        own?: boolean;
-        /** Author label rendered above the text; a snippet lets the caller resolve it lazily. */
+        /** The message body, either plain text or a snippet for rich content. */
+        content: string | Snippet;
+        /** Placement and style. */
+        align?: ChatBubbleAlign;
+        /** Author label rendered above the text. */
         author?: string | Snippet;
-        /** Bubble color. Defaults to `primary` for own messages and `container` for others. */
+        /** Bubble color. */
         color?: ActionColor | 'container';
         /** Optional trailing content (e.g. a timestamp), rendered as a snippet. */
         meta?: Snippet;
@@ -21,9 +24,9 @@
 </script>
 
 <script lang="ts">
-    let { text, own = false, author, color, meta, class: className }: ChatBubbleProps = $props();
+    let { content, align = 'start', author, color, meta, class: className }: ChatBubbleProps = $props();
 
-    const resolvedColor = $derived(color ?? (own ? 'secondary' : 'primary'));
+    const resolvedColor = $derived(color ?? (align === 'end' ? 'secondary' : 'primary'));
 
     const bubbleCls = $derived(
         cn(
@@ -32,28 +35,42 @@
             `text-on-${resolvedColor}`,
             `border-on-${resolvedColor}`,
             // Flatten the corner nearest the owner for a "tail" effect.
-            own ? 'rounded-br-sm' : 'rounded-bl-sm',
+            align === 'end' ? 'rounded-br-sm' : 'rounded-bl-sm',
             className
         )
     );
 </script>
 
-<div class={cn('flex w-full', own ? 'justify-end' : 'justify-start')} data-slot="chat-bubble">
-    <div class={bubbleCls}>
-        {#if author}
-            <Typography variant="footnote" weight="emphasis" class={cn(`text-on-${resolvedColor}`, 'opacity-70')}>
-                {#if typeof author === 'function'}
-                    {@render author()}
-                {:else}
-                    {author}
-                {/if}
-            </Typography>
-        {/if}
-        <Typography variant="text" class="whitespace-pre-wrap text-start">{text}</Typography>
-        {#if meta}
-            <div class={cn(`text-on-${resolvedColor}`, 'self-end text-xs opacity-60')}>
-                {@render meta()}
-            </div>
+{#if align === 'center'}
+    <div class="flex w-full justify-center" data-slot="chat-note">
+        {#if typeof content === 'function'}
+            {@render content()}
+        {:else}
+            <Typography variant="footnote" class={cn('text-secondary select-none', className)}>{content}</Typography>
         {/if}
     </div>
-</div>
+{:else}
+    <div class={cn('flex w-full', align === 'end' ? 'justify-end' : 'justify-start')} data-slot="chat-bubble">
+        <div class={bubbleCls}>
+            {#if author}
+                <Typography variant="footnote" weight="emphasis" class={cn(`text-on-${resolvedColor}`, 'opacity-70')}>
+                    {#if typeof author === 'function'}
+                        {@render author()}
+                    {:else}
+                        {author}
+                    {/if}
+                </Typography>
+            {/if}
+            {#if typeof content === 'function'}
+                {@render content()}
+            {:else}
+                <Typography variant="text" class="whitespace-pre-wrap text-start">{content}</Typography>
+            {/if}
+            {#if meta}
+                <div class={cn(`text-on-${resolvedColor}`, 'self-end text-xs opacity-60')}>
+                    {@render meta()}
+                </div>
+            {/if}
+        </div>
+    </div>
+{/if}

@@ -21,12 +21,7 @@
     const appMenu = getMenuContext();
     const connectionStatus = getConnectionStatusContext();
 
-    // Establish the shared transport for the whole auth region up front, so the app-shell
-    // status indicator always reflects live state, not just once a page opens the panel.
     const hub = provideBuilderHub();
-    hub.connect();
-    // Subscribe the chat channel immediately, so unread state accrues even while the panel
-    // is closed. The socket's lifetime belongs to the hub, not to any channel.
     const chat = provideChatStream();
 
     let chatOpen = $state(false);
@@ -73,7 +68,7 @@
             {/snippet}
 
             {@render children()}
-            <ChatPanel {chat} bind:open={chatOpen} />
+            <ChatPanel bind:open={chatOpen} />
         </svelte:boundary>
     </LogoutGuard>
 </AuthGuard>

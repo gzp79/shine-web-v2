@@ -2,7 +2,7 @@
     import type { ClassValue } from 'clsx';
     import { getUserStore } from '@lib/account/userStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
-    import { cn } from '@lib/ui/utils';
+    import { cn, dataColor } from '@lib/ui/utils';
 
     export type UserNameProps = {
         /** Id of the user to resolve. */
@@ -23,12 +23,18 @@
     const users = getUserStore();
     const locale = getLocaleContext();
 
+    const isSelf = $derived(users.meId === id);
+
+    // Color other users by a stable per-id data color so the same person reads the same everywhere
+    // (text, ping, pong). The current user keeps the ambient text color.
+    const colorClass = $derived(isSelf ? undefined : `text-on-${dataColor(id)}`);
+
     // Reactive get-or-fetch: the store references and loads the entry while we render this id,
     // and releases it automatically when we stop.
     const user = $derived(users.get(id));
 
     const label = $derived.by(() => {
-        if (selfLabel !== undefined && users.meId === id) return selfLabel;
+        if (selfLabel !== undefined && isSelf) return selfLabel;
         if (user.name !== undefined) return user.name;
         if (user.isUnknown) return fallback ?? locale.t('common.anonymousUser');
         // A transient error (e.g. network) keeps the placeholder while the lookup may still retry.
@@ -40,5 +46,5 @@
 <span
     data-slot="user-name"
     data-loading={user.loading ? '' : undefined}
-    class={cn(user.name === undefined && 'opacity-60', className)}>{label}</span
+    class={cn(colorClass, user.name === undefined && 'opacity-60', className)}>{label}</span
 >

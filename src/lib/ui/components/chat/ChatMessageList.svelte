@@ -1,70 +1,91 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
+    import { getLocaleContext } from '@lib/i18n';
+    import Typography from '@lib/ui/atoms/Typography.svelte';
+    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
-    import ChatBubble from './ChatBubble.svelte';
 
-    /** A message item as consumed by the list. Deliberately decoupled from any transport type. */
-    export type ChatListItem = {
-        id: string;
-        text: string;
-        /** Whether this message belongs to the current user (aligned to the end). */
-        own: boolean;
-        /** Pre-rendered author label; ignored when the caller supplies a custom `item` snippet. */
-        author?: string;
-        /** Author's user id, for callers that resolve the label themselves. */
-        authorId?: string;
-    };
+    export type ChatMessageLike = { id: string };
 
-    /**
-     * True when `current` is not the immediate successor of `prev` by the sequence part
-     * of a stream id (`<ms>-<seq>`) — i.e. one or more ids are missing between them.
-     * Always false when there is no predecessor.
-     */
-    function hasGap(prev: ChatListItem | undefined, current: ChatListItem): boolean {
-        if (!prev) return false;
-        const prevSeq = Number(prev.id.split('-')[1]);
-        const currentSeq = Number(current.id.split('-')[1]);
-        return currentSeq - prevSeq > 1;
-    }
-
-    export type ChatMessageListProps = {
-        messages: readonly ChatListItem[];
+    export type ChatMessageListProps<T extends ChatMessageLike = ChatMessageLike> = {
+        /** The conversation to render in order. */
+        messages: readonly T[];
+        /** Renders a single message; the caller decides how each kind looks. */
+        item: Snippet<[T]>;
         /** Follow new messages by scrolling to the bottom when the user is already near it (default: true). */
         autoScroll?: boolean;
-        /** Rendered when there are no messages. */
-        empty?: Snippet;
-        /** Custom renderer for a single item; defaults to {@link ChatBubble}. */
-        item?: Snippet<[ChatListItem]>;
         class?: ClassValue;
     };
 </script>
 
-<script lang="ts">
-    let { messages, autoScroll = true, empty, item, class: className }: ChatMessageListProps = $props();
+<script lang="ts" generics="T extends ChatMessageLike">
+    let { messages, item, autoScroll = true, class: className }: ChatMessageListProps<T> = $props();
 
-    let viewport = $state<HTMLDivElement | null>(null);
-    // Only auto-follow when the user is already parked near the bottom, so we don't
-    // yank them away while they scroll back through history.
-    let stickToBottom = $state(true);
+    const locale = getLocaleContext();
 
     const NEAR_BOTTOM_PX = 64;
 
+    let viewport = $state<HTMLDivElement | null>(null);
+    // Follow the newest message only while the user is parked near the bottom, so we never yank
+    // them away while they read back through history.
+    let stickToBottom = $state(true);
+
+    // When not following the bottom, hold the bottommost visible message steady across the *next* list
+    // mutation: captured from the pre-mutation DOM in $effect.pre and restored against the
+    // post-mutation DOM in $effect, so prepending older messages or dropping them off the top
+    // (retention cap) doesn't make the view jump.
+    type Anchor = { id: string; offset: number };
+    let pendingAnchor: Anchor | null = null;
+
     function onScroll(): void {
         if (!viewport) return;
-        const distance = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-        stickToBottom = distance <= NEAR_BOTTOM_PX;
+        const { scrollTop, scrollHeight, clientHeight } = viewport;
+        // Distance-based and self-correcting: a programmatic pin lands at ~0 (stays stuck), while a
+        // scroll up grows the distance past the threshold (unsticks). No need to track direction.
+        stickToBottom = scrollHeight - scrollTop - clientHeight <= NEAR_BOTTOM_PX;
     }
 
-    // Re-run whenever the message list identity changes; `messages.length` keeps the
-    // dependency explicit so appends trigger a scroll.
+    // The last message element at least partially in view, with its offset from the viewport top.
+    // Restoring it to the same offset after a mutation keeps the visible items still. Anchoring the
+    // bottommost visible message (rather than the topmost) is more robust for the retention cap:
+    // messages only ever drop off the *top*, so a bottom anchor is almost never the one removed.
+    function captureAnchor(): Anchor | null {
+        if (!viewport) return null;
+        const viewportRect = viewport.getBoundingClientRect();
+        const children = viewport.children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            const child = children[i] as HTMLElement;
+            const id = child.dataset.msgId;
+            if (id === undefined) continue;
+            const rect = child.getBoundingClientRect();
+            if (rect.top < viewportRect.bottom) return { id, offset: rect.top - viewportRect.top };
+        }
+        return null;
+    }
+
+    // Runs before the DOM reflects appended/dropped messages: when not following the bottom,
+    // snapshot the bottommost visible message so we can hold it steady.
+    $effect.pre(() => {
+        void messages.length;
+        if (!autoScroll || !viewport) return;
+        pendingAnchor = stickToBottom ? null : captureAnchor();
+    });
+
+    // Runs after the DOM updates: follow the bottom, or restore the anchored message's offset.
     $effect(() => {
         void messages.length;
-        if (!autoScroll || !stickToBottom || !viewport) return;
-        // Wait for the DOM to paint the new node before measuring scrollHeight.
-        requestAnimationFrame(() => {
-            if (viewport) viewport.scrollTop = viewport.scrollHeight;
-        });
+        if (!autoScroll || !viewport) return;
+        if (stickToBottom) {
+            viewport.scrollTop = viewport.scrollHeight;
+        } else if (pendingAnchor) {
+            const el = viewport.querySelector<HTMLElement>(`[data-msg-id="${CSS.escape(pendingAnchor.id)}"]`);
+            // If the anchor itself was dropped off the top, leave the position untouched.
+            if (el) {
+                const currentOffset = el.getBoundingClientRect().top - viewport.getBoundingClientRect().top;
+                viewport.scrollTop += currentOffset - pendingAnchor.offset;
+            }
+        }
     });
 </script>
 
@@ -75,19 +96,14 @@
     class={cn('flex h-full w-full flex-col gap-2 overflow-y-auto overflow-x-hidden', className)}
 >
     {#if messages.length === 0}
-        {@render empty?.()}
+        <Stack alignment="center" justification="center" class="h-full">
+            <Typography variant="footnote" class="opacity-60">{locale.t('chat.noMessages')}</Typography>
+        </Stack>
     {:else}
-        {#each messages as message, i (message.id)}
-            {#if hasGap(messages[i - 1], message)}
-                <div data-slot="chat-skip" class="text-secondary flex justify-center py-1 text-sm select-none">
-                    [...]
-                </div>
-            {/if}
-            {#if item}
+        {#each messages as message (message.id)}
+            <div data-msg-id={message.id}>
                 {@render item(message)}
-            {:else}
-                <ChatBubble text={message.text} own={message.own} author={message.author} />
-            {/if}
+            </div>
         {/each}
     {/if}
 </div>

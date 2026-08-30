@@ -1,12 +1,15 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { type ActionColor, type ContainerColor } from '@lib/ui/atoms';
+    import { type ActionColor, type ContainerColor, type DataColor } from '@lib/ui/atoms';
 
     interface Props {
-        color: ActionColor | ContainerColor;
+        color: ActionColor | ContainerColor | DataColor;
         shades?: boolean;
+        // Data colors expose a single `on-` foreground (no per-shade `on-*-1`/`on-*-2`), so shade
+        // labels fall back to the base `on-` color.
+        data?: boolean;
     }
-    const { color, shades }: Props = $props();
+    const { color, shades, data }: Props = $props();
 
     let divRef: HTMLDivElement;
     let colorValue = $state('');
@@ -54,11 +57,19 @@
     {#if shades}
         <!-- -1 variant: left half of bottom 40% -->
         <div class="absolute bottom-0 left-0 w-1/2 h-[40%] bg-{color}-1 flex items-center justify-center">
-            <span class="text-xs font-bold text-on-{color}-1">on-1</span>
+            {#if data}
+                <span class="text-xs font-bold text-on-{color}">-1</span>
+            {:else}
+                <span class="text-xs font-bold text-on-{color}-1">on-1</span>
+            {/if}
         </div>
         <!-- -2 variant: right half of bottom 40% -->
         <div class="absolute bottom-0 left-1/2 w-1/2 h-[40%] bg-{color}-2 flex items-center justify-center">
-            <span class="text-xs font-bold text-on-{color}-2">on-2</span>
+            {#if data}
+                <span class="text-xs font-bold text-on-{color}">-2</span>
+            {:else}
+                <span class="text-xs font-bold text-on-{color}-2">on-2</span>
+            {/if}
         </div>
     {/if}
     <!-- base color text + hex in top 60% -->

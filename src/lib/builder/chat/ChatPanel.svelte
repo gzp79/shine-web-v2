@@ -1,20 +1,26 @@
 <script lang="ts">
     import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
-    import type { ChatStream } from '@lib/builder';
+    import { getChatStream } from '@lib/builder';
+    import { gameInputGate } from '@lib/game';
     import { getLocaleContext } from '@lib/i18n';
     import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
     import Chat from './Chat.svelte';
 
     export type ChatPanelProps = {
-        chat: ChatStream;
         /** Bindable open state, driven by the app-shell connection-status button. */
         open?: boolean;
     };
 
-    let { chat, open = $bindable(false) }: ChatPanelProps = $props();
+    let { open = $bindable(false) }: ChatPanelProps = $props();
 
     const auth = getAuthenticatedUserContext();
     const locale = getLocaleContext();
+    const chat = getChatStream();
+
+    // Bound here rather than in provideChatStream: the stream is provided in the (auth) layout, above
+    // AuthGuard, where the authenticated-user context does not yet exist. This panel is always mounted
+    // inside AuthGuard, so it is a stable place to resolve the self id.
+    chat.bindSelfId(() => auth.user.id);
 
     // Keep the unread marker cleared while the panel is open, so messages arriving in real
     // time never flip the badge back on behind the user's back.
@@ -24,8 +30,16 @@
             chat.markAllRead();
         }
     });
+
+    // While the chat is open, suspend the embedded game's input so keystrokes reach the chat's
+    // fields (and the camera doesn't move behind the overlay). The cleanup releases the claim when
+    // the panel closes or unmounts.
+    $effect(() => {
+        if (!open) return;
+        return gameInputGate.suspend();
+    });
 </script>
 
 <Dialog bind:open title={locale.t('chat.chat')} closeIcon width="sm">
-    <Chat selfId={auth.user.id} {chat} class="h-[28rem] max-h-[70vh] w-full" />
+    <Chat {chat} class="h-[28rem] max-h-[70vh] w-full" />
 </Dialog>

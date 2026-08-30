@@ -141,6 +141,11 @@
     },
     "chat": {
         "chat": "Chat",
-        "you": "You"
+        "you": "You",
+        "noMessages": "No messages yet.",
+        "pinged": "pinged",
+        "pingSelf": "ping ({ms} ms)",
+        "pong": "{ms} ms",
+        "server": "server"
     }
 }

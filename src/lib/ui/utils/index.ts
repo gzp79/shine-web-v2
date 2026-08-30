@@ -1,5 +1,6 @@
 import clsx, { type ClassValue } from 'clsx';
 import { extendTailwindMerge } from 'tailwind-merge';
+import { type DataColor, dataColorList } from '@lib/ui/atoms';
 
 const twMerge = extendTailwindMerge({
     extend: {
@@ -30,6 +31,13 @@ export function simpleHash(str: string): string {
         hash = (hash * 33) ^ str.charCodeAt(i);
     }
     return (hash >>> 0).toString(16);
+}
+
+// Deterministically map an arbitrary key (e.g. a user id) to one of the categorical data buckets,
+// so the same key always gets the same color. Meaning-free: use it to distinguish, not to signal.
+export function dataColor(key: string): DataColor {
+    const hash = parseInt(simpleHash(key), 16);
+    return dataColorList[hash % dataColorList.length]!;
 }
 
 export * from './_context';
