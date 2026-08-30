@@ -1,7 +1,7 @@
 <script module lang="ts">
     import ColorSample from '@sb/ColorSample.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, containerColorList } from '@lib/ui/atoms';
+    import { actionColorList, containerColorList, dataColorList } from '@lib/ui/atoms';
 
     const { Story } = defineMeta({
         title: 'Atoms/Theme/Colors'
@@ -26,6 +26,18 @@
             <div class="flex flex-col items-center rounded-lg border">
                 <div class="m-2">
                     <ColorSample {color} shades />
+                </div>
+            </div>
+        {/each}
+    </div>
+</Story>
+
+<Story name="Data Colors">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+        {#each dataColorList as color (color)}
+            <div class="flex flex-col items-center rounded-lg border">
+                <div class="m-2">
+                    <ColorSample {color} shades data />
                 </div>
             </div>
         {/each}

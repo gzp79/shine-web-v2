@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { gameInputGate } from '@lib/game';
     import { logGame } from '@lib/loggers';
     import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
@@ -8,34 +9,36 @@
     import { createAppError } from '@lib/utils';
     import type { PageData } from './$types';
 
-    type Scene = 'game' | 'hex-mesh' | 'cdt' | 'input-events' | 'trilinear';
-    type Viewer = { dispose(): void };
-    type GameModule = {
-        createScene: (container: HTMLElement, scene: Scene) => Promise<Viewer>;
+    type Viewer = {
+        dispose(): void;
+        setInputEnabled?: (enabled: boolean) => void;
     };
-
-    const SCENES: Scene[] = ['game', 'hex-mesh', 'cdt', 'input-events', 'trilinear'];
+    type GameModule = {
+        createScene: (container: HTMLElement, scene: string) => Promise<Viewer>;
+        listScenes: () => { id: string; title: string }[];
+    };
 
     const { data }: { data: PageData } = $props();
 
     const appMenu = getMenuContext();
 
     let container: HTMLElement;
-    let viewer: Viewer | null = null;
+    let viewer = $state<Viewer | null>(null);
     let error = $state<unknown>(null);
     let running = $state(false);
-    let scene = $state<Scene>('game');
+    let scene = $state<string>('');
+    let sceneList = $state<{ id: string; title: string }[]>([]);
 
     // Register scene-switch items in the context menu
     $effect(() => {
-        const unregisters = SCENES.map((s) =>
+        const unregisters = sceneList.map((entry) =>
             appMenu.register({
-                id: `scene-${s}`,
+                id: `scene-${entry.id}`,
                 section: 'context',
-                label: s,
-                icon: scene === s ? Check : undefined,
+                label: entry.title,
+                icon: scene === entry.id ? Check : undefined,
                 action: () => {
-                    scene = s;
+                    scene = entry.id;
                 }
             })
         );
@@ -55,7 +58,11 @@
         };
     });
 
-    async function run(s: Scene, isCancelled: () => boolean) {
+    $effect(() => {
+        viewer?.setInputEnabled?.(!gameInputGate.suspended);
+    });
+
+    async function run(s: string, isCancelled: () => boolean) {
         error = null;
         running = false;
         try {
@@ -64,6 +71,12 @@
             if (isCancelled()) return;
             if (typeof mod.createScene !== 'function') {
                 throw new Error('Invalid game module: createScene is not a function');
+            }
+            if (typeof mod.listScenes !== 'function') {
+                throw new Error('Invalid game module: listScenes is not a function');
+            }
+            if (sceneList.length === 0) {
+                sceneList = mod.listScenes();
             }
             logGame.info(`creating scene="${s}"`);
             const v = await mod.createScene(container, s);

@@ -25,75 +25,59 @@
     const locale = getLocaleContext();
 
     const NEAR_BOTTOM_PX = 64;
-    const NEAR_TOP_PX = 8;
 
     let viewport = $state<HTMLDivElement | null>(null);
     // Follow the newest message only while the user is parked near the bottom, so we never yank
     // them away while they read back through history.
     let stickToBottom = $state(true);
-    // Last observed scrollTop, used to tell a user's upward scroll from a downward pin/append.
-    let lastScrollTop = 0;
 
-    // How to preserve the view across the *next* list mutation, captured from the pre-mutation DOM
-    // in $effect.pre and applied against the post-mutation DOM in $effect:
-    //   bottom - the user is at the end: keep them pinned there (follow new messages).
-    //   top    - the user is at the start: keep them there.
-    //   middle - hold the visible items still by restoring an anchor element's offset, so dropping
-    //            older messages off the top (retention cap) doesn't make the view jump.
+    // When not following the bottom, hold the bottommost visible message steady across the *next* list
+    // mutation: captured from the pre-mutation DOM in $effect.pre and restored against the
+    // post-mutation DOM in $effect, so prepending older messages or dropping them off the top
+    // (retention cap) doesn't make the view jump.
     type Anchor = { id: string; offset: number };
-    let pendingMode: 'bottom' | 'top' | 'middle' = 'bottom';
     let pendingAnchor: Anchor | null = null;
 
     function onScroll(): void {
         if (!viewport) return;
         const { scrollTop, scrollHeight, clientHeight } = viewport;
-        const distance = scrollHeight - scrollTop - clientHeight;
-        // Near the bottom: follow. Otherwise only disengage when the user actively scrolls *up* — a
-        // programmatic pin or an append only ever raises scrollTop, so neither stops the follow.
-        if (distance <= NEAR_BOTTOM_PX) {
-            stickToBottom = true;
-        } else if (scrollTop < lastScrollTop) {
-            stickToBottom = false;
-        }
-        lastScrollTop = scrollTop;
+        // Distance-based and self-correcting: a programmatic pin lands at ~0 (stays stuck), while a
+        // scroll up grows the distance past the threshold (unsticks). No need to track direction.
+        stickToBottom = scrollHeight - scrollTop - clientHeight <= NEAR_BOTTOM_PX;
     }
 
-    // The first message element at least partially in view, with its offset from the viewport top.
-    // Restoring it to the same offset after a mutation keeps the visible items still.
+    // The last message element at least partially in view, with its offset from the viewport top.
+    // Restoring it to the same offset after a mutation keeps the visible items still. Anchoring the
+    // bottommost visible message (rather than the topmost) is more robust for the retention cap:
+    // messages only ever drop off the *top*, so a bottom anchor is almost never the one removed.
     function captureAnchor(): Anchor | null {
         if (!viewport) return null;
-        const viewportTop = viewport.getBoundingClientRect().top;
-        for (const child of viewport.children) {
-            const id = (child as HTMLElement).dataset.msgId;
+        const viewportRect = viewport.getBoundingClientRect();
+        const children = viewport.children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            const child = children[i] as HTMLElement;
+            const id = child.dataset.msgId;
             if (id === undefined) continue;
             const rect = child.getBoundingClientRect();
-            if (rect.bottom > viewportTop) return { id, offset: rect.top - viewportTop };
+            if (rect.top < viewportRect.bottom) return { id, offset: rect.top - viewportRect.top };
         }
         return null;
     }
 
-    // Runs before the DOM reflects appended/dropped messages: snapshot where the user is now.
+    // Runs before the DOM reflects appended/dropped messages: when not following the bottom,
+    // snapshot the bottommost visible message so we can hold it steady.
     $effect.pre(() => {
         void messages.length;
         if (!autoScroll || !viewport) return;
-        if (stickToBottom) {
-            pendingMode = 'bottom';
-        } else if (viewport.scrollTop <= NEAR_TOP_PX) {
-            pendingMode = 'top';
-        } else {
-            pendingMode = 'middle';
-            pendingAnchor = captureAnchor();
-        }
+        pendingAnchor = stickToBottom ? null : captureAnchor();
     });
 
-    // Runs after the DOM updates: restore the view according to the snapshot above.
+    // Runs after the DOM updates: follow the bottom, or restore the anchored message's offset.
     $effect(() => {
         void messages.length;
         if (!autoScroll || !viewport) return;
-        if (pendingMode === 'bottom') {
+        if (stickToBottom) {
             viewport.scrollTop = viewport.scrollHeight;
-        } else if (pendingMode === 'top') {
-            viewport.scrollTop = 0;
         } else if (pendingAnchor) {
             const el = viewport.querySelector<HTMLElement>(`[data-msg-id="${CSS.escape(pendingAnchor.id)}"]`);
             // If the anchor itself was dropped off the top, leave the position untouched.
@@ -102,8 +86,6 @@
                 viewport.scrollTop += currentOffset - pendingAnchor.offset;
             }
         }
-        // Record our own write so the scroll event it emits isn't mistaken for a user scroll.
-        lastScrollTop = viewport.scrollTop;
     });
 </script>
 

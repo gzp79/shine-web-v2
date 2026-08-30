@@ -106,10 +106,13 @@
         ['stroke-primary-2', 'stroke-secondary-2', 'stroke-info-2', 'stroke-warning-2', 'stroke-danger-2', 'stroke-success-2'],
         ['stroke-on-primary', 'stroke-on-secondary', 'stroke-on-info', 'stroke-on-warning', 'stroke-on-danger', 'stroke-on-success'],
 
-        ['bg-data-gray-1', 'bg-data-gray-2', 'bg-data-gray-3', 'bg-data-gray-4', 'bg-data-gray-5', 'bg-data-gray-6', 'bg-data-gray-7'], 
-        ['text-data-gray-1', 'text-data-gray-2', 'text-data-gray-3', 'text-data-gray-4', 'text-data-gray-5', 'text-data-gray-6', 'text-data-gray-7'],
-        ['fill-data-gray-1', 'fill-data-gray-2', 'fill-data-gray-3', 'fill-data-gray-4', 'fill-data-gray-5', 'fill-data-gray-6', 'fill-data-gray-7'],
-        ['stroke-data-gray-1', 'stroke-data-gray-2', 'stroke-data-gray-3', 'stroke-data-gray-4', 'stroke-data-gray-5', 'stroke-data-gray-6', 'stroke-data-gray-7'],
+        ['bg-data-1', 'bg-data-2', 'bg-data-3', 'bg-data-4', 'bg-data-5', 'bg-data-6', 'bg-data-7', 'bg-data-8'],
+        ['bg-data-1-1', 'bg-data-2-1', 'bg-data-3-1', 'bg-data-4-1', 'bg-data-5-1', 'bg-data-6-1', 'bg-data-7-1', 'bg-data-8-1'],
+        ['bg-data-1-2', 'bg-data-2-2', 'bg-data-3-2', 'bg-data-4-2', 'bg-data-5-2', 'bg-data-6-2', 'bg-data-7-2', 'bg-data-8-2'],
+        ['text-on-data-1', 'text-on-data-2', 'text-on-data-3', 'text-on-data-4', 'text-on-data-5', 'text-on-data-6', 'text-on-data-7', 'text-on-data-8'],
+        ['text-data-1', 'text-data-2', 'text-data-3', 'text-data-4', 'text-data-5', 'text-data-6', 'text-data-7', 'text-data-8'],
+        ['fill-data-1', 'fill-data-2', 'fill-data-3', 'fill-data-4', 'fill-data-5', 'fill-data-6', 'fill-data-7', 'fill-data-8'],
+        ['stroke-data-1', 'stroke-data-2', 'stroke-data-3', 'stroke-data-4', 'stroke-data-5', 'stroke-data-6', 'stroke-data-7', 'stroke-data-8'],
 
         ['brightness-highlight', 'hover:brightness-highlight'],
         ['backdrop-brightness-highlight', 'hover:backdrop-brightness-highlight'],

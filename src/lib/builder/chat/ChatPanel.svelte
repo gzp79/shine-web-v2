@@ -1,6 +1,7 @@
 <script lang="ts">
     import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { getChatStream } from '@lib/builder';
+    import { gameInputGate } from '@lib/game';
     import { getLocaleContext } from '@lib/i18n';
     import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
     import Chat from './Chat.svelte';
@@ -28,6 +29,14 @@
             void chat.messages;
             chat.markAllRead();
         }
+    });
+
+    // While the chat is open, suspend the embedded game's input so keystrokes reach the chat's
+    // fields (and the camera doesn't move behind the overlay). The cleanup releases the claim when
+    // the panel closes or unmounts.
+    $effect(() => {
+        if (!open) return;
+        return gameInputGate.suspend();
     });
 </script>
 

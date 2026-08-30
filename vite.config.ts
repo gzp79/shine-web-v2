@@ -75,7 +75,8 @@ function serverConfigs() {
         server: {
             https: https,
             port: parseInt(new URL(config.webUrl).port),
-            host: new URL(config.webUrl).hostname,
+            host: '0.0.0.0',
+            allowedHosts: ['.local.scytta.com'],
             strictPort: true,
             hmr: {
                 protocol: 'wss',
@@ -87,7 +88,7 @@ function serverConfigs() {
         preview: {
             https: https,
             port: parseInt(new URL(config.webUrl).port),
-            host: new URL(config.webUrl).hostname,
+            host: '0.0.0.0',
             proxy: {}
         }
     };

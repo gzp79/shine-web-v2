@@ -26,9 +26,14 @@ This project uses **custom semantic color tokens** instead of standard Tailwind 
 - `bg-danger` / `text-on-danger` - Destructive actions (3 shades)
 - `bg-success` / `text-on-success` - Success states (3 shades)
 
-**Data Visualization:**
+**Data / Categorical Colors:**
 
-- `bg-data-gray-1` through `bg-data-gray-7` - Monochrome scales
+- `bg-data-1` / `text-on-data-1` through `bg-data-8` / `text-on-data-8` — eight meaning-free
+  "heat" buckets (warm → cool) for distinguishing series, users, tags, etc. Each has the same
+  shape as an action color: base, `-1` (lighter), `-2` (darker/accent), plus a single `on-` foreground.
+- Use these — not the action colors — whenever the color only needs to be _distinct_, not to
+  _signal_ meaning (danger/success carry meaning; a user's color does not).
+- `dataColor(key)` (`@lib/ui/utils`) deterministically maps any string (e.g. a user id) to a bucket.
 
 ### Usage Examples
 
