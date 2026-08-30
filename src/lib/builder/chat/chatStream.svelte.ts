@@ -68,60 +68,58 @@ type ChatCommand = {
 const CHAT_COMMANDS: ChatCommand[] = [
     ...(import.meta.env.VITE_CHAT_CMD_PING
         ? [
-            {
-                token: PING_TOKEN,
-                run: ({ args, selfId, send }) => {
-                    if (args.length > 0) {
-                        logChat.warn('Ignoring invalid @ping command: unexpected parameters');
-                        return;
-                    }
-                    if (!selfId) {
-                        logChat.warn('Ignoring @ping command: current user id is not resolved yet');
-                        return;
-                    }
-                    send(`${PING_TOKEN} ${selfId} ${Date.now()}`);
-                }
-            } satisfies ChatCommand
-        ]
+              {
+                  token: PING_TOKEN,
+                  run: ({ args, selfId, send }) => {
+                      if (args.length > 0) {
+                          logChat.warn('Ignoring invalid @ping command: unexpected parameters');
+                          return;
+                      }
+                      if (!selfId) {
+                          logChat.warn('Ignoring @ping command: current user id is not resolved yet');
+                          return;
+                      }
+                      send(`${PING_TOKEN} ${selfId} ${Date.now()}`);
+                  }
+              } satisfies ChatCommand
+          ]
         : []),
     ...(import.meta.env.VITE_CHAT_CMD_BURST
         ? [
-            {
-                token: BURST_TOKEN,
-                run: ({ args, send }) => {
-                    const count = parseStressCount(args);
-                    if (count === undefined) {
-                        logChat.warn('Ignoring invalid @burst command: expected a count between 1 and 200');
-                        return;
-                    }
-                    // The initiator floods the messages itself; they echo back as ordinary text.
-                    for (let i = 1; i <= count; i++) send(`burst ${i}/${count}`);
-                }
-            } satisfies ChatCommand
-        ]
+              {
+                  token: BURST_TOKEN,
+                  run: ({ args, send }) => {
+                      const count = parseStressCount(args);
+                      if (count === undefined) {
+                          logChat.warn('Ignoring invalid @burst command: expected a count between 1 and 200');
+                          return;
+                      }
+                      // The initiator floods the messages itself; they echo back as ordinary text.
+                      for (let i = 1; i <= count; i++) send(`burst ${i}/${count}`);
+                  }
+              } satisfies ChatCommand
+          ]
         : []),
     ...(import.meta.env.VITE_CHAT_CMD_STORM
         ? [
-            {
-                token: STORM_TOKEN,
-                run: ({ args, send }) => {
-                    const count = parseStressCount(args);
-                    if (count === undefined) {
-                        logChat.warn('Ignoring invalid @storm command: expected a count between 1 and 200');
-                        return;
-                    }
-                    // Fire a single trigger; every client answers on receipt (see #handleComment).
-                    send(`${STORM_TOKEN} ${count}`);
-                }
-            } satisfies ChatCommand
-        ]
+              {
+                  token: STORM_TOKEN,
+                  run: ({ args, send }) => {
+                      const count = parseStressCount(args);
+                      if (count === undefined) {
+                          logChat.warn('Ignoring invalid @storm command: expected a count between 1 and 200');
+                          return;
+                      }
+                      // Fire a single trigger; every client answers on receipt (see #handleComment).
+                      send(`${STORM_TOKEN} ${count}`);
+                  }
+              } satisfies ChatCommand
+          ]
         : [])
 ];
 
 type ParsedCommand =
-    { kind: 'ping'; id: string; t0: number } |
-    { kind: 'pong'; id: string; t0: number; tR: number } |
-    { kind: 'none' };
+    { kind: 'ping'; id: string; t0: number } | { kind: 'pong'; id: string; t0: number; tR: number } | { kind: 'none' };
 
 function parseTimestamp(value: string | undefined): number | undefined {
     if (value === undefined || !/^\d+$/.test(value)) return undefined;
@@ -160,48 +158,48 @@ type IncomingCommand = {
 const INCOMING_COMMANDS: IncomingCommand[] = [
     ...(import.meta.env.VITE_CHAT_CMD_PING
         ? [
-            {
-                handle: ({ comment, selfId, now, send }) => {
-                    const command = parseCommand(comment.text);
-                    const { id, from } = comment;
-                    if (command.kind === 'ping') {
-                        if (from === selfId) {
-                            // Our own ping echoed back: now - t0 is our server round-trip.
-                            return { kind: 'ping', id, from, selfMs: now - command.t0 };
-                        }
-                        // A peer's ping: reply so they can measure the full round-trip, and show it.
-                        send(`${PONG_TOKEN} ${command.id} ${command.t0} ${now}`);
-                        return { kind: 'ping', id, from };
-                    }
-                    if (command.kind === 'pong') {
-                        if (from === selfId) {
-                            // Our own pong echoed back: now - tR is our server round-trip.
-                            return { kind: 'pong', id, from, roundTripMs: now - command.tR };
-                        }
-                        if (command.id === selfId) {
-                            // A peer answered our ping (its id is our user id): now - t0 is the full round-trip.
-                            return { kind: 'pong', id, from, roundTripMs: now - command.t0 };
-                        }
-                        return null;
-                    }
-                    return undefined;
-                }
-            } satisfies IncomingCommand
-        ]
+              {
+                  handle: ({ comment, selfId, now, send }) => {
+                      const command = parseCommand(comment.text);
+                      const { id, from } = comment;
+                      if (command.kind === 'ping') {
+                          if (from === selfId) {
+                              // Our own ping echoed back: now - t0 is our server round-trip.
+                              return { kind: 'ping', id, from, selfMs: now - command.t0 };
+                          }
+                          // A peer's ping: reply so they can measure the full round-trip, and show it.
+                          send(`${PONG_TOKEN} ${command.id} ${command.t0} ${now}`);
+                          return { kind: 'ping', id, from };
+                      }
+                      if (command.kind === 'pong') {
+                          if (from === selfId) {
+                              // Our own pong echoed back: now - tR is our server round-trip.
+                              return { kind: 'pong', id, from, roundTripMs: now - command.tR };
+                          }
+                          if (command.id === selfId) {
+                              // A peer answered our ping (its id is our user id): now - t0 is the full round-trip.
+                              return { kind: 'pong', id, from, roundTripMs: now - command.t0 };
+                          }
+                          return null;
+                      }
+                      return undefined;
+                  }
+              } satisfies IncomingCommand
+          ]
         : []),
     ...(import.meta.env.VITE_CHAT_CMD_STORM
         ? [
-            {
-                handle: ({ comment, send }) => {
-                    const count = parseStormTrigger(comment.text);
-                    if (count === undefined) return undefined;
-                    // Every client answering (initiator included) is what amplifies the load; the
-                    // plain replies never match a command token, so they cannot re-trigger a storm.
-                    for (let i = 1; i <= count; i++) send(`storm ${i}/${count}`);
-                    return { kind: 'text', id: comment.id, from: comment.from, text: comment.text };
-                }
-            } satisfies IncomingCommand
-        ]
+              {
+                  handle: ({ comment, send }) => {
+                      const count = parseStormTrigger(comment.text);
+                      if (count === undefined) return undefined;
+                      // Every client answering (initiator included) is what amplifies the load; the
+                      // plain replies never match a command token, so they cannot re-trigger a storm.
+                      for (let i = 1; i <= count; i++) send(`storm ${i}/${count}`);
+                      return { kind: 'text', id: comment.id, from: comment.from, text: comment.text };
+                  }
+              } satisfies IncomingCommand
+          ]
         : [])
 ];
 
