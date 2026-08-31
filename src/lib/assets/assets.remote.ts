@@ -33,9 +33,6 @@ async function fetchAssetManifest(version: string): Promise<Record<string, strin
     return links;
 }
 
-/// Cache resources on the server for this duration (in milliseconds)
-const ASSET_CACHE_DURATION = 60 * 60 * 1000;
-
 type AssetManifest = {
     version: string;
     links: Record<string, string>;
@@ -48,7 +45,7 @@ let refreshInFlight: Promise<AssetManifest> | null = null;
 
 async function getOrRefreshManifest(): Promise<AssetManifest> {
     const now = Date.now();
-    if (assetManifest.fetchedAt + ASSET_CACHE_DURATION >= now) {
+    if (assetManifest.fetchedAt + config.assetCacheDuration >= now) {
         return assetManifest;
     }
 
@@ -59,19 +56,13 @@ async function getOrRefreshManifest(): Promise<AssetManifest> {
                 logAPI.info(
                     `Asset version changed from [${assetManifest.version}] to [${version}], fetching new manifest.`
                 );
-                const manifest = await fetchAssetManifest(version);
-                return {
-                    version,
-                    links: manifest,
-                    fetchedAt: Date.now()
-                };
-            } else {
-                logAPI.info(`Asset version [${version}] unchanged, using cached manifest.`);
-                return {
-                    ...assetManifest,
-                    fetchedAt: Date.now()
-                };
             }
+            const manifest = await fetchAssetManifest(version);
+            return {
+                version,
+                links: manifest,
+                fetchedAt: Date.now()
+            };
         })
             .then((result) => {
                 assetManifest = result;

@@ -7,12 +7,16 @@ export type EnvironmentType = 'mock' | 'local' | 'dev' | 'prod';
 export interface Config {
     environment: EnvironmentType;
 
+    webUrl: string;
+
     identityUrl: string;
+
     builderUrl: string;
     builderWSUrl: string;
-    webUrl: string;
-    assetUrl: string;
+
     gameUrl: string;
+    assetUrl: string;
+    assetCacheDuration: number;
 
     turnstile: {
         siteKey: string;
