@@ -10,7 +10,7 @@ loopback hosts:
 | Piece       | Local URL                              | Served by                                          |
 | ----------- | -------------------------------------- | -------------------------------------------------- |
 | web         | `https://local.scytta.com:4443`        | this repo (Vite dev server)                        |
-| assets      | `https://assets.local.scytta.com:4443` | this repo (Vite serves converted assets)           |
+| assets      | `https://assets.local.scytta.com:8093` | `shine-services` (`start mocked services`)         |
 | identity    | `https://cloud.local.scytta.com:8443`  | `shine-services` (`identity: local` task)          |
 | builder     | `https://cloud.local.scytta.com:8444`  | `shine-services` (`builder: local` task)           |
 | builder(WS) | `https://ws.local.scytta.com:8444`     | `shine-services` websocket (`builder: local` task) |
@@ -109,15 +109,16 @@ databases and mock dependencies.)
 The web repo and `shine-services` each have their **own** self-signed CA, and each
 covers different hostnames. You need both.
 
-| CA                        | Covers (cert SANs)                                               | Serves                                    |
-| ------------------------- | ---------------------------------------------------------------- | ----------------------------------------- |
-| web `certificates/ca.crt` | `local.scytta.com`, `assets.local.scytta.com`                    | web + assets on :4443                     |
-| services `certs/ca.crt`   | `cloud.local.scytta.com`, `game.local.scytta.com`, `mockbox.foo` | identity :8443, builder :8444, game :8092 |
+| CA                        | Covers (cert SANs)                                                                          | Serves                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| web `certificates/ca.crt` | `local.scytta.com`                                                                          | web on :4443                                            |
+| services `certs/ca.crt`   | `cloud.local.scytta.com`, `assets.local.scytta.com`, `game.local.scytta.com`, `mockbox.foo` | identity :8443, builder :8444, assets :8093, game :8092 |
 
 **Web (this repo):**
 
 ```bash
-pnpm run mkcert   # creates certificates/ca.* and certificates/cert.* (local + assets)
+pnpm run mkcert        # creates certificates/ca.* and certificates/cert.* (local.scytta.com)
+pnpm run mkcert:cert   # regenerate only the site cert (reuses the existing CA — no re-trust needed)
 ```
 
 **Services (`shine-services`):** generate `certs/scytta.{crt,key}` from its `tests/`
@@ -126,8 +127,14 @@ package:
 ```bash
 cd ../shine-services/tests
 pnpm i
-pnpm run mkcert   # creates ../certs/ca.* and ../certs/scytta.{crt,key}
+pnpm run mkcert        # creates ../certs/ca.* and ../certs/scytta.{crt,key}
+pnpm run mkcert:cert   # regenerate only the site cert (reuses the existing CA — no re-trust needed)
 ```
+
+`mkcert` chains `mkcert:ca` + `mkcert:cert`. Use `mkcert:cert` when you only change the
+cert's SANs/domains (e.g. adding a host) — the CA stays the same, so it stays trusted.
+Regenerate the CA (`mkcert` / `mkcert:ca`) only when the CA itself is missing or expired,
+and re-trust it afterwards.
 
 **Trust both CAs.** The Node-side fetches disable TLS verification
 (`NODE_TLS_REJECT_UNAUTHORIZED=0`), but the **browser** talks directly to the web,
@@ -203,25 +210,26 @@ The startup log line to look for is `Starting service on https://...`.
 ## Assets (`shine-assets`)
 
 `shine-assets` is **not a server** — it's a CLI that converts source assets
-(glTF/GLB, SVG, images → WebP) into a `generated/assets` tree. In the `local`
-environment the **web dev server builds and serves the assets itself**: because
-`config.local.ts` has `assetUrl` on the same host/port root as `webUrl`,
-`vite.config.ts` calls `buildAssets()`, which shells into `../shine-assets` and
-runs `pnpm run convert:web`, copying the output into `static-generated/assets`.
+(glTF/GLB, SVG, images → WebP) into a `generated/assets` tree (including a
+`latest.json` and a versioned `custom/<platform>/…/assets.json` manifest).
 
-So for normal local web dev you don't run `shine-assets` manually — just install
-its deps once so the web dev server can invoke it:
+In the `local` environment assets are served by the **`shine-services` mock**, the
+same way game and OIDC are: `config.local.ts` points `assetUrl` at
+`https://assets.local.scytta.com:8093`, where the mock's `StaticFileServer` serves
+`shine-assets/generated/assets` (started by the VS Code task **"start mocked
+services"**). The web dev server no longer builds assets itself.
+
+So the flow is: regenerate in `shine-assets`, and the running mock picks up the new
+files on the next request (`express.static` reads per request — no restart needed).
 
 ```bash
 cd ../shine-assets
-pnpm i
+pnpm i                  # once
+pnpm run convert:web    # web platform, ui + models → generated/assets (add --force to rebuild all)
 ```
 
-To run a conversion by hand (e.g. to inspect output):
-
-```bash
-pnpm run convert:web    # web platform, ui + models → generated/assets
-```
+`config.local.ts` sets `assetCacheDuration: 5 * 1000`, so the web server refetches the
+manifest every ~5s — after regenerating, a browser refresh shows the new assets.
 
 Converting 3D models requires the native `gltfpack` binary. On Windows:
 
@@ -305,8 +313,11 @@ See `.claude/skills/playwright-testing/SKILL.md` for the full test layout.
   `../shine-services/certs/ca.crt`) via `certutil` (see Certificates above). A
   name-mismatch on `assets.local.scytta.com` / `game.local.scytta.com` means the cert
   predates the SAN fix — regenerate with `pnpm run mkcert` and re-trust.
-- **Asset build fails on `pnpm run dev`** — ensure `../shine-assets` exists and has had
-  `pnpm i`; model conversion additionally needs `gltfpack`.
+- **Assets 404 / don't load** — start the `shine-services` **"start mocked services"**
+  task (asset server on `:8093`) and regenerate once with `cd ../shine-assets && pnpm run
+convert:web` (model conversion needs `gltfpack`). A TLS name-mismatch on
+  `assets.local.scytta.com:8093` means the `shine-services` cert predates the SAN fix —
+  re-run its `pnpm run mkcert` and re-trust the CA.
 - **e2e can't reach identity/builder** — confirm the `info/ready` curls above return
   `Ok`, and that the hosts-file entries resolve to `127.0.0.1`.
 - **Services won't start** — make sure the docker `dev environment` (`up`) is running
