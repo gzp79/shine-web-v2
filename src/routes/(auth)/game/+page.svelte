@@ -63,10 +63,10 @@
 
     // Load/reload scene whenever it changes
     $effect(() => {
-        retry;
+        const attempt = retry;
         const s = scene;
         let cancelled = false;
-        void run(s, () => cancelled);
+        void run(s, attempt, () => cancelled);
         return () => {
             cancelled = true;
             handle?.dispose();
@@ -91,7 +91,7 @@
         };
     }
 
-    async function run(s: string, isCancelled: () => boolean) {
+    async function run(s: string, attempt: number, isCancelled: () => boolean) {
         running = false;
         try {
             logGame.info(`importing ${data.jsUrl}`);
@@ -106,7 +106,7 @@
             if (sceneList.length === 0) {
                 sceneList = mod.listScenes();
             }
-            logGame.info(`creating scene="${s}"`);
+            logGame.info(`creating scene="${s}" attempt=${attempt}`);
             const next = await mod.createScene(container, s, buildAssetCatalog, (fatalError) => {
                 if (isCancelled()) return;
                 handle = null;
