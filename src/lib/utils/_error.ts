@@ -1,6 +1,28 @@
 import { dev } from '$app/environment';
 import { isHttpError } from '@sveltejs/kit';
 
+export const errorList = [
+    'auth-login-required',
+    'auth-input-error',
+    'auth-error',
+    'auth-internal-error',
+    'auth-token-expired',
+    'auth-session-expired',
+    'auth-register-email-conflict',
+    'auth-register-external-id-conflict',
+    'auth-not-confirmed',
+    'auth-email-login',
+    'external-missing-cookie',
+    'external-invalid-nonce',
+    'external-invalid-csrf',
+    'external-exchange-failed',
+    'external-info-failed',
+    'external-discovery-failed',
+    'server-down',
+    'internal-error'
+] as const;
+export type ErrorType = (typeof errorList)[number];
+
 const appErrorKindList = ['fetch', 'other', 'retryLimit'] as const;
 export type AppErrorKind = (typeof appErrorKindList)[number];
 

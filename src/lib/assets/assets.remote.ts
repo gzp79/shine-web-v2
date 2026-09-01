@@ -33,6 +33,18 @@ async function fetchAssetManifest(version: string): Promise<Record<string, strin
     return links;
 }
 
+async function fetchGameAssetManifest(version: string): Promise<Record<string, string>> {
+    const assetManifestUrl = `${config.assetUrl}/${version}/web/models/assets.json`;
+    logAPI.info(`Loading game asset manifest from ${assetManifestUrl}`);
+    const response = await fetch(assetManifestUrl, { headers: getMockWorkerHeader() });
+    if (!response.ok) {
+        const error = await createFetchError(response, 'Failed to fetch game asset manifest');
+        throw error;
+    }
+
+    return await response.json();
+}
+
 type AssetManifest = {
     version: string;
     links: Record<string, string>;
@@ -42,6 +54,8 @@ type AssetManifest = {
 /// Assets are global, user independent resources cached on the server.
 let assetManifest: AssetManifest = { version: '', links: {}, fetchedAt: 0 };
 let refreshInFlight: Promise<AssetManifest> | null = null;
+let gameAssetManifest: AssetManifest = { version: '', links: {}, fetchedAt: 0 };
+let gameRefreshInFlight: Promise<AssetManifest> | null = null;
 
 async function getOrRefreshManifest(): Promise<AssetManifest> {
     const now = Date.now();
@@ -76,9 +90,42 @@ async function getOrRefreshManifest(): Promise<AssetManifest> {
     return refreshInFlight;
 }
 
+async function getOrRefreshGameManifest(): Promise<AssetManifest> {
+    const now = Date.now();
+    if (gameAssetManifest.fetchedAt + config.assetCacheDuration >= now) {
+        return gameAssetManifest;
+    }
+
+    if (!gameRefreshInFlight) {
+        gameRefreshInFlight = retryWithBackoff(async () => {
+            const version = await fetchLatestAssetVersion();
+            const links = await fetchGameAssetManifest(version);
+            return { version, links, fetchedAt: Date.now() };
+        })
+            .then((result) => {
+                gameAssetManifest = result;
+                return result;
+            })
+            .finally(() => {
+                gameRefreshInFlight = null;
+            });
+    }
+
+    return gameRefreshInFlight;
+}
+
 export const queryAssetManifest = query(async (): Promise<AssetManifest> => {
     try {
         return await getOrRefreshManifest();
+    } catch (e) {
+        throwRemoteHttpError(e, 'Asset service unavailable');
+    }
+});
+
+/// Assets used by the game bundle. Kept separate from UI assets because they have a distinct manifest.
+export const queryGameAssetManifest = query(async (): Promise<AssetManifest> => {
+    try {
+        return await getOrRefreshGameManifest();
     } catch (e) {
         throwRemoteHttpError(e, 'Asset service unavailable');
     }
