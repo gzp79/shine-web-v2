@@ -31,6 +31,10 @@ declare global {
             translation: Translation;
         }
 
+        interface PageState {
+            errorDetail?: string;
+        }
+
         interface Platform {
             env: {
                 COUNTER: DurableObjectNamespace;

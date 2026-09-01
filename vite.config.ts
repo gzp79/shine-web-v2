@@ -5,7 +5,6 @@ import fs from 'node:fs';
 import type { Plugin } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import { defineConfig } from 'vitest/config';
-import { buildAssets } from './scripts/vite-asset-converter.ts';
 import { CAPTCHA_TEST_SITE_KEY } from './src/constants.ts';
 import { config } from './src/generated/config.ts';
 
@@ -27,19 +26,6 @@ const isCI = !!process.env.CI;
 
 const additionalAssets = [];
 
-// Build assets locally when the asset server is co-located with the web dev server.
-const webServerUrl = new URL(config.webUrl);
-const assetServerUrl = new URL(config.assetUrl);
-const assetsServedByWebServer =
-    assetServerUrl.hostname.endsWith('local.scytta.com') && assetServerUrl.port === webServerUrl.port;
-if (assetsServedByWebServer) {
-    await buildAssets();
-    additionalAssets.push({
-        src: 'static-generated/assets/**/*',
-        dest: '',
-        rename: { stripBase: 2 }
-    });
-}
 if (config.environment === 'mock') {
     additionalAssets.push({
         // MSW registers the worker at `/mockServiceWorker.js`; `stripBase: 1` drops the

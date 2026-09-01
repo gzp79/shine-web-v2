@@ -1,7 +1,6 @@
 <script module lang="ts">
     import { page } from '$app/state';
     import { CAPTCHA_SKIP_TOKEN, config } from '@config';
-    import type { ErrorType, Hint, HintInfo } from '@lib/account/auth';
     import { queryCurrentUserInfo } from '@lib/account/auth.remote';
     import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/auth.remote';
     import { authPages } from '@lib/api/authPages';
@@ -22,9 +21,16 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
-    import { async, createAppError, pascalCase } from '@lib/utils';
+    import { type ErrorType, async, createAppError, pascalCase } from '@lib/utils';
     import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
+
+    type Hint = 'login-expired' | 'email-confirm' | 'email-change';
+    type HintInfo = {
+        longHint?: string;
+        shortHint?: string;
+        allowGuest: boolean;
+    };
 </script>
 
 <script lang="ts">

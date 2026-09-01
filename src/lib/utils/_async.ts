@@ -23,6 +23,10 @@ export abstract class WrappedPromise<T> implements Promise<T> {
     }
 }
 
+export function fireAndForget(task: () => Promise<unknown>, onError: (error: unknown) => void): void {
+    void task().catch(onError);
+}
+
 export const async = {
     delay(ms: number): Promise<void> {
         return new Promise((resolver) => setTimeout(resolver, ms));

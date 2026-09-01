@@ -11,4 +11,4 @@ pnpm run dev
 ```
 
 To run against the **real local backend** (identity, builder, assets), see
-[docs/LOCAL_DEV.md](docs/LOCAL_DEV.md).
+[docs/local-dev.md](docs/local-dev.md).
