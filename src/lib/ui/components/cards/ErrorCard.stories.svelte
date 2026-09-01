@@ -34,6 +34,8 @@
 
 <Story name="Default" args={{ error: createError('other', 'Some test error') }} />
 
+<Story name="MultilineMessage" args={{ error: createError('other', 'First line\nSecond line\nThird line') }} />
+
 <Story
     name="ErrorWithAllFeatures"
     args={{
