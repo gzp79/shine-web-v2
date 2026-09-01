@@ -52,7 +52,7 @@
     {/snippet}
 
     <Stack>
-        <Typography variant="text" class="text-text-primary">
+        <Typography variant="text" class="whitespace-pre-line text-text-primary">
             {error.message ?? errorLabel}
         </Typography>
         {#if error.details}
