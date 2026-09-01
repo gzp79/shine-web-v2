@@ -62,6 +62,9 @@ export default [
                 parser: ts.parser,
                 svelteConfig
             }
+        },
+        rules: {
+            '@typescript-eslint/no-misused-promises': 'error'
         }
     },
     {

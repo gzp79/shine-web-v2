@@ -13,6 +13,7 @@ window.onerror = (message, _source, _line, _column, error) => {
     const errorDetail = error instanceof Error ? `${error.name}: ${error.message}` : String(message);
     const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const params = new URLSearchParams({ errorType: 'internal-error', returnUrl });
+    // eslint-disable-next-line svelte/no-navigation-without-resolve -- the route is resolved before its query string is appended.
     void goto(`${resolve('/error')}?${params}`, { state: { errorDetail } });
     return false;
 };

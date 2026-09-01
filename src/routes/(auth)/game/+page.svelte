@@ -9,7 +9,7 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { createAppError } from '@lib/utils';
+    import { createAppError, fireAndForget } from '@lib/utils';
     import type { PageData } from './$types';
 
     // Local mirror of the game bundle's contract (loaded at runtime, so its types aren't importable).
@@ -63,10 +63,11 @@
 
     // Load/reload scene whenever it changes
     $effect(() => {
-        const attempt = retry;
-        const s = scene;
         let cancelled = false;
-        void run(s, attempt, () => cancelled);
+        fireAndForget(
+            () => run(scene, retry, () => cancelled),
+            (err) => logGame.error('scene failed', err)
+        );
         return () => {
             cancelled = true;
             handle?.dispose();
