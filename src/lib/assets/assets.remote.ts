@@ -1,23 +1,16 @@
 import { query } from '$app/server';
 import { config } from '@config';
 import z from 'zod';
+import { type AssetKind, isAssetKind } from '@lib/assets/asset-kind';
 import { logAPI } from '@lib/loggers';
 import { getMockWorkerHeader, throwRemoteHttpError } from '@lib/server/utils';
 import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 
 const VersionSchema = z.object({ version: z.string() });
 
-export const ASSET_KINDS = ['model', 'tile-3d', 'texture-ui'] as const;
-export type AssetKind = (typeof ASSET_KINDS)[number];
-
-function isAssetKind(kind: string): kind is AssetKind {
-    return (ASSET_KINDS as readonly string[]).includes(kind);
-}
-
 interface ManifestEntry {
     path: string;
     kind: AssetKind;
-    // Alternative encodings of the same asset (e.g. a jpg fallback for a webp path), preference order.
     variants: string[];
 }
 type Manifest = Record<string, ManifestEntry>;
