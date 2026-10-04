@@ -29,9 +29,14 @@ export function setupPortal(portalId = 'popover') {
             portal.id = portalId;
             document.body.appendChild(portal);
         },
-        afterEach: () => {
+        afterEach: async () => {
             document.getElementById(portalId)?.remove();
             cleanup();
+            // bits-ui schedules a 24ms real setTimeout (body-scroll-lock cleanup) when a
+            // locking component (dropdown/popover) is unmounted. If it fires after this
+            // test file's environment is torn down, `document` is gone and it throws.
+            // Wait it out here while the environment is still alive.
+            await new Promise((resolve) => setTimeout(resolve, 30));
         }
     };
 }

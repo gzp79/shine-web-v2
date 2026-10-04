@@ -4,7 +4,7 @@
     import { queryCurrentUserInfo } from '@lib/account/auth.remote';
     import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/auth.remote';
     import { authPages } from '@lib/api/authPages';
-    import { queryAssetUrls } from '@lib/assets/assets.remote';
+    import { queryAssetUrlVariants } from '@lib/assets/assets.remote';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
     import { getThemeContext } from '@lib/theme/_theme.svelte';
@@ -89,8 +89,8 @@
     const currentUserQuery = queryCurrentUserInfo();
 
     const redirectUrlQuery = $derived(querySanitizedReturnUrl(returnUrl));
-    const backgroundUrls = $derived(queryAssetUrls(['loginBackground', 'loginBackground_alt']));
-    const backgroundBrightUrls = $derived(queryAssetUrls(['loginBackgroundBright', 'loginBackgroundBright_alt']));
+    const backgroundUrls = $derived(queryAssetUrlVariants('loginBackground'));
+    const backgroundBrightUrls = $derived(queryAssetUrlVariants('loginBackgroundBright'));
 
     const skipCaptcha = import.meta.env.VITE_SKIP_CAPTCHA;
 
@@ -157,10 +157,10 @@
     <svelte:boundary>
         {#snippet pending()}
             {#if backgroundUrls.ready}
-                <Overlay src={Object.values(backgroundUrls.current)} opacity={0.25} />
+                <Overlay src={backgroundUrls.current} opacity={0.25} />
                 {#if backgroundBrightUrls.ready}
                     <MovingBlob
-                        src={Object.values(backgroundBrightUrls.current)}
+                        src={backgroundBrightUrls.current}
                         size={{ xs: 100, lg: 150, xl: 250 }}
                         excludedElement={guestAreaRef}
                     />
@@ -191,10 +191,10 @@
             {/if}
         {/snippet}
 
-        <Overlay src={Object.values(await backgroundUrls)} opacity={0.25} />
+        <Overlay src={await backgroundUrls} opacity={0.25} />
         <!-- {#if !showLoading} -->
         <MovingBlob
-            src={Object.values(await backgroundBrightUrls)}
+            src={await backgroundBrightUrls}
             size={{ xs: 100, lg: 150, xl: 250 }}
             excludedElement={guestAreaRef}
         />

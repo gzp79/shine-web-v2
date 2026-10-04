@@ -28,7 +28,7 @@ jobs:
 
             - uses: pnpm/action-setup@v6
               with:
-                  version: 11
+                  version: 12.4.1
                   run_install: true
                   cache: true
 
@@ -71,7 +71,7 @@ jobs:
 
             - uses: pnpm/action-setup@v6
               with:
-                  version: 11
+                  version: 12.4.1
                   run_install: true
                   cache: true
 
@@ -98,7 +98,7 @@ jobs:
             - name: Build
               run: |
                   pnpm run build
-                  pnpm dlx wrangler deploy --dry-run --outdir ./.svelte-kit/cloudflare-tmp
+                  pnpm dlx --allow-build=esbuild --allow-build=workerd wrangler deploy --dry-run --outdir ./.svelte-kit/cloudflare-tmp
                   cp ./.svelte-kit/cloudflare-tmp/_worker.js ./.svelte-kit/cloudflare/_worker.js
 
             - name: Collect artifacts
