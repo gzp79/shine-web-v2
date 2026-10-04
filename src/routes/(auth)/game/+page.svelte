@@ -18,7 +18,7 @@
         setInputEnabled(enabled: boolean): void;
     };
     type AssetCatalog = {
-        list(): { name: string }[];
+        list(): { name: string; kind: string }[];
         url(name: string): string;
     };
     type AssetCatalogBuilder = () => Promise<AssetCatalog>;
@@ -83,11 +83,11 @@
     async function buildAssetCatalog(): Promise<AssetCatalog> {
         const { links } = await queryGameAssetManifest();
         return {
-            list: () => Object.keys(links).map((name) => ({ name })),
+            list: () => Object.entries(links).map(([name, entry]) => ({ name, kind: entry.kind })),
             url: (name) => {
-                const path = links[name];
-                if (path === undefined) throw new Error(`[AssetCatalog] unknown asset "${name}"`);
-                return `${config.assetUrl}/${path}`;
+                const entry = links[name];
+                if (entry === undefined) throw new Error(`[AssetCatalog] unknown asset "${name}"`);
+                return `${config.assetUrl}/${entry.path}`;
             }
         };
     }

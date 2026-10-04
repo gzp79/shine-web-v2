@@ -7,6 +7,41 @@ import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
 
 const VersionSchema = z.object({ version: z.string() });
 
+export const ASSET_KINDS = ['model', 'tile-3d', 'texture-ui'] as const;
+export type AssetKind = (typeof ASSET_KINDS)[number];
+
+function isAssetKind(kind: string): kind is AssetKind {
+    return (ASSET_KINDS as readonly string[]).includes(kind);
+}
+
+interface ManifestEntry {
+    path: string;
+    kind: AssetKind;
+    // Alternative encodings of the same asset (e.g. a jpg fallback for a webp path), preference order.
+    variants: string[];
+}
+type Manifest = Record<string, ManifestEntry>;
+
+// Raw manifest JSON before kind validation: same shape, but kind is whatever the server sent.
+type RawManifest = Record<string, { path: string; kind: string; variants?: string[] }>;
+
+// Entries with an unrecognized kind are dropped rather than surfaced with a bogus kind — an older
+// client shouldn't fail hard just because the manifest knows about a newer asset kind.
+function validatedManifest(raw: RawManifest): Manifest {
+    const manifest: Manifest = {};
+    for (const [name, entry] of Object.entries(raw)) {
+        if (isAssetKind(entry.kind))
+            manifest[name] = { path: entry.path, kind: entry.kind, variants: entry.variants ?? [] };
+        else logAPI.warn(`[AssetCatalog] skipping asset "${name}" with unknown kind "${entry.kind}"`);
+    }
+    return manifest;
+}
+
+// URLs in preference order: the primary path first, then its variants (e.g. a legacy format fallback).
+function urlsOf(entry: ManifestEntry): string[] {
+    return [entry.path, ...entry.variants].map((relative) => config.assetUrl + '/' + relative);
+}
+
 async function fetchLatestAssetVersion(): Promise<string> {
     const latestUrl = `${config.assetUrl}/latest.json`;
     const response = await fetch(latestUrl, { method: 'GET', headers: getMockWorkerHeader() });
@@ -20,7 +55,7 @@ async function fetchLatestAssetVersion(): Promise<string> {
     return version;
 }
 
-async function fetchAssetManifest(version: string): Promise<Record<string, string>> {
+async function fetchAssetManifest(version: string): Promise<RawManifest> {
     const assetManifestUrl = `${config.assetUrl}/${version}/web/ui/assets.json`;
     logAPI.info(`Loading asset manifest from ${assetManifestUrl}`);
     const response = await fetch(assetManifestUrl, { headers: getMockWorkerHeader() });
@@ -29,11 +64,10 @@ async function fetchAssetManifest(version: string): Promise<Record<string, strin
         throw error;
     }
 
-    const links = await response.json();
-    return links;
+    return await response.json();
 }
 
-async function fetchGameAssetManifest(version: string): Promise<Record<string, string>> {
+async function fetchGameAssetManifest(version: string): Promise<RawManifest> {
     const assetManifestUrl = `${config.assetUrl}/${version}/web/models/assets.json`;
     logAPI.info(`Loading game asset manifest from ${assetManifestUrl}`);
     const response = await fetch(assetManifestUrl, { headers: getMockWorkerHeader() });
@@ -47,7 +81,7 @@ async function fetchGameAssetManifest(version: string): Promise<Record<string, s
 
 type AssetManifest = {
     version: string;
-    links: Record<string, string>;
+    links: Manifest;
     fetchedAt: number;
 };
 
@@ -71,10 +105,10 @@ async function getOrRefreshManifest(): Promise<AssetManifest> {
                     `Asset version changed from [${assetManifest.version}] to [${version}], fetching new manifest.`
                 );
             }
-            const manifest = await fetchAssetManifest(version);
+            const raw = await fetchAssetManifest(version);
             return {
                 version,
-                links: manifest,
+                links: validatedManifest(raw),
                 fetchedAt: Date.now()
             };
         })
@@ -99,8 +133,8 @@ async function getOrRefreshGameManifest(): Promise<AssetManifest> {
     if (!gameRefreshInFlight) {
         gameRefreshInFlight = retryWithBackoff(async () => {
             const version = await fetchLatestAssetVersion();
-            const links = await fetchGameAssetManifest(version);
-            return { version, links, fetchedAt: Date.now() };
+            const raw = await fetchGameAssetManifest(version);
+            return { version, links: validatedManifest(raw), fetchedAt: Date.now() };
         })
             .then((result) => {
                 gameAssetManifest = result;
@@ -131,12 +165,12 @@ export const queryGameAssetManifest = query(async (): Promise<AssetManifest> => 
     }
 });
 
-/// Return the URL for an asset by its key.
+/// Return the primary URL for an asset by its key.
 export const queryAssetUrl = query(z.string(), async (key: string): Promise<string> => {
     try {
         const manifest = await getOrRefreshManifest();
-        const relative = manifest.links[key] ?? 'not-found';
-        const url = config.assetUrl + '/' + relative;
+        const entry = manifest.links[key];
+        const url = entry ? urlsOf(entry)[0]! : config.assetUrl + '/not-found';
         logAPI.log(`Resolved asset key "${key}" to URL: ${url}`);
         return url;
     } catch (e) {
@@ -144,16 +178,15 @@ export const queryAssetUrl = query(z.string(), async (key: string): Promise<stri
     }
 });
 
-export const queryAssetUrls = query(z.array(z.string()), async (keys: string[]): Promise<Record<string, string>> => {
+/// Return the URLs for an asset by its key, in preference order: the primary path first,
+/// then its variants (e.g. a legacy-format fallback for a browser that can't render the primary one).
+export const queryAssetUrlVariants = query(z.string(), async (key: string): Promise<string[]> => {
     try {
         const manifest = await getOrRefreshManifest();
-        const result: Record<string, string> = {};
-        for (const key of keys) {
-            const relative = manifest.links[key] ?? 'not-found';
-            result[key] = config.assetUrl + '/' + relative;
-        }
-        logAPI.log(`Resolved asset keys: ${JSON.stringify(result)}`);
-        return result;
+        const entry = manifest.links[key];
+        const urls = entry ? urlsOf(entry) : [config.assetUrl + '/not-found'];
+        logAPI.log(`Resolved asset key "${key}" to URLs: ${JSON.stringify(urls)}`);
+        return urls;
     } catch (e) {
         throwRemoteHttpError(e, 'Asset service unavailable');
     }
