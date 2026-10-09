@@ -1,5 +1,4 @@
 import { resolve } from '$app/paths';
-import { isHttpError } from '@sveltejs/kit';
 import { IS_PROD } from './_env';
 import { toQueryString } from './_url';
 
@@ -138,27 +137,48 @@ export function createRetryLimitError(retryCount: number, lastError?: unknown): 
     };
 }
 
-function isHttpErrorShape(value: unknown): boolean {
+/// Structural match for SvelteKit's `HttpError`.
+///
+/// Why not use SvelteKit's `isHttpError()`: it tests `instanceof`, which fails once an error has
+/// been serialized and rebuilt — as happens to a remote-function error on its way to the client.
+/// Checking the fields instead matches both the original object and the rebuilt copy.
+///
+/// `body` is the `App.Error` produced by the server, so it may still hold the original `AppError`.
+type HttpErrorShape = {
+    status: number;
+    body?: { message?: string; appError?: unknown };
+    message?: string;
+};
+
+function isHttpErrorShape(value: unknown): value is HttpErrorShape {
     if (!value || typeof value !== 'object') return false;
     const v = value as Record<string, unknown>;
     if (typeof v.status !== 'number') return false;
     return (typeof v.body === 'object' && v.body !== null) || typeof v.message === 'string';
 }
 
-/// `HttpError.toString()` serializes its body, so an HttpError stringified by intermediate code
-/// (e.g. `new Error(String(cause))`) arrives as `{"message":"..."}`. Recover the original text.
-function unwrapSerializedMessage(text: string): string {
-    if (!text.startsWith('{')) return text;
+/// Recovers an `HttpError` that some intermediate code turned into a string.
+///
+/// How it gets stringified:
+/// 1. `HttpError` does not extend `Error`, and its `toString()` returns `JSON.stringify(body)`
+///    (`@sveltejs/kit/src/exports/internal/shared.js`).
+/// 2. SvelteKit's Node response bridging does `error instanceof Error ? error : new Error(String(error))`
+///    (`@sveltejs/kit/src/exports/node/index.js`).
+/// 3. So the error reaches us as `new Error('{"status":500,"message":"..."}')`.
+///
+/// Only that one path does this — production runs on adapter-cloudflare — but it is the dev path,
+/// where these messages are read the most.
+function parseSerializedError(text: string): { message?: string; appError?: unknown } | undefined {
+    if (!text.startsWith('{')) return undefined;
     try {
         const parsed: unknown = JSON.parse(text);
         if (parsed && typeof parsed === 'object') {
-            const { message } = parsed as Record<string, unknown>;
-            if (typeof message === 'string') return message;
+            return parsed as { message?: string; appError?: unknown };
         }
     } catch {
-        return text;
+        return undefined;
     }
-    return text;
+    return undefined;
 }
 
 export function createAppError(error: unknown): AppError {
@@ -171,26 +191,36 @@ export function createAppError(error: unknown): AppError {
     }
 
     // HttpError carries a meaningful, server-provided message (e.g. thrown via `error(status, msg)`).
-    // Duck-typed as well as instance-checked: the value may have crossed a bundle or serialization boundary.
-    if (isHttpError(error) || isHttpErrorShape(error)) {
-        const { status, body, message } = error as { status: number; body?: { message?: string }; message?: string };
+    // Matched by shape, which covers the live object and a serialized copy alike.
+    if (isHttpErrorShape(error)) {
+        if (isAppError(error.body?.appError)) {
+            return error.body.appError;
+        }
         return {
             type: 'app-error',
             kind: 'fetch',
-            message: body?.message ?? message ?? `HTTP ${status}`,
-            details: { status }
+            message: error.body?.message ?? error.message ?? `HTTP ${error.status}`,
+            details: { status: error.status }
         };
     }
 
     if (error instanceof Error) {
+        const parsed = parseSerializedError(error.message);
+        if (isAppError(parsed?.appError)) {
+            return parsed.appError;
+        }
         return createOtherError(
-            unwrapSerializedMessage(error.message),
+            typeof parsed?.message === 'string' ? parsed.message : error.message,
             VERBOSE_ERRORS ? { name: error.name, stack: error.stack } : undefined
         );
     }
 
     if (typeof error === 'string') {
-        return createOtherError(unwrapSerializedMessage(error));
+        const parsed = parseSerializedError(error);
+        if (isAppError(parsed?.appError)) {
+            return parsed.appError;
+        }
+        return createOtherError(typeof parsed?.message === 'string' ? parsed.message : error);
     }
 
     return createOtherError('Unknown error', VERBOSE_ERRORS ? error : undefined);
