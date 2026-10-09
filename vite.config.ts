@@ -17,8 +17,9 @@ if (['dev', 'local', 'mock'].includes(config.environment) && !process.env.LOG_LE
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
 }
 
-const isBuildCommand = process.argv.includes('build');
-if (isBuildCommand && config.environment !== 'prod') {
+const isStorybook = process.argv.some((arg) => arg.includes('storybook'));
+const isAppBuild = !isStorybook && process.argv.includes('build');
+if (isAppBuild && config.environment !== 'prod') {
     throw new Error(
         `Build requires production config. Current environment is "${config.environment}". Run "pnpm run env:prod" before building.`
     );
