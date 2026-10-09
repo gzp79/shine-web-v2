@@ -1,12 +1,11 @@
-import { resolve } from '$app/paths';
 import { getRequestEvent } from '$app/server';
 import { error, isHttpError, redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
-import { VERBOSE_ERRORS, describeError, isAppError } from '@lib/utils';
+import { IS_MOCK, VERBOSE_ERRORS, describeError, errorPageUrl, isAppError } from '@lib/utils';
 
 export function getMockWorkerHeader(): Headers {
     const headers = new Headers();
-    if (import.meta.env.VITE_MOCK) {
+    if (IS_MOCK) {
         const { request } = getRequestEvent();
         const worker = request.headers.get('x-mock-worker');
         if (worker) {
@@ -100,7 +99,9 @@ export function validateProxyResponse(response: Response): void {
         logAPI.error(
             `Upstream server error [${response.url.split('?')[0]}]: ${response.status} ${response.statusText}`
         );
-        throw redirect(302, resolve('/error') + '?errorType=server-down');
+        // No `returnUrl`: this runs while proxying an API call, so the originating page is not
+        // reliably known here (`referer` is caller-controlled). The error page picks its own default.
+        throw redirect(302, errorPageUrl('server-down'));
     }
 }
 

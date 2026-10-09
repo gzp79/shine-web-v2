@@ -1,8 +1,11 @@
+import { resolve } from '$app/paths';
 import { isHttpError } from '@sveltejs/kit';
+import { IS_PROD } from './_env';
+import { toQueryString } from './_url';
 
 /// Whether errors may carry their full, potentially sensitive detail: response bodies, request URLs,
 /// stack traces and arbitrary thrown payloads.
-export const VERBOSE_ERRORS = String(import.meta.env.VITE_PROD) !== 'true';
+export const VERBOSE_ERRORS = !IS_PROD;
 
 export const errorList = [
     'auth-login-required',
@@ -26,6 +29,13 @@ export const errorList = [
 ] as const;
 export type ErrorType = (typeof errorList)[number];
 
+/// The canonical `/error` page URL — the single place the page's query contract is written.
+/// `returnUrl` must already be sanitized; omit it when the caller cannot know the originating page,
+/// and the error page falls back to its own default destination.
+export function errorPageUrl(errorType: ErrorType, returnUrl?: string | null): string {
+    return resolve('/error') + toQueryString({ errorType, returnUrl });
+}
+
 const appErrorKindList = ['fetch', 'other', 'retryLimit'] as const;
 export type AppErrorKind = (typeof appErrorKindList)[number];
 
@@ -33,17 +43,17 @@ export type BaseAppError = {
     type: 'app-error';
     kind: AppErrorKind;
     message: string;
-    details?: unknown;
     shouldRetry?: boolean;
 };
 
 export type FetchError = BaseAppError & {
     kind: 'fetch';
-    details?: { status?: number; body?: string; url?: string } | unknown;
+    details?: { status?: number; body?: string; url?: string };
 };
 
 export type OtherError = BaseAppError & {
     kind: 'other';
+    details?: unknown;
 };
 
 export type RetryLimitError = BaseAppError & {
@@ -113,7 +123,7 @@ export function createOtherError(message: string, details?: unknown): OtherError
     return {
         type: 'app-error',
         kind: 'other',
-        message: message ?? 'Other error',
+        message,
         details
     };
 }
@@ -197,12 +207,12 @@ export function createAppError(error: unknown): AppError {
 export function describeError(error: unknown): string {
     if (isAppError(error)) {
         if (error.kind === 'retryLimit') {
-            const { retryCount, lastError } = (error.details ?? {}) as RetryLimitError['details'] & object;
+            const { retryCount, lastError } = error.details ?? {};
             const attempts = retryCount ? `after ${retryCount} ${retryCount === 1 ? 'retry' : 'retries'}: ` : '';
             return `${attempts}${lastError !== undefined ? describeError(lastError) : error.message}`;
         }
         if (error.kind === 'fetch') {
-            const { status, body, url } = (error.details ?? {}) as { status?: number; body?: string; url?: string };
+            const { status, body, url } = error.details ?? {};
             const suffix = status !== undefined ? ` (HTTP ${status})` : '';
             const where = VERBOSE_ERRORS && url ? ` at ${url}` : '';
             const detail = VERBOSE_ERRORS && body ? `: ${body}` : '';

@@ -2,7 +2,7 @@ import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import type { HandleClientError } from '@sveltejs/kit/hooks';
 import '@lib/prelude-math';
-import { isAppError } from '@lib/utils';
+import { IS_MOCK, errorPageUrl, isAppError } from '@lib/utils';
 
 let redirectingToError = false;
 
@@ -14,13 +14,12 @@ window.onerror = (message, _source, _line, _column, error) => {
     redirectingToError = true;
     const errorDetail = error instanceof Error ? `${error.name}: ${error.message}` : String(message);
     const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    const params = new URLSearchParams({ errorType: 'internal-error', returnUrl });
-    void goto(`${resolve('/error')}?${params}`, { state: { errorDetail } });
+    void goto(errorPageUrl('internal-error', returnUrl), { state: { errorDetail } });
     return false;
 };
 
 // Initialize MSW for mock environment
-if (import.meta.env.VITE_MOCK) {
+if (IS_MOCK) {
     await import('@mocks/setup-client');
 }
 

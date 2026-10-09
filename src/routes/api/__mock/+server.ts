@@ -1,10 +1,11 @@
+import { IS_MOCK } from '@lib/utils';
 import type { RequestHandler } from './$types';
 
 // Identifies the calling Playwright worker; absent for the admin page.
 const WORKER_HEADER = 'x-mock-worker';
 
 export const POST: RequestHandler = async ({ request }) => {
-    if (!import.meta.env.VITE_MOCK) {
+    if (!IS_MOCK) {
         return new Response(null, { status: 404 });
     }
 
@@ -28,7 +29,7 @@ export const POST: RequestHandler = async ({ request }) => {
 };
 
 export const GET: RequestHandler = async ({ request }) => {
-    if (!import.meta.env.VITE_MOCK) {
+    if (!IS_MOCK) {
         return new Response(null, { status: 404 });
     }
 
@@ -73,7 +74,7 @@ export const GET: RequestHandler = async ({ request }) => {
 };
 
 export const DELETE: RequestHandler = async ({ request }) => {
-    if (!import.meta.env.VITE_MOCK) {
+    if (!IS_MOCK) {
         return new Response(null, { status: 404 });
     }
 

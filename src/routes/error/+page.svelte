@@ -52,7 +52,7 @@
 <CenteredLayout>
     <ErrorCard error={createOtherError(message, errorDetail)}>
         {#snippet actions()}
-            <Button color="primary" href={returnUrl || '/game'}>
+            <Button color="primary" href={returnUrl}>
                 {errorDetail ? locale.t('common.refresh') : locale.t('common.back')}
             </Button>
         {/snippet}

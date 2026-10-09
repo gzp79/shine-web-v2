@@ -3,10 +3,10 @@ import { getLocaleFromRequest } from '@lib/i18n';
 import { logAPI } from '@lib/loggers';
 import '@lib/prelude-math';
 import { getThemeFromRequest } from '@lib/theme';
-import { describeError } from '@lib/utils';
+import { IS_MOCK, describeError } from '@lib/utils';
 
 // Initialize MSW for mock environment
-if (import.meta.env.VITE_MOCK) {
+if (IS_MOCK) {
     await import('@mocks/setup-server');
 }
 

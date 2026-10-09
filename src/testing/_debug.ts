@@ -1,3 +1,5 @@
+import { IS_MOCK } from '@lib/utils';
+
 /**
  * Pauses test execution for debugging by waiting for a very long time.
  * Use browser DevTools to inspect the page state while paused.
@@ -13,7 +15,7 @@
  *   });
  */
 export async function pauseTest(label?: string): Promise<void> {
-    if (!import.meta.env.VITE_MOCK) {
+    if (!IS_MOCK) {
         throw new Error(
             `pauseTest called outside mock environment${label ? ` (${label})` : ''} — remove before merging`
         );
