@@ -39,6 +39,15 @@ pnpm run env:dev    # Dev backend
 pnpm run env:prod   # Production
 ```
 
+**Env flags:** import `IS_MOCK`, `IS_PROD`, `SKIP_CAPTCHA`, ... from `@lib/utils` — never read
+`import.meta.env.VITE_*` directly. `vite build` inlines the defines as real booleans, but vitest
+hands them back as the strings `'true'`/`'false'`, and `'false'` is truthy. Keep each flag a plain
+`=== true || === 'true'` comparison: wrapping it in a helper call stops Vite folding it to a literal
+and drags guarded `@mocks` imports into the bundle.
+
+**Unit tests stay env-agnostic** — they must pass under any selected env. Never assert on
+flag-derived values; stub env-gated module bodies instead (`vi.mock('@mocks/setup-client', () => ({}))`).
+
 ## MCP (Svelte)
 
 - `svelte-autofixer` - Run on ALL Svelte code before sending

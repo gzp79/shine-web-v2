@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <link rel="icon" href="%sveltekit.assets%/favicon.png" />
+        <title>Scytta — %sveltekit.status%</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="robots" content="noindex,nofollow,noarchive" />
+    </head>
+    <body
+        style="
+            margin: 0;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #282828;
+            color: #dbdbdb;
+            font-family: system-ui, sans-serif;
+        "
+    >
+        <main
+            style="
+                max-width: 32rem;
+                margin: 1rem;
+                padding: 2rem;
+                border-radius: 0.75rem;
+                background: #373737;
+                text-align: center;
+            "
+        >
+            <h1 style="margin: 0 0 0.75rem; font-size: 1.5rem">Something went wrong</h1>
+            <p style="margin: 0 0 0.75rem">%sveltekit.error.message%</p>
+            <p style="margin: 0 0 1.5rem; color: #8595ab">
+                The app could not be loaded. This is usually a connection problem — check your network and try again.
+            </p>
+            <a
+                href="/"
+                style="
+                    display: inline-block;
+                    padding: 0.6rem 1.4rem;
+                    border-radius: 0.5rem;
+                    background: #425462;
+                    color: #eceff2;
+                    text-decoration: none;
+                "
+                >Reload</a
+            >
+        </main>
+    </body>
+</html>

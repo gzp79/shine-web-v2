@@ -20,18 +20,12 @@ importers:
       loglevel:
         specifier: ^1.9.2
         version: 1.9.2
-      sveltekit-i18n:
-        specifier: ^3.3.0
-        version: 3.3.0(svelte@5.57.1(@typescript-eslint/types@8.71.0))
       tailwind-merge:
         specifier: ^3.7.0
         version: 3.7.0
       ua-parser-js:
         specifier: ^2.0.10
         version: 2.0.10
-      uuid:
-        specifier: ^14.0.2
-        version: 14.0.2
       zod:
         specifier: ^4.6.5
         version: 4.6.5
@@ -81,9 +75,6 @@ importers:
       '@trivago/prettier-plugin-sort-imports':
         specifier: ^6.0.2
         version: 6.0.2(prettier-plugin-svelte@4.1.1(prettier@3.9.9)(svelte@5.57.1(@typescript-eslint/types@8.71.0)))(prettier@3.9.9)(supports-color@10.2.2)(svelte@5.57.1(@typescript-eslint/types@8.71.0))
-      '@types/debug':
-        specifier: ^4.1.13
-        version: 4.1.13
       '@types/node':
         specifier: ^26.6.4
         version: 26.6.4
@@ -280,10 +271,6 @@ packages:
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
-
-  '@curly-message/parser@3.1.1':
-    resolution: {integrity: sha512-Gq3S8v9mZREWjpgXKvRpfXukbseIlM5uotcVCCCocZiw1sLfc/m6mqCpa9xlQIMIpXsDV214Q8X7Fu++iK5+zw==}
-    engines: {node: '>=22'}
 
   '@emnapi/core@1.11.0':
     resolution: {integrity: sha512-l9Oo58x0HOP5znGzVhYW9U3e5wVuA4LAZU2AGezTmkhO1CgQRFDhDg4nneHsu/t3WniXg9QrG2nIXL/ZS8ln8Q==}
@@ -1626,18 +1613,6 @@ packages:
     peerDependencies:
       svelte: ^5.46.4
       vite: ^8.0.0-beta.7 || ^8.0.0
-
-  '@sveltekit-i18n/base@3.2.0':
-    resolution: {integrity: sha512-j4gM9PYwhbkMcxUARFzozzVObQJUE1ECnWHWhyB74ZEAMA0W/yHY8ly7XHUkKwo9nIbhZ2JgkZ6xjOMUrRu5Hg==}
-    engines: {bun: '>=1.2', deno: '>=2', node: '>=22'}
-    peerDependencies:
-      svelte: '>=5'
-
-  '@sveltekit-i18n/parser-curly@3.2.0':
-    resolution: {integrity: sha512-r4zfRCAYsB/zN5YPc6BtZCSuomiI4By71h/QfzMWrvXWRBCAsx4gsvbQ3h/3bRagd6GNA7g/ixrAoeZBhFLP6Q==}
-    engines: {bun: '>=1.2', deno: '>=2', node: '>=22'}
-    peerDependencies:
-      '@sveltekit-i18n/base': ^3.0.0 || ^3.1.0-next.0
 
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
@@ -3188,12 +3163,6 @@ packages:
     resolution: {integrity: sha512-Uqj49lWKB+iSSnneuwiYYJ7MZgkB+eXr0LXBhv4uDuAkXqnWmq65Sxflfvp0Lc6MdKjMUxGaeOKWJqz5SNiVIA==}
     engines: {node: '>=18'}
 
-  sveltekit-i18n@3.3.0:
-    resolution: {integrity: sha512-5O5GXCy3Hij32wGEYBuI8fBtk0xDg4RMxnY1bkFBbZkqV0XCiGWELB9+5TlQxdWc4jtwSZnweVy4j4Aacz1jfQ==}
-    engines: {bun: '>=1.2', deno: '>=2', node: '>=22'}
-    peerDependencies:
-      svelte: '>=5'
-
   tabbable@6.5.0:
     resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
 
@@ -3344,10 +3313,6 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
-
-  uuid@14.0.2:
-    resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
-    hasBin: true
 
   vite-plugin-static-copy@4.1.1:
     resolution: {integrity: sha512-GrlA8YklrAfSyxJ4M3fdQLOo9oNkp56IM9FYgX/WtEgeIFkPwhu4wzpufBCIuNKCa6Fn77FkRdYxkHqV0FwjAw==}
@@ -3651,8 +3616,6 @@ snapshots:
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
-
-  '@curly-message/parser@3.1.1': {}
 
   '@emnapi/core@1.11.0':
     dependencies:
@@ -4560,15 +4523,6 @@ snapshots:
       svelte: 5.57.1(@typescript-eslint/types@8.71.0)
       vite: 8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)
       vitefu: 1.1.3(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1))
-
-  '@sveltekit-i18n/base@3.2.0(svelte@5.57.1(@typescript-eslint/types@8.71.0))':
-    dependencies:
-      svelte: 5.57.1(@typescript-eslint/types@8.71.0)
-
-  '@sveltekit-i18n/parser-curly@3.2.0(@sveltekit-i18n/base@3.2.0(svelte@5.57.1(@typescript-eslint/types@8.71.0)))':
-    dependencies:
-      '@curly-message/parser': 3.1.1
-      '@sveltekit-i18n/base': 3.2.0(svelte@5.57.1(@typescript-eslint/types@8.71.0))
 
   '@swc/helpers@0.5.23':
     dependencies:
@@ -6165,12 +6119,6 @@ snapshots:
     transitivePeerDependencies:
       - '@typescript-eslint/types'
 
-  sveltekit-i18n@3.3.0(svelte@5.57.1(@typescript-eslint/types@8.71.0)):
-    dependencies:
-      '@sveltekit-i18n/base': 3.2.0(svelte@5.57.1(@typescript-eslint/types@8.71.0))
-      '@sveltekit-i18n/parser-curly': 3.2.0(@sveltekit-i18n/base@3.2.0(svelte@5.57.1(@typescript-eslint/types@8.71.0)))
-      svelte: 5.57.1(@typescript-eslint/types@8.71.0)
-
   tabbable@6.5.0: {}
 
   tagged-tag@1.0.0: {}
@@ -6286,8 +6234,6 @@ snapshots:
       react: 19.3.0
 
   util-deprecate@1.0.2: {}
-
-  uuid@14.0.2: {}
 
   vite-plugin-static-copy@4.1.1(vite@8.3.2(@types/node@26.6.4)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.15)(yaml@2.9.1)):
     dependencies:
