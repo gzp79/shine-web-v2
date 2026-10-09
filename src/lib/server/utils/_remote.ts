@@ -1,7 +1,7 @@
 import { getRequestEvent } from '$app/server';
 import { error, isHttpError, redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
-import { IS_MOCK, VERBOSE_ERRORS, describeError, errorPageUrl, isAppError } from '@lib/utils';
+import { IS_MOCK, VERBOSE_ERRORS, describeError, errorPageUrl, isAppError, sanitizeLocalUrl } from '@lib/utils';
 
 export function getMockWorkerHeader(): Headers {
     const headers = new Headers();
@@ -115,19 +115,13 @@ export function throwRemoteHttpError(e: unknown, fallbackMessage = 'Remote servi
     throw error(502, detail);
 }
 
+/// Server-side gate for a caller-supplied return URL. Shares its rules with the client-side check
+/// in `sanitizeLocalUrl` — consumers that navigate to the result should apply it again, so a path
+/// that bypasses this layer still cannot redirect the user off-site.
 export function sanitizedReturnUrl(rawUrl: string | null | undefined): string | null {
-    if (rawUrl) {
-        try {
-            // Try to parse as a relative URL against a dummy base to ensure it's well-formed
-            const parsed = new URL(rawUrl, 'http://localhost');
-            if (parsed.origin === 'http://localhost' && rawUrl.startsWith('/')) {
-                const sanitized = parsed.pathname + parsed.search + parsed.hash;
-                logAPI.info('Sanitized return URL:', sanitized);
-                return sanitized;
-            }
-        } catch (e) {
-            logAPI.error(`Failed to parse return URL (${rawUrl}):`, e);
-        }
+    const sanitized = sanitizeLocalUrl(rawUrl);
+    if (rawUrl && sanitized === null) {
+        logAPI.warn(`Rejected a non-local return URL: ${rawUrl}`);
     }
-    return null;
+    return sanitized;
 }

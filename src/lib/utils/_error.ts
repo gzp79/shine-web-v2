@@ -29,9 +29,7 @@ export const errorList = [
 ] as const;
 export type ErrorType = (typeof errorList)[number];
 
-/// The canonical `/error` page URL — the single place the page's query contract is written.
-/// `returnUrl` must already be sanitized; omit it when the caller cannot know the originating page,
-/// and the error page falls back to its own default destination.
+/// The canonical `/error` page URL
 export function errorPageUrl(errorType: ErrorType, returnUrl?: string | null): string {
     return resolve('/error') + toQueryString({ errorType, returnUrl });
 }

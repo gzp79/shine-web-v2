@@ -1,4 +1,5 @@
 <script module lang="ts">
+    import { resolve } from '$app/paths';
     import { page } from '$app/state';
     import { CAPTCHA_SKIP_TOKEN, config } from '@config';
     import { queryCurrentUserInfo } from '@lib/account/auth.remote';
@@ -21,7 +22,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
-    import { type ErrorType, async, pascalCase } from '@lib/utils';
+    import { type ErrorType, async, pascalCase, sanitizeLocalUrl } from '@lib/utils';
     import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 
@@ -89,6 +90,7 @@
     const currentUserQuery = queryCurrentUserInfo();
 
     const redirectUrlQuery = $derived(querySanitizedReturnUrl(returnUrl));
+    const localRedirectUrl = (url: string): string => sanitizeLocalUrl(url) ?? resolve('/(auth)/game');
     const backgroundUrls = $derived(queryAssetUrlVariants('loginBackground'));
     const backgroundBrightUrls = $derived(queryAssetUrlVariants('loginBackgroundBright'));
 
@@ -129,8 +131,9 @@
         const sanitizedUrl = await redirectUrlQuery;
 
         if (user.authenticated) {
-            logUser.log(`Redirecting user with an active session to ${sanitizedUrl}`);
-            return sanitizedUrl;
+            const target = localRedirectUrl(sanitizedUrl);
+            logUser.log(`Redirecting user with an active session to ${target}`);
+            return target;
         }
 
         // if we have no authenticated user, try the token flow that will either
@@ -228,7 +231,7 @@
                                     size="lg"
                                     disabled={disableButtons}
                                     class="drop-shadow-on-secondary drop-shadow-md"
-                                    href={await redirectUrlQuery}
+                                    href={localRedirectUrl(await redirectUrlQuery)}
                                 >
                                     <allBrands.user size="sm" />
                                     {locale.t('login.continueAs', { name: user.name })}

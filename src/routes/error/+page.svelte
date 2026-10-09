@@ -5,7 +5,7 @@
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import { type ErrorType, createOtherError } from '@lib/utils';
+    import { type ErrorType, createOtherError, sanitizeLocalUrl } from '@lib/utils';
     import type { PageData } from './$types';
 
     const locale = getLocaleContext();
@@ -15,8 +15,11 @@
     let errorType = $derived(page.url.searchParams.get('errorType') as ErrorType | null);
     let errorDetail = $derived(page.state.errorDetail);
     let returnUrl = $derived.by(() => {
-        if (data.returnUrl) {
-            return data.returnUrl;
+        // `data.returnUrl` is already sanitized server-side; re-check it here so this button cannot
+        // navigate off-site even if a crafted `?returnUrl=` ever reaches the component unfiltered.
+        const requested = sanitizeLocalUrl(data.returnUrl);
+        if (requested) {
+            return requested;
         }
 
         if (

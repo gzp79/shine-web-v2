@@ -1,5 +1,20 @@
 export type QueryParam = string | number | boolean | null | undefined;
 
+const DUMMY_ORIGIN = 'http://localhost';
+
+/// Reduces a caller-supplied URL to a same-origin path, or `null` if it points anywhere else.
+export function sanitizeLocalUrl(rawUrl: string | null | undefined): string | null {
+    if (!rawUrl || !rawUrl.startsWith('/')) return null;
+
+    try {
+        const parsed = new URL(rawUrl, DUMMY_ORIGIN);
+        if (parsed.origin !== DUMMY_ORIGIN) return null;
+        return parsed.pathname + parsed.search + parsed.hash;
+    } catch {
+        return null;
+    }
+}
+
 export function toQueryString(params?: Record<string, QueryParam>): string {
     if (!params) return '';
     const entries = Object.entries(params).filter(
