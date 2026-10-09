@@ -1,6 +1,6 @@
 <script lang="ts">
-    import Button from '$lib/ui/atoms/input/Button.svelte';
     import { onMount } from 'svelte';
+    import Button from '@lib/ui/atoms/input/Button.svelte';
     import MockItem from './MockItem.svelte';
 
     type Mock = {

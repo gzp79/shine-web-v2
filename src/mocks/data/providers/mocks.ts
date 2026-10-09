@@ -1,4 +1,4 @@
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, http } from 'msw/http';
 import { logMSW } from '@lib/loggers';
 import { authApiRoutes } from '@lib/server/api/authApiRoutes';
 import providers from './default.json';

@@ -1,4 +1,4 @@
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, http } from 'msw/http';
 import { authApiRoutes } from '@lib/server/api/authApiRoutes';
 import { userApiRoutes } from '@lib/server/api/userApiRoutes';
 import guestUser from './guestUser.json';

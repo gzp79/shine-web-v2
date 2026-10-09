@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { onDestroy } from 'svelte';
 import { createSubscriber } from 'svelte/reactivity';
 import { logUser } from '@lib/loggers';

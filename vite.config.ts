@@ -1,4 +1,6 @@
+import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import fs from 'node:fs';
@@ -122,7 +124,31 @@ export default defineConfig({
     plugins: [
         excludeMocks(),
         tailwindcss(),
-        sveltekit(),
+        sveltekit({
+            preprocess: vitePreprocess(),
+            inspector: {
+                showToggleButton: 'always',
+                toggleButtonPos: 'bottom-right'
+            },
+            compilerOptions: {
+                experimental: {
+                    async: true
+                }
+            },
+            adapter: adapter(),
+            alias: {
+                '@mocks': './src/mocks',
+                '@sb': './src/storybook',
+                '@testing': './src/testing',
+                '@config': './src/config',
+                '@generated': './src/generated',
+                '@translations': './src/translations',
+                '@lib': './src/lib'
+            },
+            experimental: {
+                remoteFunctions: true
+            }
+        }),
         svelteTesting(),
         viteStaticCopy({
             targets: [...additionalAssets]

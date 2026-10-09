@@ -1,5 +1,5 @@
 <script>
-    import ActiveTokenCard from '$lib/account/ActiveTokenCard.svelte';
+    import ActiveTokenCard from '@lib/account/ActiveTokenCard.svelte';
 </script>
 
 <ActiveTokenCard />

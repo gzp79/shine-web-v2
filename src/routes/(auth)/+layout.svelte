@@ -49,7 +49,7 @@
                 section: 'user',
                 label: locale.t('account.accountInfo'),
                 icon: Settings,
-                action: () => goto(resolve('/account'))
+                action: () => goto(resolve('/(auth)/account'))
             })
         ];
         return () => unregisters.forEach((fn) => fn());

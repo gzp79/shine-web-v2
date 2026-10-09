@@ -1,5 +1,5 @@
 import { config } from '@config';
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, http } from 'msw/http';
 import { logMSW } from '@lib/loggers';
 import { async, joinURL } from '@lib/utils';
 

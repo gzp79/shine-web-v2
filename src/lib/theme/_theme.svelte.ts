@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { page } from '$app/state';
 import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';

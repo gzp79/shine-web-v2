@@ -34,7 +34,8 @@
     const unlinkIdentity = async (provider: string, providerUserId: string) => {
         isUnlinking = true;
         try {
-            await unlinkIdentityCommand({ provider, providerUserId }).updates(identities);
+            await unlinkIdentityCommand({ provider, providerUserId });
+            await identities.refresh();
         } finally {
             isUnlinking = false;
         }

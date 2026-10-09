@@ -33,7 +33,8 @@
     const revokeToken = async (tokenHash: string) => {
         isRevoking = true;
         try {
-            await revokeTokenCommand(tokenHash).updates(tokens);
+            await revokeTokenCommand(tokenHash);
+            await tokens.refresh();
         } finally {
             isRevoking = false;
         }

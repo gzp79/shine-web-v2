@@ -32,7 +32,7 @@
             return resolve('/login') + `?${searchParams}`;
         }
 
-        return resolve('/game');
+        return resolve('/(auth)/game');
     });
 
     let message = $derived.by(() => {

@@ -1,8 +1,15 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { refreshAll } from '$app/navigation';
-import type { RemoteQuery } from '@sveltejs/kit';
+import type { RemoteQuery } from '$app/server';
 import { logUser } from '@lib/loggers';
-import { type AutoRefresh, type AutoRefreshOptions, type QueryLike, WrappedPromise, autoRefresh } from '@lib/utils';
+import {
+    type AppError,
+    type AutoRefresh,
+    type AutoRefreshOptions,
+    type QueryLike,
+    WrappedPromise,
+    autoRefresh
+} from '@lib/utils';
 import { queryCurrentUserInfo } from './auth.remote';
 import type { CurrentUser } from './authContext.svelte';
 
@@ -84,7 +91,7 @@ class BrowserCurrentUserStore extends WrappedPromise<CurrentUser> implements Cur
     }
 
     get error() {
-        return this._promise.error;
+        return this._promise.error as AppError | undefined;
     }
 
     get current() {

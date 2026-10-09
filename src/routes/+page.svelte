@@ -8,7 +8,7 @@
     <button
         class="cursor-pointer rounded-full p-8 hover:brightness-highlight"
         aria-label="Enter"
-        onclick={() => goto(resolve('/game'))}
+        onclick={() => goto(resolve('/(auth)/game'))}
     >
         <span class="relative flex h-16 w-16">
             <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-on-primary opacity-50"></span>

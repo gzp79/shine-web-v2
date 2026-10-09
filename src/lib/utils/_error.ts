@@ -1,4 +1,4 @@
-import { dev } from '$app/environment';
+import { dev } from '$app/env';
 import { isHttpError } from '@sveltejs/kit';
 
 export const errorList = [
@@ -130,7 +130,8 @@ export function createRetryLimitError(retryCount: number, lastError?: unknown): 
 function isHttpErrorShape(value: unknown): boolean {
     if (!value || typeof value !== 'object') return false;
     const v = value as Record<string, unknown>;
-    return typeof v.status === 'number' && typeof v.body === 'object' && v.body !== null;
+    if (typeof v.status !== 'number') return false;
+    return (typeof v.body === 'object' && v.body !== null) || typeof v.message === 'string';
 }
 
 /// `HttpError.toString()` serializes its body, so an HttpError stringified by intermediate code
@@ -154,14 +155,18 @@ export function createAppError(error: unknown): AppError {
         return error;
     }
 
+    if (typeof error === 'object' && error !== null && 'appError' in error && isAppError(error.appError)) {
+        return error.appError;
+    }
+
     // HttpError carries a meaningful, server-provided message (e.g. thrown via `error(status, msg)`).
     // Duck-typed as well as instance-checked: the value may have crossed a bundle or serialization boundary.
     if (isHttpError(error) || isHttpErrorShape(error)) {
-        const { status, body } = error as { status: number; body?: { message?: string } };
+        const { status, body, message } = error as { status: number; body?: { message?: string }; message?: string };
         return {
             type: 'app-error',
             kind: 'fetch',
-            message: body?.message ?? `HTTP ${status}`,
+            message: body?.message ?? message ?? `HTTP ${status}`,
             details: { status }
         };
     }

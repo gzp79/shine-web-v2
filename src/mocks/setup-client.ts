@@ -1,5 +1,4 @@
 import { config } from '@config';
-import { bypass } from 'msw';
 import { worker } from '@mocks/browser';
 
 // Initialize MSW browser worker for mock environment
@@ -9,19 +8,25 @@ worker.start({
     /*serviceWorker: {
         url: '/mockServiceWorker.js'
     }*/
-    onUnhandledRequest(request, print) {
+    onUnhandledFrame({ frame, defaults }) {
+        if (frame.protocol !== 'http') {
+            return defaults.warn();
+        }
+        const { request } = frame.data as { request: Request };
+
+        // bypass: return without invoking defaults
         if (request.url.startsWith('https://challenges.cloudflare.com/')) {
-            return bypass(request);
+            return;
         }
 
         if (request.url.startsWith(config.webUrl)) {
-            return bypass(request);
+            return;
         }
         if (request.url.startsWith(config.assetUrl)) {
-            return bypass(request);
+            return;
         }
 
-        print.warning();
+        defaults.warn();
         throw new Error(`No handler for ${request.url}`);
     }
 });

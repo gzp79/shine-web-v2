@@ -1,6 +1,7 @@
 import type { TurnstileObject } from 'turnstile-types';
 import { type Locale, type Translation } from '@lib/i18n';
 import { type Theme } from '@lib/theme';
+import { type AppError } from '@lib/utils';
 
 declare global {
     interface ImportMeta {
@@ -20,6 +21,10 @@ declare global {
     }
 
     namespace App {
+        interface Error {
+            appError?: AppError;
+        }
+
         interface Locals {
             theme: Theme;
             locale: Locale;

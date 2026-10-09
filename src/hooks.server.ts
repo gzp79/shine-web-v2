@@ -1,4 +1,4 @@
-import type { Handle, HandleServerError } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
 import { getLocaleFromRequest } from '@lib/i18n';
 import { logAPI } from '@lib/loggers';
 import '@lib/prelude-math';
@@ -12,11 +12,15 @@ if (import.meta.env.VITE_MOCK) {
 
 /// SvelteKit masks any unexpected (non-HttpError) server-side throw as a generic
 /// 500 "Internal Error", leaking the real cause only to the server console. This hook is
-/// invoked only for those unexpected errors; `describeError` surfaces the underlying cause
+/// invoked for every error, but only unexpected ones (kind 'unknown') are customized; `describeError` surfaces the underlying cause
 /// to the client (withholding sensitive detail in prod on its own).
-export const handleError: HandleServerError = ({ error, status, message }) => {
-    logAPI.error(`Unhandled server error [${status}]`, error);
-    return { message: `${message}: ${describeError(error)}` };
+export const handleError: HandleServerError = ({ kind, error }) => {
+    // app and framework errors (404, error() helper, ...) keep their defaults
+    if (kind !== 'unknown') {
+        return;
+    }
+    logAPI.error('Unhandled server error [500]', error);
+    return { message: `Internal Error: ${describeError(error)}` };
 };
 
 export const handle: Handle = async ({ event, resolve }) => {

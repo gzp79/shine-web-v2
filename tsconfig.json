@@ -1,5 +1,6 @@
 {
-    "extends": "./.svelte-kit/tsconfig.json",
+    "extends": "$app/tsconfig",
+    "include": ["src", "tests", "*"],
     "compilerOptions": {
         "rewriteRelativeImportExtensions": true,
         "allowJs": true,
@@ -13,5 +14,5 @@
         "moduleResolution": "bundler",
         "noUncheckedIndexedAccess": true
     }
-    // Path aliases are handled by svelte.config.js
+    // Path aliases are handled by the sveltekit() plugin options in vite.config.ts
 }
