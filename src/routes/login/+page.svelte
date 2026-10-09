@@ -21,7 +21,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
-    import { type ErrorType, async, createAppError, pascalCase } from '@lib/utils';
+    import { type ErrorType, async, pascalCase } from '@lib/utils';
     import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 
@@ -175,7 +175,7 @@
                      these as a NetworkError that would otherwise flash an error card while navigating away. -->
                 <LoadingCard label={locale.t('common.loading')} />
             {:else}
-                <ErrorCard error={createAppError(error)}>
+                <ErrorCard {error}>
                     {#snippet actions()}
                         <Button
                             onclick={() => {

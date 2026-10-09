@@ -8,13 +8,13 @@
     import { type LayoutWidth } from '@lib/ui/atoms/layouts';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import type { AppError } from '@lib/utils';
+    import { type AppErrorKind, createAppError } from '@lib/utils';
 
     export type ErrorCardProps = {
         /** Custom caption/title for the error (defaults to localized "Something went wrong") */
         caption?: string;
-        /** The error object containing message and optional details */
-        error: AppError;
+        /** Anything thrown or caught — normalized to an `AppError` here, so call sites need not. */
+        error: unknown;
         /** Width of the error card */
         width?: LayoutWidth;
         /** Optional content to render below the error details */
@@ -29,14 +29,14 @@
 
     const locale = getLocaleContext();
 
-    const errorTypeLabels: Record<string, string> = {
+    const errorKindLabels: Record<AppErrorKind, string> = {
         fetch: locale.t('errors.networkError'),
-        schema: locale.t('errors.dataValidationError'),
-        internal: locale.t('errors.internalError'),
+        retryLimit: locale.t('errors.retryLimitError'),
         other: locale.t('errors.error')
     };
 
-    const errorLabel = $derived(errorTypeLabels[error.kind] ?? 'Error');
+    const appError = $derived(createAppError(error));
+    const errorLabel = $derived(errorKindLabels[appError.kind]);
 </script>
 
 <Card
@@ -53,9 +53,9 @@
 
     <Stack>
         <Typography variant="text" class="whitespace-pre-line text-text-primary">
-            {error.message ?? errorLabel}
+            {appError.message || errorLabel}
         </Typography>
-        {#if error.details}
+        {#if appError.details}
             <details class="group cursor-pointer">
                 <summary class="list-none select-none text-sm font-medium text-text-secondary hover:text-text-primary">
                     <span class="inline-flex items-center gap-1">
@@ -67,7 +67,7 @@
                 <Box border>
                     <Typography variant="code">
                         <pre class="max-h-64 whitespace-pre-wrap wrap-break-word text-xs">{JSON.stringify(
-                                error.details,
+                                appError.details,
                                 null,
                                 2
                             )}</pre>

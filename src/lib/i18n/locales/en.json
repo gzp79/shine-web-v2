@@ -120,6 +120,7 @@
         "networkError": "Network Error",
         "dataValidationError": "Data Validation Error",
         "internalError": "Internal Error",
+        "retryLimitError": "Service Unavailable",
         "error": "Error"
     },
     "error": {

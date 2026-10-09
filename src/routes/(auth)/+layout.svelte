@@ -13,7 +13,6 @@
     import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import { createAppError } from '@lib/utils';
 
     let { children } = $props();
 
@@ -61,7 +60,7 @@
         <svelte:boundary>
             {#snippet failed(error, reset)}
                 <CenteredLayout>
-                    <ErrorCard error={createAppError(error)}>
+                    <ErrorCard {error}>
                         <Button onclick={() => reset()}>{locale.t('common.refresh')}</Button>
                     </ErrorCard>
                 </CenteredLayout>

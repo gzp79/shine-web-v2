@@ -9,7 +9,7 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import { type AppError, createAppError } from '@lib/utils';
+    import { type AppError } from '@lib/utils';
     import EmailConfirmButton from './EmailConfirmButton.svelte';
 </script>
 
@@ -53,7 +53,7 @@
 <Card width="md" title={locale.t('account.userInfoTitle')} actions={hasError ? undefined : actions}>
     <svelte:boundary>
         {#snippet failed(boundaryError, reset)}
-            <ErrorCard error={createAppError(boundaryError)} width="full">
+            <ErrorCard error={boundaryError} width="full">
                 {#snippet actions()}
                     <Button
                         onclick={() => {

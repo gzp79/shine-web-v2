@@ -9,7 +9,7 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { createAppError, fireAndForget } from '@lib/utils';
+    import { fireAndForget } from '@lib/utils';
     import type { PageData } from './$types';
 
     // Local mirror of the game bundle's contract (loaded at runtime, so its types aren't importable).
@@ -143,7 +143,7 @@
     <div class="relative w-full h-full">
         {#if error}
             <div class="absolute inset-0 flex items-center justify-center">
-                <ErrorCard error={createAppError(error)}>
+                <ErrorCard {error}>
                     {#snippet actions()}
                         <Button disabled={retrying} onclick={retryScene}>Retry</Button>
                     {/snippet}

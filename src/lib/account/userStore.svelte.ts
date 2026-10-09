@@ -3,6 +3,7 @@ import { onDestroy } from 'svelte';
 import { createSubscriber } from 'svelte/reactivity';
 import { logUser } from '@lib/loggers';
 import { createContext } from '@lib/ui/utils';
+import { createAppError } from '@lib/utils';
 
 /** The public fields the BFF resolves for a user. Extend here when more are exposed. */
 export type PublicUserData = {
@@ -403,7 +404,7 @@ export class BrowserUserStore implements UserStore {
             }
         } catch (err) {
             logUser.error('Failed to resolve public user info', err);
-            const message = err instanceof Error ? err.message : 'Failed to resolve user';
+            const message = createAppError(err).message;
             for (const id of ids) {
                 const entry = this.#entries.get(id);
                 if (!entry) continue;

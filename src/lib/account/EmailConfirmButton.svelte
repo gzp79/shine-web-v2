@@ -22,7 +22,7 @@
     import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import ZodField from '@lib/ui/components/forms/ZodField.svelte';
-    import { createAppError } from '@lib/utils';
+    import { createAppError, isAppError } from '@lib/utils';
     import { startEmailChange, startEmailConfirmation } from './auth.remote';
 
     let { variant, disabled = false, onerror }: EmailConfirmButtonProps = $props();
@@ -39,11 +39,6 @@
     let isEmailValid = $derived(!!validatedEmail);
     let isModalOpen = $derived(!disabled && emailStatus !== null);
     let effectiveVariant = $derived(emailSent ? 'change' : variant);
-
-    // Type guard for error state
-    function isAppError(status: typeof emailStatus): status is AppError {
-        return status instanceof Error;
-    }
 
     // Close dialog when disabled
     $effect(() => {

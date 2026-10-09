@@ -5,7 +5,7 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { type AppError, createAppError } from '@lib/utils';
+    import { type AppError } from '@lib/utils';
     import ActiveTokenItem from './ActiveTokenItem.svelte';
     import { queryActiveTokens, revokeToken as revokeTokenCommand } from './auth.remote';
 </script>
@@ -50,7 +50,7 @@
         {/snippet}
 
         {#snippet failed(error, reset)}
-            <ErrorCard error={createAppError(error)} width="full">
+            <ErrorCard {error} width="full">
                 {#snippet actions()}
                     <Button
                         onclick={async () => {

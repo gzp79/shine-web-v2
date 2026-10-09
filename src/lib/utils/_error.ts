@@ -1,5 +1,8 @@
-import { dev } from '$app/env';
 import { isHttpError } from '@sveltejs/kit';
+
+/// Whether errors may carry their full, potentially sensitive detail: response bodies, request URLs,
+/// stack traces and arbitrary thrown payloads.
+export const VERBOSE_ERRORS = String(import.meta.env.VITE_PROD) !== 'true';
 
 export const errorList = [
     'auth-login-required',
@@ -95,14 +98,14 @@ async function readErrorBody(response: Response): Promise<string | undefined> {
 }
 
 export async function createFetchError(response: Response, message = `HTTP ${response.status}`): Promise<FetchError> {
-    const body = dev ? await readErrorBody(response) : undefined;
+    const body = VERBOSE_ERRORS ? await readErrorBody(response) : undefined;
 
     return {
         type: 'app-error',
         kind: 'fetch',
         message,
         shouldRetry: response.status >= 500 || response.status === 429,
-        details: { status: response.status, body, url: dev ? response.url : undefined }
+        details: { status: response.status, body, url: VERBOSE_ERRORS ? response.url : undefined }
     };
 }
 
@@ -174,7 +177,7 @@ export function createAppError(error: unknown): AppError {
     if (error instanceof Error) {
         return createOtherError(
             unwrapSerializedMessage(error.message),
-            dev ? { name: error.name, stack: error.stack } : undefined
+            VERBOSE_ERRORS ? { name: error.name, stack: error.stack } : undefined
         );
     }
 
@@ -182,14 +185,14 @@ export function createAppError(error: unknown): AppError {
         return createOtherError(unwrapSerializedMessage(error));
     }
 
-    return createOtherError('Unknown error', dev ? error : undefined);
+    return createOtherError('Unknown error', VERBOSE_ERRORS ? error : undefined);
 }
 
 /**
  * A human-readable description of an error's underlying cause, safe to surface to the client.
  * Unwraps retry wrappers (so the real failure shows, not just "Retry limit exceeded") and adds the
  * upstream HTTP status for fetch failures. Potentially sensitive detail — response bodies, raw
- * stack traces and arbitrary thrown payloads — is only included outside production.
+ * stack traces and arbitrary thrown payloads — is only included when `VERBOSE_ERRORS` is set.
  */
 export function describeError(error: unknown): string {
     if (isAppError(error)) {
@@ -201,32 +204,18 @@ export function describeError(error: unknown): string {
         if (error.kind === 'fetch') {
             const { status, body, url } = (error.details ?? {}) as { status?: number; body?: string; url?: string };
             const suffix = status !== undefined ? ` (HTTP ${status})` : '';
-            const where = !import.meta.env.VITE_PROD && url ? ` at ${url}` : '';
-            const detail = !import.meta.env.VITE_PROD && body ? `: ${body}` : '';
+            const where = VERBOSE_ERRORS && url ? ` at ${url}` : '';
+            const detail = VERBOSE_ERRORS && body ? `: ${body}` : '';
             return `${error.message}${suffix}${where}${detail}`;
         }
         return error.message;
     }
 
     // Non-app errors may carry internal detail (stack traces, arbitrary payloads); withhold it in prod.
-    if (import.meta.env.VITE_PROD) return 'Unexpected error';
+    if (!VERBOSE_ERRORS) return 'Unexpected error';
 
     if (error instanceof Error) return `${error.message}${error.stack ? `\n${error.stack}` : ''}`;
     if (typeof error === 'string') return error;
-    try {
-        return JSON.stringify(error);
-    } catch {
-        return String(error);
-    }
-}
-
-export function formatError(error: unknown): string {
-    if (isAppError(error)) {
-        const details = error.details ? ` - ${JSON.stringify(error.details)}` : '';
-        return `${error.kind} error: ${error.message}${details}`;
-    }
-
-    if (error instanceof Error) return error.message;
     try {
         return JSON.stringify(error);
     } catch {

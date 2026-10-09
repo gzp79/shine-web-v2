@@ -12,7 +12,6 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { createAppError } from '@lib/utils';
 
     let { children }: { children?: Snippet } = $props();
 
@@ -70,7 +69,7 @@
     {@render children?.()}
 {:else if status === 'error'}
     <CenteredLayout>
-        <ErrorCard error={createAppError(currentUser.error)}>
+        <ErrorCard error={currentUser.error}>
             <Button disabled={currentUser.loading} onclick={() => currentUser.refresh()}>
                 {locale.t('common.refresh')}
             </Button>

@@ -2,7 +2,7 @@ import { resolve } from '$app/paths';
 import { getRequestEvent } from '$app/server';
 import { error, isHttpError, redirect } from '@sveltejs/kit';
 import { logAPI } from '@lib/loggers';
-import { describeError, isAppError } from '@lib/utils';
+import { VERBOSE_ERRORS, describeError, isAppError } from '@lib/utils';
 
 export function getMockWorkerHeader(): Headers {
     const headers = new Headers();
@@ -110,7 +110,7 @@ export function validateProxyResponse(response: Response): void {
 export function throwRemoteHttpError(e: unknown, fallbackMessage = 'Remote service unavailable'): never {
     if (isHttpError(e)) throw e;
 
-    const detail = isAppError(e) || !import.meta.env.VITE_PROD ? describeError(e) : fallbackMessage;
+    const detail = isAppError(e) || VERBOSE_ERRORS ? describeError(e) : fallbackMessage;
     throw error(502, detail);
 }
 
