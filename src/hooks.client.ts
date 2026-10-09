@@ -34,7 +34,6 @@ window.onerror = (message, _source, _line, _column, error) => {
 
 window.onunhandledrejection = (event) => {
     logAPI.error('Unhandled promise rejection', event.reason);
-    redirectToErrorPage(describeError(event.reason));
 };
 
 // Initialize MSW for mock environment

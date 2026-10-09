@@ -5,6 +5,10 @@ import { logAPI } from '@lib/loggers';
 import { createOtherError } from '@lib/utils';
 import { handleError } from './hooks.client';
 
+// Importing the hook runs its module body, which starts MSW under the mock environment — and
+// `setupWorker` needs a browser. Only `handleError` is under test here, so stub the side effect.
+vi.mock('@mocks/setup-client', () => ({}));
+
 const event: NavigationEvent = {
     params: {},
     route: { id: null },

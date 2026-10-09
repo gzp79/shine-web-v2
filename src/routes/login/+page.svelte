@@ -22,7 +22,7 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
-    import { type ErrorType, async, pascalCase, sanitizeLocalUrl } from '@lib/utils';
+    import { type ErrorType, SKIP_CAPTCHA, async, pascalCase, sanitizeLocalUrl } from '@lib/utils';
     import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 
@@ -94,10 +94,8 @@
     const backgroundUrls = $derived(queryAssetUrlVariants('loginBackground'));
     const backgroundBrightUrls = $derived(queryAssetUrlVariants('loginBackgroundBright'));
 
-    const skipCaptcha = import.meta.env.VITE_SKIP_CAPTCHA;
-
     let isRedirecting = $state(false);
-    let captcha = $state(skipCaptcha ? CAPTCHA_SKIP_TOKEN : '');
+    let captcha = $state(SKIP_CAPTCHA ? CAPTCHA_SKIP_TOKEN : '');
     let rememberMe = $state(true);
     let guestAreaRef = $state<HTMLDivElement | undefined>();
 
@@ -304,7 +302,7 @@
 
         <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
             <LoadingCard variant="ghost" label={locale.t('login.waitingServer')} />
-            {#if prompt && !skipCaptcha}
+            {#if prompt && !SKIP_CAPTCHA}
                 <!-- Load captcha only for interactive login -->
                 <Turnstile
                     siteKey={config.turnstile.siteKey}

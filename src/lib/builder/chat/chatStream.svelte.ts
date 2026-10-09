@@ -1,4 +1,5 @@
 import { logChat } from '@lib/loggers';
+import { CHAT_CMD_BURST, CHAT_CMD_PING, CHAT_CMD_STORM } from '@lib/utils';
 import type { BuilderHub, ServerFrame } from '../hub';
 import type { ChatMessage, PingMessage, PongMessage, TextMessage } from './chatMessages';
 import { CHAT_FRAME_TYPE, type ChatComment, encodeChatRequest, parseChatComments } from './chatProtocol';
@@ -66,7 +67,7 @@ type ChatCommand = {
 };
 
 const CHAT_COMMANDS: ChatCommand[] = [
-    ...(import.meta.env.VITE_CHAT_CMD_PING
+    ...(CHAT_CMD_PING
         ? [
               {
                   token: PING_TOKEN,
@@ -84,7 +85,7 @@ const CHAT_COMMANDS: ChatCommand[] = [
               } satisfies ChatCommand
           ]
         : []),
-    ...(import.meta.env.VITE_CHAT_CMD_BURST
+    ...(CHAT_CMD_BURST
         ? [
               {
                   token: BURST_TOKEN,
@@ -100,7 +101,7 @@ const CHAT_COMMANDS: ChatCommand[] = [
               } satisfies ChatCommand
           ]
         : []),
-    ...(import.meta.env.VITE_CHAT_CMD_STORM
+    ...(CHAT_CMD_STORM
         ? [
               {
                   token: STORM_TOKEN,
@@ -156,7 +157,7 @@ type IncomingCommand = {
 };
 
 const INCOMING_COMMANDS: IncomingCommand[] = [
-    ...(import.meta.env.VITE_CHAT_CMD_PING
+    ...(CHAT_CMD_PING
         ? [
               {
                   handle: ({ comment, selfId, now, send }) => {
@@ -183,7 +184,7 @@ const INCOMING_COMMANDS: IncomingCommand[] = [
               } satisfies IncomingCommand
           ]
         : []),
-    ...(import.meta.env.VITE_CHAT_CMD_STORM
+    ...(CHAT_CMD_STORM
         ? [
               {
                   handle: ({ comment, send }) => {
