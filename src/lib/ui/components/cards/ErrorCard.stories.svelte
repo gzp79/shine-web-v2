@@ -10,7 +10,6 @@
     const { Story } = defineMeta({
         component: ErrorCard,
         title: 'Components/Cards/ErrorCard',
-        args: {},
         argTypes: {
             width: {
                 control: { type: 'select' },

@@ -53,9 +53,6 @@
     });
 </script>
 
-<script lang="ts">
-</script>
-
 <Story name="Default">This is a button</Story>
 
 {#snippet buttonSet(args: ConfirmationButtonProps)}

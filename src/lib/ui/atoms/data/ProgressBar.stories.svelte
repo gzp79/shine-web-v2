@@ -38,10 +38,12 @@
             }
         }
     });
+
+    const displayList: ProgressBarDisplay[] = ['none', 'percent', 'label'];
+    const presets = [0, 1, 25, 50, 75, 99, 100];
 </script>
 
 <script lang="ts">
-    const presets = [0, 1, 25, 50, 75, 99, 100];
     let interactiveValue = $state(50);
 </script>
 
@@ -49,7 +51,6 @@
 
 <Story name="Display">
     {#snippet template(args)}
-        {@const displayList: ProgressBarDisplay[] = ['none', 'percent', 'label']}
         <Stack>
             {#each displayList as display (display)}
                 <Stack direction="row" alignment="center" justification="start">

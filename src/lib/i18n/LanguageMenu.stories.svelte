@@ -5,24 +5,21 @@
 
     const { Story } = defineMeta({
         title: 'Components/App/LanguageMenu',
-        component: LanguageMenu,
-        render: template
+        component: LanguageMenu
     });
 </script>
 
-{#snippet template(args: LanguageMenuProps)}
-    <DropdownMenu open={true} class="w-56" align="start" trigger="Settings">
-        <DropdownGroup heading="Settings">
-            <DropdownItem>Profile</DropdownItem>
-            <DropdownItem>Account</DropdownItem>
-        </DropdownGroup>
-        <DropdownSeparator />
-        <LanguageMenu {...args} />
-        <DropdownSeparator />
-        <DropdownItem>Help</DropdownItem>
-    </DropdownMenu>
-
-    <div id="popover"></div>
-{/snippet}
-
-<Story name="LanguageSelector" />
+<Story name="LanguageSelector">
+    {#snippet template(args: LanguageMenuProps)}
+        <DropdownMenu open class="w-56" align="start" trigger="Settings">
+            <DropdownGroup heading="Settings">
+                <DropdownItem>Profile</DropdownItem>
+                <DropdownItem>Account</DropdownItem>
+            </DropdownGroup>
+            <DropdownSeparator />
+            <LanguageMenu {...args} />
+            <DropdownSeparator />
+            <DropdownItem>Help</DropdownItem>
+        </DropdownMenu>
+    {/snippet}
+</Story>

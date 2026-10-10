@@ -34,18 +34,14 @@
     {/if}
 {/snippet}
 
-<Story name="Default">
-    {#snippet template()}
-        <Box width="fit" contentClass="h-96 w-96">
-            <ChatMessageList messages={conversation} {item} />
-        </Box>
-    {/snippet}
+<Story name="Default" asChild>
+    <Box width="fit" contentClass="h-96 w-96">
+        <ChatMessageList messages={conversation} {item} />
+    </Box>
 </Story>
 
-<Story name="Empty">
-    {#snippet template()}
-        <Box width="fit" contentClass="h-96 w-96">
-            <ChatMessageList messages={[]} {item} />
-        </Box>
-    {/snippet}
+<Story name="Empty" asChild>
+    <Box width="fit" contentClass="h-96 w-96">
+        <ChatMessageList messages={[]} {item} />
+    </Box>
 </Story>

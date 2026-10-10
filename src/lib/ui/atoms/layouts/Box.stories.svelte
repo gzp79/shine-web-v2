@@ -11,7 +11,6 @@
     const { Story } = defineMeta({
         component: Box,
         title: 'Atoms/Layouts/Box',
-        args: {},
         argTypes: {
             color: {
                 control: { type: 'select' },

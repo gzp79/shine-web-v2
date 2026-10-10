@@ -1,7 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import { page } from '$app/state';
     import type { Snippet } from 'svelte';
     import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { createCurrentUserStore } from '@lib/account/currentUserStore.svelte';
@@ -12,6 +11,7 @@
     import Button from '@lib/ui/atoms/input/Button.svelte';
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
+    import { currentLocationUrl } from '@lib/utils';
 
     let { children }: { children?: Snippet } = $props();
 
@@ -56,7 +56,7 @@
         if (isRedirecting) return;
 
         isRedirecting = true;
-        const returnUrl = page.url.pathname + page.url.search + page.url.hash;
+        const returnUrl = currentLocationUrl();
         logUser.log(`User not authenticated, redirecting to login with returnUrl [${returnUrl}]`);
         goto(resolve(`/login?returnUrl=${encodeURIComponent(returnUrl)}`)).catch((err) => {
             logUser.error('Redirect to login failed, will retry', err);

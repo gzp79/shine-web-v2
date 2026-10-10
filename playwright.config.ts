@@ -41,6 +41,8 @@ const webURL = fixDeploymentURL(process.env.DEPLOYMENT_URL) || config.webUrl;
 
 export default defineConfig({
     workers: process.env.CI ? 1 : 4,
+    expect: { timeout: 10000 },
+    globalSetup: './tests/global-setup.ts',
     webServer: {
         command: 'pnpm run dev',
         port: parseInt(new URL(webURL).port),

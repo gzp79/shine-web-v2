@@ -23,6 +23,11 @@
             open: true
         }
     });
+
+    // Several groups of distinct values: enough rows to exercise scrolling, while keeping every
+    // value unique so selecting one row cannot toggle its twins in the other groups.
+    const groupList = [1, 2, 3, 4];
+    const itemList = [1, 2, 3];
 </script>
 
 <script lang="ts">
@@ -77,11 +82,13 @@
 <Story name="Checkbox">
     <DropdownCheckboxGroup bind:value={checks}>
         <DropdownGroup heading="Choose some [{checks.join(',')}]">
-            {#each Array(4) as _, i (i)}
+            {#each groupList as group (group)}
                 <DropdownSeparator />
-                <DropdownCheckboxItem value="ch1" closeOnSelect={false}>Value 1</DropdownCheckboxItem>
-                <DropdownCheckboxItem value="ch2" disabled closeOnSelect={false}>Value 2</DropdownCheckboxItem>
-                <DropdownCheckboxItem value="ch3" closeOnSelect={false}>Value 3</DropdownCheckboxItem>
+                {#each itemList as item (item)}
+                    <DropdownCheckboxItem value="ch{group}-{item}" disabled={item === 2} closeOnSelect={false}
+                        >Value {group}.{item}</DropdownCheckboxItem
+                    >
+                {/each}
             {/each}
         </DropdownGroup>
     </DropdownCheckboxGroup>
@@ -90,11 +97,13 @@
 <Story name="Radio">
     <DropdownRadioGroup bind:value={radioValue}>
         <DropdownGroup heading="Choose one [{radioValue}]">
-            {#each Array(4) as _, i (i)}
+            {#each groupList as group (group)}
                 <DropdownSeparator />
-                <DropdownRadioItem value="r1" closeOnSelect={false}>Value 1</DropdownRadioItem>
-                <DropdownRadioItem value="r2" disabled closeOnSelect={false}>Value 2</DropdownRadioItem>
-                <DropdownRadioItem value="r3" closeOnSelect={false}>Value 3</DropdownRadioItem>
+                {#each itemList as item (item)}
+                    <DropdownRadioItem value="r{group}-{item}" disabled={item === 2} closeOnSelect={false}
+                        >Value {group}.{item}</DropdownRadioItem
+                    >
+                {/each}
             {/each}
         </DropdownGroup>
     </DropdownRadioGroup>

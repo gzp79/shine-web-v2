@@ -13,7 +13,6 @@
         args: {
             color: undefined,
             size: undefined,
-            //variant: 'filled',
             disabled: undefined
         },
         argTypes: {
@@ -31,13 +30,6 @@
                     default: undefined
                 }
             }
-            // variant: {
-            //     control: { type: 'select' },
-            //     options: ['default', ...inputVariantList],
-            //     mapping: {
-            //         default: undefined
-            //     }
-            // }
         }
     });
 </script>
@@ -87,20 +79,6 @@
         </Stack>
     {/snippet}
 </Story>
-
-<!-- <Story name="All Variants">
-    {#snippet template(args)}
-        {@const { variant, ...otherArgs } = args}
-        <Stack>
-            {#each inputVariantList as variant (variant)}
-                <Stack direction="row" alignment="center" justification="start">
-                    <Typography class="w-16">{variant}</Typography>
-                    <Switch {...otherArgs} {variant} />
-                </Stack>
-            {/each}
-        </Stack>
-    {/snippet}
-</Story> -->
 
 <Story name="In Field">
     {#snippet template(args)}

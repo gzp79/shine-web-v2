@@ -3,294 +3,297 @@ name: storybook
 description: Storybook 10 for visual component documentation. Use when writing or debugging .stories.svelte files for component showcases and design system documentation.
 ---
 
-# Storybook 10 - Visual Documentation Guide
+# Storybook - Svelte CSF v5
 
-**Important**: Storybook is for **visual documentation only**. For component testing, use Vitest with `@testing-library/svelte` (see `/testing` skill).
+`storybook` 10.6 + `@storybook/sveltekit` + `@storybook/addon-svelte-csf` 5
 
-## Quick Start
+Storybook here is **visual documentation only**: no `play` functions, no assertions. Logic tests go
+to Vitest (`vitest-testing` skill), browser tests to Playwright (`playwright-testing` skill).
 
-Use **CSF** (Component Story Format) with `.stories.svelte` and TypeScript:
+```bash
+pnpm run storybook          # dev server on :6006
+pnpm run build:storybook    # static build
+```
+
+## Quick start
+
+`.stories.svelte`, `defineMeta` in a **module** script, explicit `title`:
 
 ```svelte
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import MyComponent from './MyComponent.svelte';
+    import Button from '@lib/ui/atoms/input/Button.svelte';
 
     const { Story } = defineMeta({
-        title: 'Components/MyComponent',
-        component: MyComponent,
-        tags: ['autodocs']
+        component: Button,
+        title: 'Atoms/Inputs/Button'
     });
 </script>
 
-<Story name="Default" args={{ label: 'Click me' }} />
-<Story name="Disabled" args={{ label: 'Disabled', disabled: true }} />
+<Story name="Default Action">Click Me</Story>
+<Story name="Disabled" args={{ disabled: true }} />
 ```
 
-Key `defineMeta()` options: `component`, `title`, `decorators`, `parameters`, `tags`, `args`, `argTypes`
+`defineMeta` options: `component`, `title`, `render`, `args`, `argTypes`, `decorators`,
+`parameters`, `tags`.
 
-## Args & Controls
+New top-level sections must be added to `storySort` in `.storybook/preview.ts` — anything unlisted
+sorts alphabetically **after** everything listed, so a new folder silently lands at the bottom.
 
-Pass data via `args` to make stories interactive:
+## Choosing the story form
+
+Four forms. Pick by what the story needs:
+
+| Form                            | Renders                                  | Args        | Use when                                              |
+| ------------------------------- | ---------------------------------------- | ----------- | ----------------------------------------------------- |
+| `<Story name="X" args={{…}} />` | the meta `component` with those args     | yes         | props alone describe the state                        |
+| `<Story>…</Story>`              | children **inside** the meta `component` | yes         | the component needs children (a label, list items)    |
+| `<Story asChild>…</Story>`      | the children **as** the whole story      | **ignored** | static composition — nesting, hierarchy, side-by-side |
+| `{#snippet template(args)}`     | the snippet **instead of** the component | yes         | wrapper/provider, loops over variants, extra markup   |
+
+**When choosing between the last two: use `template` only if the story reads `args`, otherwise
+`asChild`.** A `template` that never reads `args` should be `asChild`. `asChild` disables Controls
+but not reactivity.
+
+`template` replaces the output — it does _not_ also render the meta `component` — so it's how you
+wrap a component in a provider or a parent it requires.
+
+Repeating one wrapper across stories? Pass it per story as `{template}`, or make it file-wide with
+`defineMeta({ render: template })`:
+
+```svelte
+{#snippet template(args: MyArgs)}
+    <Wrapper><MyComponent {...args} /></Wrapper>
+{/snippet}
+
+<Story name="A" {template} />
+<Story name="B" />
+<!-- B uses the file-wide render -->
+```
+
+Keep `render` for a wrapper that serves most stories, or when it carries the args type (below).
+A `render` serving a single story is just indirection — inline it. And if stories differ only by
+props, make them `args`-only one-liners on the file-wide `render` instead of near-identical
+templates.
+
+The snippet's optional second param is the story context: `{#snippet template(args, context)}`.
+
+Story IDs are `title` + `name`, lowercased with separators stripped: `Components/App/AppMenu` +
+`App menu` → `components-app-appmenu--app-menu`. Use `exportName` when a name would collide or
+contains symbols (`name="Error → fallback" exportName="ErrorFallback"`).
+
+## Typing args
+
+When the args are just the component's props, inference handles it and no annotation is needed. When
+you do want the type written out, use Svelte's `ComponentProps`:
+
+```svelte
+{#snippet template(args: ComponentProps<typeof Switch>)}
+```
+
+> The addon also exports an `Args<typeof Story>` helper, but **it does not work** in 5.1.5 — its
+> conditional pins the component parameter, so it resolves to `never` and the snippet fails to
+> type-check (`Rest types may only be created from object types`). Use `ComponentProps`.
+
+**Story-only args** are args that aren't component props — a lorem preset picker, a mock-lookup
+result. Declare them in the type of a `render` snippet: `defineMeta` infers its args type from that
+snippet, so **no explicit `defineMeta<…>` generics are needed**. (`defineMeta<unknown, Component<…>>`
+is the old workaround for this; don't add it.)
 
 ```svelte
 <script module lang="ts">
+    import Card, { type CardProps } from '@lib/ui/atoms/layouts/Card.svelte';
+
+    type CardArgs = CardProps & { content?: string };
+
     const { Story } = defineMeta({
-        component: Button,
-        args: {
-            variant: 'primary',
-            size: 'md',
-            disabled: false
-        },
+        component: Card,
+        title: 'Atoms/Layouts/Card',
+        render: template,
+        args: { content: 'medium' },
         argTypes: {
-            variant: {
+            content: {
                 control: { type: 'select' },
-                options: ['primary', 'secondary', 'danger']
-            },
-            size: {
-                control: { type: 'select' },
-                options: ['sm', 'md', 'lg']
-            },
-            disabled: {
-                control: { type: 'boolean' }
+                options: ['none', 'short', 'medium', 'long'],
+                mapping: { none: undefined, short: lorem.short, medium: lorem.medium, long: lorem.long }
             }
         }
     });
 </script>
 
-<Story name="Primary" />
-<Story name="Secondary" args={{ variant: 'secondary' }} />
-<Story name="Disabled" args={{ disabled: true }} />
-```
-
-## Custom Rendering with Snippets
-
-For complex layouts or component compositions, use the `template` snippet:
-
-```svelte
-<Story name="In Modal">
-    {#snippet template(args)}
-        <Modal>
-            <MyComponent {...args} />
-        </Modal>
-    {/snippet}
-</Story>
-
-<Story name="With Surrounding Content">
-    {#snippet template(args)}
-        <Stack spacing={4}>
-            <Typography variant="h2">Component Showcase</Typography>
-            <MyComponent {...args} />
-            <Typography variant="caption">Additional context here</Typography>
-        </Stack>
-    {/snippet}
-</Story>
-```
-
-A per-`Story` `template` adds surrounding content but still renders the meta
-`component` itself. To wrap the component in a **provider/context**, that's not
-enough — see "Wrapping a Component" below.
-
-## Wrapping a Component (providers, contexts, required parents)
-
-A per-`Story` `template` is **forwarded into the meta `component` as children** — it does not replace it. So you can't use it to wrap the component in a provider: the addon still renders a bare, provider-less copy (the autodocs render always does), which crashes any component that reads a context it isn't given (`getXContext: called outside ...`).
-
-App components usually hit this — they read auth/menu/theme/locale context. Wrap with `render: template`: set the wrapper as the meta-level default render so it also covers the autodocs render. The snippet is **module-scoped**, so it can only use module imports + `args` (no instance `<script>` state); supply theme/locale via the global decorator in `.storybook/preview.ts`. Type the `args` param to avoid an implicit-`any`.
-
-```svelte
-<script module lang="ts">
-    import LanguageMenu, { type LanguageMenuProps } from '@lib/i18n/LanguageMenu.svelte';
-    import { DropdownMenu } from '@lib/ui/atoms/dropdown-menu';
-
-    const { Story } = defineMeta({ component: LanguageMenu, render: template });
-</script>
-
-{#snippet template(args: LanguageMenuProps)}
-    <DropdownMenu open trigger="Settings"><LanguageMenu {...args} /></DropdownMenu>
+{#snippet template(args: CardArgs)}
+    {@const { children, ...otherArgs } = args}
+    <Card {...otherArgs}>{args.content}</Card>
 {/snippet}
 
-<Story name="Default" />
-<Story name="LeftExpand" args={{ expandIcon: 'left' }} />
+<Story name="Box like" />
 ```
 
-A mock provider is a tiny component that takes the value as a prop and sets the context with a **getter** (not a destructured const, which would snapshot it) so Control edits stay reactive — see `src/storybook/MockAuthContext.svelte`.
+Live examples: `Card.stories.svelte`, `Dialog.stories.svelte`, `UserName.stories.svelte`.
 
-## Showcasing Component States
+Two gotchas:
 
-Create stories for different states and variants:
+- **Drop `children` before spreading.** `{@const { children, ...otherArgs } = args}`, then spread
+  `otherArgs`; spreading a `children` arg would override the children the markup actually passes.
+- **`render:` + an instance `<script>` breaks `svelte-check`** with _"Block-scoped variable
+  'template' used before its declaration"_. Move that state into `<script module>` (a story file has
+  one instance, so sharing is harmless), as `Dialog.stories.svelte` does.
+
+## Controls
+
+```svelte
+argTypes: {
+    disabled: { control: { type: 'boolean' } },
+    value: { control: { type: 'range', min: 0, max: 100, step: 1 } },
+    align: { control: { type: 'inline-radio' }, options: ['start', 'end', 'center'] }
+}
+```
+
+**Optional enum props use the `default` sentinel.** A select can't express "prop absent", so add a
+`'default'` option mapped back to `undefined`, letting the component apply its own default:
+
+```svelte
+color: {
+    control: { type: 'select' },
+    options: ['default', ...actionColorList],
+    mapping: { default: undefined }
+}
+```
+
+Numeric props (spacing, padding) need the same treatment, since `options` entries are strings: the
+existing stories use a space-prefixed label (`' 4'`) mapped back to the number `4` — see the
+`spacingList.reduce(...)` blocks in `Box`/`Card`/`Stack`.
+
+Don't write `args: {}` or list args that only exist to register a control; `argTypes` is enough.
+
+Skip `description` / `table` metadata — the Controls panel renders Name and Control only, so it has
+no effect here.
+
+## Repo helpers (`@sb` → `src/storybook/`)
+
+A global decorator in `.storybook/preview.ts` wraps **every** story in `AppLayoutMock`, which
+provides the locale and theme contexts wired to the toolbar dropdowns, plus a `#popover` portal
+target. So:
+
+- Use the **toolbar** to check themes and locales — don't add per-story theme decorators.
+- Don't add your own `<div id="popover">`.
+- A component that needs only locale/theme context needs no extra wrapper in its story.
+
+| Helper                   | Use for                                                             |
+| ------------------------ | ------------------------------------------------------------------- |
+| `MockApp.svelte`         | the `<App>` shell — required for menu/connection context            |
+| `MockAuthContext.svelte` | an authenticated current user                                       |
+| `MockUserStore.svelte`   | public-user lookups: `{ kind: 'resolved' \| 'pending' \| 'error' }` |
+| `lorem.ts`               | `lorem.short` / `.medium` / `.long` filler                          |
+| `ColorSample.svelte`     | colour swatches with computed hex                                   |
+
+A mock provider sets context with a **getter**, not a destructured const (which would snapshot the
+value and freeze Control edits):
+
+```svelte
+let { user, children } = $props();
+setAuthenticatedUserContext({
+    get user() {
+        return user;
+    },
+    refresh: () => Promise.resolve()
+});
+```
+
+Writing a decorator? Return the wrapper and let the renderer mount the story as its `children`.
+**Don't call `story()` yourself** — doing so mounts the story twice and bypasses the renderer's
+filtering of synthesized `event_*` args:
+
+```ts
+decorators: [(_story, context) => ({ Component: Wrapper, props: { … } })];
+```
+
+## Interactive state
+
+Constants go in the module script, runes in the instance script. Anything `defineMeta` references
+(including a snippet passed to `render`) must be module-scoped, since `defineMeta` itself runs
+there:
 
 ```svelte
 <script module lang="ts">
-    const { Story } = defineMeta({
-        component: Input
-    });
-</script>
-
-<Story name="Empty" args={{ value: '' }} />
-<Story name="Filled" args={{ value: 'Hello World' }} />
-<Story name="With Error" args={{ value: 'invalid', error: 'Invalid input' }} />
-<Story name="Disabled" args={{ value: 'Disabled', disabled: true }} />
-<Story name="Loading" args={{ loading: true }} />
-```
-
-## Reusable Snippets
-
-Use snippets to reduce duplication across stories:
-
-```svelte
-<script lang="ts">
-    const colors = ['primary', 'secondary', 'danger', 'warning'];
-</script>
-
-{#snippet buttonSet(args)}
-    <Stack direction="row" spacing={2}>
-        <Button {...args}>Click Me</Button>
-        <Button {...args} disabled>Disabled</Button>
-        <Button {...args}><Icon />With Icon</Button>
-    </Stack>
-{/snippet}
-
-<Story name="All Colors">
-    {#snippet template(args)}
-        {@const { color, ...otherArgs } = args}
-        <Stack>
-            {#each colors as color (color)}
-                <div>
-                    <Typography>{color}</Typography>
-                    {@render buttonSet({ ...otherArgs, color })}
-                </div>
-            {/each}
-        </Stack>
-    {/snippet}
-</Story>
-```
-
-## Interactive State with Runes
-
-For interactive demonstrations, use Svelte 5 runes:
-
-```svelte
-<script module lang="ts">
-    const { Story } = defineMeta({
-        component: Dialog
-    });
+    const presets = [0, 25, 50, 100]; // arg-independent -> module scope
 </script>
 
 <script lang="ts">
-    let isOpen = $state(false);
-    let selectedValue = $state('');
+    let value = $state(50);
 </script>
-
-<Story name="Manual Control">
-    {#snippet template(args)}
-        <Button onclick={() => (isOpen = true)}>Open Dialog</Button>
-        <Dialog bind:open={isOpen} {...args}>Dialog content here</Dialog>
-    {/snippet}
-</Story>
-
-<Story name="Select Demo">
-    {#snippet template(args)}
-        <Select bind:value={selectedValue} {...args}>
-            <option value="a">Option A</option>
-            <option value="b">Option B</option>
-        </Select>
-        <p>Selected: {selectedValue || '(none)'}</p>
-    {/snippet}
-</Story>
 ```
 
-## Actions for Event Handlers
+Prefer `{#snippet}` + `{@render}` over copy-paste for "All Colors / All Sizes / All Variants"
+stories — see the `buttonSet` / `inputSet` snippets in the input stories. Keep `{#each}` keyed.
 
-Use Storybook actions to log events:
+## Actions
 
 ```svelte
 <script module lang="ts">
+    // core path, NOT @storybook/addon-actions
     import { action } from 'storybook/actions';
 
     const { Story } = defineMeta({
-        component: Button,
-        args: {
-            onclick: action('button clicked')
-        }
+        component: ComboButton,
+        args: { options: [{ caption: 'Option 1', onclick: action('Option 1 click') }] }
     });
 </script>
-
-<Story name="With Action" />
 ```
 
-## SvelteKit Mocking
+## SvelteKit mocking
 
-Mock `$app/*` modules in story parameters:
+Per-story `parameters`, only when a component actually reads `$app/*`:
 
 ```svelte
 <Story
     name="With Page Data"
     parameters={{
         sveltekit_experimental: {
-            state: {
-                page: {
-                    data: { user: { id: '123', name: 'Test User' } }
-                }
-            }
+            state: { page: { data: { user: { id: '123' } } } },
+            navigation: { afterNavigate: () => {} },
+            hrefs: { '/login': () => {} }
         }
     }}
->
-    <MyComponent />
-</Story>
+/>
 ```
 
-Available: `state`, `stores`, `forms`, `navigation`, `hrefs`
+Keys: `state` (`page`/`navigating`/`updated`), `navigation`, `hrefs`, `forms`. **Ignore the `stores`
+key** — `$app/stores` is removed in SvelteKit 3 and throws at runtime; use `state`.
 
-## Component Props Documentation
+## Conventions
 
-Use `argTypes` to document component props:
+- One story per state, named for the state: `Default`, `Disabled`, `All Colors`, `In Box`.
+- Realistic content, not `foo`/`bar`.
+- No `play` functions, no assertions.
+- TypeScript everywhere; no unused imports (ESLint reports these in stories).
+- Run `svelte-autofixer` on story markup before finishing, same as any Svelte file.
 
-```svelte
-<script module lang="ts">
-    const { Story } = defineMeta({
-        component: Button,
-        argTypes: {
-            variant: {
-                control: { type: 'select' },
-                options: ['primary', 'secondary', 'danger'],
-                description: 'Visual style variant',
-                table: {
-                    type: { summary: 'string' },
-                    defaultValue: { summary: 'primary' }
-                }
-            },
-            disabled: {
-                control: { type: 'boolean' },
-                description: 'Disables the button'
-            },
-            onclick: {
-                action: 'clicked',
-                description: 'Click event handler'
-            }
-        }
-    });
-</script>
+## Gaps to know about
+
+- Not installed, so don't reach for them: **`@storybook/addon-a11y`**, **`@storybook/addon-vitest`**.
+- `eslint-plugin-storybook` _is_ installed, but its rules are globbed to
+  `*.stories.@(ts|tsx|js|jsx|mjs|cjs)` — **none apply to `.stories.svelte`**. Only
+  `storybook/no-uninstalled-addons` is live, on `.storybook/main.ts`. Don't rely on lint to catch CSF
+  mistakes.
+
+## Verifying a story actually renders
+
+`pnpm run check` and `pnpm run lint` cannot see a story that throws while rendering, so run:
+
+```bash
+pnpm run test:storybook   # boots Storybook, loads every story, fails on console errors
 ```
 
-## Best Practices
+CI runs the same command in its own parallel `storybook` job. To chase a single story by hand, start
+the dev server: `http://localhost:6006/index.json` lists every story ID, so load
+`iframe.html?id=<id>&viewMode=story` and watch the console. Append `&args=key:value` to confirm args
+reach the template.
 
-- **Pure visual documentation**: No play functions or automated tests
-- **One story per state**: Focus each story on a specific use case or state
-- **Meaningful names**: Describe the state ("Empty", "Filled", "WithError", "Disabled")
-- **Use controls**: Make stories interactive with `args` and `argTypes`
-- **Show variants**: Create stories for all visual variants (colors, sizes, states)
-- **Real content**: Use realistic data that represents actual usage
-- **Responsive**: Consider showing stories at different viewport sizes
-- **Accessibility**: Document accessible states (focus, hover, disabled)
-- **Type safety**: Always use TypeScript for better development experience
-
-## Testing
-
-**Do not use Storybook for testing.** Component tests belong in `*.test.ts` files using Vitest and `@testing-library/svelte`. See the `/testing` skill for details.
+A story that deliberately provokes an error (an error-state story) must be added to
+`EXPECTED_CONSOLE_ERRORS` in `scripts/smoke-storybook.ts`, or the smoke run will flag it.
 
 ## Resources
 
-- [Storybook CSF Format](https://storybook.js.org/docs/api/csf)
-- [Storybook Controls](https://storybook.js.org/docs/essentials/controls)
-- [SvelteKit Storybook](https://storybook.js.org/docs/get-started/frameworks/sveltekit)
-- [Storybook Actions](https://storybook.js.org/docs/essentials/actions)
+- [Svelte CSF addon README](https://github.com/storybookjs/addon-svelte-csf) — the authority for `Story` props
+- [Storybook CSF](https://storybook.js.org/docs/api/csf) · [Controls](https://storybook.js.org/docs/essentials/controls) · [SvelteKit framework](https://storybook.js.org/docs/get-started/frameworks/sveltekit)

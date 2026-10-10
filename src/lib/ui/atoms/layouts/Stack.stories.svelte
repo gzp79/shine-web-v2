@@ -6,7 +6,6 @@
     const { Story } = defineMeta({
         component: Stack,
         title: 'Atoms/Layouts/Stack',
-        args: {},
         argTypes: {
             direction: {
                 control: { type: 'select' },

@@ -66,10 +66,20 @@ export default [
         }
     },
     {
-        files: ['**/*.stories.svelte'],
+        files: ['**/*.stories.svelte', 'src/storybook/**', '.storybook/**/*.ts'],
         rules: {
-            // it is common to have variables that are declared but not used directly due to destructuring of the args
-            '@typescript-eslint/no-unused-vars': 'off'
+            '@typescript-eslint/no-restricted-imports': [
+                'error',
+                {
+                    paths: [
+                        {
+                            name: '@storybook/svelte',
+                            message:
+                                'Do not import the renderer package directly - use the framework package @storybook/sveltekit.'
+                        }
+                    ]
+                }
+            ]
         }
     }
 ];

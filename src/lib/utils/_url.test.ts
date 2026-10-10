@@ -1,5 +1,28 @@
 import { describe, expect, test } from 'vitest';
-import { sanitizeLocalUrl } from './_url';
+import { currentLocationUrl, sanitizeLocalUrl } from './_url';
+
+describe('currentLocationUrl', () => {
+    // Guards the fix for a redirect race: `page.url` from `$app/state` lags `window.location` for a
+    // short window after a navigation commits, so a redirect decided in that window used to carry
+    // the previous route as its `returnUrl`. Callers must read the location, never the router state.
+    test.each([
+        ['/account', '/account'],
+        ['/account?tab=sessions', '/account?tab=sessions'],
+        ['/link/email-verify?token=abc#frag', '/link/email-verify?token=abc#frag'],
+        ['/', '/']
+    ])('reports %s from window.location', (navigateTo, expected) => {
+        history.pushState({}, '', navigateTo);
+
+        expect(currentLocationUrl()).toBe(expected);
+    });
+
+    test('is relative — never carries the origin', () => {
+        history.pushState({}, '', '/account');
+
+        expect(currentLocationUrl().startsWith('/')).toBe(true);
+        expect(currentLocationUrl()).not.toContain(window.location.origin);
+    });
+});
 
 describe('sanitizeLocalUrl', () => {
     test.each([

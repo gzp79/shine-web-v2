@@ -7,7 +7,7 @@
     });
 </script>
 
-<Story name="Theme Nesting">
+<Story name="Theme Nesting" asChild>
     <div class="p-8">
         {#each themeList as theme (theme)}
             <!-- Light with nested Dark -->

@@ -43,9 +43,6 @@
     });
 </script>
 
-<script lang="ts">
-</script>
-
 <Story
     name="Default"
     args={{

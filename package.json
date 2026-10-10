@@ -35,6 +35,7 @@
         "test:component": "playwright test component",
         "test:integration": "playwright test integration",
         "test:e2e": "playwright test e2e",
+        "test:storybook": "tsx scripts/smoke-storybook.ts",
         "storybook": "storybook dev -p 6006"
     },
     "dependencies": {

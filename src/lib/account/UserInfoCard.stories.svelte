@@ -1,9 +1,9 @@
 <script module lang="ts">
+    import MockAuthContext from '@sb/MockAuthContext.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import LogoutGuard from '@lib/account/LogoutGuard.svelte';
     import type { AuthenticatedCurrentUser } from '@lib/account/authContext.svelte';
     import App from '@lib/ui/app/App.svelte';
-    import MockAuthContext from '../../storybook/MockAuthContext.svelte';
     import UserInfoCard from './UserInfoCard.svelte';
 
     const baseUser: AuthenticatedCurrentUser = {

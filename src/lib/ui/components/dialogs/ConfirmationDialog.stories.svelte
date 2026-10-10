@@ -33,9 +33,6 @@
     });
 </script>
 
-<script lang="ts">
-</script>
-
 <Story name="Default" />
 <Story name="Mandatory" args={{ preventClose: true }} />
 

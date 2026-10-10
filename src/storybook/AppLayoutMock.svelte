@@ -1,4 +1,5 @@
 <script module lang="ts">
+    import type { Snippet } from 'svelte';
     import { logI18n } from '@lib/loggers';
     import { setCookie } from '@lib/utils';
     import {
@@ -21,12 +22,11 @@
     let {
         initialLocale,
         initialTheme,
-        storyResult
+        children
     }: {
         initialLocale: Locale;
         initialTheme: Theme;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        storyResult: any;
+        children: Snippet;
     } = $props();
 
     // svelte-ignore state_referenced_locally
@@ -69,4 +69,4 @@
 </script>
 
 <div id="popover"></div>
-<storyResult.Component {...storyResult.props} />
+{@render children()}

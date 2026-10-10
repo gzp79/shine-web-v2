@@ -1,9 +1,8 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import type { Component } from 'svelte';
     import { actionColorList, spacingList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms//Typography.svelte';
+    import Typography from '@lib/ui/atoms/Typography.svelte';
     import Dots from '@lib/ui/atoms/icons/animated/Dots.svelte';
     import Fatal from '@lib/ui/atoms/icons/common/Fatal.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -12,13 +11,16 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
 
-    type ExtraProps = {
+    // `content` is a story-only arg (a lorem preset picker), so the args type comes from the
+    // `render` snippet rather than from Dialog's props alone.
+    type DialogArgs = DialogProps & {
         content?: string;
     };
 
-    const { Story } = defineMeta<unknown, Component<DialogProps & ExtraProps>>({
+    const { Story } = defineMeta({
         title: 'Atoms/Layouts/Dialog',
         component: Dialog,
+        render: template,
         args: {
             trigger: 'Open Dialog',
             open: true,
@@ -53,6 +55,8 @@
                     default: undefined
                 }
             },
+            children: { control: false, table: { disable: true } },
+            actions: { control: false, table: { disable: true } },
             content: {
                 control: { type: 'select' },
                 options: ['none', 'short', 'medium', 'long'],
@@ -65,92 +69,43 @@
             }
         }
     });
-</script>
 
-<script lang="ts">
+    // Module-scoped so the markup snippet referenced by `render` above stays declared after it;
+    // a story file only ever has one instance, so sharing the state is harmless.
     let isOpen = $state(true);
 </script>
 
-{#snippet dialogContent(args: DialogProps & ExtraProps)}
+{#snippet dialogContent(args: DialogArgs)}
     <Typography variant="text">
         {args.content}
     </Typography>
 {/snippet}
 
-<Story name="Box like">
-    {#snippet template(args)}
-        {@const { children, content, ...otherArgs } = args}
-        <Dialog {...otherArgs} contentClass="max-h-48">
-            {@render dialogContent(args)}
-        </Dialog>
-    {/snippet}
-</Story>
+{#snippet dialogActions()}
+    <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
+    <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+{/snippet}
 
-<Story name="With title">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Dialog {...otherArgs} title="Dialog Title" contentClass="max-h-48">
-            {@render dialogContent(args)}
-        </Dialog>
-    {/snippet}
-</Story>
+{#snippet template(args: DialogArgs)}
+    {@const { children, content, ...otherArgs } = args}
+    <Dialog {...otherArgs} contentClass="max-h-48">
+        {@render dialogContent(args)}
+    </Dialog>
+{/snippet}
 
-<Story name="With icon">
-    {#snippet template(args)}
-        {@const { children, content, ...otherArgs } = args}
-        <Dialog {...otherArgs} closeIcon={true} contentClass="max-h-48">
-            {@render dialogContent(args)}
-        </Dialog>
-    {/snippet}
-</Story>
+<Story name="Box like" />
 
-<Story name="With title and icon">
-    {#snippet template(args)}
-        {@const { children, content, ...otherArgs } = args}
-        <Dialog {...otherArgs} closeIcon={true} title="Dialog Title" contentClass="max-h-48">
-            {@render dialogContent(args)}
-        </Dialog>
-    {/snippet}
-</Story>
+<Story name="With title" args={{ title: 'Dialog Title' }} />
 
-<Story name="With actions">
-    {#snippet template(args)}
-        {@const { children, content, ...otherArgs } = args}
-        <Dialog {...otherArgs} contentClass="max-h-48">
-            {@render dialogContent(args)}
-            {#snippet actions()}
-                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-            {/snippet}
-        </Dialog>
-    {/snippet}
-</Story>
+<Story name="With icon" args={{ closeIcon: true }} />
 
-<Story name="With title and actions">
-    {#snippet template(args)}
-        {@const { children, content, ...otherArgs } = args}
-        <Dialog {...otherArgs} contentClass="max-h-48">
-            {@render dialogContent(args)}
-            {#snippet actions()}
-                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-            {/snippet}
-        </Dialog>
-    {/snippet}
-</Story>
+<Story name="With title and icon" args={{ title: 'Dialog Title', closeIcon: true }} />
 
-<Story name="With icon and actions">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Dialog {...otherArgs} closeIcon={true} contentClass="max-h-48">
-            {@render dialogContent(args)}
-            {#snippet actions()}
-                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-            {/snippet}
-        </Dialog>
-    {/snippet}
-</Story>
+<Story name="With actions" args={{ actions: dialogActions }} />
+
+<Story name="With title and actions" args={{ title: 'Dialog Title', actions: dialogActions }} />
+
+<Story name="With icon and actions" args={{ closeIcon: true, actions: dialogActions }} />
 
 <Story name="With fully customized">
     {#snippet template(args)}

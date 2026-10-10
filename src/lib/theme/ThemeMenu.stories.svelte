@@ -5,24 +5,21 @@
 
     const { Story } = defineMeta({
         title: 'Components/App/ThemeMenu',
-        component: ThemeMenu,
-        render: template
+        component: ThemeMenu
     });
 </script>
 
-{#snippet template(args: ThemeMenuProps)}
-    <DropdownMenu open={true} class="w-56" align="start" trigger="Settings">
-        <DropdownGroup heading="Settings">
-            <DropdownItem>Profile</DropdownItem>
-            <DropdownItem>Account</DropdownItem>
-        </DropdownGroup>
-        <DropdownSeparator />
-        <ThemeMenu {...args} />
-        <DropdownSeparator />
-        <DropdownItem>Help</DropdownItem>
-    </DropdownMenu>
-
-    <div id="popover"></div>
-{/snippet}
-
-<Story name="ThemeSelector" />
+<Story name="ThemeSelector">
+    {#snippet template(args: ThemeMenuProps)}
+        <DropdownMenu open class="w-56" align="start" trigger="Settings">
+            <DropdownGroup heading="Settings">
+                <DropdownItem>Profile</DropdownItem>
+                <DropdownItem>Account</DropdownItem>
+            </DropdownGroup>
+            <DropdownSeparator />
+            <ThemeMenu {...args} />
+            <DropdownSeparator />
+            <DropdownItem>Help</DropdownItem>
+        </DropdownMenu>
+    {/snippet}
+</Story>

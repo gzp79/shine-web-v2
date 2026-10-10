@@ -8,7 +8,7 @@
     });
 </script>
 
-<Story name="Container Colors">
+<Story name="Container Colors" asChild>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {#each containerColorList as color (color)}
             <div class="flex flex-col items-center rounded-lg border">
@@ -20,7 +20,7 @@
     </div>
 </Story>
 
-<Story name="Action Colors">
+<Story name="Action Colors" asChild>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {#each actionColorList as color (color)}
             <div class="flex flex-col items-center rounded-lg border">
@@ -32,7 +32,7 @@
     </div>
 </Story>
 
-<Story name="Data Colors">
+<Story name="Data Colors" asChild>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {#each dataColorList as color (color)}
             <div class="flex flex-col items-center rounded-lg border">

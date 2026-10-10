@@ -7,7 +7,6 @@
     const { Story } = defineMeta({
         component: Typography,
         title: 'Atoms/Theme/Typography',
-        args: {},
         argTypes: {
             variant: {
                 control: { type: 'select' },

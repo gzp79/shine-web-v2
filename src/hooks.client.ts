@@ -3,7 +3,7 @@ import { resolve } from '$app/paths';
 import type { HandleClientError } from '@sveltejs/kit/hooks';
 import { logAPI } from '@lib/loggers';
 import '@lib/prelude-math';
-import { IS_MOCK, createAppError, describeError, errorPageUrl } from '@lib/utils';
+import { IS_MOCK, createAppError, currentLocationUrl, describeError, errorPageUrl } from '@lib/utils';
 
 const ERROR_PATH = resolve('/error');
 
@@ -20,7 +20,7 @@ function redirectToErrorPage(errorDetail: string): void {
     }
 
     redirectingToError = true;
-    const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const returnUrl = currentLocationUrl();
     void goto(errorPageUrl('internal-error', returnUrl), { state: { errorDetail } })
         .catch((e) => logAPI.error('Failed to navigate to the error page', e))
         .finally(() => (redirectingToError = false));

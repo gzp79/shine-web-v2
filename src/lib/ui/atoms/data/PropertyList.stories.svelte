@@ -8,7 +8,6 @@
     const { Story } = defineMeta({
         component: PropertyList,
         title: 'Atoms/Data/PropertyList',
-        args: {},
         argTypes: {
             size: {
                 control: { type: 'select' },

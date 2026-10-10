@@ -1,7 +1,6 @@
 <script module lang="ts">
     import { lorem } from '@sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import type { Component } from 'svelte';
     import { actionColorList, spacingList } from '@lib/ui/atoms';
     import Typography from '@lib/ui/atoms/Typography.svelte';
     import Firefox from '@lib/ui/atoms/glyphs/brands/Firefox.svelte';
@@ -13,13 +12,16 @@
     import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
     import { cn } from '@lib/ui/utils';
 
-    type ExtraProps = {
+    // `content` is a story-only arg (a lorem preset picker), so the args type comes from the
+    // `render` snippet rather than from Card's props alone.
+    type CardArgs = CardProps & {
         content?: string;
     };
 
-    const { Story } = defineMeta<unknown, Component<CardProps & ExtraProps>>({
+    const { Story } = defineMeta({
         component: Card,
         title: 'Atoms/Layouts/Card',
+        render: template,
         args: {
             content: 'medium'
         },
@@ -80,7 +82,9 @@
                     long: lorem.long
                 }
             },
-            children: { control: false, table: { disable: true } }
+            children: { control: false, table: { disable: true } },
+            icon: { control: false, table: { disable: true } },
+            actions: { control: false, table: { disable: true } }
         }
     });
 </script>
@@ -93,86 +97,37 @@
     <Warning class={props.class} />
 {/snippet}
 
-{#snippet cardContent(args: CardProps & ExtraProps)}
+{#snippet cardContent(args: CardArgs)}
     <Typography variant="text">
         {args.content}
     </Typography>
 {/snippet}
 
-<Story name="Box like">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
-    {/snippet}
-</Story>
+{#snippet cardActions()}
+    <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
+    <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
+{/snippet}
 
-<Story name="With title">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} title="Card Title" contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
-    {/snippet}
-</Story>
+{#snippet template(args: CardArgs)}
+    {@const { children, ...otherArgs } = args}
+    <Card {...otherArgs} contentClass="max-h-48">
+        {@render cardContent(args)}
+    </Card>
+{/snippet}
 
-<Story name="With icon">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} icon={cardGlyph} contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
-    {/snippet}
-</Story>
+<Story name="Box like" />
 
-<Story name="With title and icon">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} title="Card Title" icon={cardGlyph} contentClass="max-h-48">
-            {@render cardContent(args)}
-        </Card>
-    {/snippet}
-</Story>
+<Story name="With title" args={{ title: 'Card Title' }} />
 
-<Story name="With actions">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} contentClass="max-h-48">
-            {@render cardContent(args)}
-            {#snippet actions()}
-                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                <Button variant="accent" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-            {/snippet}
-        </Card>
-    {/snippet}
-</Story>
+<Story name="With icon" args={{ icon: cardGlyph }} />
 
-<Story name="With title and actions">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} title="Card Title" contentClass="max-h-48">
-            {@render cardContent(args)}
-            {#snippet actions()}
-                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-            {/snippet}
-        </Card>
-    {/snippet}
-</Story>
+<Story name="With title and icon" args={{ title: 'Card Title', icon: cardGlyph }} />
 
-<Story name="With icon and actions">
-    {#snippet template(args)}
-        {@const { children, ...otherArgs } = args}
-        <Card {...otherArgs} icon={cardGlyph} contentClass="max-h-48">
-            {@render cardContent(args)}
-            {#snippet actions()}
-                <Button onclick={() => alert('Cancel clicked')}>Cancel</Button>
-                <Button color="primary" onclick={() => alert('Confirm clicked')}>Confirm</Button>
-            {/snippet}
-        </Card>
-    {/snippet}
-</Story>
+<Story name="With actions" args={{ actions: cardActions }} />
+
+<Story name="With title and actions" args={{ title: 'Card Title', actions: cardActions }} />
+
+<Story name="With icon and actions" args={{ icon: cardGlyph, actions: cardActions }} />
 
 <Story name="With all features">
     {#snippet template(args)}

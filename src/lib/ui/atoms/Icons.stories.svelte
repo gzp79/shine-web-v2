@@ -6,7 +6,6 @@
     import animatedIcons from '@lib/ui/atoms/icons/animated/all';
     import commonIcons from '@lib/ui/atoms/icons/common/all';
     import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from './layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         title: 'Atoms/Theme/Icons',
