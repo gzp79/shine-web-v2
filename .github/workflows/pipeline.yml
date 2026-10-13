@@ -76,16 +76,17 @@ jobs:
             - name: Sync SvelteKit
               run: pnpm exec svelte-kit sync
 
-            - name: Setup mock environment
-              run: |
-                  pnpm run mkcert
-                  pnpm run env:mock
+            - name: Select production config
+              run: pnpm run env:prod
 
             - name: Install Playwright browser
               run: pnpm exec playwright install --with-deps chromium
 
+            - name: Build Storybook
+              run: pnpm run build:storybook
+
             - name: Story smoke test
-              run: pnpm run test:storybook
+              run: pnpm exec tsx scripts/smoke-storybook.ts
 
     build:
         runs-on: ubuntu-latest

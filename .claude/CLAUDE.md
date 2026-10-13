@@ -12,7 +12,8 @@
 - **Framework:** Svelte 5 (runes) + SvelteKit
 - **Server:** Remote functions (`query`, `form`, `command`)
 - **CSS:** Tailwind 4 (semantic tokens)
-- **Testing:** Vitest (unit), Playwright (integration/E2E), Storybook 10 (visual)
+- **Testing:** Vitest (unit), Playwright (integration/E2E), Storybook 10 (visual tryout, plus
+  optional visual tests where Vitest/Playwright cannot cover it)
 - **Rendering:** CSR by default (`ssr = false` in root layout); individual pages can opt in with `export const ssr = true` in `+page.ts`
 
 ## Class Members

@@ -32,6 +32,8 @@ test('unauthenticated user is redirected to login with returnUrl', async ({ page
 
     await page.waitForURL((url) => url.pathname === '/login');
     expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
+    // Never held a session, so no expiry hint - the login page shows its plain sign-in prompt.
+    expect(new URL(page.url()).searchParams.get('hint')).toBeNull();
 });
 
 test('unauthenticated user is redirected again after pressing Back', async ({ page, mock }) => {
@@ -137,7 +139,7 @@ test('delete account flow redirects to account-deleted', async ({ page }) => {
     });
 
     await test.step('confirming deletion redirects to the account-deleted page', async () => {
-        await page.getByRole('link', { name: 'Delete', exact: true }).click();
+        await page.getByRole('button', { name: 'Delete', exact: true }).click();
         await expect(page).toHaveURL(/\/public\/account-deleted/);
     });
 });

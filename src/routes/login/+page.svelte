@@ -22,11 +22,10 @@
     import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
-    import { type ErrorType, SKIP_CAPTCHA, async, pascalCase, sanitizeLocalUrl } from '@lib/utils';
+    import { type ErrorType, type LoginHint, SKIP_CAPTCHA, async, pascalCase, sanitizeLocalUrl } from '@lib/utils';
     import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 
-    type Hint = 'login-expired' | 'email-confirm' | 'email-change';
     type HintInfo = {
         longHint?: string;
         shortHint?: string;
@@ -46,7 +45,7 @@
         let errorType = page.url.searchParams.get('errorType');
 
         if (hint) {
-            switch (hint as Hint) {
+            switch (hint as LoginHint) {
                 case 'login-expired':
                     return {
                         longHint: locale.t('login.infoLoginExpired'),

@@ -1,5 +1,30 @@
 import { describe, expect, test } from 'vitest';
-import { createAppError, createOtherError } from './_error';
+import { createAppError, createOtherError, loginPageUrl } from './_error';
+
+describe('loginPageUrl', () => {
+    test('omits everything that was not asked for', () => {
+        expect(loginPageUrl()).toBe('/login');
+        expect(loginPageUrl({ returnUrl: null, prompt: false })).toBe('/login');
+    });
+
+    test('carries the returnUrl, encoded', () => {
+        expect(loginPageUrl({ returnUrl: '/account?tab=sessions' })).toBe(
+            '/login?returnUrl=%2Faccount%3Ftab%3Dsessions'
+        );
+    });
+
+    test('carries the hint that explains why the user is here', () => {
+        expect(loginPageUrl({ returnUrl: '/account', hint: 'login-expired' })).toBe(
+            '/login?returnUrl=%2Faccount&hint=login-expired'
+        );
+    });
+
+    test('asks for credentials directly when prompted', () => {
+        expect(loginPageUrl({ prompt: true, errorType: 'auth-session-expired' })).toBe(
+            '/login?prompt=true&errorType=auth-session-expired'
+        );
+    });
+});
 
 describe('createAppError', () => {
     test('returns an AppError unchanged', () => {

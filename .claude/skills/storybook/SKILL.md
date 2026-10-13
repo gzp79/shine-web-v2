@@ -7,8 +7,9 @@ description: Storybook 10 for visual component documentation. Use when writing o
 
 `storybook` 10.6 + `@storybook/sveltekit` + `@storybook/addon-svelte-csf` 5
 
-Storybook here is **visual documentation only**: no `play` functions, no assertions. Logic tests go
-to Vitest (`vitest-testing` skill), browser tests to Playwright (`playwright-testing` skill).
+Storybook is primarily for **visual tryout and documentation**. Reach for Vitest
+(`vitest-testing` skill) and Playwright (`playwright-testing` skill) first — but visual tests in
+Storybook are allowed where neither of those can cover the behaviour.
 
 ```bash
 pnpm run storybook          # dev server on :6006
@@ -96,8 +97,8 @@ you do want the type written out, use Svelte's `ComponentProps`:
 > type-check (`Rest types may only be created from object types`). Use `ComponentProps`.
 
 **Story-only args** are args that aren't component props — a lorem preset picker, a mock-lookup
-result. Declare them in the type of a `render` snippet: `defineMeta` infers its args type from that
-snippet, so **no explicit `defineMeta<…>` generics are needed**. (`defineMeta<unknown, Component<…>>`
+result. Declare them in the type of a `render` snippet, and `defineMeta` takes the story's args type
+from that snippet — so **no explicit `defineMeta<…>` generics are needed**. (`defineMeta<unknown, Component<…>>`
 is the old workaround for this; don't add it.)
 
 ```svelte
@@ -135,9 +136,10 @@ Two gotchas:
 
 - **Drop `children` before spreading.** `{@const { children, ...otherArgs } = args}`, then spread
   `otherArgs`; spreading a `children` arg would override the children the markup actually passes.
-- **`render:` + an instance `<script>` breaks `svelte-check`** with _"Block-scoped variable
-  'template' used before its declaration"_. Move that state into `<script module>` (a story file has
-  one instance, so sharing is harmless), as `Dialog.stories.svelte` does.
+- **`render:` plus an instance `<script>` breaks `svelte-check`** with _"Block-scoped variable
+  'template' used before its declaration"_. Move the instance script's state up into
+  `<script module>` — a story file only ever has one instance, so sharing it is harmless. See
+  `Dialog.stories.svelte`.
 
 ## Controls
 
@@ -191,12 +193,16 @@ A mock provider sets context with a **getter**, not a destructured const (which 
 value and freeze Control edits):
 
 ```svelte
-let { user, children } = $props();
+let { user, loading = false, children } = $props();
 setAuthenticatedUserContext({
     get user() {
         return user;
     },
-    refresh: () => Promise.resolve()
+    get loading() {
+        return loading;
+    },
+    refresh: () => Promise.resolve(),
+    revalidateSession: () => Promise.resolve(true)
 });
 ```
 
@@ -210,9 +216,7 @@ decorators: [(_story, context) => ({ Component: Wrapper, props: { … } })];
 
 ## Interactive state
 
-Constants go in the module script, runes in the instance script. Anything `defineMeta` references
-(including a snippet passed to `render`) must be module-scoped, since `defineMeta` itself runs
-there:
+Constants go in the module script, runes in the instance script:
 
 ```svelte
 <script module lang="ts">
@@ -223,6 +227,9 @@ there:
     let value = $state(50);
 </script>
 ```
+
+If a file uses meta-level `render`, its state has to live in the module script too — see the
+`svelte-check` gotcha above.
 
 Prefer `{#snippet}` + `{@render}` over copy-paste for "All Colors / All Sizes / All Variants"
 stories — see the `buttonSet` / `inputSet` snippets in the input stories. Keep `{#each}` keyed.
@@ -265,7 +272,7 @@ key** — `$app/stores` is removed in SvelteKit 3 and throws at runtime; use `st
 
 - One story per state, named for the state: `Default`, `Disabled`, `All Colors`, `In Box`.
 - Realistic content, not `foo`/`bar`.
-- No `play` functions, no assertions.
+- Default to no `play` functions; add them only for a visual case Vitest/Playwright cannot cover.
 - TypeScript everywhere; no unused imports (ESLint reports these in stories).
 - Run `svelte-autofixer` on story markup before finishing, same as any Svelte file.
 
@@ -282,16 +289,26 @@ key** — `$app/stores` is removed in SvelteKit 3 and throws at runtime; use `st
 `pnpm run check` and `pnpm run lint` cannot see a story that throws while rendering, so run:
 
 ```bash
-pnpm run test:storybook   # boots Storybook, loads every story, fails on console errors
+pnpm run test:storybook   # builds Storybook, loads every story, fails on console errors
 ```
 
-CI runs the same command in its own parallel `storybook` job. To chase a single story by hand, start
-the dev server: `http://localhost:6006/index.json` lists every story ID, so load
-`iframe.html?id=<id>&viewMode=story` and watch the console. Append `&args=key:value` to confirm args
-reach the template.
+That is two gates in one: `build:storybook` fails if a story no longer compiles or bundles, then
+`scripts/smoke-storybook.ts` serves the build and loads all of them to catch render-time throws. CI
+runs both in its own parallel `storybook` job. The whole thing takes under a minute, because the
+sweep runs against the built output instead of a dev server.
+
+To chase a single story by hand, start the dev server: `http://localhost:6006/index.json` lists every
+story ID, so load `iframe.html?id=<id>&viewMode=story` and watch the console. Append
+`&args=key:value` to confirm args reach the template.
 
 A story that deliberately provokes an error (an error-state story) must be added to
 `EXPECTED_CONSOLE_ERRORS` in `scripts/smoke-storybook.ts`, or the smoke run will flag it.
+
+**Remote functions are stubbed.** `.storybook/remote-stub.ts` replaces every `*.remote.ts` with
+generated stubs, because Storybook has no SvelteKit server behind it: `query` resolves to a
+permanently-loading result, `command`/`form` throw when called. Nothing needs mocking per file - the
+export names are read from the real module. A story that needs real data should use a mock provider
+(`@sb/MockUserStore`, `@sb/MockAuthContext`) rather than relying on a remote call.
 
 ## Resources
 

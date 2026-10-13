@@ -33,6 +33,25 @@ export function errorPageUrl(errorType: ErrorType, returnUrl?: string | null): s
     return resolve('/error') + toQueryString({ errorType, returnUrl });
 }
 
+/// Why the login page is being shown; selects the message it greets the user with.
+export const loginHintList = ['login-expired', 'email-confirm', 'email-change'] as const;
+export type LoginHint = (typeof loginHintList)[number];
+
+export type LoginPageParams = {
+    /// Where to send the user once they are authenticated. Must already be sanitized.
+    returnUrl?: string | null;
+    /// Explains why they ended up here, e.g. `login-expired` for an expired session.
+    hint?: LoginHint;
+    /// Skip the silent remember-me attempt and ask for credentials straight away.
+    prompt?: boolean;
+    errorType?: ErrorType;
+};
+
+/// The canonical `/login` URL — the single place that page's query contract is written.
+export function loginPageUrl({ returnUrl, hint, prompt, errorType }: LoginPageParams = {}): string {
+    return resolve('/login') + toQueryString({ returnUrl, hint, prompt: prompt ? 'true' : undefined, errorType });
+}
+
 const appErrorKindList = ['fetch', 'other', 'retryLimit'] as const;
 export type AppErrorKind = (typeof appErrorKindList)[number];
 
