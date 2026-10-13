@@ -8,7 +8,7 @@
 
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { type CurrentUserLike, provideUserStore } from '@lib/account/userStore.svelte';
+    import { type CurrentUserLike, provideUserStoreContext } from '@lib/account/userStore.svelte';
 
     let {
         result = { kind: 'resolved' },
@@ -22,9 +22,9 @@
         children: Snippet;
     } = $props();
 
-    // provideUserStore builds the real BrowserUserStore in Storybook (browser); a fake
+    // provideUserStoreContext builds the real BrowserUserStore in Storybook (browser); a fake
     // lookup replaces the BFF transport, and the sweep timer is off so stories stay static.
-    provideUserStore({
+    provideUserStoreContext({
         getMe: () => me,
         sweepIntervalMs: 0,
         lookup: async (ids) => {

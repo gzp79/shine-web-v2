@@ -18,7 +18,8 @@
         variant?: InputVariant;
         disabled?: boolean;
     }
-    const { tryGet: tryGetInputGroupContext, set: setInputGroupContext } = createContext<InputGroupInfo>('InputGroup');
+    const { tryGet: tryGetInputGroupContext, set: setInputGroupContext } =
+        createContext<InputGroupInfo>('InputGroupContext');
     export { tryGetInputGroupContext, setInputGroupContext };
 
     export type InputGroupProps = WithElementRef<HTMLAttributes<HTMLDivElement>> & {

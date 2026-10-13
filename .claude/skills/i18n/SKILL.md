@@ -87,15 +87,15 @@ formatters.uppercase = (locale, value) => String(value).toUpperCase();
 
 ## Key Files
 
-| File                              | Purpose                                                             |
-| --------------------------------- | ------------------------------------------------------------------- |
-| `src/lib/i18n/_interpolate.ts`    | Interpolation engine with `{key\|formatter}` regex                  |
-| `src/lib/i18n/_formatters.ts`     | Formatter registry (mutable `Record<string, Formatter>`)            |
-| `src/lib/i18n/formatters/date.ts` | Date/time formatter implementations                                 |
-| `src/lib/i18n/_translator.ts`     | Translator creation, locale loading, fallback logic                 |
-| `src/lib/i18n/_i18n.svelte.ts`    | Reactive locale context (`createLocaleContext`, `getLocaleContext`) |
-| `src/lib/i18n/locales/en.json`    | English translations                                                |
-| `src/lib/i18n/locales/hu.json`    | Hungarian translations                                              |
+| File                              | Purpose                                                              |
+| --------------------------------- | -------------------------------------------------------------------- |
+| `src/lib/i18n/_interpolate.ts`    | Interpolation engine with `{key\|formatter}` regex                   |
+| `src/lib/i18n/_formatters.ts`     | Formatter registry (mutable `Record<string, Formatter>`)             |
+| `src/lib/i18n/formatters/date.ts` | Date/time formatter implementations                                  |
+| `src/lib/i18n/_translator.ts`     | Translator creation, locale loading, fallback logic                  |
+| `src/lib/i18n/_i18n.svelte.ts`    | Reactive locale context (`provideLocaleContext`, `getLocaleContext`) |
+| `src/lib/i18n/locales/en.json`    | English translations                                                 |
+| `src/lib/i18n/locales/hu.json`    | Hungarian translations                                               |
 
 ## Supported Locales
 

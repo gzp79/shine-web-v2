@@ -15,7 +15,7 @@
     };
 
     const { get: getConnectionStatusContext, set: setConnectionStatusContext } =
-        createContext<ConnectionStatusContext>('connection-status-context');
+        createContext<ConnectionStatusContext>('ConnectionStatusContext');
     export { getConnectionStatusContext };
 
     /**
@@ -23,7 +23,7 @@
      * the app shell (see {@link ConnectionStatus}). A descendant region (e.g. the auth layout)
      * later calls `set()` to publish its live status; until then the indicator renders nothing.
      */
-    export function createConnectionStatusContext(): ConnectionStatusContext {
+    export function provideConnectionStatusContext(): ConnectionStatusContext {
         let source = $state<ConnectionStatusSource | undefined>(undefined);
 
         const ctx: ConnectionStatusContext = {

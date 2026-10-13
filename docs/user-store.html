@@ -238,14 +238,12 @@
                 </td>
             </tr>
             <tr>
-                <td><code>use(id)</code></td>
+                <td><code>hold(id)</code></td>
                 <td>A fixed id, read imperatively at init</td>
-                <td>Returns the shared entry and auto-releases on destroy. Throws if called outside init.</td>
-            </tr>
-            <tr>
-                <td><code>useUser(id)</code></td>
-                <td>Shorthand</td>
-                <td>Equivalent to <code>getUserStore().use(id)</code>.</td>
+                <td>
+                    References and loads at init, releases on destroy. Also the way to read a value that is never read
+                    inside a reaction, which <code>get</code> would not load. Throws if called outside init.
+                </td>
             </tr>
             <tr>
                 <td><code>invalidate(id?)</code></td>
@@ -272,11 +270,10 @@
         <h3>Provisioning</h3>
         <p>
             Create one store per request-region in a layout <code>&lt;script&gt;</code> with
-            <code>provideUserStore</code> (see <code>AuthGuard.svelte</code>), never as a module-global singleton —
-            module state is shared across SSR requests. <code>provideUserStore</code> branches on
+            <code>provideUserStoreContext</code> (see <code>AuthGuard.svelte</code>), never as a module-global singleton
+            — module state is shared across SSR requests. <code>provideUserStoreContext</code> branches on
             <code>browser</code> to construct the server or browser implementation, mirroring
-            <code>createCurrentUserStore</code>. Descendants read it with <code>getUserStore</code>,
-            <code>tryGetUserStore</code>, or the <code>useUser</code> shorthand.
+            <code>createCurrentUserStore</code>. Descendants read it with <code>getUserStoreContext</code>.
         </p>
 
         <h2>File map</h2>
@@ -291,7 +288,7 @@
                 <td>
                     The store: <code>UserStore</code> interface, <code>ServerUserStore</code> /
                     <code>BrowserUserStore</code>, entry cache, batching, ttl, sweep, and the
-                    <code>provideUserStore</code> / <code>getUserStore</code> / <code>useUser</code> context helpers.
+                    <code>provideUserStoreContext</code> / <code>getUserStoreContext</code> context helpers.
                 </td>
             </tr>
             <tr>
@@ -328,7 +325,7 @@
             <summary>Why the server store is an inert stub</summary>
             <div class="details-body">
                 <p>
-                    <code>provideUserStore</code> returns a <code>ServerUserStore</code> on the server and a
+                    <code>provideUserStoreContext</code> returns a <code>ServerUserStore</code> on the server and a
                     <code>BrowserUserStore</code> in the browser, the same split as <code>createCurrentUserStore</code>.
                     Unlike the current-user store this is <em>not</em> a data-leak boundary — the store only ever holds
                     public fields (<code>PublicUserData = { name }</code>), and the BFF re-projects to those fields

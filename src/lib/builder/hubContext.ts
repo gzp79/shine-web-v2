@@ -2,14 +2,14 @@ import { onDestroy } from 'svelte';
 import { createContext } from '@lib/ui/utils';
 import { BuilderHub, type BuilderHubOptions } from './hub';
 
-const context = createContext<BuilderHub>('builder-hub');
+const context = createContext<BuilderHub>('BuilderHubContext');
 
 /**
  * Creates the shared builder hub, connects it, and publishes it to descendants via context.
  * Call once from a layout `<script>` in an authenticated region. The hub is disposed
  * automatically when the providing component is destroyed.
  */
-export function provideBuilderHub(options?: BuilderHubOptions): BuilderHub {
+export function provideBuilderHubContext(options?: BuilderHubOptions): BuilderHub {
     const hub = new BuilderHub(options);
     context.set(hub);
     hub.connect();
@@ -17,16 +17,11 @@ export function provideBuilderHub(options?: BuilderHubOptions): BuilderHub {
     return hub;
 }
 
-/** Reads the shared builder hub. Throws if no ancestor called {@link provideBuilderHub}. */
-export function getBuilderHub(): BuilderHub {
+/** Reads the shared builder hub. Throws if no ancestor called {@link provideBuilderHubContext}. */
+export function getBuilderHubContext(): BuilderHub {
     const hub = context.tryGet();
     if (!hub) {
-        throw new Error('getBuilderHub: no hub in context (call provideBuilderHub in the region layout)');
+        throw new Error('BuilderHubContext was not provided: call provideBuilderHubContext in the region layout.');
     }
     return hub;
-}
-
-/** Reads the shared builder hub, or `undefined` when none is provided. */
-export function tryGetBuilderHub(): BuilderHub | undefined {
-    return context.tryGet();
 }

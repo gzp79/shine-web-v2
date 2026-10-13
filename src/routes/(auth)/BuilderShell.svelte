@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { provideBuilderHub, provideChatStream } from '@lib/builder';
+    import { provideBuilderHubContext, provideChatStreamContext } from '@lib/builder';
     import ChatPanel from '@lib/builder/chat/ChatPanel.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
@@ -15,8 +15,8 @@
     const locale = getLocaleContext();
     const connectionStatus = getConnectionStatusContext();
 
-    const hub = provideBuilderHub();
-    const chat = provideChatStream();
+    const hub = provideBuilderHubContext();
+    const chat = provideChatStreamContext();
 
     let chatOpen = $state(false);
 

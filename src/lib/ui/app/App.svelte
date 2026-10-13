@@ -2,8 +2,8 @@
     import { type Snippet } from 'svelte';
     import { type Theme } from '@lib/theme/_theme.svelte';
     import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
-    import AppMenu, { createMenuContext } from './AppMenu.svelte';
-    import ConnectionStatus, { createConnectionStatusContext } from './ConnectionStatus.svelte';
+    import AppMenu, { provideAppMenuContext } from './AppMenu.svelte';
+    import ConnectionStatus, { provideConnectionStatusContext } from './ConnectionStatus.svelte';
 
     export type AppProps = {
         theme?: Theme;
@@ -15,8 +15,8 @@
 <script lang="ts">
     let { theme = 'dark', locale = 'en', children }: AppProps = $props();
 
-    createMenuContext();
-    createConnectionStatusContext();
+    provideAppMenuContext();
+    provideConnectionStatusContext();
 </script>
 
 <div

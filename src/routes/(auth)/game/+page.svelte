@@ -3,7 +3,7 @@
     import { queryGameAssetManifest } from '@lib/assets/assets.remote';
     import { gameInputGate } from '@lib/game';
     import { logGame } from '@lib/loggers';
-    import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
+    import { getAppMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
     import Check from '@lib/ui/atoms/icons/common/Check.svelte';
     import Button from '@lib/ui/atoms/input/Button.svelte';
@@ -34,7 +34,7 @@
 
     const { data }: { data: PageData } = $props();
 
-    const appMenu = getMenuContext();
+    const appMenu = getAppMenuContext();
 
     let container: HTMLElement;
     let handle = $state<SceneHandle | null>(null);

@@ -3,7 +3,7 @@
     import type { Snippet } from 'svelte';
     import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { createCurrentUserStore } from '@lib/account/currentUserStore.svelte';
-    import { provideUserStore } from '@lib/account/userStore.svelte';
+    import { provideUserStoreContext } from '@lib/account/userStore.svelte';
     import { getLocaleContext } from '@lib/i18n';
     import { logUser } from '@lib/loggers';
     import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
@@ -75,7 +75,7 @@
         }
     });
 
-    provideUserStore({
+    provideUserStoreContext({
         getMe: () => {
             const user = currentUser.current;
             const me = user?.authenticated ? user : lastAuthenticated;

@@ -2,7 +2,7 @@
     import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
     import { authPages } from '@lib/api/authPages';
     import { getLocaleContext } from '@lib/i18n';
-    import { getMenuContext } from '@lib/ui/app/AppMenu.svelte';
+    import { getAppMenuContext } from '@lib/ui/app/AppMenu.svelte';
     import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
     import ConfirmationDialog from '@lib/ui/components/dialogs/ConfirmationDialog.svelte';
     import { createContext } from '@lib/ui/utils';
@@ -15,7 +15,7 @@
         requestLogout: (request: LogoutRequest) => void;
     };
 
-    const { get: getLogoutContext, set: setLogoutContext } = createContext<LogoutContext>('logout-context');
+    const { get: getLogoutContext, set: setLogoutContext } = createContext<LogoutContext>('LogoutContext');
     export { getLogoutContext };
 </script>
 
@@ -26,7 +26,7 @@
 
     const currentUser = getAuthenticatedUserContext();
     const locale = getLocaleContext();
-    const appMenu = getMenuContext();
+    const appMenu = getAppMenuContext();
 
     let warnOpen = $state(false);
     let pendingLogoutUrl = $state<string | undefined>(undefined);

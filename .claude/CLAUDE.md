@@ -22,6 +22,24 @@
 - **Protected / inherited:** TS `protected` (no prefix) — `#` cannot be `protected` or overridden
 - Do not use the legacy `_`-prefixed `private` convention in new code
 
+## Contexts
+
+Accessors come from `createContext<T>('XContext')` (`@lib/ui/utils`); the name is the context type in
+PascalCase and appears only in errors.
+
+| Function                    | Does                                 |
+| --------------------------- | ------------------------------------ |
+| `provideXContext(options?)` | constructs the value and installs it |
+| `setXContext(value)`        | installs a value the caller owns     |
+| `getXContext()`             | reads; **throws** if absent          |
+| `tryGetXContext()`          | reads; `undefined` if absent         |
+
+- `options` configure construction — never pass the value itself, that is `setXContext`
+- `provideXContext` delegates to `setXContext` when both exist
+- `tryGet*` only where a missing provider is valid (`Field`, `InputGroup`, `ContainerRoot`)
+- No `use*` prefix; for a lifetime-bound reference use `hold` (`UserStore.hold`)
+- Install before any `await` — async Svelte throws `set_context_after_init` after init
+
 ## Component Usage
 
 **Priority:** Component props → utility classes → suggest enhancement for patterns

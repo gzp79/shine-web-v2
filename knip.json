@@ -15,8 +15,6 @@
     "project": ["src/**/*.{ts,svelte}"],
     "ignore": [
         "src/generated/**",
-        "src/testing/_debug.ts",
-        "src/lib/ui/utils/ContextProvider.svelte",
         "src/lib/ui/utils/DebugCssVar.svelte",
         "src/lib/ui/utils/QueryStatus.svelte",
         "src/storybook/mock-remote.svelte.ts",

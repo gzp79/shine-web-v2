@@ -24,7 +24,8 @@
         nestingLevel: number;
         colorIndex: number;
     }
-    const { tryGet: tryGetContainerContext, set: setContainerContext } = createContext<ContainerInfo>('Container');
+    const { tryGet: tryGetContainerContext, set: setContainerContext } =
+        createContext<ContainerInfo>('ContainerContext');
     export { tryGetContainerContext };
 </script>
 
