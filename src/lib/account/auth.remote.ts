@@ -1,4 +1,4 @@
-import { command, query } from '$app/server';
+import { command, getRequestEvent, query } from '$app/server';
 import z from 'zod';
 import { logAPI } from '#lib/loggers';
 import { CurrentUserSchema, ProviderSchema, authApiRoutes } from '#lib/server/api/authApiRoutes';
@@ -9,6 +9,7 @@ import type { CurrentUser } from './authContext.svelte';
 export const queryExternalLoginProviders = query(async (): Promise<string[]> => {
     logAPI.log('getExternalLoginProviders...');
     const url = authApiRoutes.providers();
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -43,6 +44,7 @@ export const querySanitizedReturnUrl = query(
 export const queryCurrentUserInfo = query(async (): Promise<CurrentUser> => {
     logAPI.log('getCurrentUser...');
     const url = authApiRoutes.myInfo();
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
     const params = new URLSearchParams({ method: 'full' });
 
@@ -92,6 +94,7 @@ export type LinkedIdentities = z.infer<typeof LinkedIdentitiesSchema>;
 export const queryLinkedIdentities = query(async (): Promise<LinkedIdentity[]> => {
     logAPI.log('getLinkedIdentities...');
     const url = authApiRoutes.linkedIdentities();
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -136,6 +139,7 @@ export type ActiveSessions = z.infer<typeof ActiveSessionsSchema>;
 export const queryActiveSessions = query(async (): Promise<ActiveSession[]> => {
     logAPI.log('getActiveSessions...');
     const url = authApiRoutes.activeSessions();
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -185,6 +189,7 @@ export type ActiveTokens = z.infer<typeof ActiveTokensSchema>;
 export const queryActiveTokens = query(async (): Promise<ActiveToken[]> => {
     logAPI.log('getActiveTokens...');
     const url = authApiRoutes.activeTokens();
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -212,6 +217,7 @@ export const queryActiveTokens = query(async (): Promise<ActiveToken[]> => {
 export const revokeToken = command(z.string(), async (tokenHash: string) => {
     logAPI.log('revokeToken...');
     const url = authApiRoutes.revokeToken(tokenHash);
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -242,6 +248,7 @@ export const unlinkIdentity = command(
     async (params: { provider: string; providerUserId: string }) => {
         logAPI.log('unlinkIdentity...', params);
         const url = authApiRoutes.unlinkIdentity(params.provider, params.providerUserId);
+        const { fetch } = getRequestEvent();
         const headers = getPassThroughHeaders();
 
         return await retryWithBackoff(async (retry) => {
@@ -268,6 +275,7 @@ export const unlinkIdentity = command(
 export const startEmailConfirmation = command(async () => {
     logAPI.log('startEmailConfirmation...');
     const url = authApiRoutes.startEmailConfirmationUrl();
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {
@@ -293,6 +301,7 @@ export const startEmailConfirmation = command(async () => {
 export const startEmailChange = command(z.email(), async (newEmail: string) => {
     logAPI.log('startEmailChange...');
     const url = authApiRoutes.startEmailChange();
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
     headers.set('Content-Type', 'application/json');
 
@@ -320,6 +329,7 @@ export const startEmailChange = command(z.email(), async (newEmail: string) => {
 export const completeEmailOperation = command(z.string(), async (token: string) => {
     logAPI.log('completeEmailOperation...');
     const url = authApiRoutes.completeEmailOperation({ token });
+    const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
     return await retryWithBackoff(async (retry) => {

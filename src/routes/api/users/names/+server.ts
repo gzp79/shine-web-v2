@@ -14,7 +14,7 @@ const RequestSchema = z.object({
  * BFF for public user info: the browser never learns the identity service url or the
  * credentials used to reach it. Validation failures deliberately do not echo the input.
  */
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, fetch }) => {
     let body: unknown;
     try {
         body = await request.json();

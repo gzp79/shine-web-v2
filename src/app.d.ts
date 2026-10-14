@@ -28,6 +28,8 @@ declare global {
         interface Locals {
             theme: Theme;
             locale: Locale;
+            /// `x-trace-id` of the last backend response; echoed to the client by the `handle` hook.
+            traceId?: string;
         }
 
         interface PageData {
