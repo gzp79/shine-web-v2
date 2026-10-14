@@ -1,10 +1,10 @@
 <script module lang="ts">
     import { type Component, untrack } from 'svelte';
-    import LanguageMenu from '@lib/i18n/LanguageMenu.svelte';
-    import ThemeMenu from '@lib/theme/ThemeMenu.svelte';
-    import { DropdownItem, DropdownMenu, DropdownSeparator } from '@lib/ui/atoms/dropdown-menu';
-    import Hamburger from '@lib/ui/atoms/icons/common/Hamburger.svelte';
-    import { createContext, fromComponent } from '@lib/ui/utils';
+    import LanguageMenu from '#lib/i18n/LanguageMenu.svelte';
+    import ThemeMenu from '#lib/theme/ThemeMenu.svelte';
+    import { DropdownItem, DropdownMenu, DropdownSeparator } from '#lib/ui/atoms/dropdown-menu';
+    import Hamburger from '#lib/ui/atoms/icons/common/Hamburger.svelte';
+    import { createContext, fromComponent } from '#lib/ui/utils';
     import FullscreenMenu from './FullscreenMenu.svelte';
 
     export type MenuSection = 'global' | 'context' | 'user';
@@ -24,7 +24,7 @@
         action?: () => void | Promise<void>;
     };
 
-    export type MenuContext = {
+    export type AppMenuContext = {
         register: (item: MenuItem) => () => void;
         unregister: (id: string) => boolean;
         has: (id: string) => boolean;
@@ -32,12 +32,13 @@
         getItemsBySection: (section: MenuSection) => MenuItem[];
     };
 
-    const { get: getMenuContext, set: setMenuContext } = createContext<MenuContext>('menu-context');
-    export { getMenuContext };
-    export function createMenuContext(): MenuContext {
+    const { get: getAppMenuContext, set: setAppMenuContext } = createContext<AppMenuContext>('AppMenuContext');
+    export { getAppMenuContext };
+
+    export function provideAppMenuContext(): AppMenuContext {
         let items = $state<MenuItem[]>([]);
 
-        const ctx: MenuContext = {
+        const ctx: AppMenuContext = {
             register(item: MenuItem) {
                 items = untrack(() => [...items.filter((i) => i.id !== item.id), item]);
 
@@ -66,8 +67,7 @@
             }
         };
 
-        setMenuContext(ctx);
-        return ctx;
+        return setAppMenuContext(ctx);
     }
 
     export type AppMenuProps = {
@@ -78,7 +78,7 @@
 <script lang="ts">
     let { collisionPadding = 16 }: AppMenuProps = $props();
 
-    const menuContext = getMenuContext();
+    const menuContext = getAppMenuContext();
 
     const globalItems = $derived(menuContext.getItemsBySection('global'));
     const contextItems = $derived(menuContext.getItemsBySection('context'));

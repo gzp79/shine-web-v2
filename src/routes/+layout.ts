@@ -1,4 +1,4 @@
-import { loadTranslation } from '@lib/i18n';
+import { loadTranslation } from '#lib/i18n';
 
 // SSR disabled
 //

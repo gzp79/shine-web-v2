@@ -1,31 +1,39 @@
 <script module lang="ts">
+    import { CAPTCHA_SKIP_TOKEN, config } from '#config';
+    import { resolve } from '$app/paths';
     import { page } from '$app/state';
-    import { CAPTCHA_SKIP_TOKEN, config } from '@config';
-    import { queryCurrentUserInfo } from '@lib/account/auth.remote';
-    import { queryExternalLoginProviders, querySanitizedReturnUrl } from '@lib/account/auth.remote';
-    import { authPages } from '@lib/api/authPages';
-    import { queryAssetUrlVariants } from '@lib/assets/assets.remote';
-    import { getLocaleContext } from '@lib/i18n';
-    import { logUser } from '@lib/loggers';
-    import { getThemeContext } from '@lib/theme/_theme.svelte';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Overlay from '@lib/ui/atoms/Overlay.svelte';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Logo from '@lib/ui/atoms/glyphs/Logo.svelte';
-    import allBrands from '@lib/ui/atoms/glyphs/brands/all';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Switch from '@lib/ui/atoms/input/Switch.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import Turnstile from '@lib/ui/components/forms/Turnstile.svelte';
-    import { type ErrorType, async, createAppError, pascalCase } from '@lib/utils';
+    import { queryCurrentUserInfo } from '#lib/account/auth.remote';
+    import { queryExternalLoginProviders, querySanitizedReturnUrl } from '#lib/account/auth.remote';
+    import { authPages } from '#lib/api/authPages';
+    import { queryAssetUrlVariants } from '#lib/assets/assets.remote';
+    import { getLocaleContext } from '#lib/i18n';
+    import { logUser } from '#lib/loggers';
+    import { getThemeContext } from '#lib/theme/_theme.svelte';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
+    import Overlay from '#lib/ui/atoms/Overlay.svelte';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Logo from '#lib/ui/atoms/glyphs/Logo.svelte';
+    import allBrands from '#lib/ui/atoms/glyphs/brands/all';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Switch from '#lib/ui/atoms/input/Switch.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Dialog from '#lib/ui/atoms/layouts/Dialog.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
+    import Turnstile from '#lib/ui/components/forms/Turnstile.svelte';
+    import {
+        type ErrorType,
+        type LoginHint,
+        SKIP_CAPTCHA,
+        async,
+        loginPageUrl,
+        pascalCase,
+        sanitizeLocalUrl
+    } from '#lib/utils';
     import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 
-    type Hint = 'login-expired' | 'email-confirm' | 'email-change';
     type HintInfo = {
         longHint?: string;
         shortHint?: string;
@@ -39,13 +47,13 @@
 
     const prompt = $derived(!!page.url.searchParams.get('prompt'));
     const returnUrl = $derived(page.url.searchParams.get('returnUrl') ?? undefined);
+    const hint = $derived((page.url.searchParams.get('hint') as LoginHint | null) ?? undefined);
 
     const extraInfo: HintInfo = $derived.by(() => {
-        let hint = page.url.searchParams.get('hint');
         let errorType = page.url.searchParams.get('errorType');
 
         if (hint) {
-            switch (hint as Hint) {
+            switch (hint) {
                 case 'login-expired':
                     return {
                         longHint: locale.t('login.infoLoginExpired'),
@@ -89,13 +97,12 @@
     const currentUserQuery = queryCurrentUserInfo();
 
     const redirectUrlQuery = $derived(querySanitizedReturnUrl(returnUrl));
+    const localRedirectUrl = (url: string): string => sanitizeLocalUrl(url) ?? resolve('/(auth)/game');
     const backgroundUrls = $derived(queryAssetUrlVariants('loginBackground'));
     const backgroundBrightUrls = $derived(queryAssetUrlVariants('loginBackgroundBright'));
 
-    const skipCaptcha = import.meta.env.VITE_SKIP_CAPTCHA;
-
     let isRedirecting = $state(false);
-    let captcha = $state(skipCaptcha ? CAPTCHA_SKIP_TOKEN : '');
+    let captcha = $state(SKIP_CAPTCHA ? CAPTCHA_SKIP_TOKEN : '');
     let rememberMe = $state(true);
     let guestAreaRef = $state<HTMLDivElement | undefined>();
 
@@ -129,15 +136,17 @@
         const sanitizedUrl = await redirectUrlQuery;
 
         if (user.authenticated) {
-            logUser.log(`Redirecting user with an active session to ${sanitizedUrl}`);
-            return sanitizedUrl;
+            const target = localRedirectUrl(sanitizedUrl);
+            logUser.log(`Redirecting user with an active session to ${target}`);
+            return target;
         }
 
         // if we have no authenticated user, try the token flow that will either
         // - authenticate and redirect the user to the target url
         // - or fail and redirect the user to the login page with a prompt
         logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
-        const errorUrl = `/login?${new URLSearchParams({ ...(returnUrl ? { returnUrl } : {}), prompt: 'true' })}`;
+        // Keep the hint so a failed silent login still explains why the user is asked to sign in.
+        const errorUrl = loginPageUrl({ returnUrl, hint, prompt: true });
         return authPages.tokenLoginUrl({ redirectUrl: sanitizedUrl, errorUrl });
     });
 
@@ -175,7 +184,7 @@
                      these as a NetworkError that would otherwise flash an error card while navigating away. -->
                 <LoadingCard label={locale.t('common.loading')} />
             {:else}
-                <ErrorCard error={createAppError(error)}>
+                <ErrorCard {error}>
                     {#snippet actions()}
                         <Button
                             onclick={() => {
@@ -228,7 +237,7 @@
                                     size="lg"
                                     disabled={disableButtons}
                                     class="drop-shadow-on-secondary drop-shadow-md"
-                                    href={await redirectUrlQuery}
+                                    href={localRedirectUrl(await redirectUrlQuery)}
                                 >
                                     <allBrands.user size="sm" />
                                     {locale.t('login.continueAs', { name: user.name })}
@@ -301,7 +310,7 @@
 
         <Dialog width="fit" open={showLoading} contentClass="flex flex-col items-center justify-center">
             <LoadingCard variant="ghost" label={locale.t('login.waitingServer')} />
-            {#if prompt && !skipCaptcha}
+            {#if prompt && !SKIP_CAPTCHA}
                 <!-- Load captcha only for interactive login -->
                 <Turnstile
                     siteKey={config.turnstile.siteKey}

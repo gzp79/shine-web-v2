@@ -1,9 +1,9 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { z } from 'zod';
-    import Stack from '@lib/ui/atoms//layouts/Stack.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import ZodField from '@lib/ui/components/forms/ZodField.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ZodField from '#lib/ui/components/forms/ZodField.svelte';
 
     const { Story } = defineMeta({
         title: 'Components/Forms/ZodField',

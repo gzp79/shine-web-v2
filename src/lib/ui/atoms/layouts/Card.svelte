@@ -1,11 +1,11 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import ContainerContent, { type ContainerContentProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
-    import ContainerRoot, { type ContainerRootProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { cn } from '@lib/ui/utils';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import ContainerContent, { type ContainerContentProps } from '#lib/ui/atoms/layouts/ContainerContent.svelte';
+    import ContainerRoot, { type ContainerRootProps } from '#lib/ui/atoms/layouts/ContainerRoot.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { cn } from '#lib/ui/utils';
 
     type RootProps = Omit<ContainerRootProps, 'ghost' | 'border' | 'overflow' | 'class' | 'children' | 'data-slot'>;
     type ContentProps = Omit<ContainerContentProps, 'class' | 'children' | 'data-slot'>;

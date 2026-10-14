@@ -1,7 +1,7 @@
 export { default as DropdownCheckboxGroup } from './CheckboxGroup.svelte';
 export { default as DropdownCheckboxItem } from './CheckboxItem.svelte';
 export { default as DropdownMenu } from './Dropdown.svelte';
-export { getMenuContext } from './Dropdown.svelte';
+export { type DropdownContext, getDropdownContext } from './Dropdown.svelte';
 export { default as DropdownGroup } from './Group.svelte';
 export { default as DropdownHeading } from './Heading.svelte';
 export { default as DropdownItem } from './Item.svelte';

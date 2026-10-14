@@ -1,4 +1,4 @@
-import { logI18n } from '@lib/loggers';
+import { logI18n } from '#lib/loggers';
 import { interpolate } from './_interpolate';
 import en from './locales/en.json';
 

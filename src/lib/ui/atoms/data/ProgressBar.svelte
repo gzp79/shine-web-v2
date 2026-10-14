@@ -1,7 +1,7 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
-    import type { ActionColor, Size } from '@lib/ui/atoms';
-    import { cn } from '@lib/ui/utils';
+    import type { ActionColor, Size } from '#lib/ui/atoms';
+    import { cn } from '#lib/ui/utils';
 
     export type ProgressBarDisplay = 'none' | 'percent' | 'label';
 

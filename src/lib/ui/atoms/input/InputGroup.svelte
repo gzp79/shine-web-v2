@@ -2,10 +2,10 @@
     import type { WithElementRef } from 'bits-ui';
     import type { ClassValue } from 'clsx';
     import type { HTMLAttributes } from 'svelte/elements';
-    import type { ActionColor, Size } from '@lib/ui/atoms';
-    import type { InputVariant } from '@lib/ui/atoms/input';
-    import { cn, createContext } from '@lib/ui/utils';
-    import TailwindClasses from '@lib/ui/utils/TailwindClasses.svelte';
+    import type { ActionColor, Size } from '#lib/ui/atoms';
+    import type { InputVariant } from '#lib/ui/atoms/input';
+    import { cn, createContext } from '#lib/ui/utils';
+    import TailwindClasses from '#lib/ui/utils/TailwindClasses.svelte';
 
     // For overlapping borders browser add some "antialiasing" scale, so we need to compensate it
     // Using empirical value here, but this could be browser dependent
@@ -18,7 +18,8 @@
         variant?: InputVariant;
         disabled?: boolean;
     }
-    const { tryGet: tryGetInputGroupContext, set: setInputGroupContext } = createContext<InputGroupInfo>('InputGroup');
+    const { tryGet: tryGetInputGroupContext, set: setInputGroupContext } =
+        createContext<InputGroupInfo>('InputGroupContext');
     export { tryGetInputGroupContext, setInputGroupContext };
 
     export type InputGroupProps = WithElementRef<HTMLAttributes<HTMLDivElement>> & {

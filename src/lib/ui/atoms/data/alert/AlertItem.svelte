@@ -1,7 +1,7 @@
 <script lang="ts" module>
     import type { ClassValue } from 'clsx';
     import type { HTMLAttributes } from 'svelte/elements';
-    import { type TemplateOrChildren, cn, isTemplateSnippet } from '@lib/ui/utils';
+    import { type TemplateOrChildren, cn, isTemplateSnippet } from '#lib/ui/utils';
 
     export type AlertItemBaseProps = HTMLAttributes<HTMLDivElement> & {
         class?: ClassValue;

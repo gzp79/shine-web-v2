@@ -2,8 +2,8 @@
     import type { WithElementRef } from 'bits-ui';
     import { type Snippet } from 'svelte';
     import type { HTMLAttributes } from 'svelte/elements';
-    import { type ResponsiveProp, type ResponsiveSpacing, toResponsiveClass, toSpacingClasses } from '@lib/ui/atoms';
-    import { cn } from '@lib/ui/utils';
+    import { type ResponsiveProp, type ResponsiveSpacing, toResponsiveClass, toSpacingClasses } from '#lib/ui/atoms';
+    import { cn } from '#lib/ui/utils';
 
     export const directionList = ['row', 'column'] as const;
     export type Direction = (typeof directionList)[number];

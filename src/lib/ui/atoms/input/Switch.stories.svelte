@@ -1,9 +1,9 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, sizeList } from '@lib/ui/atoms';
-    import Field from '@lib/ui/atoms/input/Field.svelte';
-    import Switch from '@lib/ui/atoms/input/Switch.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { actionColorList, sizeList } from '#lib/ui/atoms';
+    import Field from '#lib/ui/atoms/input/Field.svelte';
+    import Switch from '#lib/ui/atoms/input/Switch.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
     import Typography from '../Typography.svelte';
     import Box from '../layouts/Box.svelte';
 
@@ -13,7 +13,6 @@
         args: {
             color: undefined,
             size: undefined,
-            //variant: 'filled',
             disabled: undefined
         },
         argTypes: {
@@ -31,13 +30,6 @@
                     default: undefined
                 }
             }
-            // variant: {
-            //     control: { type: 'select' },
-            //     options: ['default', ...inputVariantList],
-            //     mapping: {
-            //         default: undefined
-            //     }
-            // }
         }
     });
 </script>
@@ -87,20 +79,6 @@
         </Stack>
     {/snippet}
 </Story>
-
-<!-- <Story name="All Variants">
-    {#snippet template(args)}
-        {@const { variant, ...otherArgs } = args}
-        <Stack>
-            {#each inputVariantList as variant (variant)}
-                <Stack direction="row" alignment="center" justification="start">
-                    <Typography class="w-16">{variant}</Typography>
-                    <Switch {...otherArgs} {variant} />
-                </Stack>
-            {/each}
-        </Stack>
-    {/snippet}
-</Story> -->
 
 <Story name="In Field">
     {#snippet template(args)}

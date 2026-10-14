@@ -1,11 +1,11 @@
 <script lang="ts">
     import { resolve } from '$app/paths';
     import { page } from '$app/state';
-    import { getLocaleContext } from '@lib/i18n';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import { type ErrorType, createOtherError } from '@lib/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import { type ErrorType, createOtherError, loginPageUrl, sanitizeLocalUrl } from '#lib/utils';
     import type { PageData } from './$types';
 
     const locale = getLocaleContext();
@@ -15,8 +15,11 @@
     let errorType = $derived(page.url.searchParams.get('errorType') as ErrorType | null);
     let errorDetail = $derived(page.state.errorDetail);
     let returnUrl = $derived.by(() => {
-        if (data.returnUrl) {
-            return data.returnUrl;
+        // `data.returnUrl` is already sanitized server-side; re-check it here so this button cannot
+        // navigate off-site even if a crafted `?returnUrl=` ever reaches the component unfiltered.
+        const requested = sanitizeLocalUrl(data.returnUrl);
+        if (requested) {
+            return requested;
         }
 
         if (
@@ -25,14 +28,10 @@
             errorType === 'auth-error' ||
             errorType === 'auth-session-expired'
         ) {
-            const searchParams = new URLSearchParams({
-                prompt: 'true',
-                errorType
-            });
-            return resolve('/login') + `?${searchParams}`;
+            return loginPageUrl({ prompt: true, errorType });
         }
 
-        return resolve('/game');
+        return resolve('/(auth)/game');
     });
 
     let message = $derived.by(() => {
@@ -52,7 +51,7 @@
 <CenteredLayout>
     <ErrorCard error={createOtherError(message, errorDetail)}>
         {#snippet actions()}
-            <Button color="primary" href={returnUrl || '/game'}>
+            <Button color="primary" href={returnUrl}>
                 {errorDetail ? locale.t('common.refresh') : locale.t('common.back')}
             </Button>
         {/snippet}

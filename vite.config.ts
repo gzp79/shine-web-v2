@@ -1,4 +1,6 @@
+import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import tailwindcss from '@tailwindcss/vite';
 import { svelteTesting } from '@testing-library/svelte/vite';
 import fs from 'node:fs';
@@ -15,8 +17,9 @@ if (['dev', 'local', 'mock'].includes(config.environment) && !process.env.LOG_LE
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
 }
 
-const isBuildCommand = process.argv.includes('build');
-if (isBuildCommand && config.environment !== 'prod') {
+const isStorybook = process.argv.some((arg) => arg.includes('storybook'));
+const isAppBuild = !isStorybook && process.argv.includes('build');
+if (isAppBuild && config.environment !== 'prod') {
     throw new Error(
         `Build requires production config. Current environment is "${config.environment}". Run "pnpm run env:prod" before building.`
     );
@@ -83,7 +86,7 @@ function serverConfigs() {
 
 /// Prevents mock infrastructure routes from being bundled in non-mock environments
 function excludeMocks(): Plugin {
-    const excluded = ['__mock', '__test', '@mocks'];
+    const excluded = ['__mock', '__test', '#mocks'];
 
     const isMockRoute = (id: string) => {
         const normalizedId = id.split('?')[0]!.replaceAll('\\', '/');
@@ -122,7 +125,23 @@ export default defineConfig({
     plugins: [
         excludeMocks(),
         tailwindcss(),
-        sveltekit(),
+        sveltekit({
+            preprocess: vitePreprocess(),
+            inspector: {
+                showToggleButton: 'always',
+                toggleButtonPos: 'bottom-right'
+            },
+            compilerOptions: {
+                experimental: {
+                    async: true
+                }
+            },
+            adapter: adapter(),
+            // Path aliases are declared as subpath imports in the package.json `imports` field
+            experimental: {
+                remoteFunctions: true
+            }
+        }),
         svelteTesting(),
         viteStaticCopy({
             targets: [...additionalAssets]

@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
     import type { ClassValue } from 'svelte/elements';
-    import ContainerContent, { type ContainerContentProps } from '@lib/ui/atoms/layouts/ContainerContent.svelte';
-    import ContainerRoot, { type ContainerRootProps } from '@lib/ui/atoms/layouts/ContainerRoot.svelte';
+    import ContainerContent, { type ContainerContentProps } from '#lib/ui/atoms/layouts/ContainerContent.svelte';
+    import ContainerRoot, { type ContainerRootProps } from '#lib/ui/atoms/layouts/ContainerRoot.svelte';
 
     type RootProps = Omit<ContainerRootProps, 'class' | 'children' | 'data-slot'>;
     type ContentProps = Omit<ContainerContentProps, 'class' | 'children' | 'data-slot'>;

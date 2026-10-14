@@ -1,6 +1,6 @@
-import { config } from '@config';
+import { config } from '#config';
 import z from 'zod';
-import { joinURL, toQueryString } from '@lib/utils';
+import { joinURL, toQueryString } from '#lib/utils';
 
 export const authApiRoutes = {
     providers() {

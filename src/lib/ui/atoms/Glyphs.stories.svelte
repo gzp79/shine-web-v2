@@ -1,11 +1,11 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { iconSizeList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import GlyphBase, { type GlyphBaseProps, type GlyphSet } from '@lib/ui/atoms/glyphs/GlyphBase.svelte';
-    import brandIcons from '@lib/ui/atoms/glyphs/brands/all';
-    import flagIcons from '@lib/ui/atoms/glyphs/flags/all';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
+    import { iconSizeList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import GlyphBase, { type GlyphBaseProps, type GlyphSet } from '#lib/ui/atoms/glyphs/GlyphBase.svelte';
+    import brandIcons from '#lib/ui/atoms/glyphs/brands/all';
+    import flagIcons from '#lib/ui/atoms/glyphs/flags/all';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
 
     const { Story } = defineMeta({
         title: 'Atoms/Theme/Glyphs',

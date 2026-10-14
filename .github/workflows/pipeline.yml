@@ -32,14 +32,14 @@ jobs:
                   run_install: true
                   cache: true
 
-            - name: Sync SvelteKit
-              run: pnpm exec svelte-kit sync
-
             - name: Setup mock environment
               run: |
                   echo "127.0.0.1 local.scytta.com" | sudo tee -a /etc/hosts
                   pnpm run mkcert
                   pnpm run env:mock
+
+            - name: Sync SvelteKit
+              run: pnpm exec svelte-kit sync
 
             - name: Install Playwright browsers
               run: pnpm exec playwright install --with-deps
@@ -52,6 +52,41 @@ jobs:
 
             - name: Integration tests
               run: pnpm run test:integration
+
+    storybook:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - uses: actions/checkout@v7
+              with:
+                  submodules: recursive
+
+            - uses: actions/setup-node@v7
+              with:
+                  node-version: '24'
+
+            - uses: pnpm/action-setup@v6.1.0
+              with:
+                  version: 12.4.1
+                  run_install: true
+                  cache: true
+
+            - name: Select production config
+              run: pnpm run env:prod
+
+            - name: Sync SvelteKit
+              run: pnpm exec svelte-kit sync
+
+            - name: Install Playwright browser
+              run: pnpm exec playwright install --with-deps chromium
+
+            - name: Build Storybook
+              run: pnpm run build:storybook
+
+            - name: Story smoke test
+              run: pnpm exec tsx scripts/smoke-storybook.ts
 
     build:
         runs-on: ubuntu-latest
@@ -75,11 +110,11 @@ jobs:
                   run_install: true
                   cache: true
 
-            - name: Sync SvelteKit
-              run: pnpm exec svelte-kit sync
-
             - name: Select production config
               run: pnpm run env:prod
+
+            - name: Sync SvelteKit
+              run: pnpm exec svelte-kit sync
 
             - name: Get wrangler version
               id: wrangler_version

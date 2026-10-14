@@ -1,17 +1,16 @@
 <script module lang="ts">
-    import { lorem } from '@sb/lorem';
+    import { lorem } from '#sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, spacingList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import { layoutWidthList } from '@lib/ui/atoms/layouts';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { actionColorList, spacingList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import { layoutWidthList } from '#lib/ui/atoms/layouts';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
     import { Alert } from '../data/alert';
 
     const { Story } = defineMeta({
         component: Box,
         title: 'Atoms/Layouts/Box',
-        args: {},
         argTypes: {
             color: {
                 control: { type: 'select' },

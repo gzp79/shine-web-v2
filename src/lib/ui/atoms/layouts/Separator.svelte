@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { Separator as SeparatorPrimitive } from 'bits-ui';
-    import { cn } from '@lib/ui/utils';
+    import { cn } from '#lib/ui/utils';
 
     export type SeparatorProps = SeparatorPrimitive.RootProps & {
         variant?: 'default' | 'subtle';

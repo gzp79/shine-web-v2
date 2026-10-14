@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { ClassValue } from 'svelte/elements';
-    import type { ChatStream } from '@lib/builder';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { ChatGap, ChatInput, ChatMessageList } from '@lib/ui/components/chat';
+    import type { ChatStream } from '#lib/builder';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { ChatGap, ChatInput, ChatMessageList } from '#lib/ui/components/chat';
     import ChatMessage from './ChatMessage.svelte';
     import ChatPing from './ChatPing.svelte';
     import ChatPong from './ChatPong.svelte';

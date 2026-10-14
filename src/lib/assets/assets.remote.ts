@@ -1,10 +1,10 @@
+import { config } from '#config';
 import { query } from '$app/server';
-import { config } from '@config';
 import z from 'zod';
-import { type AssetKind, isAssetKind } from '@lib/assets/asset-kind';
-import { logAPI } from '@lib/loggers';
-import { getMockWorkerHeader, throwRemoteHttpError } from '@lib/server/utils';
-import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
+import { type AssetKind, isAssetKind } from '#lib/assets/asset-kind';
+import { logAPI } from '#lib/loggers';
+import { getMockWorkerHeader, throwRemoteHttpError } from '#lib/server/utils';
+import { createFetchError, parseResponse, retryWithBackoff } from '#lib/utils';
 
 const VersionSchema = z.object({ version: z.string() });
 

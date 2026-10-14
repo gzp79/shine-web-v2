@@ -1,9 +1,9 @@
 <script module lang="ts">
     import { UAParser } from 'ua-parser-js';
-    import { getLocaleContext } from '@lib/i18n';
-    import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
-    import brands from '@lib/ui/atoms/glyphs/brands/all';
-    import Card from '@lib/ui/atoms/layouts/Card.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import PropertyList from '#lib/ui/atoms/data/PropertyList.svelte';
+    import brands from '#lib/ui/atoms/glyphs/brands/all';
+    import Card from '#lib/ui/atoms/layouts/Card.svelte';
     import type { ActiveSession } from './auth.remote';
 
     export type ActiveSessionItemProps = {

@@ -1,8 +1,8 @@
 <script module lang="ts">
     import { DropdownMenu as DropdownMenuPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
     import type { Snippet } from 'svelte';
-    import CheckIcon from '@lib/ui/atoms/icons/common/Check.svelte';
-    import { cn } from '@lib/ui/utils';
+    import CheckIcon from '#lib/ui/atoms/icons/common/Check.svelte';
+    import { cn } from '#lib/ui/utils';
 
     export type RadioItemProps = WithoutChildrenOrChild<DropdownMenuPrimitive.RadioItemProps> & {
         children?: Snippet;

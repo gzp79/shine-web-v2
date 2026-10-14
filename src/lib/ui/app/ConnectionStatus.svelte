@@ -1,6 +1,6 @@
 <script module lang="ts">
-    import type { SocketStatus } from '@lib/builder';
-    import { createContext } from '@lib/ui/utils';
+    import type { SocketStatus } from '#lib/builder';
+    import { createContext } from '#lib/ui/utils';
 
     /** Live status a descendant region publishes for the app-shell indicator to reflect. */
     export type ConnectionStatusSource = {
@@ -15,7 +15,7 @@
     };
 
     const { get: getConnectionStatusContext, set: setConnectionStatusContext } =
-        createContext<ConnectionStatusContext>('connection-status-context');
+        createContext<ConnectionStatusContext>('ConnectionStatusContext');
     export { getConnectionStatusContext };
 
     /**
@@ -23,7 +23,7 @@
      * the app shell (see {@link ConnectionStatus}). A descendant region (e.g. the auth layout)
      * later calls `set()` to publish its live status; until then the indicator renders nothing.
      */
-    export function createConnectionStatusContext(): ConnectionStatusContext {
+    export function provideConnectionStatusContext(): ConnectionStatusContext {
         let source = $state<ConnectionStatusSource | undefined>(undefined);
 
         const ctx: ConnectionStatusContext = {
@@ -42,11 +42,11 @@
 
 <script lang="ts">
     import type { ClassValue } from 'svelte/elements';
-    import { getLocaleContext } from '@lib/i18n';
-    import ConnectionConnecting from '@lib/ui/atoms/icons/common/ConnectionConnecting.svelte';
-    import ConnectionOffline from '@lib/ui/atoms/icons/common/ConnectionOffline.svelte';
-    import ConnectionOnline from '@lib/ui/atoms/icons/common/ConnectionOnline.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import ConnectionConnecting from '#lib/ui/atoms/icons/common/ConnectionConnecting.svelte';
+    import ConnectionOffline from '#lib/ui/atoms/icons/common/ConnectionOffline.svelte';
+    import ConnectionOnline from '#lib/ui/atoms/icons/common/ConnectionOnline.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
 
     export type ConnectionStatusProps = {
         class?: ClassValue;

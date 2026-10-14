@@ -1,7 +1,7 @@
 <script lang="ts" module>
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import { cn } from '@lib/ui/utils';
+    import { cn } from '#lib/ui/utils';
 
     export const variantList = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'text', 'footnote', 'code', 'label'] as const;
     export type Variant = (typeof variantList)[number];

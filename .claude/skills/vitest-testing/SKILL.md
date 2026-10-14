@@ -14,7 +14,7 @@ description: Use when testing component props, state, UI logic without API calls
 ## Basic Pattern
 
 ```typescript
-import { step } from '@testing';
+import { step } from '#testing';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, test } from 'vitest';
@@ -129,7 +129,7 @@ const slow = await screen.findByText('Slow', {}, { timeout: 5000 });
 Use the `step()` helper to organize complex tests into logical steps with logging.
 
 ```typescript
-import { step } from '@testing';
+import { step } from '#testing';
 
 test('complex workflow', async () => {
     render(Component, {
@@ -155,7 +155,7 @@ test('complex workflow', async () => {
 Use `renderWithLayout()` for components that require application layout contexts. This wraps your component with the layout provider similar to Storybook's decorator pattern.
 
 ```typescript
-import { renderWithLayout } from '@testing';
+import { renderWithLayout } from '#testing';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, test } from 'vitest';
@@ -194,7 +194,7 @@ test('component using i18n context', async () => {
 Use `setupPortal()` to handle portal setup/teardown automatically.
 
 ```typescript
-import { setupPortal, withinPortal } from '@testing';
+import { setupPortal, withinPortal } from '#testing';
 
 const portal = setupPortal();
 
@@ -212,10 +212,10 @@ test('dropdown menu', async () => {
 
 ## Testing Runes Modules (`.svelte.ts`)
 
-For plain logic modules that use `$state`/`$derived`/`$effect` but are not components, use `testInEffectRoot` from `@testing`. Runes only run inside an effect root — without it, `$derived`/`$effect` are inert.
+For plain logic modules that use `$state`/`$derived`/`$effect` but are not components, use `testInEffectRoot` from `#testing`. Runes only run inside an effect root — without it, `$derived`/`$effect` are inert.
 
 ```typescript
-import { testInEffectRoot } from '@testing';
+import { testInEffectRoot } from '#testing';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
@@ -254,7 +254,7 @@ describe('myRunesModule', () => {
 
 - `testInEffectRoot` calls `flushSync()` after setup and registers `afterEach(cleanup)` automatically — no manual teardown needed except for early-dispose tests.
 - Always call `flushSync()` after `vi.advanceTimersByTime()` to flush reactive updates triggered by state changes inside the timer callback.
-- `Math.clamp` / `Math.round_q` are available — `@lib/prelude-math` is loaded in `vitest-setup.ts`.
+- `Math.clamp` / `Math.round_q` are available — `#lib/prelude-math` is loaded in `vitest-setup.ts`.
 
 ## Rules
 
@@ -269,7 +269,7 @@ describe('myRunesModule', () => {
 - Use `step()` helper for complex multi-step tests
 - Use `withinPortal()` helper for testing portal content
 - Use `renderWithLayout()` for components that need layout context (locale, theme, portals)
-- Use `testInEffectRoot()` from `@testing` for `.svelte.ts` runes modules (not components)
+- Use `testInEffectRoot()` from `#testing` for `.svelte.ts` runes modules (not components)
 
 **DON'T:**
 

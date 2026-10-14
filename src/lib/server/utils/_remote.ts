@@ -1,12 +1,11 @@
-import { resolve } from '$app/paths';
 import { getRequestEvent } from '$app/server';
 import { error, isHttpError, redirect } from '@sveltejs/kit';
-import { logAPI } from '@lib/loggers';
-import { describeError, isAppError } from '@lib/utils';
+import { logAPI } from '#lib/loggers';
+import { IS_MOCK, VERBOSE_ERRORS, describeError, errorPageUrl, isAppError, sanitizeLocalUrl } from '#lib/utils';
 
 export function getMockWorkerHeader(): Headers {
     const headers = new Headers();
-    if (import.meta.env.VITE_MOCK) {
+    if (IS_MOCK) {
         const { request } = getRequestEvent();
         const worker = request.headers.get('x-mock-worker');
         if (worker) {
@@ -100,7 +99,9 @@ export function validateProxyResponse(response: Response): void {
         logAPI.error(
             `Upstream server error [${response.url.split('?')[0]}]: ${response.status} ${response.statusText}`
         );
-        throw redirect(302, resolve('/error') + '?errorType=server-down');
+        // No `returnUrl`: this runs while proxying an API call, so the originating page is not
+        // reliably known here (`referer` is caller-controlled). The error page picks its own default.
+        throw redirect(302, errorPageUrl('server-down'));
     }
 }
 
@@ -110,23 +111,17 @@ export function validateProxyResponse(response: Response): void {
 export function throwRemoteHttpError(e: unknown, fallbackMessage = 'Remote service unavailable'): never {
     if (isHttpError(e)) throw e;
 
-    const detail = isAppError(e) || !import.meta.env.VITE_PROD ? describeError(e) : fallbackMessage;
+    const detail = isAppError(e) || VERBOSE_ERRORS ? describeError(e) : fallbackMessage;
     throw error(502, detail);
 }
 
+/// Server-side gate for a caller-supplied return URL. Shares its rules with the client-side check
+/// in `sanitizeLocalUrl` — consumers that navigate to the result should apply it again, so a path
+/// that bypasses this layer still cannot redirect the user off-site.
 export function sanitizedReturnUrl(rawUrl: string | null | undefined): string | null {
-    if (rawUrl) {
-        try {
-            // Try to parse as a relative URL against a dummy base to ensure it's well-formed
-            const parsed = new URL(rawUrl, 'http://localhost');
-            if (parsed.origin === 'http://localhost' && rawUrl.startsWith('/')) {
-                const sanitized = parsed.pathname + parsed.search + parsed.hash;
-                logAPI.info('Sanitized return URL:', sanitized);
-                return sanitized;
-            }
-        } catch (e) {
-            logAPI.error(`Failed to parse return URL (${rawUrl}):`, e);
-        }
+    const sanitized = sanitizeLocalUrl(rawUrl);
+    if (rawUrl && sanitized === null) {
+        logAPI.warn(`Rejected a non-local return URL: ${rawUrl}`);
     }
-    return null;
+    return sanitized;
 }

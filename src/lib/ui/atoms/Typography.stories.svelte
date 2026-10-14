@@ -1,13 +1,12 @@
 <script module lang="ts">
-    import { lorem } from '@sb/lorem';
+    import { lorem } from '#sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Typography, { variantList, weightList } from '@lib/ui/atoms/Typography.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import Typography, { variantList, weightList } from '#lib/ui/atoms/Typography.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         component: Typography,
         title: 'Atoms/Theme/Typography',
-        args: {},
         argTypes: {
             variant: {
                 control: { type: 'select' },

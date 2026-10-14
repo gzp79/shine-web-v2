@@ -12,7 +12,8 @@
 - **Framework:** Svelte 5 (runes) + SvelteKit
 - **Server:** Remote functions (`query`, `form`, `command`)
 - **CSS:** Tailwind 4 (semantic tokens)
-- **Testing:** Vitest (unit), Playwright (integration/E2E), Storybook 10 (visual)
+- **Testing:** Vitest (unit), Playwright (integration/E2E), Storybook 10 (visual tryout, plus
+  optional visual tests where Vitest/Playwright cannot cover it)
 - **Rendering:** CSR by default (`ssr = false` in root layout); individual pages can opt in with `export const ssr = true` in `+page.ts`
 
 ## Class Members
@@ -20,6 +21,24 @@
 - **Private:** native `#field` / `#method()` (real runtime privacy, modern TS default)
 - **Protected / inherited:** TS `protected` (no prefix) — `#` cannot be `protected` or overridden
 - Do not use the legacy `_`-prefixed `private` convention in new code
+
+## Contexts
+
+Accessors come from `createContext<T>('XContext')` (`#lib/utils`); the name is the context type in
+PascalCase and appears only in errors.
+
+| Function                    | Does                                 |
+| --------------------------- | ------------------------------------ |
+| `provideXContext(options?)` | constructs the value and installs it |
+| `setXContext(value)`        | installs a value the caller owns     |
+| `getXContext()`             | reads; **throws** if absent          |
+| `tryGetXContext()`          | reads; `undefined` if absent         |
+
+- `options` configure construction — never pass the value itself, that is `setXContext`
+- `provideXContext` delegates to `setXContext` when both exist
+- `tryGet*` only where a missing provider is valid (`Field`, `InputGroup`, `ContainerRoot`)
+- No `use*` prefix; for a lifetime-bound reference use `track` (`UserStore.track`)
+- Install before any `await` — async Svelte throws `set_context_after_init` after init
 
 ## Component Usage
 
@@ -38,6 +57,15 @@ pnpm run env:local  # Local backend
 pnpm run env:dev    # Dev backend
 pnpm run env:prod   # Production
 ```
+
+**Env flags:** import `IS_MOCK`, `IS_PROD`, `SKIP_CAPTCHA`, ... from `#lib/utils` — never read
+`import.meta.env.VITE_*` directly. `vite build` inlines the defines as real booleans, but vitest
+hands them back as the strings `'true'`/`'false'`, and `'false'` is truthy. Keep each flag a plain
+`=== true || === 'true'` comparison: wrapping it in a helper call stops Vite folding it to a literal
+and drags guarded `#mocks` imports into the bundle.
+
+**Unit tests stay env-agnostic** — they must pass under any selected env. Never assert on
+flag-derived values; stub env-gated module bodies instead (`vi.mock('#mocks/setup-client', () => ({}))`).
 
 ## MCP (Svelte)
 

@@ -117,6 +117,7 @@
         "networkError": "Hálózati hiba",
         "dataValidationError": "Adat érvényesítési hiba",
         "internalError": "Belső hiba",
+        "retryLimitError": "A szolgáltatás nem érhető el",
         "error": "Hiba"
     },
     "error": {

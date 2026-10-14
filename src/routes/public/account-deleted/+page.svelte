@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { getLocaleContext } from '@lib/i18n';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Warning from '@lib/ui/atoms/icons/common/Warning.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Warning from '#lib/ui/atoms/icons/common/Warning.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const locale = getLocaleContext();
 </script>

@@ -1,7 +1,7 @@
 <script lang="ts" module>
-    import Typography, { type TypographyProps } from '@lib/ui/atoms/Typography.svelte';
-    import AlertItem, { type AlertItemBaseProps } from '@lib/ui/atoms/data/alert/AlertItem.svelte';
-    import { cn } from '@lib/ui/utils';
+    import Typography, { type TypographyProps } from '#lib/ui/atoms/Typography.svelte';
+    import AlertItem, { type AlertItemBaseProps } from '#lib/ui/atoms/data/alert/AlertItem.svelte';
+    import { cn } from '#lib/ui/utils';
 
     export type AlertDescriptionProps = Omit<AlertItemBaseProps, 'data-slot'> & {
         children: TypographyProps['children'];

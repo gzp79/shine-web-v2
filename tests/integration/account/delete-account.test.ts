@@ -29,7 +29,7 @@ test('delete account sends typed confirmation as a query param', async ({ page }
     });
 
     await test.step('confirm deletion and verify confirmation query param', async () => {
-        await page.getByRole('link', { name: 'Delete', exact: true }).click();
+        await page.getByRole('button', { name: 'Delete', exact: true }).click();
 
         await page.waitForURL(/\/public\/account-deleted/);
 

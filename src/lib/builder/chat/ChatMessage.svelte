@@ -1,7 +1,7 @@
 <script module lang="ts">
-    import UserName from '@lib/account/UserName.svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import { ChatBubble } from '@lib/ui/components/chat';
+    import UserName from '#lib/account/UserName.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import { ChatBubble } from '#lib/ui/components/chat';
     import type { TextMessage } from './chatMessages';
 
     export type ChatMessageProps = {

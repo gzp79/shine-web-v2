@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
-    import { cn } from '@lib/ui/utils';
+    import { cn } from '#lib/ui/utils';
 
     export type HeadingProps = DropdownMenuPrimitive.GroupHeadingProps;
 </script>

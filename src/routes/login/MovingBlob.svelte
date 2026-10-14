@@ -1,6 +1,6 @@
 <script module lang="ts">
-    import { type ResponsiveProp, toResponsiveVar } from '@lib/ui/atoms/_responsive-prop';
-    import { cn } from '@lib/ui/utils';
+    import { type ResponsiveProp, toResponsiveVar } from '#lib/ui/atoms/_responsive-prop';
+    import { cn } from '#lib/ui/utils';
 
     type MovingBlobProps = {
         src: string[];

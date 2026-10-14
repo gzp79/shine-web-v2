@@ -1,5 +1,5 @@
-import { config } from '@config';
-import { testInEffectRoot } from '@testing';
+import { config } from '#config';
+import { testInEffectRoot } from '#testing';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { BuilderHub, builderHubUrl } from './hub';
 

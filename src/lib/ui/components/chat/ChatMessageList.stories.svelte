@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
     import ChatBubble from './ChatBubble.svelte';
     import ChatGap from './ChatGap.svelte';
     import ChatMessageList from './ChatMessageList.svelte';
@@ -34,18 +34,14 @@
     {/if}
 {/snippet}
 
-<Story name="Default">
-    {#snippet template()}
-        <Box width="fit" contentClass="h-96 w-96">
-            <ChatMessageList messages={conversation} {item} />
-        </Box>
-    {/snippet}
+<Story name="Default" asChild>
+    <Box width="fit" contentClass="h-96 w-96">
+        <ChatMessageList messages={conversation} {item} />
+    </Box>
 </Story>
 
-<Story name="Empty">
-    {#snippet template()}
-        <Box width="fit" contentClass="h-96 w-96">
-            <ChatMessageList messages={[]} {item} />
-        </Box>
-    {/snippet}
+<Story name="Empty" asChild>
+    <Box width="fit" contentClass="h-96 w-96">
+        <ChatMessageList messages={[]} {item} />
+    </Box>
 </Story>

@@ -1,9 +1,9 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
     import type { AriaRole, ClassValue } from 'svelte/elements';
-    import { type ActionColor, type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
-    import { type LayoutWidth, clampColorIndex, nextColorIndex } from '@lib/ui/atoms/layouts';
-    import { cn, createContext } from '@lib/ui/utils';
+    import { type ActionColor, type ResponsiveSpacing, toSpacingClasses } from '#lib/ui/atoms';
+    import { type LayoutWidth, clampColorIndex, nextColorIndex } from '#lib/ui/atoms/layouts';
+    import { cn, createContext } from '#lib/ui/utils';
 
     export type ContainerRootProps = {
         color?: ActionColor;
@@ -24,7 +24,8 @@
         nestingLevel: number;
         colorIndex: number;
     }
-    const { tryGet: tryGetContainerContext, set: setContainerContext } = createContext<ContainerInfo>('Container');
+    const { tryGet: tryGetContainerContext, set: setContainerContext } =
+        createContext<ContainerInfo>('ContainerContext');
     export { tryGetContainerContext };
 </script>
 

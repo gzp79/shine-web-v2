@@ -1,4 +1,4 @@
-import { type AppError, type QueryLike, async, createAppError, isAppError } from '@lib/utils';
+import { type AppError, type QueryLike, async, createAppError, isAppError } from '#lib/utils';
 
 function createAwaited<T>(
     promise: Promise<T>,

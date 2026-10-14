@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import { type ActionColor, type ContainerColor, type DataColor } from '@lib/ui/atoms';
+    import { type ActionColor, type ContainerColor, type DataColor } from '#lib/ui/atoms';
 
     interface Props {
         color: ActionColor | ContainerColor | DataColor;

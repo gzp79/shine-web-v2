@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import { DropdownItem } from '@lib/ui/atoms/dropdown-menu';
+    import { DropdownItem } from '#lib/ui/atoms/dropdown-menu';
 </script>
 
 <script lang="ts">

@@ -1,14 +1,14 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, sizeList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import DropdownIcon from '@lib/ui/atoms/icons/common/Dropdown.svelte';
-    import { inputVariantList } from '@lib/ui/atoms/input';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Input from '@lib/ui/atoms/input/Input.svelte';
-    import InputGroup, { type InputGroupProps } from '@lib/ui/atoms/input/InputGroup.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { actionColorList, sizeList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import DropdownIcon from '#lib/ui/atoms/icons/common/Dropdown.svelte';
+    import { inputVariantList } from '#lib/ui/atoms/input';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Input from '#lib/ui/atoms/input/Input.svelte';
+    import InputGroup, { type InputGroupProps } from '#lib/ui/atoms/input/InputGroup.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         component: InputGroup,

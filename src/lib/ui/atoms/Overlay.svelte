@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-    import { cn } from '@lib/ui/utils';
+    import { cn } from '#lib/ui/utils';
 
     let { opacity, src, class: className, style }: OverlayProps = $props();
 
