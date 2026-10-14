@@ -34,8 +34,11 @@
     const unlinkIdentity = async (provider: string, providerUserId: string) => {
         isUnlinking = true;
         try {
-            await unlinkIdentityCommand({ provider, providerUserId });
-            await identities.refresh();
+            await unlinkIdentityCommand({ provider, providerUserId }).updates(
+                identities.withOverride((list) =>
+                    list.filter((i) => i.provider !== provider || i.providerUserId !== providerUserId)
+                )
+            );
         } finally {
             isUnlinking = false;
         }

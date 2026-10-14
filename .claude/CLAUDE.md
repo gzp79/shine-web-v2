@@ -24,7 +24,7 @@
 
 ## Contexts
 
-Accessors come from `createContext<T>('XContext')` (`#lib/ui/utils`); the name is the context type in
+Accessors come from `createContext<T>('XContext')` (`#lib/utils`); the name is the context type in
 PascalCase and appears only in errors.
 
 | Function                    | Does                                 |
@@ -37,7 +37,7 @@ PascalCase and appears only in errors.
 - `options` configure construction — never pass the value itself, that is `setXContext`
 - `provideXContext` delegates to `setXContext` when both exist
 - `tryGet*` only where a missing provider is valid (`Field`, `InputGroup`, `ContainerRoot`)
-- No `use*` prefix; for a lifetime-bound reference use `hold` (`UserStore.hold`)
+- No `use*` prefix; for a lifetime-bound reference use `track` (`UserStore.track`)
 - Install before any `await` — async Svelte throws `set_context_after_init` after init
 
 ## Component Usage

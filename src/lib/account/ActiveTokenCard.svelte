@@ -33,8 +33,9 @@
     const revokeToken = async (tokenHash: string) => {
         isRevoking = true;
         try {
-            await revokeTokenCommand(tokenHash);
-            await tokens.refresh();
+            await revokeTokenCommand(tokenHash).updates(
+                tokens.withOverride((list) => list.filter((t) => t.tokenHash !== tokenHash))
+            );
         } finally {
             isRevoking = false;
         }

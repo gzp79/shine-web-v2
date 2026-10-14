@@ -3,24 +3,37 @@ import { getLocaleFromRequest } from '#lib/i18n';
 import { logAPI } from '#lib/loggers';
 import '#lib/prelude-math';
 import { getThemeFromRequest } from '#lib/theme';
-import { IS_MOCK, describeError } from '#lib/utils';
+import { type AppError, IS_MOCK, VERBOSE_ERRORS, createAppError, describeError } from '#lib/utils';
 
 // Initialize MSW for mock environment
 if (IS_MOCK) {
     await import('#mocks/setup-server');
 }
 
+/// The `AppError` a client may see. `createFetchError` already withholds bodies and URLs outside
+/// verbose mode, but `other`/`retryLimit` details are arbitrary payloads, so in prod only the
+/// upstream status survives.
+function clientAppError(error: unknown): AppError {
+    const appError = createAppError(error);
+    if (VERBOSE_ERRORS) return appError;
+    if (appError.kind === 'fetch') {
+        return { ...appError, details: { status: appError.details?.status } };
+    }
+    return { ...appError, details: undefined };
+}
+
 /// SvelteKit masks any unexpected (non-HttpError) server-side throw as a generic
 /// 500 "Internal Error", leaking the real cause only to the server console. This hook is
 /// invoked for every error, but only unexpected ones (kind 'unknown') are customized; `describeError` surfaces the underlying cause
-/// to the client (withholding sensitive detail in prod on its own).
+/// to the client (withholding sensitive detail in prod on its own), and `appError` carries the
+/// structured cause so the client can recover its kind and status.
 export const handleError: HandleServerError = ({ kind, error }) => {
     // app and framework errors (404, error() helper, ...) keep their defaults
     if (kind !== 'unknown') {
         return;
     }
     logAPI.error('Unhandled server error [500]', error);
-    return { message: `Internal Error: ${describeError(error)}` };
+    return { message: `Internal Error: ${describeError(error)}`, appError: clientAppError(error) };
 };
 
 const TRACE_ID_HEADER = 'x-trace-id';

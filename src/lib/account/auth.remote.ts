@@ -238,6 +238,9 @@ export const revokeToken = command(z.string(), async (tokenHash: string) => {
 
         logAPI.log('revokeToken completed');
     });
+
+    // Single-flight: the refreshed list rides back on this response instead of a second round trip.
+    await queryActiveTokens().refresh();
 });
 
 export const unlinkIdentity = command(
@@ -269,6 +272,9 @@ export const unlinkIdentity = command(
 
             logAPI.log('unlinkIdentity completed');
         });
+
+        // Single-flight: the refreshed list rides back on this response instead of a second round trip.
+        await queryLinkedIdentities().refresh();
     }
 );
 

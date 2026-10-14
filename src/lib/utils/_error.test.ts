@@ -51,6 +51,16 @@ describe('createAppError', () => {
             expect(createAppError({ status: 503, body: {} }).message).toBe('HTTP 503');
         });
 
+        test('does not mistake an Error subclass with a status for one', () => {
+            class ApiError extends Error {
+                status = 503;
+            }
+            const result = createAppError(new ApiError('upstream down'));
+
+            expect(result.kind).toBe('other');
+            expect(result.message).toBe('upstream down');
+        });
+
         test('unwraps the AppError the body carries', () => {
             const appError = createOtherError('upstream detail');
             expect(createAppError({ status: 502, body: { message: 'generic', appError } })).toBe(appError);

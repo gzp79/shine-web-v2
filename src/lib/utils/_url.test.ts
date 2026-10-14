@@ -47,7 +47,11 @@ describe('sanitizeLocalUrl', () => {
         '/\\hack.com/x',
         '\\\\hack.com',
         'javascript:alert(1)',
-        'http:/hack.com'
+        'http:/hack.com',
+        // Dot segments that normalise to a protocol-relative path after the origin check.
+        '/.//hack.com',
+        '/..//hack.com',
+        '/a/..//hack.com'
     ])('rejects %s', (raw) => {
         expect(sanitizeLocalUrl(raw)).toBeNull();
     });

@@ -22,7 +22,15 @@
     import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
     import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
     import Turnstile from '#lib/ui/components/forms/Turnstile.svelte';
-    import { type ErrorType, type LoginHint, SKIP_CAPTCHA, async, pascalCase, sanitizeLocalUrl } from '#lib/utils';
+    import {
+        type ErrorType,
+        type LoginHint,
+        SKIP_CAPTCHA,
+        async,
+        loginPageUrl,
+        pascalCase,
+        sanitizeLocalUrl
+    } from '#lib/utils';
     import EmailLoginButton from './EmailLoginButton.svelte';
     import MovingBlob from './MovingBlob.svelte';
 
@@ -39,13 +47,13 @@
 
     const prompt = $derived(!!page.url.searchParams.get('prompt'));
     const returnUrl = $derived(page.url.searchParams.get('returnUrl') ?? undefined);
+    const hint = $derived((page.url.searchParams.get('hint') as LoginHint | null) ?? undefined);
 
     const extraInfo: HintInfo = $derived.by(() => {
-        let hint = page.url.searchParams.get('hint');
         let errorType = page.url.searchParams.get('errorType');
 
         if (hint) {
-            switch (hint as LoginHint) {
+            switch (hint) {
                 case 'login-expired':
                     return {
                         longHint: locale.t('login.infoLoginExpired'),
@@ -137,7 +145,8 @@
         // - authenticate and redirect the user to the target url
         // - or fail and redirect the user to the login page with a prompt
         logUser.log(`Trying the remember me token with returnUrl [${returnUrl}]`);
-        const errorUrl = `/login?${new URLSearchParams({ ...(returnUrl ? { returnUrl } : {}), prompt: 'true' })}`;
+        // Keep the hint so a failed silent login still explains why the user is asked to sign in.
+        const errorUrl = loginPageUrl({ returnUrl, hint, prompt: true });
         return authPages.tokenLoginUrl({ redirectUrl: sanitizedUrl, errorUrl });
     });
 

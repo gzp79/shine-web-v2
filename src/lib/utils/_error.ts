@@ -170,7 +170,7 @@ type HttpErrorShape = {
 };
 
 function isHttpErrorShape(value: unknown): value is HttpErrorShape {
-    if (!value || typeof value !== 'object') return false;
+    if (!value || typeof value !== 'object' || value instanceof Error) return false;
     const v = value as Record<string, unknown>;
     if (typeof v.status !== 'number') return false;
     return (typeof v.body === 'object' && v.body !== null) || typeof v.message === 'string';

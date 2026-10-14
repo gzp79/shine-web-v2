@@ -226,7 +226,7 @@ describe('BrowserUserStore', () => {
         expect(me.entry.name).toBe('Current User');
     });
 
-    test('hold() outside component initialisation throws and rolls back its reference', () => {
+    test('track() outside component initialisation throws and rolls back its reference', () => {
         const s = makeStore({ lookup: echoLookup(), debounceMs: DEBOUNCE, sweepIntervalMs: 0 });
 
         expect(() => s.track('a')).toThrow(/outside component initialisation/);

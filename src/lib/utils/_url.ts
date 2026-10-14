@@ -20,6 +20,9 @@ export function sanitizeLocalUrl(rawUrl: string | null | undefined): string | nu
     try {
         const parsed = new URL(rawUrl, DUMMY_ORIGIN);
         if (parsed.origin !== DUMMY_ORIGIN) return null;
+        // Dot segments are resolved after the origin check: `/.//evil.com` normalises to the
+        // protocol-relative `//evil.com`, which a browser would treat as another host.
+        if (parsed.pathname.startsWith('//')) return null;
         return parsed.pathname + parsed.search + parsed.hash;
     } catch {
         return null;

@@ -230,7 +230,7 @@ export class BrowserUserStore implements UserStore {
         } catch {
             this.#release(id);
             throw new Error(
-                `UserStore.hold(${id}): called outside component initialisation; read it with get() instead`
+                `UserStore.track(${id}): called outside component initialisation; read it with get() instead`
             );
         }
 
