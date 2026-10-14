@@ -1,6 +1,6 @@
 <script module lang="ts">
-    import type { SocketStatus } from '@lib/builder';
-    import { createContext } from '@lib/ui/utils';
+    import type { SocketStatus } from '#lib/builder';
+    import { createContext } from '#lib/ui/utils';
 
     /** Live status a descendant region publishes for the app-shell indicator to reflect. */
     export type ConnectionStatusSource = {
@@ -42,11 +42,11 @@
 
 <script lang="ts">
     import type { ClassValue } from 'svelte/elements';
-    import { getLocaleContext } from '@lib/i18n';
-    import ConnectionConnecting from '@lib/ui/atoms/icons/common/ConnectionConnecting.svelte';
-    import ConnectionOffline from '@lib/ui/atoms/icons/common/ConnectionOffline.svelte';
-    import ConnectionOnline from '@lib/ui/atoms/icons/common/ConnectionOnline.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import ConnectionConnecting from '#lib/ui/atoms/icons/common/ConnectionConnecting.svelte';
+    import ConnectionOffline from '#lib/ui/atoms/icons/common/ConnectionOffline.svelte';
+    import ConnectionOnline from '#lib/ui/atoms/icons/common/ConnectionOnline.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
 
     export type ConnectionStatusProps = {
         class?: ClassValue;

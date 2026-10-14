@@ -2,8 +2,8 @@ import { invalidate } from '$app/navigation';
 import { page } from '$app/state';
 import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
-import { logI18n } from '@lib/loggers';
-import { getCookie, onTabVisible, setCookie } from '@lib/utils';
+import { logI18n } from '#lib/loggers';
+import { getCookie, onTabVisible, setCookie } from '#lib/utils';
 import {
     type Locale,
     type TranslationKey,

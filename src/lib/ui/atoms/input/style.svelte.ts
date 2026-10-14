@@ -1,8 +1,8 @@
 import type { ClassValue } from 'clsx';
-import type { ActionColor, Size } from '@lib/ui/atoms';
-import type { InputVariant } from '@lib/ui/atoms/input';
-import { tryGetInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
-import { cn } from '@lib/ui/utils';
+import type { ActionColor, Size } from '#lib/ui/atoms';
+import type { InputVariant } from '#lib/ui/atoms/input';
+import { tryGetInputGroupContext } from '#lib/ui/atoms/input/InputGroup.svelte';
+import { cn } from '#lib/ui/utils';
 
 export type ButtonStyleConfig = {
     color?: ActionColor;

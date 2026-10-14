@@ -1,11 +1,11 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
-    import type { ActionColor, Size } from '@lib/ui/atoms';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Input from '@lib/ui/atoms/input/Input.svelte';
-    import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
-    import { cn } from '@lib/ui/utils';
-    import { ENTER } from '@lib/ui/utils/kbd';
+    import type { ActionColor, Size } from '#lib/ui/atoms';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Input from '#lib/ui/atoms/input/Input.svelte';
+    import InputGroup from '#lib/ui/atoms/input/InputGroup.svelte';
+    import { cn } from '#lib/ui/utils';
+    import { ENTER } from '#lib/ui/utils/kbd';
 
     export type ChatInputProps = {
         /** Called with the trimmed message text on submit. Empty submissions are ignored. */

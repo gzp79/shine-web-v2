@@ -1,5 +1,5 @@
 import { getContext, setContext } from 'svelte';
-import type { WithLoading, WithRefresh } from '@lib/utils';
+import type { WithLoading, WithRefresh } from '#lib/utils';
 
 const AUTHENTICATED_USER_CONTEXT_KEY = Symbol('authenticated-user-context');
 

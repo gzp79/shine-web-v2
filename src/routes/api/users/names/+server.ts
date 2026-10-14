@@ -1,9 +1,9 @@
 import { error, json } from '@sveltejs/kit';
 import z from 'zod';
-import { logAPI } from '@lib/loggers';
-import { PUBLIC_USER_INFO_MAX_IDS, PublicUserInfoResponseSchema, userApiRoutes } from '@lib/server/api/userApiRoutes';
-import { getPassThroughHeaders } from '@lib/server/utils';
-import { createFetchError, parseResponse, retryWithBackoff } from '@lib/utils';
+import { logAPI } from '#lib/loggers';
+import { PUBLIC_USER_INFO_MAX_IDS, PublicUserInfoResponseSchema, userApiRoutes } from '#lib/server/api/userApiRoutes';
+import { getPassThroughHeaders } from '#lib/server/utils';
+import { createFetchError, parseResponse, retryWithBackoff } from '#lib/utils';
 import type { RequestHandler } from './$types';
 
 const RequestSchema = z.object({

@@ -1,10 +1,10 @@
 <script module lang="ts">
-    import { getLocaleContext } from '@lib/i18n';
-    import { logAPI } from '@lib/loggers';
-    import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
-    import Card from '@lib/ui/atoms/layouts/Card.svelte';
-    import ConfirmationButton from '@lib/ui/components/buttons/ConfirmationButton.svelte';
-    import { type AppError, createAppError } from '@lib/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import { logAPI } from '#lib/loggers';
+    import PropertyList from '#lib/ui/atoms/data/PropertyList.svelte';
+    import Card from '#lib/ui/atoms/layouts/Card.svelte';
+    import ConfirmationButton from '#lib/ui/components/buttons/ConfirmationButton.svelte';
+    import { type AppError, createAppError } from '#lib/utils';
     import type { ActiveToken } from './auth.remote';
 
     export type ActiveTokenItemProps = {

@@ -1,13 +1,13 @@
 <script module lang="ts">
-    import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
-    import { authPages } from '@lib/api/authPages';
-    import { getLocaleContext } from '@lib/i18n';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Field from '@lib/ui/atoms/input/Field.svelte';
-    import Input from '@lib/ui/atoms/input/Input.svelte';
-    import Card from '@lib/ui/atoms/layouts/Card.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ConfirmationButton from '@lib/ui/components/buttons/ConfirmationButton.svelte';
+    import { getAuthenticatedUserContext } from '#lib/account/authContext.svelte';
+    import { authPages } from '#lib/api/authPages';
+    import { getLocaleContext } from '#lib/i18n';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Field from '#lib/ui/atoms/input/Field.svelte';
+    import Input from '#lib/ui/atoms/input/Input.svelte';
+    import Card from '#lib/ui/atoms/layouts/Card.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ConfirmationButton from '#lib/ui/components/buttons/ConfirmationButton.svelte';
 </script>
 
 <script lang="ts">
@@ -24,10 +24,6 @@
     // Deleting the account is irreversible, so revalidate the session at the last possible moment
     // rather than trusting the copy this page was rendered from. A `false` means the guard is
     // already on its way to login; there is nothing to report here, just nothing left to do.
-    //
-    // This is a courtesy, not a safeguard - the session can still die in the gap below, and the
-    // identity server rejects the request if it has. It keeps an expired session from turning a
-    // confirmed delete into an error page.
     const deleteAccount = async () => {
         revalidating = true;
         try {

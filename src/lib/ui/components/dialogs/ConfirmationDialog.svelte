@@ -1,10 +1,10 @@
 <script module lang="ts">
     import { type Snippet } from 'svelte';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Button, { type ButtonAction, type ButtonProps } from '@lib/ui/atoms/input/Button.svelte';
-    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
-    import Dialog, { type DialogProps } from '@lib/ui/atoms/layouts/Dialog.svelte';
-    import { type RefBinding } from '@lib/ui/utils';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Button, { type ButtonAction, type ButtonProps } from '#lib/ui/atoms/input/Button.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '#lib/ui/atoms/input/style.svelte';
+    import Dialog, { type DialogProps } from '#lib/ui/atoms/layouts/Dialog.svelte';
+    import { type RefBinding } from '#lib/ui/utils';
 
     export type ConfirmationDialogProps = Pick<
         DialogProps,

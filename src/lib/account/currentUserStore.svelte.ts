@@ -1,7 +1,7 @@
 import { browser } from '$app/env';
 import { refreshAll } from '$app/navigation';
 import type { RemoteQuery } from '$app/server';
-import { logUser } from '@lib/loggers';
+import { logUser } from '#lib/loggers';
 import {
     type AppError,
     type AutoRefresh,
@@ -9,7 +9,7 @@ import {
     type QueryLike,
     WrappedPromise,
     autoRefresh
-} from '@lib/utils';
+} from '#lib/utils';
 import { queryCurrentUserInfo } from './auth.remote';
 import type { CurrentUser } from './authContext.svelte';
 

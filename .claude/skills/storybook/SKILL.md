@@ -23,7 +23,7 @@ pnpm run build:storybook    # static build
 ```svelte
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
 
     const { Story } = defineMeta({
         component: Button,
@@ -103,7 +103,7 @@ is the old workaround for this; don't add it.)
 
 ```svelte
 <script module lang="ts">
-    import Card, { type CardProps } from '@lib/ui/atoms/layouts/Card.svelte';
+    import Card, { type CardProps } from '#lib/ui/atoms/layouts/Card.svelte';
 
     type CardArgs = CardProps & { content?: string };
 
@@ -171,7 +171,7 @@ Don't write `args: {}` or list args that only exist to register a control; `argT
 Skip `description` / `table` metadata — the Controls panel renders Name and Control only, so it has
 no effect here.
 
-## Repo helpers (`@sb` → `src/storybook/`)
+## Repo helpers (`#sb` → `src/storybook/`)
 
 A global decorator in `.storybook/preview.ts` wraps **every** story in `AppLayoutMock`, which
 provides the locale and theme contexts wired to the toolbar dropdowns, plus a `#popover` portal
@@ -308,7 +308,7 @@ A story that deliberately provokes an error (an error-state story) must be added
 generated stubs, because Storybook has no SvelteKit server behind it: `query` resolves to a
 permanently-loading result, `command`/`form` throw when called. Nothing needs mocking per file - the
 export names are read from the real module. A story that needs real data should use a mock provider
-(`@sb/MockUserStore`, `@sb/MockAuthContext`) rather than relying on a remote call.
+(`#sb/MockUserStore`, `#sb/MockAuthContext`) rather than relying on a remote call.
 
 ## Resources
 

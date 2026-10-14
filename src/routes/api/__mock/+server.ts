@@ -1,4 +1,4 @@
-import { IS_MOCK } from '@lib/utils';
+import { IS_MOCK } from '#lib/utils';
 import type { RequestHandler } from './$types';
 
 // Identifies the calling Playwright worker; absent for the admin page.
@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ request }) => {
         return new Response(null, { status: 404 });
     }
 
-    const { addOverride } = await import('@mocks/server');
+    const { addOverride } = await import('#mocks/server');
 
     const workerId = request.headers.get(WORKER_HEADER) ?? undefined;
     const { handler, params } = await request.json();
@@ -33,8 +33,8 @@ export const GET: RequestHandler = async ({ request }) => {
         return new Response(null, { status: 404 });
     }
 
-    const { registry } = await import('@mocks/registry');
-    const { getActiveOverrides } = await import('@mocks/server');
+    const { registry } = await import('#mocks/registry');
+    const { getActiveOverrides } = await import('#mocks/server');
 
     const workerId = request.headers.get(WORKER_HEADER) ?? undefined;
     const activeOverrides = getActiveOverrides(workerId);
@@ -78,7 +78,7 @@ export const DELETE: RequestHandler = async ({ request }) => {
         return new Response(null, { status: 404 });
     }
 
-    const { removeOverride, resetOverrides } = await import('@mocks/server');
+    const { removeOverride, resetOverrides } = await import('#mocks/server');
 
     const workerId = request.headers.get(WORKER_HEADER) ?? undefined;
     const text = await request.text();

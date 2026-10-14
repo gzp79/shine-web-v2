@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { config } from '@generated/config';
+import { config } from '#generated/config';
 import * as env from './_env';
 import { IS_MOCK, IS_PROD } from './_env';
 

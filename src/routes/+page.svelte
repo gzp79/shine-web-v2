@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
 </script>
 
 <CenteredLayout>

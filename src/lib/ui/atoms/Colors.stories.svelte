@@ -1,7 +1,7 @@
 <script module lang="ts">
-    import ColorSample from '@sb/ColorSample.svelte';
+    import ColorSample from '#sb/ColorSample.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, containerColorList, dataColorList } from '@lib/ui/atoms';
+    import { actionColorList, containerColorList, dataColorList } from '#lib/ui/atoms';
 
     const { Story } = defineMeta({
         title: 'Atoms/Theme/Colors'

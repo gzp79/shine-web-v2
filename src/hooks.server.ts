@@ -1,13 +1,13 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit/hooks';
-import { getLocaleFromRequest } from '@lib/i18n';
-import { logAPI } from '@lib/loggers';
-import '@lib/prelude-math';
-import { getThemeFromRequest } from '@lib/theme';
-import { IS_MOCK, describeError } from '@lib/utils';
+import { getLocaleFromRequest } from '#lib/i18n';
+import { logAPI } from '#lib/loggers';
+import '#lib/prelude-math';
+import { getThemeFromRequest } from '#lib/theme';
+import { IS_MOCK, describeError } from '#lib/utils';
 
 // Initialize MSW for mock environment
 if (IS_MOCK) {
-    await import('@mocks/setup-server');
+    await import('#mocks/setup-server');
 }
 
 /// SvelteKit masks any unexpected (non-HttpError) server-side throw as a generic

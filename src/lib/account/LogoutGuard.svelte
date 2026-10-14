@@ -1,11 +1,11 @@
 <script module lang="ts">
-    import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
-    import { authPages } from '@lib/api/authPages';
-    import { getLocaleContext } from '@lib/i18n';
-    import { getAppMenuContext } from '@lib/ui/app/AppMenu.svelte';
-    import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
-    import ConfirmationDialog from '@lib/ui/components/dialogs/ConfirmationDialog.svelte';
-    import { createContext } from '@lib/ui/utils';
+    import { getAuthenticatedUserContext } from '#lib/account/authContext.svelte';
+    import { authPages } from '#lib/api/authPages';
+    import { getLocaleContext } from '#lib/i18n';
+    import { getAppMenuContext } from '#lib/ui/app/AppMenu.svelte';
+    import Cross from '#lib/ui/atoms/icons/common/Cross.svelte';
+    import ConfirmationDialog from '#lib/ui/components/dialogs/ConfirmationDialog.svelte';
+    import { createContext } from '#lib/ui/utils';
 
     export type LogoutRequest = {
         terminateAll: boolean;

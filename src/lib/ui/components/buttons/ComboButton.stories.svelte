@@ -1,14 +1,14 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import { action } from 'storybook/actions';
-    import { actionColorList, sizeList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import { inputVariantList } from '@lib/ui/atoms/input';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ComboButton, { type ComboButtonProps } from '@lib/ui/components/buttons/ComboButton.svelte';
+    import { actionColorList, sizeList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import { inputVariantList } from '#lib/ui/atoms/input';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import InputGroup from '#lib/ui/atoms/input/InputGroup.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ComboButton, { type ComboButtonProps } from '#lib/ui/components/buttons/ComboButton.svelte';
 
     const { Story } = defineMeta({
         title: 'Components/Buttons/ComboButton',

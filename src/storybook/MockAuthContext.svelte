@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
+    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '#lib/account/authContext.svelte';
 
     let {
         user,

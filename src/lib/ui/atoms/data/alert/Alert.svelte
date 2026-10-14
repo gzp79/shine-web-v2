@@ -2,14 +2,14 @@
     import type { ClassValue } from 'clsx';
     import type { Component, Snippet } from 'svelte';
     import type { AriaRole } from 'svelte/elements';
-    import type { ActionColor, AriaLive } from '@lib/ui/atoms';
-    import AlertTitle from '@lib/ui/atoms/data/alert/AlertTitle.svelte';
-    import Success from '@lib/ui/atoms/icons/common/Check.svelte';
-    import Fatal from '@lib/ui/atoms/icons/common/Fatal.svelte';
-    import Info from '@lib/ui/atoms/icons/common/Info.svelte';
-    import Warning from '@lib/ui/atoms/icons/common/Warning.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import { cn } from '@lib/ui/utils';
+    import type { ActionColor, AriaLive } from '#lib/ui/atoms';
+    import AlertTitle from '#lib/ui/atoms/data/alert/AlertTitle.svelte';
+    import Success from '#lib/ui/atoms/icons/common/Check.svelte';
+    import Fatal from '#lib/ui/atoms/icons/common/Fatal.svelte';
+    import Info from '#lib/ui/atoms/icons/common/Info.svelte';
+    import Warning from '#lib/ui/atoms/icons/common/Warning.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import { cn } from '#lib/ui/utils';
 
     export const alertVariantList = ['error', 'warning', 'info', 'success'] as const;
     export type AlertVariant = (typeof alertVariantList)[number];

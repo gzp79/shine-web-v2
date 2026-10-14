@@ -1,16 +1,16 @@
 <script module lang="ts">
-    import { lorem } from '@sb/lorem';
+    import { lorem } from '#sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, spacingList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Firefox from '@lib/ui/atoms/glyphs/brands/Firefox.svelte';
-    import Dots from '@lib/ui/atoms/icons/animated/Dots.svelte';
-    import Warning from '@lib/ui/atoms/icons/common/Warning.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import { layoutWidthList } from '@lib/ui/atoms/layouts';
-    import Card, { type CardProps, cardVariantList } from '@lib/ui/atoms/layouts/Card.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { cn } from '@lib/ui/utils';
+    import { actionColorList, spacingList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Firefox from '#lib/ui/atoms/glyphs/brands/Firefox.svelte';
+    import Dots from '#lib/ui/atoms/icons/animated/Dots.svelte';
+    import Warning from '#lib/ui/atoms/icons/common/Warning.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import { layoutWidthList } from '#lib/ui/atoms/layouts';
+    import Card, { type CardProps, cardVariantList } from '#lib/ui/atoms/layouts/Card.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { cn } from '#lib/ui/utils';
 
     // `content` is a story-only arg (a lorem preset picker), so the args type comes from the
     // `render` snippet rather than from Card's props alone.

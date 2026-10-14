@@ -1,4 +1,4 @@
-import { testInEffectRoot } from '@testing';
+import { testInEffectRoot } from '#testing';
 import { flushSync } from 'svelte';
 import { describe, expect, test } from 'vitest';
 import { GameInputGate } from './gameInput.svelte';

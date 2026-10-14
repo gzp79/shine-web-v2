@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { spacingList } from '@lib/ui/atoms';
-    import Stack, { alignmentList, directionList, justificationList } from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { spacingList } from '#lib/ui/atoms';
+    import Stack, { alignmentList, directionList, justificationList } from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         component: Stack,

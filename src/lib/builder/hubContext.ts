@@ -1,5 +1,5 @@
 import { onDestroy } from 'svelte';
-import { createContext } from '@lib/ui/utils';
+import { createContext } from '#lib/ui/utils';
 import { BuilderHub, type BuilderHubOptions } from './hub';
 
 const context = createContext<BuilderHub>('BuilderHubContext');

@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { getChatStreamContext } from '@lib/builder';
-    import Chat from '@lib/builder/chat/Chat.svelte';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
+    import { getChatStreamContext } from '#lib/builder';
+    import Chat from '#lib/builder/chat/Chat.svelte';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
 
     const chat = getChatStreamContext();
 </script>

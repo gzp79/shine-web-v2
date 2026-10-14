@@ -1,7 +1,7 @@
 import { getRequestEvent } from '$app/server';
 import { error, isHttpError, redirect } from '@sveltejs/kit';
-import { logAPI } from '@lib/loggers';
-import { IS_MOCK, VERBOSE_ERRORS, describeError, errorPageUrl, isAppError, sanitizeLocalUrl } from '@lib/utils';
+import { logAPI } from '#lib/loggers';
+import { IS_MOCK, VERBOSE_ERRORS, describeError, errorPageUrl, isAppError, sanitizeLocalUrl } from '#lib/utils';
 
 export function getMockWorkerHeader(): Headers {
     const headers = new Headers();

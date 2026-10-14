@@ -33,7 +33,7 @@ This project uses **custom semantic color tokens** instead of standard Tailwind 
   shape as an action color: base, `-1` (lighter), `-2` (darker/accent), plus a single `on-` foreground.
 - Use these — not the action colors — whenever the color only needs to be _distinct_, not to
   _signal_ meaning (danger/success carry meaning; a user's color does not).
-- `dataColor(key)` (`@lib/ui/utils`) deterministically maps any string (e.g. a user id) to a bucket.
+- `dataColor(key)` (`#lib/ui/utils`) deterministically maps any string (e.g. a user id) to a bucket.
 
 ### Usage Examples
 

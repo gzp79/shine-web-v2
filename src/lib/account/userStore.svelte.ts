@@ -1,9 +1,9 @@
 import { browser } from '$app/env';
 import { onDestroy } from 'svelte';
 import { createSubscriber } from 'svelte/reactivity';
-import { logUser } from '@lib/loggers';
-import { createContext } from '@lib/ui/utils';
-import { createAppError } from '@lib/utils';
+import { logUser } from '#lib/loggers';
+import { createContext } from '#lib/ui/utils';
+import { createAppError } from '#lib/utils';
 
 /** The public fields the BFF resolves for a user. Extend here when more are exposed. */
 export type PublicUserData = {

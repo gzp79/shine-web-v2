@@ -1,11 +1,11 @@
 <script module lang="ts">
-    import { getLocaleContext } from '@lib/i18n';
-    import { logAPI } from '@lib/loggers';
-    import PropertyList from '@lib/ui/atoms/data/PropertyList.svelte';
-    import brands, { type BrandGlyph } from '@lib/ui/atoms/glyphs/brands/all';
-    import Card from '@lib/ui/atoms/layouts/Card.svelte';
-    import ConfirmationButton from '@lib/ui/components/buttons/ConfirmationButton.svelte';
-    import { type AppError, createAppError } from '@lib/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import { logAPI } from '#lib/loggers';
+    import PropertyList from '#lib/ui/atoms/data/PropertyList.svelte';
+    import brands, { type BrandGlyph } from '#lib/ui/atoms/glyphs/brands/all';
+    import Card from '#lib/ui/atoms/layouts/Card.svelte';
+    import ConfirmationButton from '#lib/ui/components/buttons/ConfirmationButton.svelte';
+    import { type AppError, createAppError } from '#lib/utils';
     import type { LinkedIdentity } from './auth.remote';
 
     export type LinkedIdentityItemProps = {

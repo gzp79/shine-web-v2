@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { shortenString } from '@lib/ui/utils';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { shortenString } from '#lib/ui/utils';
 
     type Props = {
         name: string;

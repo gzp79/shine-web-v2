@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { themeList } from '@lib/theme/_theme.svelte';
+    import { themeList } from '#lib/theme/_theme.svelte';
 
     const { Story } = defineMeta({
         title: 'Atoms/Theme/Themes'

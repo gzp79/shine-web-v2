@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import { type ResponsiveSpacing, toSpacingClasses } from '@lib/ui/atoms';
-    import { cn } from '@lib/ui/utils';
+    import { type ResponsiveSpacing, toSpacingClasses } from '#lib/ui/atoms';
+    import { cn } from '#lib/ui/utils';
 
     export interface CenteredLayoutProps {
         padding?: ResponsiveSpacing;

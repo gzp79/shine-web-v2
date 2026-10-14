@@ -1,7 +1,7 @@
-import { testInEffectRoot } from '@testing';
+import { testInEffectRoot } from '#testing';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { logUser } from '@lib/loggers';
+import { logUser } from '#lib/loggers';
 import { BrowserUserStore, type PublicUserEntry, type UserStoreOptions } from './userStore.svelte';
 
 const DEBOUNCE = 100;

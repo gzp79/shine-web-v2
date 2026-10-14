@@ -86,7 +86,7 @@ function serverConfigs() {
 
 /// Prevents mock infrastructure routes from being bundled in non-mock environments
 function excludeMocks(): Plugin {
-    const excluded = ['__mock', '__test', '@mocks'];
+    const excluded = ['__mock', '__test', '#mocks'];
 
     const isMockRoute = (id: string) => {
         const normalizedId = id.split('?')[0]!.replaceAll('\\', '/');
@@ -137,15 +137,7 @@ export default defineConfig({
                 }
             },
             adapter: adapter(),
-            alias: {
-                '@mocks': './src/mocks',
-                '@sb': './src/storybook',
-                '@testing': './src/testing',
-                '@config': './src/config',
-                '@generated': './src/generated',
-                '@translations': './src/translations',
-                '@lib': './src/lib'
-            },
+            // Path aliases are declared as subpath imports in the package.json `imports` field
             experimental: {
                 remoteFunctions: true
             }

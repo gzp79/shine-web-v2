@@ -1,5 +1,5 @@
 import { HttpResponse, http } from 'msw/http';
-import { authApiRoutes } from '@lib/server/api/authApiRoutes';
+import { authApiRoutes } from '#lib/server/api/authApiRoutes';
 
 const mockSessions = {
     sessions: [

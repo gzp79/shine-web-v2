@@ -1,10 +1,10 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { cn } from '@lib/ui/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { cn } from '#lib/ui/utils';
 
     export type ChatMessageLike = { id: string };
 

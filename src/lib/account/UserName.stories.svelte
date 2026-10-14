@@ -1,7 +1,7 @@
 <script module lang="ts">
-    import MockUserStore, { type MockLookup } from '@sb/MockUserStore.svelte';
+    import MockUserStore, { type MockLookup } from '#sb/MockUserStore.svelte';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import type { CurrentUserLike } from '@lib/account/userStore.svelte';
+    import type { CurrentUserLike } from '#lib/account/userStore.svelte';
     import UserName from './UserName.svelte';
 
     type TemplateArgs = {

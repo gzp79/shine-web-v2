@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { cn } from '@lib/ui/utils';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { cn } from '#lib/ui/utils';
 
     export interface StackLayoutProps {
         class?: ClassValue | null;

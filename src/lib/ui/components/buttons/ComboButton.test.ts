@@ -1,4 +1,4 @@
-import { setupPortal, step, withinPortal } from '@testing';
+import { setupPortal, step, withinPortal } from '#testing';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';

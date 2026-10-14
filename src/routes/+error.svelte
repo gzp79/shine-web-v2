@@ -1,10 +1,10 @@
 <script lang="ts">
     import { resolve } from '$app/paths';
     import { page } from '$app/state';
-    import { getLocaleContext } from '@lib/i18n';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
 
     const locale = getLocaleContext();
 

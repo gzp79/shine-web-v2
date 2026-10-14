@@ -13,7 +13,6 @@ function join(base: string, path: string): string {
     return `${base.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 }
 
-/** The identity guest-login page url (mirrors `authPages.guestLoginUrl`, without the `@lib` barrel). */
 function guestLoginUrl(redirectPath: string): string {
     const query = new URLSearchParams({
         redirectUrl: `${config.webUrl}${redirectPath}`,

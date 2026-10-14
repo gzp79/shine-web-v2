@@ -11,7 +11,7 @@
         DropdownSeparator,
         DropdownShortcut,
         DropdownSubMenu
-    } from '@lib/ui/atoms/dropdown-menu';
+    } from '#lib/ui/atoms/dropdown-menu';
 
     const { Story } = defineMeta({
         title: 'Atoms/Menu/Dropdown',

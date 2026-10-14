@@ -1,5 +1,5 @@
-import { config } from '@config';
-import { worker } from '@mocks/browser';
+import { config } from '#config';
+import { worker } from '#mocks/browser';
 
 // Initialize MSW browser worker for mock environment
 console.info('Starting browser mock worker...');

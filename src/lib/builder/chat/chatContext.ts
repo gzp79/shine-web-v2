@@ -1,5 +1,5 @@
 import { onDestroy } from 'svelte';
-import { createContext } from '@lib/ui/utils';
+import { createContext } from '#lib/ui/utils';
 import { getBuilderHubContext } from '../hubContext';
 import { ChatStream, type ChatStreamOptions } from './chatStream.svelte';
 

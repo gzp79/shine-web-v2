@@ -1,12 +1,12 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { provideBuilderHubContext, provideChatStreamContext } from '@lib/builder';
-    import ChatPanel from '@lib/builder/chat/ChatPanel.svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import { getConnectionStatusContext } from '@lib/ui/app/ConnectionStatus.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
+    import { provideBuilderHubContext, provideChatStreamContext } from '#lib/builder';
+    import ChatPanel from '#lib/builder/chat/ChatPanel.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
+    import { getConnectionStatusContext } from '#lib/ui/app/ConnectionStatus.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
 
     // Lives below AuthGuard on purpose: the hub opens a WebSocket as soon as
     // authenticated user information is provided.

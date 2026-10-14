@@ -1,11 +1,11 @@
 <script lang="ts" module>
     import type { z } from 'zod';
-    import { getLocaleContext, localizeTr } from '@lib/i18n';
-    import type { FieldProps } from '@lib/ui/atoms/input/Field.svelte';
-    import Field from '@lib/ui/atoms/input/Field.svelte';
-    import type { InputProps } from '@lib/ui/atoms/input/Input.svelte';
-    import type { InputType } from '@lib/ui/atoms/input/Input.svelte';
-    import Input from '@lib/ui/atoms/input/Input.svelte';
+    import { getLocaleContext, localizeTr } from '#lib/i18n';
+    import type { FieldProps } from '#lib/ui/atoms/input/Field.svelte';
+    import Field from '#lib/ui/atoms/input/Field.svelte';
+    import type { InputProps } from '#lib/ui/atoms/input/Input.svelte';
+    import type { InputType } from '#lib/ui/atoms/input/Input.svelte';
+    import Input from '#lib/ui/atoms/input/Input.svelte';
 
     export type ZodFieldProps<Schema extends z.ZodType> = Omit<FieldProps, 'status' | 'statusVariant' | 'children'> &
         Pick<InputProps, 'wide'> & {

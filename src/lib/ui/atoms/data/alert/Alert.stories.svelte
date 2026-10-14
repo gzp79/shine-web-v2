@@ -1,7 +1,7 @@
 <script module lang="ts">
-    import { lorem } from '@sb/lorem';
+    import { lorem } from '#sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
     import {
         Alert,
         AlertDescription,
@@ -9,8 +9,8 @@
         AlertSeparator,
         AlertTitle,
         alertVariantList
-    } from '@lib/ui/atoms/data/alert';
-    import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
+    } from '#lib/ui/atoms/data/alert';
+    import Settings from '#lib/ui/atoms/icons/common/Settings.svelte';
 
     const { Story } = defineMeta({
         component: Alert,

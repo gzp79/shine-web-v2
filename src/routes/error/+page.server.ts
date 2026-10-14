@@ -1,4 +1,4 @@
-import { sanitizedReturnUrl } from '@lib/server/utils/_remote';
+import { sanitizedReturnUrl } from '#lib/server/utils/_remote';
 
 export const load = ({ url }: { url: URL }) => {
     const raw = url.searchParams.get('returnUrl');

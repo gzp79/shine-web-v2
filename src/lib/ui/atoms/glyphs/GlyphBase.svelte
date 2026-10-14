@@ -1,8 +1,8 @@
 <script lang="ts" module>
     import type { ClassValue } from 'clsx';
     import type { Component, Snippet } from 'svelte';
-    import type { IconSize } from '@lib/ui/atoms';
-    import { cn } from '@lib/ui/utils';
+    import type { IconSize } from '#lib/ui/atoms';
+    import { cn } from '#lib/ui/utils';
 
     export type GlyphProps = {
         size?: IconSize;

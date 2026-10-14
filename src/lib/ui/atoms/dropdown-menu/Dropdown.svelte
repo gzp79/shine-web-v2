@@ -3,8 +3,8 @@
     import type { ClassValue } from 'clsx';
     import { type Snippet } from 'svelte';
     import { fade } from 'svelte/transition';
-    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
-    import { type WrappedComponent, cn, createContext, isWrappedComponent } from '@lib/ui/utils';
+    import { type ButtonStyleConfig, createButtonStyle } from '#lib/ui/atoms/input/style.svelte';
+    import { type WrappedComponent, cn, createContext, isWrappedComponent } from '#lib/ui/utils';
 
     export type MenuProps = WithoutChildrenOrChild<DropdownMenuPrimitive.RootProps> &
         WithoutChildrenOrChild<DropdownMenuPrimitive.ContentProps> & {

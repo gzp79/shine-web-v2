@@ -9,7 +9,7 @@ description: Translation system with ICU-like interpolation and formatters. Use 
 
 ```typescript
 // In any component
-import { getLocaleContext } from '@lib/i18n';
+import { getLocaleContext } from '#lib/i18n';
 
 const locale = getLocaleContext();
 
@@ -77,7 +77,7 @@ formatters.uppercase = (locale, value) => String(value).toUpperCase();
 
 ```svelte
 <script lang="ts">
-    import { getLocaleContext } from '@lib/i18n';
+    import { getLocaleContext } from '#lib/i18n';
 
     const locale = getLocaleContext();
 </script>

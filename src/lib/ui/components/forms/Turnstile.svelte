@@ -3,9 +3,9 @@
     import { onMount } from 'svelte';
     import type { Action } from 'svelte/action';
     import type { RenderParameters, WidgetId } from 'turnstile-types';
-    import { logAPI } from '@lib/loggers';
-    import type { Theme } from '@lib/theme/_theme.svelte';
-    import { afterBFCacheRestore } from '@lib/utils';
+    import { logAPI } from '#lib/loggers';
+    import type { Theme } from '#lib/theme/_theme.svelte';
+    import { afterBFCacheRestore } from '#lib/utils';
 
     export interface TurnstileProps {
         /**

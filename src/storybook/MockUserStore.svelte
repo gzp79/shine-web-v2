@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import type { PublicUserData } from '@lib/account/userStore.svelte';
+    import type { PublicUserData } from '#lib/account/userStore.svelte';
 
     /** Mutually exclusive lookup outcomes: a batch resolves, hangs, or fails. */
     export type MockLookup =
@@ -8,7 +8,7 @@
 
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { type CurrentUserLike, provideUserStoreContext } from '@lib/account/userStore.svelte';
+    import { type CurrentUserLike, provideUserStoreContext } from '#lib/account/userStore.svelte';
 
     let {
         result = { kind: 'resolved' },

@@ -1,14 +1,14 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import Dropdown from '@lib/ui//atoms/icons/common/Dropdown.svelte';
-    import Fatal from '@lib/ui//atoms/icons/common/Fatal.svelte';
-    import Card from '@lib/ui//atoms/layouts/Card.svelte';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import { type LayoutWidth } from '@lib/ui/atoms/layouts';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { type AppErrorKind, createAppError } from '@lib/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import Dropdown from '#lib/ui//atoms/icons/common/Dropdown.svelte';
+    import Fatal from '#lib/ui//atoms/icons/common/Fatal.svelte';
+    import Card from '#lib/ui//atoms/layouts/Card.svelte';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import { type LayoutWidth } from '#lib/ui/atoms/layouts';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { type AppErrorKind, createAppError } from '#lib/utils';
 
     export type ErrorCardProps = {
         /** Custom caption/title for the error (defaults to localized "Something went wrong") */

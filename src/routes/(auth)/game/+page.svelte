@@ -1,15 +1,15 @@
 <script lang="ts">
-    import { config } from '@config';
-    import { queryGameAssetManifest } from '@lib/assets/assets.remote';
-    import { gameInputGate } from '@lib/game';
-    import { logGame } from '@lib/loggers';
-    import { getAppMenuContext } from '@lib/ui/app/AppMenu.svelte';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Check from '@lib/ui/atoms/icons/common/Check.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { fireAndForget } from '@lib/utils';
+    import { config } from '#config';
+    import { queryGameAssetManifest } from '#lib/assets/assets.remote';
+    import { gameInputGate } from '#lib/game';
+    import { logGame } from '#lib/loggers';
+    import { getAppMenuContext } from '#lib/ui/app/AppMenu.svelte';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
+    import Check from '#lib/ui/atoms/icons/common/Check.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
+    import { fireAndForget } from '#lib/utils';
     import type { PageData } from './$types';
 
     // Local mirror of the game bundle's contract (loaded at runtime, so its types aren't importable).

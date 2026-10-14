@@ -1,5 +1,5 @@
-import { config } from '@config';
-import { server } from '@mocks/server';
+import { config } from '#config';
+import { server } from '#mocks/server';
 
 // Initialize MSW server for mock environment
 console.info('Starting server mock worker...');

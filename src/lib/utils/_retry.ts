@@ -1,5 +1,5 @@
-import { logAPI } from '@lib/loggers';
-import { type AppError, IS_MOCK, async, createOtherError, createRetryLimitError, isAppError } from '@lib/utils';
+import { logAPI } from '#lib/loggers';
+import { type AppError, IS_MOCK, async, createOtherError, createRetryLimitError, isAppError } from '#lib/utils';
 
 type RetryError = { __retry: true; innerError?: unknown };
 

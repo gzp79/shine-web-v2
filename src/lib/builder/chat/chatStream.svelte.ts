@@ -1,5 +1,5 @@
-import { logChat } from '@lib/loggers';
-import { CHAT_CMD_BURST, CHAT_CMD_PING, CHAT_CMD_STORM } from '@lib/utils';
+import { logChat } from '#lib/loggers';
+import { CHAT_CMD_BURST, CHAT_CMD_PING, CHAT_CMD_STORM } from '#lib/utils';
 import type { BuilderHub, ServerFrame } from '../hub';
 import type { ChatMessage, PingMessage, PongMessage, TextMessage } from './chatMessages';
 import { CHAT_FRAME_TYPE, type ChatComment, encodeChatRequest, parseChatComments } from './chatProtocol';

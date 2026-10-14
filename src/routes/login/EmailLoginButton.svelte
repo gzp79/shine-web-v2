@@ -1,12 +1,12 @@
 <script module lang="ts">
     import { z } from 'zod';
-    import { authPages } from '@lib/api/authPages';
-    import { createTr, getLocaleContext } from '@lib/i18n';
-    import allBrands from '@lib/ui/atoms/glyphs/brands/all';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ZodField from '@lib/ui/components/forms/ZodField.svelte';
+    import { authPages } from '#lib/api/authPages';
+    import { createTr, getLocaleContext } from '#lib/i18n';
+    import allBrands from '#lib/ui/atoms/glyphs/brands/all';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Dialog from '#lib/ui/atoms/layouts/Dialog.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ZodField from '#lib/ui/components/forms/ZodField.svelte';
 
     export type EmailLoginButtonProps = {
         disabled: boolean;

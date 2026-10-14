@@ -1,6 +1,6 @@
-import { config } from '@config';
+import { config } from '#config';
 import z from 'zod';
-import { joinURL } from '@lib/utils';
+import { joinURL } from '#lib/utils';
 
 /** Hard cap enforced by the identity service for a single public-info lookup. */
 export const PUBLIC_USER_INFO_MAX_IDS = 100;

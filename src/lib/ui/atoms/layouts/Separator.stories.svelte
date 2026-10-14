@@ -1,9 +1,9 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Separator from '@lib/ui/atoms/layouts/Separator.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Separator from '#lib/ui/atoms/layouts/Separator.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         title: 'Atoms/Layouts/Separator',

@@ -1,4 +1,4 @@
-import { IS_MOCK } from '@lib/utils';
+import { IS_MOCK } from '#lib/utils';
 
 /**
  * Pauses test execution for debugging by waiting for a very long time.
@@ -7,7 +7,7 @@ import { IS_MOCK } from '@lib/utils';
  * IMPORTANT: Add this temporarily for debugging, then remove before committing.
  *
  * Usage:
- *   import { pauseTest } from '@testing';
+ *   import { pauseTest } from '#testing';
  *
  *   test('my test', async () => {
  *     render(MyComponent);
@@ -37,7 +37,7 @@ export function logHTML() {
  * IMPORTANT: Add this temporarily for debugging, then remove before committing.
  *
  * Usage:
- *   import { debugWait } from '@testing';
+ *   import { debugWait } from '#testing';
  *
  *   test('my test', async () => {
  *     render(MyComponent);

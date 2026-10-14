@@ -1,4 +1,4 @@
-import { testInEffectRoot } from '@testing';
+import { testInEffectRoot } from '#testing';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { autoRefresh } from './_auto-refresh.svelte';

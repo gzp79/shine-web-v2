@@ -1,9 +1,9 @@
 <script lang="ts" module>
     import type { ClassValue } from 'clsx';
     import type { Component, Snippet } from 'svelte';
-    import type { ActionColor, IconSize } from '@lib/ui/atoms';
-    import { cn } from '@lib/ui/utils';
-    import TailwindClasses from '@lib/ui/utils/TailwindClasses.svelte';
+    import type { ActionColor, IconSize } from '#lib/ui/atoms';
+    import { cn } from '#lib/ui/utils';
+    import TailwindClasses from '#lib/ui/utils/TailwindClasses.svelte';
 
     export const TRANSPARENCY = 0.3;
 

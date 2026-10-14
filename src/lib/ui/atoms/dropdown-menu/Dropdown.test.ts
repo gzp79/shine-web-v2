@@ -1,8 +1,8 @@
-import { setupPortal } from '@testing';
+import { setupPortal } from '#testing';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import { DropdownMenu } from '@lib/ui/atoms/dropdown-menu';
+import { DropdownMenu } from '#lib/ui/atoms/dropdown-menu';
 
 const portal = setupPortal();
 

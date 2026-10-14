@@ -1,7 +1,7 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import { logI18n } from '@lib/loggers';
-    import { setCookie } from '@lib/utils';
+    import { logI18n } from '#lib/loggers';
+    import { setCookie } from '#lib/utils';
     import {
         type Locale,
         type Translation,

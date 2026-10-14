@@ -12,7 +12,18 @@
         "sourceMap": true,
         "strict": true,
         "moduleResolution": "bundler",
-        "noUncheckedIndexedAccess": true
+        "noUncheckedIndexedAccess": true,
+        // Mirrors the package.json `imports` field. Vite resolves the subpath imports itself, but
+        // TypeScript requires fully specified targets for `imports` (no extension/index lookup),
+        // so the extensionless specifiers used across the codebase need these paths.
+        "paths": {
+            "#lib/*": ["./src/lib/*"],
+            "#mocks/*": ["./src/mocks/*"],
+            "#sb/*": ["./src/storybook/*"],
+            "#testing": ["./src/testing"],
+            "#testing/*": ["./src/testing/*"],
+            "#config": ["./src/config"],
+            "#generated/*": ["./src/generated/*"]
+        }
     }
-    // Path aliases are handled by the sveltekit() plugin options in vite.config.ts
 }

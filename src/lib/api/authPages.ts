@@ -1,5 +1,5 @@
-import { config } from '@config';
-import { joinURL, toQueryString } from '@lib/utils';
+import { config } from '#config';
+import { joinURL, toQueryString } from '#lib/utils';
 
 export const authPages = {
     tokenLoginUrl(params?: { redirectUrl: string; errorUrl: string }): string {

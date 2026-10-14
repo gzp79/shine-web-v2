@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { type Snippet } from 'svelte';
-    import { type Theme } from '@lib/theme/_theme.svelte';
-    import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
+    import { type Theme } from '#lib/theme/_theme.svelte';
+    import InputGroup from '#lib/ui/atoms/input/InputGroup.svelte';
     import AppMenu, { provideAppMenuContext } from './AppMenu.svelte';
     import ConnectionStatus, { provideConnectionStatusContext } from './ConnectionStatus.svelte';
 

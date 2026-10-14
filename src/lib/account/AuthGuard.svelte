@@ -1,16 +1,16 @@
 <script lang="ts">
     import { navigating } from '$app/state';
     import type { Snippet } from 'svelte';
-    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
-    import { createCurrentUserStore } from '@lib/account/currentUserStore.svelte';
-    import { provideUserStoreContext } from '@lib/account/userStore.svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import { logUser } from '@lib/loggers';
-    import CenteredLayout from '@lib/ui/app/CenteredLayout.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { currentLocationUrl, loginPageUrl } from '@lib/utils';
+    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '#lib/account/authContext.svelte';
+    import { createCurrentUserStore } from '#lib/account/currentUserStore.svelte';
+    import { provideUserStoreContext } from '#lib/account/userStore.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import { logUser } from '#lib/loggers';
+    import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
+    import { currentLocationUrl, loginPageUrl } from '#lib/utils';
 
     type AuthStatus = 'loading' | 'error' | 'unauthenticated' | 'authenticated';
 

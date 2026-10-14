@@ -1,9 +1,9 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import type { ActionColor } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import { cn } from '@lib/ui/utils';
+    import type { ActionColor } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import { cn } from '#lib/ui/utils';
 
     /** Where a bubble sits: the author's own messages `end`, others' `start`, system notes `center`. */
     export type ChatBubbleAlign = 'start' | 'end' | 'center';

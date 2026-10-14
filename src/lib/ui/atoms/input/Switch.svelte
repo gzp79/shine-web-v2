@@ -1,10 +1,10 @@
 <script module lang="ts">
     import { Switch as SwitchPrimitive, type WithoutChildrenOrChild } from 'bits-ui';
     import type { ClassValue } from 'clsx';
-    import type { ActionColor, Size } from '@lib/ui/atoms';
-    import { tryGetFieldContext } from '@lib/ui/atoms/input/Field.svelte';
-    import { tryGetInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
-    import { cn } from '@lib/ui/utils';
+    import type { ActionColor, Size } from '#lib/ui/atoms';
+    import { tryGetFieldContext } from '#lib/ui/atoms/input/Field.svelte';
+    import { tryGetInputGroupContext } from '#lib/ui/atoms/input/InputGroup.svelte';
+    import { cn } from '#lib/ui/utils';
 
     export type SwitchProps = WithoutChildrenOrChild<SwitchPrimitive.RootProps> & {
         color?: ActionColor;

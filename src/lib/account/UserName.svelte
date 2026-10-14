@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
-    import { getUserStoreContext } from '@lib/account/userStore.svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import { cn, dataColor } from '@lib/ui/utils';
+    import { getUserStoreContext } from '#lib/account/userStore.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import { cn, dataColor } from '#lib/ui/utils';
 
     export type UserNameProps = {
         /** Id of the user to resolve. */

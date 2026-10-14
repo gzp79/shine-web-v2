@@ -1,11 +1,11 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Input from '@lib/ui/atoms/input/Input.svelte';
-    import InputGroup from '@lib/ui/atoms/input/InputGroup.svelte';
-    import Switch from '@lib/ui/atoms/input/Switch.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Input from '#lib/ui/atoms/input/Input.svelte';
+    import InputGroup from '#lib/ui/atoms/input/InputGroup.svelte';
+    import Switch from '#lib/ui/atoms/input/Switch.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
     import Field, { type FieldProps } from './Field.svelte';
 
     const { Story } = defineMeta({

@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
     import ChatBubble from './ChatBubble.svelte';
     import ChatGap from './ChatGap.svelte';
     import ChatMessageList from './ChatMessageList.svelte';

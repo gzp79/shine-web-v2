@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
-    import { getChatStreamContext } from '@lib/builder';
-    import { gameInputGate } from '@lib/game';
-    import { getLocaleContext } from '@lib/i18n';
-    import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
+    import { getAuthenticatedUserContext } from '#lib/account/authContext.svelte';
+    import { getChatStreamContext } from '#lib/builder';
+    import { gameInputGate } from '#lib/game';
+    import { getLocaleContext } from '#lib/i18n';
+    import Dialog from '#lib/ui/atoms/layouts/Dialog.svelte';
     import Chat from './Chat.svelte';
 
     export type ChatPanelProps = {

@@ -108,7 +108,7 @@ function reapplyHandlers(): void {
 }
 
 export async function addOverride(name: string, params: unknown, workerId?: string): Promise<void> {
-    const { registry } = await import('@mocks/registry');
+    const { registry } = await import('#mocks/registry');
     const registryEntry = registry[name as keyof typeof registry];
 
     if (!registryEntry) {

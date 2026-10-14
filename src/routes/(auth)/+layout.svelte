@@ -1,12 +1,12 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
     import { resolve } from '$app/paths';
-    import AuthGuard from '@lib/account/AuthGuard.svelte';
-    import LogoutGuard from '@lib/account/LogoutGuard.svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import { logUser } from '@lib/loggers';
-    import { getAppMenuContext } from '@lib/ui/app/AppMenu.svelte';
-    import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
+    import AuthGuard from '#lib/account/AuthGuard.svelte';
+    import LogoutGuard from '#lib/account/LogoutGuard.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import { logUser } from '#lib/loggers';
+    import { getAppMenuContext } from '#lib/ui/app/AppMenu.svelte';
+    import Settings from '#lib/ui/atoms/icons/common/Settings.svelte';
     import BuilderShell from './BuilderShell.svelte';
 
     let { children } = $props();

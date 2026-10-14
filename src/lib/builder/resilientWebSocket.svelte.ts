@@ -1,5 +1,5 @@
 import { browser } from '$app/env';
-import { logAPI } from '@lib/loggers';
+import { logAPI } from '#lib/loggers';
 
 export const socketStatusList = ['idle', 'connecting', 'connected', 'reconnecting', 'closed'] as const;
 export type SocketStatus = (typeof socketStatusList)[number];

@@ -2,9 +2,9 @@
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
     import type { HTMLAttributes } from 'svelte/elements';
-    import type { ActionColor, Size } from '@lib/ui/atoms';
-    import type { InputVariant } from '@lib/ui/atoms/input';
-    import { createContext } from '@lib/ui/utils';
+    import type { ActionColor, Size } from '#lib/ui/atoms';
+    import type { InputVariant } from '#lib/ui/atoms/input';
+    import { createContext } from '#lib/ui/utils';
 
     export interface FieldInfo {
         setFieldFor: (id: string) => void;
@@ -54,8 +54,8 @@
 </script>
 
 <script lang="ts">
-    import { setInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
-    import { cn } from '@lib/ui/utils';
+    import { setInputGroupContext } from '#lib/ui/atoms/input/InputGroup.svelte';
+    import { cn } from '#lib/ui/utils';
 
     let {
         disabled = false,

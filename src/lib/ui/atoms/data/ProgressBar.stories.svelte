@@ -1,10 +1,10 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, sizeList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import ProgressBar, { type ProgressBarDisplay } from '@lib/ui/atoms/data/ProgressBar.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { actionColorList, sizeList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import ProgressBar, { type ProgressBarDisplay } from '#lib/ui/atoms/data/ProgressBar.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         component: ProgressBar,

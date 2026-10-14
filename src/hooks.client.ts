@@ -1,9 +1,9 @@
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
 import type { HandleClientError } from '@sveltejs/kit/hooks';
-import { logAPI } from '@lib/loggers';
-import '@lib/prelude-math';
-import { IS_MOCK, createAppError, currentLocationUrl, describeError, errorPageUrl } from '@lib/utils';
+import { logAPI } from '#lib/loggers';
+import '#lib/prelude-math';
+import { IS_MOCK, createAppError, currentLocationUrl, describeError, errorPageUrl } from '#lib/utils';
 
 const ERROR_PATH = resolve('/error');
 
@@ -38,7 +38,7 @@ window.onunhandledrejection = (event) => {
 
 // Initialize MSW for mock environment
 if (IS_MOCK) {
-    await import('@mocks/setup-client');
+    await import('#mocks/setup-client');
 }
 
 export const handleError: HandleClientError = ({ kind, error }) => {

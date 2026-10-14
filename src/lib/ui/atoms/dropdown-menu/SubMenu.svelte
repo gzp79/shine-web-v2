@@ -3,9 +3,9 @@
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
     import { fade } from 'svelte/transition';
-    import { type ExpandIconSide, getDropdownContext } from '@lib/ui/atoms/dropdown-menu';
-    import DropdownIcon from '@lib/ui/atoms/icons/common/Dropdown.svelte';
-    import { cn } from '@lib/ui/utils';
+    import { type ExpandIconSide, getDropdownContext } from '#lib/ui/atoms/dropdown-menu';
+    import DropdownIcon from '#lib/ui/atoms/icons/common/Dropdown.svelte';
+    import { cn } from '#lib/ui/utils';
     import './Dropdown.svelte';
 
     export type SubProps = WithoutChildrenOrChild<DropdownMenuPrimitive.SubProps> &

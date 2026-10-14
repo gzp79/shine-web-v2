@@ -2,8 +2,8 @@ import { browser } from '$app/env';
 import { page } from '$app/state';
 import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
-import { logTheme } from '@lib/loggers';
-import { getCookie, onTabVisible, setCookie } from '@lib/utils';
+import { logTheme } from '#lib/loggers';
+import { getCookie, onTabVisible, setCookie } from '#lib/utils';
 
 export const themeList = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themeList)[number];

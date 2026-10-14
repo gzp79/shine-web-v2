@@ -1,7 +1,7 @@
 import type { TurnstileObject } from 'turnstile-types';
-import { type Locale, type Translation } from '@lib/i18n';
-import { type Theme } from '@lib/theme';
-import { type AppError } from '@lib/utils';
+import { type Locale, type Translation } from '#lib/i18n';
+import { type Theme } from '#lib/theme';
+import { type AppError } from '#lib/utils';
 
 declare global {
     interface ImportMeta {

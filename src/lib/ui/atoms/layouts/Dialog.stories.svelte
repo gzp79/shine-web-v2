@@ -1,15 +1,15 @@
 <script module lang="ts">
-    import { lorem } from '@sb/lorem';
+    import { lorem } from '#sb/lorem';
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, spacingList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Dots from '@lib/ui/atoms/icons/animated/Dots.svelte';
-    import Fatal from '@lib/ui/atoms/icons/common/Fatal.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import { layoutWidthList } from '@lib/ui/atoms/layouts';
-    import Dialog, { type DialogProps } from '@lib/ui/atoms/layouts/Dialog.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import { cn } from '@lib/ui/utils';
+    import { actionColorList, spacingList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Dots from '#lib/ui/atoms/icons/animated/Dots.svelte';
+    import Fatal from '#lib/ui/atoms/icons/common/Fatal.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import { layoutWidthList } from '#lib/ui/atoms/layouts';
+    import Dialog, { type DialogProps } from '#lib/ui/atoms/layouts/Dialog.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import { cn } from '#lib/ui/utils';
 
     // `content` is a story-only arg (a lorem preset picker), so the args type comes from the
     // `render` snippet rather than from Dialog's props alone.

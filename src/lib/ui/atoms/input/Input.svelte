@@ -1,11 +1,11 @@
 <script module lang="ts">
     import type { HTMLInputAttributes } from 'svelte/elements';
-    import type { ActionColor, Size } from '@lib/ui/atoms';
-    import type { InputVariant } from '@lib/ui/atoms/input';
-    import { tryGetFieldContext } from '@lib/ui/atoms/input/Field.svelte';
-    import { tryGetInputGroupContext } from '@lib/ui/atoms/input/InputGroup.svelte';
-    import { hoverClass, ringClass } from '@lib/ui/atoms/input/style.svelte';
-    import { cn } from '@lib/ui/utils';
+    import type { ActionColor, Size } from '#lib/ui/atoms';
+    import type { InputVariant } from '#lib/ui/atoms/input';
+    import { tryGetFieldContext } from '#lib/ui/atoms/input/Field.svelte';
+    import { tryGetInputGroupContext } from '#lib/ui/atoms/input/InputGroup.svelte';
+    import { hoverClass, ringClass } from '#lib/ui/atoms/input/style.svelte';
+    import { cn } from '#lib/ui/utils';
 
     const sizeMods: Record<Size, string> = {
         xs: 'text-xs leading-none h-8 px-2',

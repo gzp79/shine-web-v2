@@ -1,9 +1,9 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
-    import { type Size } from '@lib/ui/atoms';
-    import { cn } from '@lib/ui/utils';
-    import TailwindClasses from '@lib/ui/utils/TailwindClasses.svelte';
+    import { type Size } from '#lib/ui/atoms';
+    import { cn } from '#lib/ui/utils';
+    import TailwindClasses from '#lib/ui/utils/TailwindClasses.svelte';
 
     export type DescriptionListItem = {
         /** Label for the item */

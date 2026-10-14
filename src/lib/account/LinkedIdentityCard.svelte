@@ -1,11 +1,11 @@
 <script module lang="ts">
-    import { getLocaleContext } from '@lib/i18n';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Card from '@lib/ui/atoms/layouts/Card.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { type AppError } from '@lib/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Card from '#lib/ui/atoms/layouts/Card.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
+    import { type AppError } from '#lib/utils';
     import AddLinkButton from './AddLinkButton.svelte';
     import LinkedIdentityItem from './LinkedIdentityItem.svelte';
     import { queryLinkedIdentities, unlinkIdentity as unlinkIdentityCommand } from './auth.remote';

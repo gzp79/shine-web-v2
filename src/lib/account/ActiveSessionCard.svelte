@@ -1,10 +1,10 @@
 <script module lang="ts">
-    import { getLocaleContext } from '@lib/i18n';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Card from '@lib/ui/atoms/layouts/Card.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Card from '#lib/ui/atoms/layouts/Card.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
     import ActiveSessionItem from './ActiveSessionItem.svelte';
     import { queryActiveSessions } from './auth.remote';
 </script>
