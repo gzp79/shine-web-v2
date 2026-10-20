@@ -3,18 +3,18 @@
     import type { ClassValue } from 'clsx';
     import type { Snippet } from 'svelte';
     import type { AriaRole } from 'svelte/elements';
-    import { getLocaleContext } from '@lib/i18n';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Cross from '@lib/ui/atoms/icons/common/Cross.svelte';
-    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Cross from '#lib/ui/atoms/icons/common/Cross.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '#lib/ui/atoms/input/style.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
     import {
         type WrappedComponent,
         type WrappedSnippet,
         cn,
         isWrappedComponent,
         isWrappedSnippet
-    } from '@lib/ui/utils';
+    } from '#lib/ui/utils';
     import { type LayoutWidth, colorRotation } from '.';
     import ContainerContent, { type ContainerContentProps } from './ContainerContent.svelte';
     import ContainerRoot, { type ContainerRootProps } from './ContainerRoot.svelte';

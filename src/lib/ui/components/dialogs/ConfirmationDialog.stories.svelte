@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList } from '@lib/ui/atoms';
-    import { layoutWidthList } from '@lib/ui/atoms/layouts';
+    import { actionColorList } from '#lib/ui/atoms';
+    import { layoutWidthList } from '#lib/ui/atoms/layouts';
     import ConfirmationDialog from './ConfirmationDialog.svelte';
 
     const { Story } = defineMeta({
@@ -31,9 +31,6 @@
             }
         }
     });
-</script>
-
-<script lang="ts">
 </script>
 
 <Story name="Default" />

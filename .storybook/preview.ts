@@ -8,6 +8,7 @@ import AppLayoutMock from '../src/storybook/AppLayoutMock.svelte';
 const enTranslator = createTranslator(await loadTranslation('en'));
 
 // Override app.css styles that break Storybook scrolling
+// and add a red outline to mark the story's bounds inside the canvas.
 if (typeof document !== 'undefined') {
     const style = document.createElement('style');
     style.textContent = `
@@ -30,18 +31,35 @@ const preview: Preview = {
                     'Atoms',
                     [
                         'Theme',
-                        ['Typography', 'Colors', 'Icons', 'Glyphs'],
+                        ['Typography', 'Colors', 'Themes', 'Icons', 'Glyphs'],
                         'Layouts',
-                        ['Stack', 'Grid', 'Box', 'Card'],
+                        ['Stack', 'Box', 'Card', 'Dialog', 'Separator'],
                         'Inputs',
-                        ['Button', 'Input', 'InputGroup'],
+                        ['Button', 'Input', 'InputGroup', 'Switch', 'Field'],
                         'Data',
-                        ['ProgressBar', 'PropertyList'],
+                        ['Alert', 'ProgressBar', 'PropertyList'],
                         'Menu',
                         ['Dropdown']
                     ],
                     'Components',
-                    ['App', ['CenteredLayout', 'StackLayout', 'ThemeMenu', 'LanguageMenu'], 'Status']
+                    [
+                        'App',
+                        ['CenteredLayout', 'AppMenu', 'ThemeMenu', 'LanguageMenu'],
+                        'Buttons',
+                        ['ComboButton', 'ConfirmationButton'],
+                        'Dialogs',
+                        ['ConfirmationDialog'],
+                        'Forms',
+                        ['ZodField'],
+                        'Cards',
+                        ['LoadingCard', 'ErrorCard'],
+                        'Chat',
+                        ['ChatBubble', 'ChatGap', 'ChatInput', 'ChatMessageList']
+                    ],
+                    'Account',
+                    ['UserName', 'UserInfoCard'],
+                    'App',
+                    ['Chat', ['ChatPing', 'ChatPong']]
                 ]
             }
         }
@@ -75,23 +93,16 @@ const preview: Preview = {
         }
     },
     decorators: [
-        (story, context) => {
-            const selectedTheme = getThemeWithFallback(context.globals.theme);
+        (_story, context) => {
             if (typeof document !== 'undefined') {
                 document.documentElement.classList.add('bg-surface', 'text-on-surface');
             }
 
-            const selectedLocale = getLocaleWithFallback(context.globals.locale);
-
-            // Call story() here to get the rendered story
-            const storyResult = story();
-
             return {
                 Component: AppLayoutMock,
                 props: {
-                    initialLocale: selectedLocale,
-                    initialTheme: selectedTheme,
-                    storyResult
+                    initialLocale: getLocaleWithFallback(context.globals.locale),
+                    initialTheme: getThemeWithFallback(context.globals.theme)
                 }
             };
         }

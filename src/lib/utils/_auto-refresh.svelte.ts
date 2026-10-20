@@ -1,5 +1,5 @@
 import { SvelteDate } from 'svelte/reactivity';
-import { logAPI } from '@lib/loggers';
+import { logAPI } from '#lib/loggers';
 
 export type AutoRefreshOptions = {
     /** Refresh if the query is older than the given time-to-live in ms (default: 60000) */

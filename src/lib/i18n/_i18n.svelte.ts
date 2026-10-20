@@ -2,8 +2,8 @@ import { invalidate } from '$app/navigation';
 import { page } from '$app/state';
 import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
-import { logI18n } from '@lib/loggers';
-import { getCookie, onTabVisible, setCookie } from '@lib/utils';
+import { logI18n } from '#lib/loggers';
+import { getCookie, onTabVisible, setCookie } from '#lib/utils';
 import {
     type Locale,
     type TranslationKey,
@@ -59,7 +59,7 @@ export type LocaleContext = {
 ///    - hooks.server.ts → Reads locale from cookie/accept-language header, stores in event.locals.locale
 ///    - +layout.server.ts → Passes locals.locale to page.data.locale (serializable)
 ///    - +layout.ts (universal) → Loads translation JSON for page.data.locale, stores in page.data.translation
-///    - +layout.svelte → Calls createLocaleContext(), creates reactive translator from page.data.translation
+///    - +layout.svelte → Calls provideLocaleContext(), creates reactive translator from page.data.translation
 ///
 /// 2. Browser-side updates:
 ///    - +layout.ts (runs in browser too) → Re-loads translation when invalidated via depends(LOCALE_DATA_KEY)
@@ -68,7 +68,7 @@ export type LocaleContext = {
 ///    - On tab focus → Checks cookie, invalidates if changed (keeps tabs in sync)
 ///
 /// Key: Locale/translation are serializable (handled by server). Translator is created client-side using $derived for reactivity.
-export function createLocaleContext(): LocaleContext {
+export function provideLocaleContext(): LocaleContext {
     const translator = $derived(createTranslator(page.data.translation));
 
     const context = {
@@ -98,13 +98,14 @@ export function createLocaleContext(): LocaleContext {
         }
     });
 
-    setLocaleContext(context);
-    return context;
+    return setLocaleContext(context);
 }
 
-/// A low level API to set the locale context directly used for testing.
-export function setLocaleContext(context: LocaleContext) {
-    setContext(LOCALE_CONTEXT_KEY, context);
+/// Installs a caller-owned locale context. Needed where the SvelteKit data pipeline is absent and
+/// the provider above cannot run: it reads `page.data` and relies on `invalidate` re-running
+/// `+layout.ts`, neither of which exists in Storybook.
+export function setLocaleContext(context: LocaleContext): LocaleContext {
+    return setContext(LOCALE_CONTEXT_KEY, context);
 }
 
 export function getLocaleContext(): LocaleContext {

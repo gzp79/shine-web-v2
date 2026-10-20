@@ -1,11 +1,11 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import { DropdownItem, DropdownMenu } from '@lib/ui/atoms/dropdown-menu';
-    import DropdownIcon from '@lib/ui/atoms/icons/common/Dropdown.svelte';
-    import Button, { type ButtonAction } from '@lib/ui/atoms/input/Button.svelte';
-    import InputGroup, { type InputGroupProps, marginClass } from '@lib/ui/atoms/input/InputGroup.svelte';
-    import { cn, fromComponent, range } from '@lib/ui/utils';
-    import * as kbd from '@lib/ui/utils/kbd';
+    import { DropdownItem, DropdownMenu } from '#lib/ui/atoms/dropdown-menu';
+    import DropdownIcon from '#lib/ui/atoms/icons/common/Dropdown.svelte';
+    import Button, { type ButtonAction } from '#lib/ui/atoms/input/Button.svelte';
+    import InputGroup, { type InputGroupProps, marginClass } from '#lib/ui/atoms/input/InputGroup.svelte';
+    import { cn, fromComponent, range } from '#lib/ui/utils';
+    import * as kbd from '#lib/ui/utils/kbd';
 
     export type Option = ButtonAction & {
         caption: string | Snippet;

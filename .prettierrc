@@ -19,14 +19,11 @@
     ],
     "tailwindStylesheet": "./src/app.css",
     "importOrder": [
-        "<THIRD_PARTY_MODULES>",
-
-        "^\\@config/(.*)$",
-        "^\\@generated/(.*)$",
-        "^\\@assets/(.*)$",
-        "^\\@mocks/(.*)$",
-
-        "^\\@lib/(.*)$",
+        "<THIRD_PARTY_MODULES>", //
+        "^#config$",
+        "^#generated/(.*)$",
+        "^#mocks/(.*)$",
+        "^#lib/(.*)$",
         "^[./]"
     ],
     "importOrderSeparation": false,

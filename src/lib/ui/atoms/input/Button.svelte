@@ -3,7 +3,7 @@
     import { Button } from 'bits-ui';
     import type { ClassValue } from 'clsx';
     import type { HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
-    import { type ButtonStyleConfig, createButtonStyle } from '@lib/ui/atoms/input/style.svelte';
+    import { type ButtonStyleConfig, createButtonStyle } from '#lib/ui/atoms/input/style.svelte';
 
     export type LinkAction = {
         href: HTMLAnchorAttributes['href'];

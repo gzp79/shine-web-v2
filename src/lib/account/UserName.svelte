@@ -1,8 +1,8 @@
 <script module lang="ts">
     import type { ClassValue } from 'clsx';
-    import { getUserStore } from '@lib/account/userStore.svelte';
-    import { getLocaleContext } from '@lib/i18n';
-    import { cn, dataColor } from '@lib/ui/utils';
+    import { getUserStoreContext } from '#lib/account/userStore.svelte';
+    import { getLocaleContext } from '#lib/i18n';
+    import { cn, dataColor } from '#lib/ui/utils';
 
     export type UserNameProps = {
         /** Id of the user to resolve. */
@@ -20,7 +20,7 @@
 <script lang="ts">
     let { id, placeholder = '…', selfLabel, fallback, class: className }: UserNameProps = $props();
 
-    const users = getUserStore();
+    const users = getUserStoreContext();
     const locale = getLocaleContext();
 
     const isSelf = $derived(users.meId === id);

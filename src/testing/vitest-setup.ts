@@ -1,6 +1,6 @@
 /// Math.clamp / Math.round_q extensions, installed at app entry (hooks.client/server) but
 /// not otherwise present under Vitest.
-import '@lib/prelude-math';
+import '#lib/prelude-math';
 
 /// Polyfills for happy-dom environment
 /// happy-dom does not implement the Web Animations API (element.animate),

@@ -1,27 +1,53 @@
 import { goto } from '$app/navigation';
 import { resolve } from '$app/paths';
-import '@lib/prelude-math';
+import type { HandleClientError } from '@sveltejs/kit/hooks';
+import { logAPI } from '#lib/loggers';
+import '#lib/prelude-math';
+import { IS_MOCK, createAppError, currentLocationUrl, describeError, errorPageUrl } from '#lib/utils';
+
+const ERROR_PATH = resolve('/error');
 
 let redirectingToError = false;
 
-window.onerror = (message, _source, _line, _column, error) => {
-    if (redirectingToError || window.location.pathname === resolve('/error')) {
-        return false;
+/// `resolve` already carries any configured `base`; only a trailing slash could differ.
+const isOnErrorPage = (): boolean => window.location.pathname.replace(/\/+$/, '') === ERROR_PATH.replace(/\/+$/, '');
+
+/// Last resort for a failure no `<svelte:boundary>` caught: show the error page rather than leave a
+/// half-rendered app behind.
+function redirectToErrorPage(errorDetail: string): void {
+    if (redirectingToError || isOnErrorPage()) {
+        return;
     }
 
     redirectingToError = true;
-    const errorDetail = error instanceof Error ? `${error.name}: ${error.message}` : String(message);
-    const returnUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    const params = new URLSearchParams({ errorType: 'internal-error', returnUrl });
-    // eslint-disable-next-line svelte/no-navigation-without-resolve -- the route is resolved before its query string is appended.
-    void goto(`${resolve('/error')}?${params}`, { state: { errorDetail } });
+    const returnUrl = currentLocationUrl();
+    void goto(errorPageUrl('internal-error', returnUrl), { state: { errorDetail } })
+        .catch((e) => logAPI.error('Failed to navigate to the error page', e))
+        .finally(() => (redirectingToError = false));
+}
+
+window.onerror = (message, _source, _line, _column, error) => {
+    logAPI.error('Uncaught client error', error ?? message);
+    redirectToErrorPage(error ? describeError(error) : String(message));
     return false;
 };
 
+window.onunhandledrejection = (event) => {
+    logAPI.error('Unhandled promise rejection', event.reason);
+};
+
 // Initialize MSW for mock environment
-if (import.meta.env.VITE_MOCK) {
-    await import('@mocks/setup-client');
+if (IS_MOCK) {
+    await import('#mocks/setup-client');
 }
 
-// Optional exports to silence SvelteKit warnings
-export const handleError = undefined;
+export const handleError: HandleClientError = ({ kind, error }) => {
+    // app and framework errors (404, error() helper, ...) keep their defaults
+    if (kind !== 'unknown') {
+        return;
+    }
+
+    logAPI.error('Unhandled client error', error);
+    const appError = createAppError(error);
+    return { message: appError.message, appError };
+};

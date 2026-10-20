@@ -1,4 +1,4 @@
-import { config as baseConfig } from '@generated/config';
+import { config as baseConfig } from '#generated/config';
 
 export * from './constants';
 

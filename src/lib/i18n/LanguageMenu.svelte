@@ -1,12 +1,12 @@
 <script module lang="ts">
-    import { getLocaleContext, localeList } from '@lib/i18n';
+    import { getLocaleContext, localeList } from '#lib/i18n';
     import {
         DropdownRadioGroup,
         DropdownRadioItem,
         DropdownSubMenu,
         type ExpandIconSide
-    } from '@lib/ui/atoms/dropdown-menu';
-    import flagIcons from '@lib/ui/atoms/glyphs/flags/all';
+    } from '#lib/ui/atoms/dropdown-menu';
+    import flagIcons from '#lib/ui/atoms/glyphs/flags/all';
 
     export type LanguageMenuProps = {
         expandIcon?: ExpandIconSide;

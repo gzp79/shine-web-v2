@@ -1,14 +1,13 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { sizeList } from '@lib/ui/atoms';
-    import PropertyList, { type DescriptionListItem } from '@lib/ui/atoms/data/PropertyList.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { sizeList } from '#lib/ui/atoms';
+    import PropertyList, { type DescriptionListItem } from '#lib/ui/atoms/data/PropertyList.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         component: PropertyList,
         title: 'Atoms/Data/PropertyList',
-        args: {},
         argTypes: {
             size: {
                 control: { type: 'select' },

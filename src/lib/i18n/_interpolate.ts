@@ -1,4 +1,4 @@
-import { logI18n } from '@lib/loggers';
+import { logI18n } from '#lib/loggers';
 import { type Formatter, formatters } from './_formatters';
 import type { Locale } from './_translator';
 

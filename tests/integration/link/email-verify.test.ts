@@ -68,3 +68,23 @@ test('OK after success redirects to login when session has expired', async ({ pa
     await page.waitForURL((url) => url.pathname === '/login');
     expect(new URL(page.url()).searchParams.get('returnUrl')).toBe('/account');
 });
+
+test('success refreshes the current user so the account page is not left stale', async ({ page, mock }) => {
+    await mock.add('completeEmailOperationHandler');
+
+    // The operation changes the account server-side and nothing invalidates the cached current user,
+    // so without an explicit refresh /account would keep showing the pre-change email (and
+    // `isEmailVerified`) until the store's TTL lapses or the tab is refocused.
+    const userFetches: string[] = [];
+    page.on('request', (request) => {
+        if (new URL(request.url()).pathname.endsWith('/queryCurrentUserInfo')) {
+            userFetches.push(request.url());
+        }
+    });
+
+    await page.goto('/link/email-verify?token=valid-token-123');
+    await expect(page.getByText('Email operation completed successfully!')).toBeVisible();
+
+    // One fetch on load, a second once the operation completed.
+    await expect.poll(() => userFetches.length).toBeGreaterThanOrEqual(2);
+});

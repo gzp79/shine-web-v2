@@ -1,7 +1,7 @@
 <script module lang="ts">
     import { DropdownMenu as DropdownMenuPrimitive } from 'bits-ui';
     import type { Snippet } from 'svelte';
-    import { cn } from '@lib/ui/utils';
+    import { cn } from '#lib/ui/utils';
 
     export type GroupProps = DropdownMenuPrimitive.GroupProps & {
         heading?: string | Snippet;

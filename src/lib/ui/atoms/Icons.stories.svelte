@@ -1,12 +1,11 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, iconSizeList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import IconBase, { type IconBaseProps, type IconSet } from '@lib/ui/atoms/icons/IconBase.svelte';
-    import animatedIcons from '@lib/ui/atoms/icons/animated/all';
-    import commonIcons from '@lib/ui/atoms/icons/common/all';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from './layouts/Stack.svelte';
+    import { actionColorList, iconSizeList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import IconBase, { type IconBaseProps, type IconSet } from '#lib/ui/atoms/icons/IconBase.svelte';
+    import animatedIcons from '#lib/ui/atoms/icons/animated/all';
+    import commonIcons from '#lib/ui/atoms/icons/common/all';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
 
     const { Story } = defineMeta({
         title: 'Atoms/Theme/Icons',

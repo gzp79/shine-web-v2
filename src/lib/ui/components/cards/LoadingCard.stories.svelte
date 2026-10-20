@@ -1,14 +1,12 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import type { Component } from 'svelte';
-    import Stack from '@lib/ui//atoms/layouts/Stack.svelte';
-    import { sizeList } from '@lib/ui/atoms';
-    import LoadingCard, { type LoadingProps } from '@lib/ui/components/cards/LoadingCard.svelte';
+    import { sizeList } from '#lib/ui/atoms';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
 
-    const { Story } = defineMeta<unknown, Component<LoadingProps>>({
+    const { Story } = defineMeta({
         component: LoadingCard,
         title: 'Components/Cards/LoadingCard',
-        args: {},
         argTypes: {
             size: {
                 control: { type: 'select' },

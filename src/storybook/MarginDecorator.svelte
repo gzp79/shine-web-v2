@@ -1,6 +1,6 @@
 <script module lang="ts">
     import type { Snippet } from 'svelte';
-    import type { Spacing } from '@lib/ui/atoms';
+    import type { Spacing } from '#lib/ui/atoms';
 
     type MarginDecoratorProps = {
         margin?: Spacing;

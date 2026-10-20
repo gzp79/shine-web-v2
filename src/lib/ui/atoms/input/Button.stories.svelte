@@ -1,14 +1,14 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, sizeList } from '@lib/ui/atoms';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import FlagGB from '@lib/ui/atoms/glyphs/flags/gb.svelte';
-    import Spinner from '@lib/ui/atoms/icons/animated/Spinner.svelte';
-    import Settings from '@lib/ui/atoms/icons/common/Settings.svelte';
-    import { inputVariantList } from '@lib/ui/atoms/input';
-    import Button, { type ButtonProps } from '@lib/ui/atoms/input/Button.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
+    import { actionColorList, sizeList } from '#lib/ui/atoms';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import FlagGB from '#lib/ui/atoms/glyphs/flags/gb.svelte';
+    import Spinner from '#lib/ui/atoms/icons/animated/Spinner.svelte';
+    import Settings from '#lib/ui/atoms/icons/common/Settings.svelte';
+    import { inputVariantList } from '#lib/ui/atoms/input';
+    import Button, { type ButtonProps } from '#lib/ui/atoms/input/Button.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
 
     const { Story } = defineMeta({
         component: Button,

@@ -1,8 +1,8 @@
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { createRawSnippet } from 'svelte';
 import { afterEach, describe, expect, test } from 'vitest';
-import { LOCALE_CONTEXT_KEY, type LocaleContext, createTranslator } from '@lib/i18n';
-import en from '@lib/i18n/locales/en.json';
+import { LOCALE_CONTEXT_KEY, type LocaleContext, createTranslator } from '#lib/i18n';
+import en from '#lib/i18n/locales/en.json';
 import ChatMessageList, { type ChatMessageLike } from './ChatMessageList.svelte';
 
 afterEach(() => {

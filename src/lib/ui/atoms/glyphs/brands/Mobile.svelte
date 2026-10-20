@@ -1,5 +1,5 @@
 <script lang="ts">
-    import GlyphBase, { type GlyphProps } from '@lib/ui/atoms/glyphs/GlyphBase.svelte';
+    import GlyphBase, { type GlyphProps } from '#lib/ui/atoms/glyphs/GlyphBase.svelte';
 
     let props: GlyphProps = $props();
 </script>

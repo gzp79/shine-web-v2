@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { getAuthenticatedUserContext } from '@lib/account/authContext.svelte';
-    import { getChatStream } from '@lib/builder';
-    import { gameInputGate } from '@lib/game';
-    import { getLocaleContext } from '@lib/i18n';
-    import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
+    import { getAuthenticatedUserContext } from '#lib/account/authContext.svelte';
+    import { getChatStreamContext } from '#lib/builder';
+    import { gameInputGate } from '#lib/game';
+    import { getLocaleContext } from '#lib/i18n';
+    import Dialog from '#lib/ui/atoms/layouts/Dialog.svelte';
     import Chat from './Chat.svelte';
 
     export type ChatPanelProps = {
@@ -15,9 +15,9 @@
 
     const auth = getAuthenticatedUserContext();
     const locale = getLocaleContext();
-    const chat = getChatStream();
+    const chat = getChatStreamContext();
 
-    // Bound here rather than in provideChatStream: the stream is provided in the (auth) layout, above
+    // Bound here rather than in provideChatStreamContext: the stream is provided in the (auth) layout, above
     // AuthGuard, where the authenticated-user context does not yet exist. This panel is always mounted
     // inside AuthGuard, so it is a stable place to resolve the self id.
     chat.bindSelfId(() => auth.user.id);

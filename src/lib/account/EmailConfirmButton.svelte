@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import type { AppError } from '@lib/utils';
+    import type { AppError } from '#lib/utils';
 
     export type EmailConfirmButtonVariant = 'change' | 'confirmOrChange';
 
@@ -12,17 +12,17 @@
 
 <script lang="ts">
     import { z } from 'zod';
-    import { getLocaleContext } from '@lib/i18n';
-    import { logAPI } from '@lib/loggers';
-    import Typography from '@lib/ui/atoms/Typography.svelte';
-    import Spinner from '@lib/ui/atoms/icons/animated/Spinner.svelte';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ComboButton from '@lib/ui/components/buttons/ComboButton.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import ZodField from '@lib/ui/components/forms/ZodField.svelte';
-    import { createAppError } from '@lib/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import { logAPI } from '#lib/loggers';
+    import Typography from '#lib/ui/atoms/Typography.svelte';
+    import Spinner from '#lib/ui/atoms/icons/animated/Spinner.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Dialog from '#lib/ui/atoms/layouts/Dialog.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ComboButton from '#lib/ui/components/buttons/ComboButton.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import ZodField from '#lib/ui/components/forms/ZodField.svelte';
+    import { createAppError, isAppError } from '#lib/utils';
     import { startEmailChange, startEmailConfirmation } from './auth.remote';
 
     let { variant, disabled = false, onerror }: EmailConfirmButtonProps = $props();
@@ -39,11 +39,6 @@
     let isEmailValid = $derived(!!validatedEmail);
     let isModalOpen = $derived(!disabled && emailStatus !== null);
     let effectiveVariant = $derived(emailSent ? 'change' : variant);
-
-    // Type guard for error state
-    function isAppError(status: typeof emailStatus): status is AppError {
-        return status instanceof Error;
-    }
 
     // Close dialog when disabled
     $effect(() => {

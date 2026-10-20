@@ -1,7 +1,7 @@
-import { config } from '@config';
-import { HttpResponse, http } from 'msw';
-import { logMSW } from '@lib/loggers';
-import { async, joinURL } from '@lib/utils';
+import { config } from '#config';
+import { HttpResponse, http } from 'msw/http';
+import { logMSW } from '#lib/loggers';
+import { async, joinURL } from '#lib/utils';
 
 export const withLog = http.all('*', ({ request, requestId }) => {
     logMSW.info(`[MSW] [${requestId}] Mocked : ${request.method} ${request.url}`);

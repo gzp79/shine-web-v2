@@ -1,23 +1,22 @@
-import { getContext, hasContext, setContext } from 'svelte';
+import { createContext as createSvelteContext } from 'svelte';
 
-/// Creates a Svelte context with a unique key based on the provided name.
-/// Improved version of svelte's built-in context functions.
+/// Creates a Svelte context with a named, type-safe accessor triplet.
 export function createContext<T>(name: string): {
     get: () => T;
     tryGet: () => T | undefined;
-    set: (context: T) => void;
+    set: (context: T) => T;
 } {
-    const key = Symbol(name);
+    const [get, set, has] = createSvelteContext<T>();
 
     return {
-        get: () => getContext(key),
-        tryGet: () => {
-            if (!hasContext(key)) {
-                return undefined;
+        get: () => {
+            if (!has()) {
+                throw new Error(`${name} was not provided by any ancestor component.`);
             }
 
-            return getContext(key);
+            return get();
         },
-        set: (context) => setContext(key, context)
+        tryGet: () => (has() ? get() : undefined),
+        set
     };
 }

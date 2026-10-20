@@ -1,5 +1,5 @@
 <script lang="ts">
-    import IconBase, { type IconProps } from '@lib/ui/atoms/icons/IconBase.svelte';
+    import IconBase, { type IconProps } from '#lib/ui/atoms/icons/IconBase.svelte';
 
     let props: IconProps = $props();
 </script>

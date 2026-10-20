@@ -1,7 +1,7 @@
-import { config } from '@config';
+import { config } from '#config';
 import z from 'zod';
-import { logAPI } from '@lib/loggers';
-import { retryWithBackoff } from '@lib/utils';
+import { logAPI } from '#lib/loggers';
+import { retryWithBackoff } from '#lib/utils';
 
 const VersionSchema = z.object({ version: z.string() });
 

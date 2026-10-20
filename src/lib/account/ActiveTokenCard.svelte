@@ -1,11 +1,11 @@
 <script module lang="ts">
-    import { getLocaleContext } from '@lib/i18n';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Card from '@lib/ui/atoms/layouts/Card.svelte';
-    import Stack from '@lib/ui/atoms/layouts/Stack.svelte';
-    import ErrorCard from '@lib/ui/components/cards/ErrorCard.svelte';
-    import LoadingCard from '@lib/ui/components/cards/LoadingCard.svelte';
-    import { type AppError, createAppError } from '@lib/utils';
+    import { getLocaleContext } from '#lib/i18n';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Card from '#lib/ui/atoms/layouts/Card.svelte';
+    import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
+    import ErrorCard from '#lib/ui/components/cards/ErrorCard.svelte';
+    import LoadingCard from '#lib/ui/components/cards/LoadingCard.svelte';
+    import { type AppError } from '#lib/utils';
     import ActiveTokenItem from './ActiveTokenItem.svelte';
     import { queryActiveTokens, revokeToken as revokeTokenCommand } from './auth.remote';
 </script>
@@ -33,7 +33,9 @@
     const revokeToken = async (tokenHash: string) => {
         isRevoking = true;
         try {
-            await revokeTokenCommand(tokenHash).updates(tokens);
+            await revokeTokenCommand(tokenHash).updates(
+                tokens.withOverride((list) => list.filter((t) => t.tokenHash !== tokenHash))
+            );
         } finally {
             isRevoking = false;
         }
@@ -49,7 +51,7 @@
         {/snippet}
 
         {#snippet failed(error, reset)}
-            <ErrorCard error={createAppError(error)} width="full">
+            <ErrorCard {error} width="full">
                 {#snippet actions()}
                     <Button
                         onclick={async () => {
@@ -68,7 +70,7 @@
             {#each await tokens as token (token.tokenHash)}
                 <ActiveTokenItem
                     {token}
-                    disabled={tokens.loading || isRevoking}
+                    disabled={isRevoking}
                     revoke={revokeToken}
                     onerror={(err) => {
                         error = err;

@@ -1,4 +1,4 @@
-import { logI18n } from '@lib/loggers';
+import { logI18n } from '#lib/loggers';
 import type { Locale } from '../_translator';
 
 type FormatOptions = Intl.DateTimeFormatOptions;

@@ -93,6 +93,7 @@ Map the loopback hostnames. On Windows edit `C:\Windows\System32\drivers\etc\hos
 ```
 127.0.0.1 local.scytta.com
 127.0.0.1 cloud.local.scytta.com
+127.0.0.1 ws.local.scytta.com
 127.0.0.1 assets.local.scytta.com
 127.0.0.1 game.local.scytta.com
 127.0.0.1 mockbox.foo
@@ -109,10 +110,10 @@ databases and mock dependencies.)
 The web repo and `shine-services` each have their **own** self-signed CA, and each
 covers different hostnames. You need both.
 
-| CA                        | Covers (cert SANs)                                                                          | Serves                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| web `certificates/ca.crt` | `local.scytta.com`                                                                          | web on :4443                                            |
-| services `certs/ca.crt`   | `cloud.local.scytta.com`, `assets.local.scytta.com`, `game.local.scytta.com`, `mockbox.foo` | identity :8443, builder :8444, assets :8093, game :8092 |
+| CA                             | Covers (cert SANs)                                                                                                 | Serves                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| web `certificates/ca.crt`      | `local.scytta.com`                                                                                                 | web on :4443                                            |
+| services `certificates/ca.crt` | `cloud.local.scytta.com`, `ws.local.scytta.com`, `assets.local.scytta.com`, `game.local.scytta.com`, `mockbox.foo` | identity :8443, builder :8444, assets :8093, game :8092 |
 
 **Web (this repo):**
 
@@ -127,7 +128,7 @@ package:
 ```bash
 cd ../shine-services/tests
 pnpm i
-pnpm run mkcert        # creates ../certs/ca.* and ../certs/scytta.{crt,key}
+pnpm run mkcert        # creates ../certificates/ca.* and ../certificates/scytta.{crt,key}
 pnpm run mkcert:cert   # regenerate only the site cert (reuses the existing CA — no re-trust needed)
 ```
 
@@ -143,7 +144,7 @@ assets, identity, builder and game hosts, so it needs to trust both roots. On Wi
 
 ```powershell
 certutil -addstore -user "ROOT" ".\certificates\ca.crt"
-certutil -addstore -user "ROOT" "..\shine-services\certs\ca.crt"
+certutil -addstore -user "ROOT" "..\shine-services\certificates\ca.crt"
 ```
 
 **Replace old CAs.** If you regenerate either CA, remove its older trusted root

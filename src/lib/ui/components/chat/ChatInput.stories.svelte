@@ -1,6 +1,6 @@
 <script module lang="ts">
     import { defineMeta } from '@storybook/addon-svelte-csf';
-    import { actionColorList, sizeList } from '@lib/ui/atoms';
+    import { actionColorList, sizeList } from '#lib/ui/atoms';
     import ChatInput from './ChatInput.svelte';
 
     const { Story } = defineMeta({

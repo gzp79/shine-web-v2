@@ -1,8 +1,9 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { onDestroy } from 'svelte';
 import { createSubscriber } from 'svelte/reactivity';
-import { logUser } from '@lib/loggers';
-import { createContext } from '@lib/ui/utils';
+import { logUser } from '#lib/loggers';
+import { createContext } from '#lib/ui/utils';
+import { createAppError } from '#lib/utils';
 
 /** The public fields the BFF resolves for a user. Extend here when more are exposed. */
 export type PublicUserData = {
@@ -74,7 +75,7 @@ async function fetchPublicUsers(ids: string[]): Promise<Record<string, PublicUse
 
 /**
  * Shared, batched cache of public user data. {@link BrowserUserStore} does the real work;
- * {@link ServerUserStore} is an inert stub. Obtain one via {@link provideUserStore}.
+ * {@link ServerUserStore} is an inert stub. Obtain one via {@link provideUserStoreContext}.
  */
 export interface UserStore {
     /**
@@ -85,12 +86,16 @@ export interface UserStore {
      * outside a tracking context it is a plain read that neither references nor loads.
      */
     get(id: string): PublicUserEntry;
+
     /**
-     * Reads the shared entry for `id` at component initialisation and releases it on destroy.
-     * Handy when the id is fixed for the component's lifetime; for a changing id or a read
-     * inside `$derived`, prefer {@link UserStore.get}. Throws if called outside init.
+     * Holds the shared entry for `id` for the calling component's lifetime: it references and
+     * loads at initialisation and releases on destroy. Handy when the id is fixed for that
+     * lifetime, or when the value is never read inside a reaction (passed to a child as a prop,
+     * rendered once in markup) - cases {@link UserStore.get} would not load at all. For a changing
+     * id or a read inside `$derived`, prefer `get`. Throws if called outside init.
      */
-    use(id: string): PublicUserEntry;
+    track(id: string): PublicUserEntry;
+
     /** Id of the current user, or `undefined` while unknown. Reactive. */
     readonly meId: string | undefined;
     /** Marks entries stale; referenced ones re-resolve right away. Omit `id` for all. */
@@ -122,7 +127,7 @@ class ServerUserStore implements UserStore {
         return loadingEntry(id);
     }
 
-    use(id: string): PublicUserEntry {
+    track(id: string): PublicUserEntry {
         return loadingEntry(id);
     }
 
@@ -217,7 +222,7 @@ export class BrowserUserStore implements UserStore {
      * Must be called during component initialisation. For a changing id or a read inside a
      * `$derived`, prefer {@link get}, which references and loads on demand and releases itself.
      */
-    use(id: string): PublicUserEntry {
+    track(id: string): PublicUserEntry {
         const entry = this.#acquire(id);
 
         try {
@@ -225,7 +230,7 @@ export class BrowserUserStore implements UserStore {
         } catch {
             this.#release(id);
             throw new Error(
-                `UserStore.use(${id}): called outside component initialisation; read it with get() instead`
+                `UserStore.track(${id}): called outside component initialisation; read it with get() instead`
             );
         }
 
@@ -403,7 +408,7 @@ export class BrowserUserStore implements UserStore {
             }
         } catch (err) {
             logUser.error('Failed to resolve public user info', err);
-            const message = err instanceof Error ? err.message : 'Failed to resolve user';
+            const message = createAppError(err).message;
             for (const id of ids) {
                 const entry = this.#entries.get(id);
                 if (!entry) continue;
@@ -414,35 +419,25 @@ export class BrowserUserStore implements UserStore {
     }
 }
 
-const context = createContext<UserStore>('public-user-store');
+const context = createContext<UserStore>('UserStoreContext');
 
 /**
  * Creates a user store and publishes it to descendants. Call once per application or
  * request region (a layout `<script>`), never as a module-global singleton: module state
  * is shared between SSR requests.
  */
-export function provideUserStore(options?: UserStoreOptions): UserStore {
+export function provideUserStoreContext(options?: UserStoreOptions): UserStore {
     const store: UserStore = browser ? new BrowserUserStore(options) : new ServerUserStore();
     context.set(store);
     onDestroy(() => store.destroy());
     return store;
 }
 
-/** Reads the store published by {@link provideUserStore}. */
-export function getUserStore(): UserStore {
+/** Reads the store published by {@link provideUserStoreContext}. */
+export function getUserStoreContext(): UserStore {
     const store = context.tryGet();
     if (!store) {
-        throw new Error('getUserStore: no user store in context (call provideUserStore in the region layout)');
+        throw new Error('UserStoreContext was not provided: call provideUserStoreContext in the region layout.');
     }
     return store;
-}
-
-/** Reads the store published by {@link provideUserStore}, or `undefined` when none is provided. */
-export function tryGetUserStore(): UserStore | undefined {
-    return context.tryGet();
-}
-
-/** Shorthand for `getUserStore().use(id)`. */
-export function useUser(id: string): PublicUserEntry {
-    return getUserStore().use(id);
 }

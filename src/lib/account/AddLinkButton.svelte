@@ -1,5 +1,5 @@
 <script module lang="ts">
-    import type { AppError } from '@lib/utils';
+    import type { AppError } from '#lib/utils';
 
     export type AddLinkButtonProps = {
         disabled?: boolean;
@@ -8,13 +8,13 @@
 </script>
 
 <script lang="ts">
-    import { authPages } from '@lib/api/authPages';
-    import { getLocaleContext } from '@lib/i18n';
-    import brands from '@lib/ui/atoms/glyphs/brands/all';
-    import Button from '@lib/ui/atoms/input/Button.svelte';
-    import Box from '@lib/ui/atoms/layouts/Box.svelte';
-    import Dialog from '@lib/ui/atoms/layouts/Dialog.svelte';
-    import { createAppError, pascalCase } from '@lib/utils';
+    import { authPages } from '#lib/api/authPages';
+    import { getLocaleContext } from '#lib/i18n';
+    import brands from '#lib/ui/atoms/glyphs/brands/all';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
+    import Box from '#lib/ui/atoms/layouts/Box.svelte';
+    import Dialog from '#lib/ui/atoms/layouts/Dialog.svelte';
+    import { createAppError, pascalCase } from '#lib/utils';
     import { queryExternalLoginProviders } from './auth.remote';
 
     let { disabled = false, onerror }: AddLinkButtonProps = $props();

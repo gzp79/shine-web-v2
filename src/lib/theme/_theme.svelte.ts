@@ -1,9 +1,9 @@
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { page } from '$app/state';
 import { type Cookies } from '@sveltejs/kit';
 import { getContext, setContext } from 'svelte';
-import { logTheme } from '@lib/loggers';
-import { getCookie, onTabVisible, setCookie } from '@lib/utils';
+import { logTheme } from '#lib/loggers';
+import { getCookie, onTabVisible, setCookie } from '#lib/utils';
 
 export const themeList = ['light', 'dark', 'system'] as const;
 export type Theme = (typeof themeList)[number];
@@ -38,12 +38,12 @@ export type ThemeContext = {
 /// Server logic - non-authoritative source, just for the initial value:
 ///  - hooks.server.ts → handle({ event, resolve }), reads theme from cookie and put it in event.locals
 ///  - +layout.server.ts → load({ locals }), puts theme in page.data
-//   - +layout.svelte → createThemeContext, creates the context from the page.data
+//   - +layout.svelte → provideThemeContext, creates the context from the page.data
 /// Browser logic - authoritative source:
-//   - +layout.svelte → createThemeContext, creates the context from the cookie
+//   - +layout.svelte → provideThemeContext, creates the context from the cookie
 ///  - on update, set cookie, update state
 //   - across tabs it uses onTabVisible to refresh from cookie
-export function createThemeContext(): ThemeContext {
+export function provideThemeContext(): ThemeContext {
     const th = getThemeWithFallback(page.data.theme);
     logTheme.log(`Initializing theme context with theme: ${th}`);
 
@@ -63,7 +63,7 @@ export function createThemeContext(): ThemeContext {
         }
     } satisfies ThemeContext;
 
-    setContext(THEME_CONTEXT_KEY, context);
+    setThemeContext(context);
 
     if (browser) {
         // After hydration, update from cookie if it differs (browser is authoritative)
@@ -84,9 +84,11 @@ export function createThemeContext(): ThemeContext {
     return context;
 }
 
-/// A low level API to set the theme context directly used for testing.
-export function setThemeContext(context: ThemeContext) {
-    setContext(THEME_CONTEXT_KEY, context);
+/// Installs a caller-owned theme context. Needed where the SvelteKit data pipeline is absent and
+/// the provider above cannot run - notably the Storybook decorator, which is toolbar-authoritative
+/// while the provider is cookie-authoritative.
+export function setThemeContext(context: ThemeContext): ThemeContext {
+    return setContext(THEME_CONTEXT_KEY, context);
 }
 
 export function getThemeContext(): ThemeContext {

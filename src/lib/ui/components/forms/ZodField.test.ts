@@ -2,7 +2,7 @@ import { cleanup, render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, test } from 'vitest';
 import { z } from 'zod';
-import { LOCALE_CONTEXT_KEY } from '@lib/i18n';
+import { LOCALE_CONTEXT_KEY } from '#lib/i18n';
 import ZodField from './ZodField.svelte';
 
 const emailSchema = z.email({ message: 'Please enter a valid email address' });

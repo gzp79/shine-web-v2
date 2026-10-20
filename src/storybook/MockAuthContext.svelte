@@ -1,14 +1,22 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '@lib/account/authContext.svelte';
+    import { type AuthenticatedCurrentUser, setAuthenticatedUserContext } from '#lib/account/authContext.svelte';
 
-    let { user, children }: { user: AuthenticatedCurrentUser; children: Snippet } = $props();
+    let {
+        user,
+        loading = false,
+        children
+    }: { user: AuthenticatedCurrentUser; loading?: boolean; children: Snippet } = $props();
 
     setAuthenticatedUserContext({
         get user() {
             return user;
         },
-        refresh: () => Promise.resolve()
+        get loading() {
+            return loading;
+        },
+        refresh: () => Promise.resolve(),
+        revalidateSession: () => Promise.resolve(true)
     });
 </script>
 

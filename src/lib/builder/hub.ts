@@ -1,4 +1,4 @@
-import { config } from '@config';
+import { config } from '#config';
 import { ResilientWebSocket, type SocketStatus } from './resilientWebSocket.svelte';
 
 /**
