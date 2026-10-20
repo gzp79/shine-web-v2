@@ -70,7 +70,7 @@
             {#each await tokens as token (token.tokenHash)}
                 <ActiveTokenItem
                     {token}
-                    disabled={tokens.loading || isRevoking}
+                    disabled={isRevoking}
                     revoke={revokeToken}
                     onerror={(err) => {
                         error = err;

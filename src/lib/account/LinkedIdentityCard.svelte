@@ -73,7 +73,7 @@
             {#each await identities as identity (identity.provider + identity.providerUserId)}
                 <LinkedIdentityItem
                     {identity}
-                    disabled={identities.loading || isUnlinking}
+                    disabled={isUnlinking}
                     unlink={unlinkIdentity}
                     onerror={(err) => {
                         error = err;
@@ -81,7 +81,7 @@
                 />
             {/each}
             <AddLinkButton
-                disabled={identities.loading || isUnlinking}
+                disabled={isUnlinking}
                 onerror={(err) => {
                     error = err;
                 }}

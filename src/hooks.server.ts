@@ -3,23 +3,24 @@ import { getLocaleFromRequest } from '#lib/i18n';
 import { logAPI } from '#lib/loggers';
 import '#lib/prelude-math';
 import { getThemeFromRequest } from '#lib/theme';
-import { type AppError, IS_MOCK, VERBOSE_ERRORS, createAppError, describeError } from '#lib/utils';
+import { type AppError, IS_MOCK, VERBOSE_ERRORS, createAppError, describeError, isAppError } from '#lib/utils';
 
 // Initialize MSW for mock environment
 if (IS_MOCK) {
     await import('#mocks/setup-server');
 }
 
-/// The `AppError` a client may see. `createFetchError` already withholds bodies and URLs outside
-/// verbose mode, but `other`/`retryLimit` details are arbitrary payloads, so in prod only the
-/// upstream status survives.
+/// The `appError` sent to the browser. The client shows it in preference to `message`, so outside
+/// `VERBOSE_ERRORS` it is masked the same way: only the status survives in `details`, and the raw
+/// message of a non-app throw is replaced with a generic one.
 function clientAppError(error: unknown): AppError {
     const appError = createAppError(error);
     if (VERBOSE_ERRORS) return appError;
     if (appError.kind === 'fetch') {
         return { ...appError, details: { status: appError.details?.status } };
     }
-    return { ...appError, details: undefined };
+    const message = isAppError(error) ? appError.message : describeError(error);
+    return { ...appError, message, details: undefined };
 }
 
 /// SvelteKit masks any unexpected (non-HttpError) server-side throw as a generic

@@ -1,4 +1,4 @@
-import { command, getRequestEvent, query } from '$app/server';
+import { command, getRequestEvent, query, requested } from '$app/server';
 import z from 'zod';
 import { logAPI } from '#lib/loggers';
 import { CurrentUserSchema, ProviderSchema, authApiRoutes } from '#lib/server/api/authApiRoutes';
@@ -220,7 +220,7 @@ export const revokeToken = command(z.string(), async (tokenHash: string) => {
     const { fetch } = getRequestEvent();
     const headers = getPassThroughHeaders();
 
-    return await retryWithBackoff(async (retry) => {
+    await retryWithBackoff(async (retry) => {
         const response = await fetch(url, {
             method: 'DELETE',
             headers
@@ -239,8 +239,7 @@ export const revokeToken = command(z.string(), async (tokenHash: string) => {
         logAPI.log('revokeToken completed');
     });
 
-    // Single-flight: the refreshed list rides back on this response instead of a second round trip.
-    await queryActiveTokens().refresh();
+    await requested(queryActiveTokens, 1).refreshAll();
 });
 
 export const unlinkIdentity = command(
@@ -254,7 +253,7 @@ export const unlinkIdentity = command(
         const { fetch } = getRequestEvent();
         const headers = getPassThroughHeaders();
 
-        return await retryWithBackoff(async (retry) => {
+        await retryWithBackoff(async (retry) => {
             const response = await fetch(url, {
                 method: 'DELETE',
                 headers
@@ -273,8 +272,7 @@ export const unlinkIdentity = command(
             logAPI.log('unlinkIdentity completed');
         });
 
-        // Single-flight: the refreshed list rides back on this response instead of a second round trip.
-        await queryLinkedIdentities().refresh();
+        await requested(queryLinkedIdentities, 1).refreshAll();
     }
 );
 
