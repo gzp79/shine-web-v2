@@ -1,11 +1,13 @@
 <script module lang="ts">
-    import type { SocketStatus } from '#lib/builder';
+    import type { SocketStatus } from '#lib/builder/resilientWebSocket.svelte';
     import { createContext } from '#lib/ui/utils';
 
     /** Live status a descendant region publishes for the app-shell indicator to reflect. */
     export type ConnectionStatusSource = {
         readonly status: SocketStatus;
+        /** Unread chat messages: shown as a dot on the indicator. */
         readonly hasUnread: boolean;
+        /** Opens the chat. */
         readonly onClick: () => void;
     };
 
@@ -58,13 +60,20 @@
     const locale = getLocaleContext();
 
     const status = $derived(ctx.source?.status);
+    const label = $derived(
+        status === 'connecting' || status === 'reconnecting'
+            ? locale.t('connection.connecting')
+            : status === 'connected'
+              ? locale.t('connection.online')
+              : locale.t('connection.offline')
+    );
 </script>
 
 {#if ctx.source}
     <Button
         type="button"
         aria-label={locale.t('chat.chat')}
-        // disabled={!ctx.source}
+        title={label}
         class={['relative', className]}
         onclick={() => ctx.source?.onClick()}
     >

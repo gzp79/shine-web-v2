@@ -24,7 +24,15 @@ export default [
         }
     },
     {
-        ignores: ['build/', '.svelte-kit/', 'dist/', 'static-generated/', 'node_modules/', 'storybook-static/']
+        ignores: [
+            'build/',
+            '.svelte-kit/',
+            'dist/',
+            'static-generated/',
+            'node_modules/',
+            'storybook-static/',
+            'src/lib/game-bindings/generated/'
+        ]
     },
     {
         languageOptions: {

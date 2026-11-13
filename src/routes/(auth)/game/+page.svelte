@@ -1,6 +1,7 @@
 <script lang="ts">
     import { config } from '#config';
     import { queryGameAssetManifest } from '#lib/assets/assets.remote';
+    import { type StreamHub, getBuilderStreamHubContext } from '#lib/builder/streamHub';
     import { gameInputGate } from '#lib/game';
     import { logGame } from '#lib/loggers';
     import { getAppMenuContext } from '#lib/ui/app/AppMenu.svelte';
@@ -22,19 +23,20 @@
         url(name: string): string;
     };
     type AssetCatalogBuilder = () => Promise<AssetCatalog>;
+    type SceneConfig = {
+        catalogBuilder: AssetCatalogBuilder;
+        onError?: (error: Error) => void;
+        streamHub?: StreamHub;
+    };
     type GameModule = {
-        createScene: (
-            container: HTMLElement,
-            scene: string,
-            catalogBuilder: AssetCatalogBuilder,
-            onError?: (error: Error) => void
-        ) => Promise<SceneHandle>;
+        createScene: (container: HTMLElement, scene: string, config: SceneConfig) => Promise<SceneHandle>;
         listScenes: () => { id: string; title: string }[];
     };
 
     const { data }: { data: PageData } = $props();
 
     const appMenu = getAppMenuContext();
+    const streamHub = getBuilderStreamHubContext();
 
     let container: HTMLElement;
     let handle = $state<SceneHandle | null>(null);
@@ -108,12 +110,16 @@
                 sceneList = mod.listScenes();
             }
             logGame.info(`creating scene="${s}" attempt=${attempt}`);
-            const next = await mod.createScene(container, s, buildAssetCatalog, (fatalError) => {
-                if (isCancelled()) return;
-                handle = null;
-                running = false;
-                error = fatalError;
-                retrying = false;
+            const next = await mod.createScene(container, s, {
+                catalogBuilder: buildAssetCatalog,
+                streamHub,
+                onError: (fatalError) => {
+                    if (isCancelled()) return;
+                    handle = null;
+                    running = false;
+                    error = fatalError;
+                    retrying = false;
+                }
             });
             if (isCancelled()) {
                 next.dispose();

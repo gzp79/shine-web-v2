@@ -1,6 +1,7 @@
 {
     "extends": "$app/tsconfig",
     "include": ["src", "tests", "*"],
+    "exclude": ["node_modules", "src/lib/game-bindings/generated/**/*.js"],
     "compilerOptions": {
         "rewriteRelativeImportExtensions": true,
         "allowJs": true,

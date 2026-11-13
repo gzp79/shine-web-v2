@@ -140,6 +140,11 @@
         "title": "Application Title",
         "description": "Application Description"
     },
+    "connection": {
+        "connecting": "Connecting…",
+        "online": "Online",
+        "offline": "Offline"
+    },
     "chat": {
         "chat": "Chat",
         "you": "You",
@@ -147,6 +152,12 @@
         "pinged": "pinged",
         "pingSelf": "ping ({ms} ms)",
         "pong": "{ms} ms",
+        "connecting": "Connecting…",
+        "syncing": "Syncing…",
+        "reconnecting": "Reconnecting…",
+        "unsynced": "The chat is unavailable, retrying…",
+        "placeholder": "Type a message…",
+        "send": "Send",
         "server": "server"
     }
 }

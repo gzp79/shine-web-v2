@@ -2,10 +2,11 @@
     import UserName from '#lib/account/UserName.svelte';
     import { getLocaleContext } from '#lib/i18n';
     import { ChatBubble } from '#lib/ui/components/chat';
-    import type { TextMessage } from './chatMessages';
+    import type { ChatEntry } from './chatReplica';
 
     export type ChatMessageProps = {
-        message: TextMessage;
+        message: ChatEntry;
+        /** The current user wrote it. */
         own: boolean;
     };
 </script>
@@ -16,7 +17,12 @@
     const locale = getLocaleContext();
 </script>
 
-<ChatBubble content={message.text} align={own ? 'end' : 'start'} author={userLabel} />
+<ChatBubble
+    content={message.text}
+    align={own ? 'end' : 'start'}
+    author={userLabel}
+    class={message.pending ? 'opacity-60' : undefined}
+/>
 
 {#snippet userLabel()}
     <UserName id={message.from} selfLabel={locale.t('chat.you')} />

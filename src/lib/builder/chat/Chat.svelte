@@ -1,15 +1,15 @@
 <script module lang="ts">
     import type { ClassValue } from 'svelte/elements';
-    import type { ChatStream } from '#lib/builder';
+    import { getLocaleContext } from '#lib/i18n';
     import Stack from '#lib/ui/atoms/layouts/Stack.svelte';
-    import { ChatGap, ChatInput, ChatMessageList } from '#lib/ui/components/chat';
+    import { ChatBubble, ChatInput, ChatMessageList } from '#lib/ui/components/chat';
     import ChatMessage from './ChatMessage.svelte';
     import ChatPing from './ChatPing.svelte';
     import ChatPong from './ChatPong.svelte';
-    import type { ChatMessage as ChatMessageData } from './chatMessages';
+    import type { ChatItem, ChatStream } from './chatStream.svelte';
 
     export type ChatProps = {
-        /** The shared chat stream to render and send through. */
+        /** The shared chat room to show and send through. */
         chat: ChatStream;
         class?: ClassValue;
     };
@@ -18,9 +18,7 @@
 <script lang="ts">
     let { chat, class: className }: ChatProps = $props();
 
-    function own(message: ChatMessageData): boolean {
-        return 'from' in message && message.from === chat.selfId;
-    }
+    const locale = getLocaleContext();
 </script>
 
 <Stack direction="column" spacing={2} class={className} data-slot="chat">
@@ -28,19 +26,27 @@
         <ChatMessageList messages={chat.messages} {item} />
     </div>
 
+    {#if chat.state !== 'live'}
+        <ChatBubble content={locale.t(`chat.${chat.state}`)} align="center" />
+    {/if}
+
     <div class="shrink-0">
-        <ChatInput onSubmit={(text) => chat.send(text)} />
+        <ChatInput
+            onSubmit={(text) => chat.send(text)}
+            disabled={!chat.canSend}
+            placeholder={locale.t('chat.placeholder')}
+            sendLabel={locale.t('chat.send')}
+        />
     </div>
 </Stack>
 
-{#snippet item(message: ChatMessageData)}
-    {#if message.kind === 'gap'}
-        <ChatGap />
-    {:else if message.kind === 'ping'}
-        <ChatPing {message} own={own(message)} />
-    {:else if message.kind === 'pong'}
-        <ChatPong {message} own={own(message)} />
-    {:else if message.kind === 'text'}
-        <ChatMessage {message} own={own(message)} />
+{#snippet item(message: ChatItem)}
+    {@const own = message.from === chat.selfId}
+    {#if message.display.kind === 'ping'}
+        <ChatPing from={message.from} selfMs={message.display.selfMs} {own} />
+    {:else if message.display.kind === 'pong'}
+        <ChatPong from={message.from} roundTripMs={message.display.roundTripMs} {own} />
+    {:else}
+        <ChatMessage {message} {own} />
     {/if}
 {/snippet}
