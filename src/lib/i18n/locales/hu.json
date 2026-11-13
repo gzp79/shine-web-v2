@@ -137,6 +137,11 @@
         "title": "Alkalmazás cím",
         "description": "Alkalmazás leírás"
     },
+    "connection": {
+        "connecting": "Csatlakozás…",
+        "online": "Online",
+        "offline": "Offline"
+    },
     "chat": {
         "chat": "Csevegés",
         "you": "Te",

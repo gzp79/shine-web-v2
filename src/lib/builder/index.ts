@@ -1,7 +1,13 @@
 // Shared transport layer.
-export { BuilderHub, builderHubUrl, type BuilderHubOptions, type ServerFrame, type FrameHandler } from './hub';
-export { provideBuilderHubContext, getBuilderHubContext } from './hubContext';
+export {
+    BuilderHub,
+    builderHubUrl,
+    provideBuilderHubContext,
+    getBuilderHubContext,
+    type BuilderHubOptions,
+    type ConnectedHandler,
+    type DisconnectedHandler,
+    type ServerFrame,
+    type FrameHandler
+} from './hub.svelte';
 export { type SocketStatus, socketStatusList } from './resilientWebSocket.svelte';
-
-// Chat module.
-export * from './chat';

@@ -140,6 +140,11 @@
         "title": "Application Title",
         "description": "Application Description"
     },
+    "connection": {
+        "connecting": "Connecting…",
+        "online": "Online",
+        "offline": "Offline"
+    },
     "chat": {
         "chat": "Chat",
         "you": "You",

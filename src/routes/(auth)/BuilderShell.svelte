@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { Snippet } from 'svelte';
-    import { provideBuilderHubContext, provideChatStreamContext } from '#lib/builder';
-    import ChatPanel from '#lib/builder/chat/ChatPanel.svelte';
+    import { provideBuilderHubContext } from '#lib/builder';
     import { getLocaleContext } from '#lib/i18n';
     import CenteredLayout from '#lib/ui/app/CenteredLayout.svelte';
     import { getConnectionStatusContext } from '#lib/ui/app/ConnectionStatus.svelte';
@@ -16,20 +15,11 @@
     const connectionStatus = getConnectionStatusContext();
 
     const hub = provideBuilderHubContext();
-    const chat = provideChatStreamContext();
-
-    let chatOpen = $state(false);
 
     $effect(() => {
         connectionStatus.set({
             get status() {
                 return hub.status;
-            },
-            get hasUnread() {
-                return chat.hasUnread;
-            },
-            onClick: () => {
-                chatOpen = true;
             }
         });
         return () => connectionStatus.set(undefined);
@@ -46,5 +36,4 @@
     {/snippet}
 
     {@render children()}
-    <ChatPanel bind:open={chatOpen} />
 </svelte:boundary>

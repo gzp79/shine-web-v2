@@ -22,13 +22,12 @@
         url(name: string): string;
     };
     type AssetCatalogBuilder = () => Promise<AssetCatalog>;
+    type SceneConfig = {
+        catalogBuilder: AssetCatalogBuilder;
+        onError?: (error: Error) => void;
+    };
     type GameModule = {
-        createScene: (
-            container: HTMLElement,
-            scene: string,
-            catalogBuilder: AssetCatalogBuilder,
-            onError?: (error: Error) => void
-        ) => Promise<SceneHandle>;
+        createScene: (container: HTMLElement, scene: string, config: SceneConfig) => Promise<SceneHandle>;
         listScenes: () => { id: string; title: string }[];
     };
 
@@ -108,12 +107,15 @@
                 sceneList = mod.listScenes();
             }
             logGame.info(`creating scene="${s}" attempt=${attempt}`);
-            const next = await mod.createScene(container, s, buildAssetCatalog, (fatalError) => {
-                if (isCancelled()) return;
-                handle = null;
-                running = false;
-                error = fatalError;
-                retrying = false;
+            const next = await mod.createScene(container, s, {
+                catalogBuilder: buildAssetCatalog,
+                onError: (fatalError) => {
+                    if (isCancelled()) return;
+                    handle = null;
+                    running = false;
+                    error = fatalError;
+                    retrying = false;
+                }
             });
             if (isCancelled()) {
                 next.dispose();
