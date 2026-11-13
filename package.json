@@ -22,6 +22,7 @@
         "mkcert:ca": "mkcert create-ca --organization \"Shine WEB Test CA\" --cert ./certificates/ca.crt --key ./certificates/ca.key",
         "mkcert:cert": "mkcert create-cert --ca-cert ./certificates/ca.crt --ca-key ./certificates/ca.key --cert ./certificates/cert.crt --key ./certificates/cert.key --domain local.scytta.com",
         "mkcert": "pnpm run mkcert:ca && pnpm run mkcert:cert",
+        "gen:game-bindings": "cargo run --manifest-path ../shine-services/crates/shine-game/tools/Cargo.toml -- ts-bindings --out src/lib/game-bindings/generated",
         "env:mock": "pnpm dlx msw init && tsx scripts/select-config.ts mock",
         "env:local": "tsx scripts/select-config.ts local",
         "env:dev": "tsx scripts/select-config.ts dev",
