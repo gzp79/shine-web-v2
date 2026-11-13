@@ -10,6 +10,9 @@ import { defineConfig } from 'vitest/config';
 import { CAPTCHA_TEST_SITE_KEY } from './src/constants.ts';
 import { config } from './src/generated/config.ts';
 
+// The chat dev commands compiled into the build; remove a name to disable that command.
+const CHAT_COMMANDS: readonly string[] = ['ping', 'burst', 'storm'];
+
 console.log(`Environment: (${config.environment})`);
 if (['dev', 'local', 'mock'].includes(config.environment) && !process.env.LOG_LEVEL) {
     process.env.LOG_LEVEL = 'info,user=trace,api=trace,i18n=trace';
@@ -115,7 +118,10 @@ export default defineConfig({
     define: {
         'import.meta.env.VITE_MOCK': config.environment === 'mock',
         'import.meta.env.VITE_PROD': config.environment === 'prod',
-        'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY
+        'import.meta.env.VITE_SKIP_CAPTCHA': config.turnstile.siteKey === CAPTCHA_TEST_SITE_KEY,
+        'import.meta.env.VITE_CHAT_CMD_PING': CHAT_COMMANDS.includes('ping'),
+        'import.meta.env.VITE_CHAT_CMD_BURST': CHAT_COMMANDS.includes('burst'),
+        'import.meta.env.VITE_CHAT_CMD_STORM': CHAT_COMMANDS.includes('storm')
     },
     plugins: [
         excludeMocks(),

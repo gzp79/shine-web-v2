@@ -1,8 +1,11 @@
 import { uuidToBytes, wireCodec } from './codec';
-import type { ChatCommand as ChatCommandType, ChatState as ChatStateType } from './generated/postcard-bindings';
+import type {
+    ChatCommand as ChatCommandType,
+    ChatState as ChatStateType
+} from './generated/postcard-bindings/index.js';
 import { CHAT_MAX_TEXT_BYTES, CHAT_WINDOW } from './generated/snapshots';
 
-export type { ChatMessage } from './generated/postcard-bindings';
+export type { ChatMessage } from './generated/postcard-bindings/index.js';
 export { CHAT_MAX_TEXT_BYTES, CHAT_WINDOW };
 
 export type ChatState = ChatStateType;

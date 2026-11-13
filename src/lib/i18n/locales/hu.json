@@ -149,6 +149,12 @@
         "pinged": "pingelt",
         "pingSelf": "ping ({ms} ms)",
         "pong": "{ms} ms",
+        "connecting": "Csatlakozás…",
+        "syncing": "Szinkronizálás…",
+        "reconnecting": "Újracsatlakozás…",
+        "unsynced": "A csevegés nem érhető el, újrapróbálkozás…",
+        "placeholder": "Írj üzenetet…",
+        "send": "Küldés",
         "server": "szerver"
     }
 }

@@ -1,10 +1,14 @@
 <script module lang="ts">
-    import type { SocketStatus } from '#lib/builder';
+    import type { SocketStatus } from '#lib/builder/resilientWebSocket.svelte';
     import { createContext } from '#lib/ui/utils';
 
     /** Live status a descendant region publishes for the app-shell indicator to reflect. */
     export type ConnectionStatusSource = {
         readonly status: SocketStatus;
+        /** Unread chat messages: shown as a dot on the indicator. */
+        readonly hasUnread: boolean;
+        /** Opens the chat. */
+        readonly onClick: () => void;
     };
 
     export type ConnectionStatusContext = {
@@ -44,6 +48,7 @@
     import ConnectionConnecting from '#lib/ui/atoms/icons/common/ConnectionConnecting.svelte';
     import ConnectionOffline from '#lib/ui/atoms/icons/common/ConnectionOffline.svelte';
     import ConnectionOnline from '#lib/ui/atoms/icons/common/ConnectionOnline.svelte';
+    import Button from '#lib/ui/atoms/input/Button.svelte';
 
     export type ConnectionStatusProps = {
         class?: ClassValue;
@@ -65,7 +70,13 @@
 </script>
 
 {#if ctx.source}
-    <span role="status" aria-label={label} title={label} class={['relative inline-flex items-center', className]}>
+    <Button
+        type="button"
+        aria-label={locale.t('chat.chat')}
+        title={label}
+        class={['relative', className]}
+        onclick={() => ctx.source?.onClick()}
+    >
         {#if status === 'connecting' || status === 'reconnecting'}
             <ConnectionConnecting class="animate-spin" />
         {:else if status === 'connected'}
@@ -73,5 +84,11 @@
         {:else}
             <ConnectionOffline />
         {/if}
-    </span>
+        {#if ctx.source?.hasUnread}
+            <span
+                class="absolute right-0.5 top-0.5 z-10 h-3 w-3 rounded-full border-2 border-surface bg-danger-2"
+                aria-hidden="true"
+            ></span>
+        {/if}
+    </Button>
 {/if}

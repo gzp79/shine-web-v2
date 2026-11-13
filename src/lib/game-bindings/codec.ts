@@ -1,4 +1,4 @@
-import { type Result, type Type, deserialize, serialize } from './generated/postcard-bindings';
+import { type Result, type Type, deserialize, serialize } from './generated/postcard-bindings/index.js';
 
 // Wire encodings shared by the stream helpers. Commands and snapshot data travel as base64 of their postcard bytes.
 

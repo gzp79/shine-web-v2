@@ -2,7 +2,7 @@ import { wireCodec } from './codec';
 import type {
     PixelMapCommand as PixelMapCommandType,
     PixelMapState as PixelMapStateType
-} from './generated/postcard-bindings';
+} from './generated/postcard-bindings/index.js';
 import { PIXEL_MAP_COLORS, PIXEL_MAP_HEIGHT, PIXEL_MAP_WIDTH } from './generated/snapshots';
 
 export { PIXEL_MAP_COLORS, PIXEL_MAP_HEIGHT, PIXEL_MAP_WIDTH };
