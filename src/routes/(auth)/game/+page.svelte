@@ -47,6 +47,17 @@
     let scene = $state<string>('');
     let sceneList = $state<{ id: string; title: string }[]>([]);
 
+    const DEFAULT_SCENE = 'game';
+
+    // Initialize scene from URL fragment
+    $effect(() => {
+        if (sceneList.length === 0) return;
+
+        const fragmentScene = location.hash.slice(1);
+        const isValidScene = fragmentScene && sceneList.some((s) => s.id === fragmentScene);
+        scene = isValidScene ? fragmentScene : DEFAULT_SCENE;
+    });
+
     // Register scene-switch items in the context menu
     $effect(() => {
         const unregisters = sceneList.map((entry) =>
@@ -57,6 +68,7 @@
                 icon: scene === entry.id ? Check : undefined,
                 action: () => {
                     scene = entry.id;
+                    location.hash = entry.id;
                 }
             })
         );
