@@ -3,10 +3,10 @@
     import { defineMeta } from '@storybook/addon-svelte-csf';
     import type { CurrentUserLike } from '#lib/account/userStore.svelte';
     import ChatPing from './ChatPing.svelte';
-    import type { PingMessage } from './chatMessages';
 
     type TemplateArgs = {
-        message: PingMessage;
+        from: string;
+        selfMs?: number;
         own: boolean;
         result?: MockLookup;
         me?: CurrentUserLike;
@@ -23,16 +23,17 @@
 
 {#snippet template(args: TemplateArgs)}
     <MockUserStore result={args.result} me={args.me}>
-        <ChatPing message={args.message} own={args.own} />
+        <ChatPing from={args.from} selfMs={args.selfMs} own={args.own} />
     </MockUserStore>
 {/snippet}
 
-<Story name="Peer ping" args={{ message: { kind: 'ping', id: '1-0', from: 'usr_jane' }, own: false, result: users }} />
+<Story name="Peer ping" args={{ from: 'usr_jane', own: false, result: users }} />
 
 <Story
     name="Own ping"
     args={{
-        message: { kind: 'ping', id: '2-0', from: 'usr_me', selfMs: 42 },
+        from: 'usr_me',
+        selfMs: 42,
         own: true,
         me: { id: 'usr_me', name: 'Me' }
     }}

@@ -10,6 +10,7 @@ import { defineConfig } from 'vitest/config';
 import { CAPTCHA_TEST_SITE_KEY } from './src/constants.ts';
 import { config } from './src/generated/config.ts';
 
+// The chat dev commands compiled into the build; remove a name to disable that command.
 const CHAT_COMMANDS: readonly string[] = ['ping', 'burst', 'storm'];
 
 console.log(`Environment: (${config.environment})`);
