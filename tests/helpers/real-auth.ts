@@ -1,12 +1,6 @@
 import { type Page, expect } from '@playwright/test';
+import { CAPTCHA_SKIP_TOKEN } from '../../src/constants';
 import { config } from '../../src/generated/config';
-
-/**
- * The Turnstile test site-key that the identity server accepts as an always-passing
- * captcha when it runs with the test secret (local / test environments only).
- * Mirrors `config.turnstile.siteKey` in the local config.
- */
-const TEST_CAPTCHA_TOKEN = '1x00000000000000000000AA';
 
 /** Joins a base url and a path with exactly one slash. */
 function join(base: string, path: string): string {
@@ -18,7 +12,7 @@ function guestLoginUrl(redirectPath: string): string {
         redirectUrl: `${config.webUrl}${redirectPath}`,
         errorUrl: `${config.webUrl}/error`,
         rememberMe: 'true',
-        captcha: TEST_CAPTCHA_TOKEN
+        captcha: CAPTCHA_SKIP_TOKEN
     });
     return join(config.identityUrl, `auth/guest/login?${query}`);
 }

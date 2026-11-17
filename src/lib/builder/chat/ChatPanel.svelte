@@ -1,26 +1,35 @@
-<script lang="ts">
-    import { getAuthenticatedUserContext } from '#lib/account/authContext.svelte';
-    import { getChatStreamContext } from '#lib/builder';
+<script module lang="ts">
     import { gameInputGate } from '#lib/game';
     import { getLocaleContext } from '#lib/i18n';
     import Dialog from '#lib/ui/atoms/layouts/Dialog.svelte';
+    import { getBuilderStreamHubContext } from '../streamHub';
     import Chat from './Chat.svelte';
+    import { ChatStream } from './chatStream.svelte';
 
     export type ChatPanelProps = {
         /** Bindable open state, driven by the app-shell connection-status button. */
         open?: boolean;
     };
+</script>
 
+<script lang="ts">
     let { open = $bindable(false) }: ChatPanelProps = $props();
 
-    const auth = getAuthenticatedUserContext();
     const locale = getLocaleContext();
-    const chat = getChatStreamContext();
 
-    // Bound here rather than in provideChatStreamContext: the stream is provided in the (auth) layout, above
-    // AuthGuard, where the authenticated-user context does not yet exist. This panel is always mounted
-    // inside AuthGuard, so it is a stable place to resolve the self id.
-    chat.bindSelfId(() => auth.user.id);
+    // The room lives as long as the panel: it is joined on mount and left on destroy, so the unread
+    // marker keeps counting while the dialog is closed.
+    const chat = new ChatStream(getBuilderStreamHubContext());
+
+    /** Messages of other users arrived while the panel was closed. */
+    export function hasUnread(): boolean {
+        return chat.hasUnread;
+    }
+
+    $effect(() => {
+        chat.start();
+        return () => chat.destroy();
+    });
 
     // Keep the unread marker cleared while the panel is open, so messages arriving in real
     // time never flip the badge back on behind the user's back.
