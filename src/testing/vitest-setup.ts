@@ -2,36 +2,10 @@
 /// not otherwise present under Vitest.
 import '#lib/prelude-math';
 
-/// Polyfills for happy-dom environment
-/// happy-dom does not implement the Web Animations API (element.animate),
-/// which is used by bits-ui components for dropdown/popover transitions.
-
-if (typeof Element !== 'undefined' && !Element.prototype.animate) {
-    Element.prototype.animate = function () {
-        return {
-            finished: Promise.resolve(),
-            cancel: () => {},
-            onfinish: null,
-            oncancel: null,
-            play: () => {},
-            pause: () => {},
-            reverse: () => {},
-            persist: () => {},
-            commitStyles: () => {},
-            finish: () => {},
-            currentTime: 0,
-            playbackRate: 1,
-            playState: 'finished',
-            effect: null,
-            timeline: null,
-            id: '',
-            startTime: 0,
-            pending: false,
-            replaceState: 'active',
-            addEventListener: () => {},
-            removeEventListener: () => {},
-            dispatchEvent: () => true,
-            updatePlaybackRate: () => {}
-        } as unknown as Animation;
-    };
-}
+/// happy-dom rejects `Animation.finished` on `cancel()` like browsers do, but Svelte's transitions
+/// cancel animations without listening to it, which Vitest reports as an unhandled rejection.
+const cancel = Animation.prototype.cancel;
+Animation.prototype.cancel = function (this: Animation) {
+    this.finished.catch(() => {});
+    cancel.call(this);
+};

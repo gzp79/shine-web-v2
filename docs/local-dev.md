@@ -16,8 +16,8 @@ loopback hosts:
 | builder(WS) | `https://ws.local.scytta.com:8444`     | `shine-services` websocket (`builder: local` task) |
 | game        | `https://game.local.scytta.com:8092`   | `shine-services` (`start mocked services`)         |
 
-The game is **optional** — only the `/game` route needs it. Everything else (chat,
-account, …) runs without it. See [Game (optional)](#game-optional) below.
+The game is **optional** — only the `/game` route needs it. Everything else (account, …)
+runs without it. See [Game (optional)](#game-optional) below.
 
 The three repos are expected to be checked out side by side in the same parent
 directory:
