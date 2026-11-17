@@ -10,6 +10,9 @@
     "observability": {
         "enabled": true
     },
+    "vars": {
+        "LOG_LEVEL": "info,api=debug"
+    },
     "routes": [
         {
             "pattern": "dev.scytta.com",
