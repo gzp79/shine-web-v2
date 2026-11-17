@@ -40,6 +40,7 @@ async function fetchLatestAssetVersion(): Promise<string> {
     const response = await fetch(latestUrl, { method: 'GET', headers: getMockWorkerHeader() });
 
     if (!response.ok) {
+        logAPI.error(`[AssetCatalog] ${response.status} from ${latestUrl}`);
         const error = await createFetchError(response, 'Failed to fetch the latest asset version');
         throw error;
     }
@@ -53,6 +54,7 @@ async function fetchAssetManifest(version: string): Promise<RawManifest> {
     logAPI.info(`Loading asset manifest from ${assetManifestUrl}`);
     const response = await fetch(assetManifestUrl, { headers: getMockWorkerHeader() });
     if (!response.ok) {
+        logAPI.error(`[AssetCatalog] ${response.status} from ${assetManifestUrl}`);
         const error = await createFetchError(response, 'Failed to fetch asset manifest');
         throw error;
     }
@@ -65,6 +67,7 @@ async function fetchGameAssetManifest(version: string): Promise<RawManifest> {
     logAPI.info(`Loading game asset manifest from ${assetManifestUrl}`);
     const response = await fetch(assetManifestUrl, { headers: getMockWorkerHeader() });
     if (!response.ok) {
+        logAPI.error(`[AssetCatalog] ${response.status} from ${assetManifestUrl}`);
         const error = await createFetchError(response, 'Failed to fetch game asset manifest');
         throw error;
     }
@@ -81,8 +84,20 @@ type AssetManifest = {
 /// Assets are global, user independent resources cached on the server.
 let assetManifest: AssetManifest = { version: '', links: {}, fetchedAt: 0 };
 let refreshInFlight: Promise<AssetManifest> | null = null;
+let refreshStartedAt = 0;
 let gameAssetManifest: AssetManifest = { version: '', links: {}, fetchedAt: 0 };
 let gameRefreshInFlight: Promise<AssetManifest> | null = null;
+let gameRefreshStartedAt = 0;
+
+// A refresh in flight for longer than this is most likely hung rather than slow (a full retry cycle is ~11s).
+const STUCK_REFRESH_MS = 15_000;
+
+function logJoinedRefresh(name: string, startedAt: number) {
+    const age = Date.now() - startedAt;
+    if (age > STUCK_REFRESH_MS)
+        logAPI.warn(`[AssetCatalog] joined ${name} refresh that has been in flight for ${age}ms`);
+    else logAPI.log(`[AssetCatalog] joined ${name} refresh in flight for ${age}ms`);
+}
 
 async function getOrRefreshManifest(): Promise<AssetManifest> {
     const now = Date.now();
@@ -90,7 +105,10 @@ async function getOrRefreshManifest(): Promise<AssetManifest> {
         return assetManifest;
     }
 
-    if (!refreshInFlight) {
+    if (refreshInFlight) {
+        logJoinedRefresh('ui', refreshStartedAt);
+    } else {
+        refreshStartedAt = now;
         refreshInFlight = retryWithBackoff(async () => {
             const version = await fetchLatestAssetVersion();
             if (version !== assetManifest.version) {
@@ -109,6 +127,10 @@ async function getOrRefreshManifest(): Promise<AssetManifest> {
                 assetManifest = result;
                 return result;
             })
+            .catch((e) => {
+                logAPI.error('[AssetCatalog] ui manifest refresh failed', e);
+                throw e;
+            })
             .finally(() => {
                 refreshInFlight = null;
             });
@@ -123,7 +145,10 @@ async function getOrRefreshGameManifest(): Promise<AssetManifest> {
         return gameAssetManifest;
     }
 
-    if (!gameRefreshInFlight) {
+    if (gameRefreshInFlight) {
+        logJoinedRefresh('game', gameRefreshStartedAt);
+    } else {
+        gameRefreshStartedAt = now;
         gameRefreshInFlight = retryWithBackoff(async () => {
             const version = await fetchLatestAssetVersion();
             const raw = await fetchGameAssetManifest(version);
@@ -132,6 +157,10 @@ async function getOrRefreshGameManifest(): Promise<AssetManifest> {
             .then((result) => {
                 gameAssetManifest = result;
                 return result;
+            })
+            .catch((e) => {
+                logAPI.error('[AssetCatalog] game manifest refresh failed', e);
+                throw e;
             })
             .finally(() => {
                 gameRefreshInFlight = null;

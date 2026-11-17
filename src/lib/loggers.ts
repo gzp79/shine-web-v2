@@ -48,6 +48,10 @@ function applyConfigToLoglevel(confStr: string | null | undefined) {
 
     if (cfg.global) {
         log.setLevel(cfg.global, false);
+        // Named loggers copy the root level when created, so they must be updated explicitly.
+        for (const logger of Object.values(log.getLoggers())) {
+            logger.setLevel(cfg.global, false);
+        }
     }
     for (const tag of Object.keys(cfg.perTag)) {
         const lvl = cfg.perTag[tag]!;

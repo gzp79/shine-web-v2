@@ -111,7 +111,7 @@ export function validateProxyResponse(response: Response): void {
 export function throwRemoteHttpError(e: unknown, fallbackMessage = 'Remote service unavailable'): never {
     if (isHttpError(e)) throw e;
 
-    console.error(`[throwRemoteHttpError] ${fallbackMessage}:`, e instanceof Error ? (e.stack ?? e.message) : e);
+    logAPI.error(`${fallbackMessage}:`, e instanceof Error ? (e.stack ?? e.message) : e);
 
     const detail = isAppError(e) || VERBOSE_ERRORS ? describeError(e) : fallbackMessage;
     throw error(502, detail);
